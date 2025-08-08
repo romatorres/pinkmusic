@@ -1,104 +1,80 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import ProductCard from "./ProductCard";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-} from "@/components/ui/carousel";
+
+interface Product {
+  id: string;
+  title: string;
+  price: number;
+  currency_id: string;
+  thumbnail: string;
+  condition: string;
+  available_quantity: number;
+  seller_nickname: string;
+  permalink: string;
+}
+
+interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
+}
 
 const Products: React.FC = () => {
-  const products = [
-    {
-      imageSrc:
-        "https://api.builder.io/api/v1/image/assets/TEMP/b2de47d3b1ff6274693603d4712d7dd91dacbf06?placeholderIfAbsent=true",
-      title: "Violão Takamine GD14",
-      price: "5.590",
-      addToCartIcon:
-        "https://api.builder.io/api/v1/image/assets/TEMP/f8e06c367bcd69edc7e979b31e31ae4f8d0aba08?placeholderIfAbsent=true",
-      detailsIcon:
-        "https://api.builder.io/api/v1/image/assets/TEMP/6d387cb1dc9b1e1838e82e7f1d38f42941d46279?placeholderIfAbsent=true",
-    },
-    {
-      imageSrc:
-        "https://api.builder.io/api/v1/image/assets/TEMP/87f4370f0ea9f3b250d87c12a2acd7ed03192bdb?placeholderIfAbsent=true",
-      title: "Violão Takamine GD14",
-      price: "5.590",
-      addToCartIcon:
-        "https://api.builder.io/api/v1/image/assets/TEMP/d122c206894981f19354de9cf86a694ed22dbc95?placeholderIfAbsent=true",
-      detailsIcon:
-        "https://api.builder.io/api/v1/image/assets/TEMP/d6a052ef54b466ef261cfea8d272d80fa9d9a5c8?placeholderIfAbsent=true",
-    },
-    {
-      imageSrc:
-        "https://api.builder.io/api/v1/image/assets/TEMP/b2de47d3b1ff6274693603d4712d7dd91dacbf06?placeholderIfAbsent=true",
-      title: "Violão Takamine GD14",
-      price: "5.590",
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
 
-      addToCartIcon:
-        "https://api.builder.io/api/v1/image/assets/TEMP/06f5183c8767e05a92ef1eafaea043f32b39b4f1?placeholderIfAbsent=true",
-      detailsIcon:
-        "https://api.builder.io/api/v1/image/assets/TEMP/6d387cb1dc9b1e1838e82e7f1d38f42941d46279?placeholderIfAbsent=true",
-    },
-    {
-      imageSrc:
-        "https://api.builder.io/api/v1/image/assets/TEMP/585a57e57640569883e07eecc02d7e6dd782a609?placeholderIfAbsent=true",
-      title: "Violão Takamine GD14",
-      price: "5.590",
-      addToCartIcon:
-        "https://api.builder.io/api/v1/image/assets/TEMP/a791f9e67e8b2f009014bccaf4599048444e0028?placeholderIfAbsent=true",
-      detailsIcon:
-        "https://api.builder.io/api/v1/image/assets/TEMP/0f0094aeaa72ac4ac4b6d3d7ee40ca1b6616fc47?placeholderIfAbsent=true",
-    },
-  ];
+  const fetchProducts = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const response = await fetch("/api/products");
+      const result: ApiResponse<Product[]> = await response.json();
 
-  // Duplicate products to create the grid layout
-  const allProducts = [...products, ...products];
+      if (result.success && result.data) {
+        setProducts(result.data);
+      } else {
+        setError(result.error || "Erro ao carregar produtos");
+      }
+    } catch {
+      setError("Erro de conexão ao buscar produtos");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
 
   return (
-    <section className="self-center flex mt-[85px] w-full max-w-[1440px] flex-col items-stretch justify-between lg:mt-10 lg:max-w-full">
-      <div className="flex w-full flex-col py-0.5">
-        {/* Grid for medium screens and up */}
-        <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-4 gap-5 px-5 mx-auto max-w-[1200px]">
-          {allProducts.map((product, index) => (
-            <ProductCard
-              key={index}
-              {...product}
-              className={`product-${index}`}
-            />
-          ))}
+    <div className="max-w-7xl mx-auto p-6">
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+          {error}
         </div>
+      )}
 
-        {/* Carousel for small screens */}
-        <div className="md:hidden px-5">
-          <Carousel
-            opts={{
-              align: "start",
-              loop: true,
-            }}
-            className="w-full max-w-[640px] mx-auto"
-          >
-            <CarouselContent>
-              {allProducts.map((product, index) => (
-                <CarouselItem key={index} className="basis-[296px]">
-                  <ProductCard {...product} className={`product-${index}`} />
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-          </Carousel>
+      {loading && products.length === 0 && (
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
         </div>
+      )}
 
-        <button className="rounded-3xl self-center flex items-center gap-3 text-primary hover:text-white justify-center px-10 py-3 text-base font-medium border border-primary bg-transparent cursor-pointer transition-colors ease-in-out duration-300 hover:bg-secondary mt-[50px] lg:mt-10">
-          Ver Todos
-          <img
-            src="/img/icon-arrow_forward.svg"
-            alt="Arrow"
-            className="aspect-square object-contain object-center w-5 self-stretch shrink-0 my-auto"
-          />
-        </button>
+      {!loading && products.length === 0 && !error && (
+        <div className="text-center text-gray-600 text-lg">
+          Nenhum produto encontrado. Adicione um produto usando o campo acima.
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {products.map((product) => (
+          <ProductCard key={product.id} product={product} />
+        ))}
       </div>
-    </section>
+    </div>
   );
 };
 

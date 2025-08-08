@@ -50,19 +50,26 @@ async function fetchProductDetailsFromMercadoLibre(itemId: string) {
   // Handle token refresh if necessary
   if (response.status === 401 || response.status === 403) {
     console.log("Token inválido ou expirado ao buscar detalhes. Renovando...");
-    const refreshResponse = await fetch("http://localhost:3000/api/refreshToken", {
-      method: "POST",
-    });
+    const refreshResponse = await fetch(
+      "http://localhost:3000/api/refreshToken",
+      {
+        method: "POST",
+      }
+    );
     const refreshResult = await refreshResponse.json();
 
     if (!refreshResult.success) {
       throw new Error(
-        `Falha ao renovar o token: ${refreshResult.error || "Erro desconhecido"}`
+        `Falha ao renovar o token: ${
+          refreshResult.error || "Erro desconhecido"
+        }`
       );
     }
     access_token = process.env.MERCADOLIBRE_ACCESS_TOKEN; // Get the newly updated token
     if (!access_token) {
-      throw new Error("Token de acesso do MercadoLivre não configurado após renovação.");
+      throw new Error(
+        "Token de acesso do MercadoLivre não configurado após renovação."
+      );
     }
     headers.Authorization = `Bearer ${access_token}`;
     response = await fetch(url, { method: "GET", headers: headers }); // Retry with new token
@@ -80,10 +87,11 @@ async function fetchProductDetailsFromMercadoLibre(itemId: string) {
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    // Aguarde os params antes de acessar suas propriedades
+    const { id } = await params;
 
     if (!id) {
       return NextResponse.json(
@@ -105,7 +113,8 @@ export async function GET(
     }
 
     // Fetch full details from Mercado Libre API
-    const productDetailsFromMl: MercadoLibreProductDetails = await fetchProductDetailsFromMercadoLibre(id);
+    const productDetailsFromMl: MercadoLibreProductDetails =
+      await fetchProductDetailsFromMercadoLibre(id);
 
     // Combine data (or just use ML data if it's more comprehensive for display)
     const combinedProduct = {
@@ -114,7 +123,8 @@ export async function GET(
       // Ensure permalink from DB is used if ML's is different or missing
       permalink: productFromDb.permalink || productDetailsFromMl.permalink,
       // Override seller_nickname if ML provides a more accurate one
-      seller_nickname: productDetailsFromMl.seller?.nickname || productFromDb.seller_nickname,
+      seller_nickname:
+        productDetailsFromMl.seller?.nickname || productFromDb.seller_nickname,
     };
 
     return NextResponse.json({ success: true, data: combinedProduct });
@@ -133,14 +143,15 @@ export async function GET(
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    // Aguarde os params antes de acessar suas propriedades
+    const { id } = await params;
     const data = await req.json();
 
     const updatedProduct = await prisma.product.update({
-      where: { id },
+      where: { id: id },
       data,
     });
 

@@ -1,85 +1,93 @@
 "use client";
-
 import React from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { ShoppingCart, Package, User, Eye } from "lucide-react";
 
-interface ProductCardProps {
-  imageSrc: string;
+interface Product {
+  id: string;
   title: string;
-  price: string;
-  addToCartIcon: string;
-  detailsIcon: string;
-  isLiked?: boolean;
-  className?: string;
+  price: number;
+  currency_id: string;
+  thumbnail: string;
+  condition: string;
+  available_quantity: number;
+  seller_nickname: string;
+  permalink: string;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({
-  imageSrc,
-  title,
-  price,
-  addToCartIcon,
-  detailsIcon,
-  isLiked = false,
-  className = "",
-}) => {
+interface ProductCardProps {
+  product: Product;
+}
+
+const formatPrice = (price: number, currency: string) => {
+  return new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: currency === "BRL" ? "BRL" : "USD",
+  }).format(price);
+};
+
+const getConditionText = (condition: string) => {
+  const conditions: { [key: string]: string } = {
+    new: "Novo",
+    used: "Usado",
+    not_specified: "Não especificado",
+  };
+  return conditions[condition] || condition;
+};
+
+const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   return (
-    <div className={`w-[280px] max-w-full ${className}`}>
-      <div className="rounded-[30px] bg-white flex min-h-[440px] items-stretch gap-[10px] justify-center shadow-[0_4px_20px_rgba(0,0,0,0.1)] transition-transform duration-300 ease-in-out hover:translate-y-[-5px] hover:shadow-[0_8px_30px_rgba(0,0,0,0.15)]">
-        <div className="min-w-[240px] w-[280px]">
-          <div className="relative flex min-h-[260px] w-full flex-col justify-center py-[65px]">
-            <div className="rounded-[30px] bg-card absolute z-0 flex min-h-[260px] w-[280px] max-w-[280px] items-start gap-2.5 justify-end right-0 bottom-0 h-[260px] pt-4 pb-[212px] lg:pb-[100px]">
-              <div className="flex px-3 w-full items-center justify-between flex-1">
-                <img
-                  src="/img/icon-logo.svg"
-                  alt="Simbolo da Logo"
-                  className="aspect-square object-contain object-center w-8 self-stretch shrink-0 my-auto cursor-pointer transition-transform duration-300 ease-in-out hover:scale-110"
-                />
-                <img
-                  src="/img/icon-heart.svg"
-                  alt="Heart Icon"
-                  className="aspect-square object-contain object-center w-6 self-stretch shrink-0 my-auto cursor-pointer transition-transform duration-300 ease-in-out hover:scale-110"
-                />
-              </div>
-            </div>
-            <img
-              src={imageSrc}
-              alt={title}
-              className="aspect-[1.92] object-contain object-center w-[249px] self-center z-10 max-w-full"
-            />
-          </div>
-
-          <div className="flex mt-4 w-full flex-col items-stretch justify-start">
-            <div className="min-h-[90px] w-full px-3">
-              <h3 className="text-foreground text-xl font-semibold leading-[1.4] m-0 mb-4">
-                {title}
-              </h3>
-              <div className="flex w-full max-w-[246px] items-center gap-[98px] justify-between">
-                <div className="self-stretch flex items-end gap-1.5 text-foreground leading-none justify-start w-[106px] my-auto">
-                  <span className="tracking-[-1px] text-xl font-semibold">
-                    R${" "}
-                  </span>
-                  <span className="text-3xl font-normal font-tanker">
-                    {price}
-                  </span>
-                </div>
-                <button className="rounded-[25px] bg-secondary self-stretch flex items-center gap-3 justify-center w-10 h-10 my-auto px-2.5 border-none cursor-pointer transition-colors duration-300 ease-in-out hover:bg-secondary/85">
-                  <img
-                    src={addToCartIcon}
-                    alt="Add to Cart"
-                    className="aspect-square object-contain object-center w-5 self-stretch my-auto"
-                  />
-                </button>
-              </div>
-            </div>
-
-            <button className="rounded-[24px] self-center flex mt-[17px] items-center gap-2 text-primary whitespace-nowrap justify-center py-2.5 px-10 font-medium text-base border border-secondary bg-transparent cursor-pointer transition-colors duration-300 ease-in-out hover:bg-secondary/10 lg:whitespace-normal lg:px-5">
-              <img
-                src={detailsIcon}
-                alt="Details"
-                className="aspect-square object-contain object-center w-[22px] self-stretch shrink-0 my-auto"
-              />
-              Detalhes
-            </button>
-          </div>
+    <div
+      key={product.id}
+      className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden flex flex-col"
+    >
+      <div className="relative w-full h-48 bg-gray-100 flex items-center justify-center">
+        <Image
+          src={product.thumbnail}
+          alt={product.title}
+          fill
+          style={{ objectFit: "contain" }}
+          className="rounded-t-lg"
+        />
+      </div>
+      <div className="p-4 flex-grow flex flex-col">
+        <h2 className="text-lg font-semibold text-gray-800 mb-2 line-clamp-2">
+          {product.title}
+        </h2>
+        <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
+          <span className="flex items-center gap-1">
+            <Package size={14} />
+            {getConditionText(product.condition)}
+          </span>
+          <span className="flex items-center gap-1">
+            <User size={14} />
+            {product.seller_nickname}
+          </span>
+        </div>
+        <div className="text-2xl font-bold text-green-600 mb-3">
+          {formatPrice(product.price, product.currency_id)}
+        </div>
+        <p className="text-gray-600 text-sm mb-4">
+          Disponível: {product.available_quantity}
+        </p>
+        <div className="flex flex-col gap-2 mt-auto">
+          <Link
+            href={`/products/${product.id}`}
+            className="w-full bg-gray-200 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-300 flex items-center justify-center gap-2 font-semibold text-sm"
+          >
+            <Eye size={16} />
+            Ver Detalhes
+          </Link>
+          <a
+            href={product.permalink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 flex items-center justify-center gap-2 font-semibold text-sm"
+          >
+            <ShoppingCart size={16} />
+            Comprar no MercadoLivre
+          </a>
         </div>
       </div>
     </div>

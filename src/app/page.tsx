@@ -7,8 +7,6 @@ import Newsletter from "@/components/site/Newsletter";
 import Contact from "@/components/site/Contact";
 import Footer from "@/components/site/Footer";
 
-import ProductGallery from "./frontend/ProductGallery";
-
 export default function Home() {
   return (
     <main className="flex flex-col items-center justify-center">
@@ -16,7 +14,7 @@ export default function Home() {
         <Header />
         <Hero />
         <Partners />
-        <ProductGallery />
+        <Products />
         <About />
         <Newsletter />
         <Contact />
@@ -24,11 +22,4 @@ export default function Home() {
       </div>
     </main>
   );
-}
-
-{
-  /* <section>
-      <ProductGallery />
-       <Products />
-    </section> */
 }
