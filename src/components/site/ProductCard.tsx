@@ -2,7 +2,7 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ShoppingCart, Package, User, Eye } from "lucide-react";
+import { Package, Eye } from "lucide-react";
 
 interface Product {
   id: string;
@@ -59,42 +59,48 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           </div>
         </div>
         <div className="p-4 flex flex-col">
-          <h2 className="text-lg font-semibold text-gray-800 mb-2 line-clamp-2">
+          <h2 className="text-lg font-semibold text-foreground mb-2 line-clamp-2">
             {product.title}
           </h2>
-          <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
+          <div className="flex items-center gap-2 text-sm text-primary mb-2">
             <span className="flex items-center gap-1">
               <Package size={14} />
               {getConditionText(product.condition)}
             </span>
-            <span className="flex items-center gap-1">
-              <User size={14} />
-              {product.seller_nickname}
-            </span>
           </div>
-          <div className="text-2xl font-bold text-green-600 mb-3">
-            {formatPrice(product.price, product.currency_id)}
+          <div className="flex justify-between items-center mb-3">
+            <div className="text-4xl font-tanker text-foreground">
+              {formatPrice(product.price, product.currency_id)}
+            </div>
+            <div>
+              <button className="rounded-[25px] bg-primary self-stretch flex items-center gap-3 justify-center w-10 h-10 my-auto px-2.5 border-none cursor-pointer transition-colors duration-300 ease-in-out hover:bg-primary/85">
+                <a
+                  href={product.permalink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Image
+                    src="/img/icon-store.svg"
+                    alt="Add to Cart"
+                    width={20}
+                    height={20}
+                    className="aspect-square object-contain object-center self-stretch my-auto"
+                  />
+                </a>
+              </button>
+            </div>
           </div>
-          <p className="text-gray-600 text-sm mb-4">
+          <p className="text-primary text-sm mb-4">
             Disponível: {product.available_quantity}
           </p>
-          <div className="flex flex-col gap-2 mt-auto">
+          <div className="flex flex-col gap-2 mt-3">
             <Link
               href={`/products/${product.id}`}
-              className="w-full bg-gray-200 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-300 flex items-center justify-center gap-2 font-semibold text-sm"
+              className="w-full bg-sidebar-primary text-foreground py-3 px-4 rounded-full hover:bg-background border-primary border-[1px] flex items-center justify-center gap-2 font-semibold text-sm"
             >
               <Eye size={16} />
               Ver Detalhes
             </Link>
-            <a
-              href={product.permalink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 flex items-center justify-center gap-2 font-semibold text-sm"
-            >
-              <ShoppingCart size={16} />
-              Comprar no MercadoLivre
-            </a>
           </div>
         </div>
       </div>
