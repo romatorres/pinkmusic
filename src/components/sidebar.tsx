@@ -132,6 +132,17 @@ export function Sidebar() {
                 Produtos
               </Link>
             </li>
+            <li>
+              <Link
+                href="/dashboard/categories"
+                className={`block p-2 rounded hover:bg-[#469D3F] transition ${
+                  isActive("/dashboard/categories") ? "bg-[#45973E]" : ""
+                }`}
+                onClick={() => isMobile && setIsMobileMenuOpen(false)}
+              >
+                Categorias
+              </Link>
+            </li>
 
             <li>
               <div className="space-y-1">

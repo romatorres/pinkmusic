@@ -12,10 +12,17 @@ interface ProductData {
   title: string;
   price: number;
   available_quantity: number;
+  categoryId: string | null;
+}
+
+interface Category {
+  id: string;
+  name: string;
 }
 
 export default function EditProductPage() {
   const [product, setProduct] = useState<ProductData | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const params = useParams();
@@ -23,29 +30,53 @@ export default function EditProductPage() {
 
   useEffect(() => {
     if (id) {
-      const fetchProduct = async () => {
+      const fetchProductAndCategories = async () => {
         try {
-          const response = await fetch(`/api/products/${id}`);
-          const result = await response.json();
-          if (result.success) {
-            setProduct(result.data);
+          const [productResponse, categoriesResponse] = await Promise.all([
+            fetch(`/api/products/${id}`),
+            fetch("/api/categories"),
+          ]);
+
+          const productResult = await productResponse.json();
+          const categoriesResult = await categoriesResponse.json();
+
+          if (productResult.success) {
+            setProduct(productResult.data);
           } else {
-            toast.error(result.error || "Produto não encontrado.");
+            toast.error(productResult.error || "Produto não encontrado.");
             router.push("/dashboard/products");
           }
+
+          if (Array.isArray(categoriesResult)) {
+            setCategories(categoriesResult);
+          } else {
+            toast.error("Erro ao buscar categorias.");
+          }
         } catch (error) {
-          toast.error("Erro de conexão ao buscar produto.");
+          toast.error("Erro de conexão ao buscar dados.");
         } finally {
           setLoading(false);
         }
       };
-      fetchProduct();
+      fetchProductAndCategories();
     }
   }, [id, router]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
-    setProduct(prev => prev ? { ...prev, [name]: name === 'price' || name === 'available_quantity' ? parseFloat(value) : value } : null);
+    setProduct((prev) =>
+      prev
+        ? {
+            ...prev,
+            [name]:
+              name === "price" || name === "available_quantity"
+                ? parseFloat(value)
+                : value,
+          }
+        : null
+    );
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -127,6 +158,40 @@ export default function EditProductPage() {
                 onChange={handleChange}
                 required
               />
+            </div>
+            <div>
+              <Label htmlFor="categoryId">Categoria</Label>
+              <select
+                id="categoryId"
+                name="categoryId"
+                value={product.categoryId || ""}
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+              >
+                <option value="">Selecione uma categoria</option>
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <Label htmlFor="categoryId">Categoria</Label>
+              <select
+                id="categoryId"
+                name="categoryId"
+                value={product.categoryId || ""}
+                onChange={handleChange}
+                className="w-full p-2 border rounded"
+              >
+                <option value="">Selecione uma categoria</option>
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Salvando..." : "Salvar Alterações"}

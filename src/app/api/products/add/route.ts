@@ -69,7 +69,7 @@ async function fetchProductDetailsFromMercadoLibre(itemId: string): Promise<Merc
 
 export async function POST(req: NextRequest) {
   try {
-    const { productId } = await req.json();
+    const { productId, categoryId } = await req.json();
 
     if (!productId || typeof productId !== 'string') {
       return NextResponse.json(
@@ -104,7 +104,8 @@ export async function POST(req: NextRequest) {
         permalink: productDetails.permalink,
         pictures: {
           create: productDetails.pictures.map((p) => ({ url: p.url }))
-        }
+        },
+        categoryId: categoryId,
       },
     });
 

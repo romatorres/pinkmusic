@@ -3,14 +3,19 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
+    const { searchParams } = new URL(req.url);
+    const categoryId = searchParams.get('categoryId');
+
     const products = await prisma.product.findMany({
+      where: categoryId ? { categoryId } : {},
       orderBy: {
         title: 'asc',
       },
       include: {
         pictures: true,
+        category: true,
       },
     });
     return NextResponse.json({ success: true, data: products });

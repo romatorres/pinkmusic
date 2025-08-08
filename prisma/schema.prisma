@@ -41,8 +41,18 @@ model Product {
   seller_nickname    String
   permalink          String    @unique
   pictures           Picture[]
+  category           Category? @relation(fields: [categoryId], references: [id])
+  categoryId         String?
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
+}
+
+model Category {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  products  Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 model Picture {

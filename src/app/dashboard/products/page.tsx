@@ -24,25 +24,35 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
+interface Category {
+  id: string;
+  name: string;
+}
+
 interface Product {
   id: string;
   title: string;
   price: number;
   available_quantity: number;
   condition: string;
+  categoryId?: string;
+  category?: Category;
 }
 
 const ProductsPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [productId, setProductId] = useState("");
   const [isAdding, setIsAdding] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
   const router = useRouter();
 
-  const fetchProducts = async () => {
+  const fetchProducts = async (categoryId?: string) => {
     setLoading(true);
     try {
-      const response = await fetch("/api/products");
+      const url = categoryId ? `/api/products?categoryId=${categoryId}` : "/api/products";
+      const response = await fetch(url);
       const result = await response.json();
       if (result.success) {
         setProducts(result.data);
@@ -58,7 +68,15 @@ const ProductsPage = () => {
 
   useEffect(() => {
     fetchProducts();
+    fetch('/api/categories')
+      .then((res) => res.json())
+      .then(setCategories)
+      .catch(() => toast.error("Erro ao carregar categorias."));
   }, []);
+
+  useEffect(() => {
+    fetchProducts(selectedCategory);
+  }, [selectedCategory]);
 
   const handleAddSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,7 +94,7 @@ const ProductsPage = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ productId }),
+        body: JSON.stringify({ productId, categoryId: selectedCategory || null }),
       });
 
       const result = await response.json();
@@ -84,7 +102,7 @@ const ProductsPage = () => {
       if (response.ok && result.success) {
         toast.success(result.message || "Produto adicionado com sucesso!");
         setProductId("");
-        fetchProducts(); // Refresh the list
+        fetchProducts(selectedCategory); // Refresh the list with current filter
       } else {
         toast.error(result.error || "Erro ao adicionar produto.");
       }
@@ -147,6 +165,22 @@ const ProductsPage = () => {
                 required
               />
             </div>
+            <div>
+              <Label htmlFor="categoryFilter">Filtrar por Categoria</Label>
+              <select
+                id="categoryFilter"
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="w-full p-2 border rounded"
+              >
+                <option value="">Todas as Categorias</option>
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+            </div>
             <Button type="submit" disabled={isAdding}>
               {isAdding ? "Adicionando..." : "Adicionar Produto"}
             </Button>
@@ -172,6 +206,7 @@ const ProductsPage = () => {
                   <TableHead>Preço</TableHead>
                   <TableHead>Quantidade</TableHead>
                   <TableHead>Condição</TableHead>
+                  <TableHead>Categoria</TableHead>
                   <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
@@ -189,6 +224,9 @@ const ProductsPage = () => {
                     <TableCell>{product.available_quantity}</TableCell>
                     <TableCell>
                       <Badge variant="outline">{getConditionText(product.condition)}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      {product.category ? product.category.name : 'N/A'}
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">

@@ -148,16 +148,85 @@ export async function PUT(
   try {
     // Aguarde os params antes de acessar suas propriedades
     const { id } = await params;
-    const data = await req.json();
+    const rawData = await req.json();
+
+    console.log("Dados recebidos:", rawData); // Debug
+
+    // Lista dos campos válidos que podem ser atualizados no modelo Product
+    const allowedFields = [
+      "title",
+      "price",
+      "currency_id",
+      "thumbnail",
+      "condition",
+      "available_quantity",
+      "seller_nickname",
+      "permalink",
+      "categoryId", // Campo correto para a chave estrangeira da categoria
+    ];
+
+    // Filtrar apenas os campos que existem no schema
+    const filteredData = Object.keys(rawData)
+      .filter((key) => allowedFields.includes(key))
+      .reduce((obj, key) => {
+        // Só adicionar campos que não são undefined ou null
+        if (rawData[key] !== undefined && rawData[key] !== null) {
+          obj[key] = rawData[key];
+        }
+        return obj;
+      }, {} as Record<string, unknown>);
+
+    console.log("Dados filtrados:", filteredData); // Debug
+
+    // Verificar se há dados para atualizar
+    if (Object.keys(filteredData).length === 0) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Nenhum campo válido fornecido para atualização.",
+        },
+        { status: 400 }
+      );
+    }
 
     const updatedProduct = await prisma.product.update({
       where: { id: id },
-      data,
+      data: filteredData,
+      include: {
+        category: true, // Incluir a categoria relacionada
+        pictures: true, // Incluir as imagens relacionadas
+      },
     });
 
     return NextResponse.json({ success: true, data: updatedProduct });
   } catch (error) {
     console.error("Erro ao atualizar produto:", error);
+
+    // Tratar erros específicos do Prisma
+    if (error instanceof Error) {
+      if (error.message.includes("Unknown argument")) {
+        return NextResponse.json(
+          {
+            success: false,
+            error:
+              "Campo inválido enviado para atualização. Verifique os dados enviados.",
+            details: error.message,
+          },
+          { status: 400 }
+        );
+      }
+
+      if (error.message.includes("Unique constraint failed")) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "Produto com esse permalink já existe.",
+          },
+          { status: 409 }
+        );
+      }
+    }
+
     return NextResponse.json(
       {
         success: false,
