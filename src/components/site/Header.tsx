@@ -112,7 +112,6 @@ export default function Header() {
                   <Image
                     src="/img/icon-facebook.svg"
                     alt="Icon Social Facebook"
-                    fill
                     width={44}
                     height={44}
                     className="object-contain transition-transform duration-300 ease-in-out hover:scale-110 hover:cursor-pointer"
@@ -120,7 +119,6 @@ export default function Header() {
                   <Image
                     src="/img/icon-instagram.svg"
                     alt="Icon Social Instagram"
-                    fill
                     width={44}
                     height={44}
                     className="object-contain transition-transform duration-300 ease-in-out hover:scale-110 hover:cursor-pointer"
@@ -128,7 +126,6 @@ export default function Header() {
                   <Image
                     src="/img/icon-twitter.svg"
                     alt="Icon Social Twitter"
-                    fill
                     width={44}
                     height={44}
                     className="object-contain transition-transform duration-300 ease-in-out hover:scale-110 hover:cursor-pointer"
