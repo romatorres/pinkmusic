@@ -56,20 +56,26 @@ export default function Header() {
               </a>
             </nav>
             <div className="flex items-center gap-4">
-              <img
+              <Image
                 src="/img/icon-facebook.svg"
                 alt="Icon Social Facebook"
-                className="h-[44px] w-[44px] object-contain transition-transform duration-300 ease-in-out hover:scale-110 hover:cursor-pointer"
+                width={44}
+                height={44}
+                className="object-contain transition-transform duration-300 ease-in-out hover:scale-110 hover:cursor-pointer"
               />
-              <img
+              <Image
                 src="/img/icon-instagram.svg"
                 alt="Icon Social Instagram"
-                className="h-[44px] w-[44px] object-contain transition-transform duration-300 ease-in-out hover:scale-110 hover:cursor-pointer"
+                width={44}
+                height={44}
+                className="object-contain transition-transform duration-300 ease-in-out hover:scale-110 hover:cursor-pointer"
               />
-              <img
+              <Image
                 src="/img/icon-twitter.svg"
                 alt="Icon Social Twitter"
-                className="h-[44px] w-[44px] object-contain transition-transform duration-300 ease-in-out hover:scale-110 hover:cursor-pointer"
+                width={44}
+                height={44}
+                className="object-contain transition-transform duration-300 ease-in-out hover:scale-110 hover:cursor-pointer"
               />
             </div>
           </div>
@@ -103,20 +109,29 @@ export default function Header() {
                   </a>
                 </nav>
                 <div className="mt-8 flex items-center justify-center gap-6">
-                  <img
+                  <Image
                     src="/img/icon-facebook.svg"
                     alt="Icon Social Facebook"
-                    className="h-[44px] w-[44px] object-contain transition-transform duration-300 ease-in-out hover:scale-110 hover:cursor-pointer"
+                    fill
+                    width={44}
+                    height={44}
+                    className="object-contain transition-transform duration-300 ease-in-out hover:scale-110 hover:cursor-pointer"
                   />
-                  <img
+                  <Image
                     src="/img/icon-instagram.svg"
                     alt="Icon Social Instagram"
-                    className="h-[44px] w-[44px] object-contain transition-transform duration-300 ease-in-out hover:scale-110 hover:cursor-pointer"
+                    fill
+                    width={44}
+                    height={44}
+                    className="object-contain transition-transform duration-300 ease-in-out hover:scale-110 hover:cursor-pointer"
                   />
-                  <img
+                  <Image
                     src="/img/icon-twitter.svg"
                     alt="Icon Social Twitter"
-                    className="h-[44px] w-[44px] object-contain transition-transform duration-300 ease-in-out hover:scale-110 hover:cursor-pointer"
+                    fill
+                    width={44}
+                    height={44}
+                    className="object-contain transition-transform duration-300 ease-in-out hover:scale-110 hover:cursor-pointer"
                   />
                 </div>
               </SheetContent>
