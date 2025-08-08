@@ -9,6 +9,9 @@ export async function GET() {
       orderBy: {
         title: 'asc',
       },
+      include: {
+        pictures: true,
+      },
     });
     return NextResponse.json({ success: true, data: products });
   } catch (error) {

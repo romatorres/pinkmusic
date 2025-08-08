@@ -12,6 +12,7 @@ interface MercadoLibreProductDetails {
   condition: string;
   available_quantity: number;
   permalink: string;
+  pictures: { url: string }[];
   seller?: {
     nickname: string;
   };
@@ -78,7 +79,7 @@ export async function POST(req: NextRequest) {
     }
 
     const existingProduct = await prisma.product.findUnique({
-      where: { id: productId },
+      where: { permalink: `https://api.mercadolibre.com/items/${productId}` },
     });
 
     if (existingProduct) {
@@ -101,6 +102,9 @@ export async function POST(req: NextRequest) {
         available_quantity: productDetails.available_quantity,
         seller_nickname: productDetails.seller?.nickname || "Não informado",
         permalink: productDetails.permalink,
+        pictures: {
+          create: productDetails.pictures.map((p) => ({ url: p.url }))
+        }
       },
     });
 

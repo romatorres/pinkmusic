@@ -14,6 +14,7 @@ interface Product {
   available_quantity: number;
   seller_nickname: string;
   permalink: string;
+  pictures: { url: string }[];
 }
 
 interface ProductCardProps {
@@ -37,57 +38,64 @@ const getConditionText = (condition: string) => {
 };
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+  const imageUrl =
+    product.pictures && product.pictures.length > 0
+      ? product.pictures[0].url
+      : product.thumbnail;
   return (
-    <div
-      key={product.id}
-      className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden flex flex-col"
-    >
-      <div className="relative w-full h-48 bg-gray-100 flex items-center justify-center">
-        <Image
-          src={product.thumbnail}
-          alt={product.title}
-          fill
-          style={{ objectFit: "contain" }}
-          className="rounded-t-lg"
-        />
-      </div>
-      <div className="p-4 flex-grow flex flex-col">
-        <h2 className="text-lg font-semibold text-gray-800 mb-2 line-clamp-2">
-          {product.title}
-        </h2>
-        <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
-          <span className="flex items-center gap-1">
-            <Package size={14} />
-            {getConditionText(product.condition)}
-          </span>
-          <span className="flex items-center gap-1">
-            <User size={14} />
-            {product.seller_nickname}
-          </span>
+    <div key={product.id} className="w-[300px] max-w-full">
+      <div className="bg-card rounded-3xl shadow-sm overflow-hidden flex justify-center flex-col min-h-[480px] items-stretch gap-2.5 transition-transform duration-300 ease-in-out hover:translate-y-[-5px]">
+        <div className="relative flex min-h-[260px] w-full flex-col justify-center py-[65px]">
+          <div className="absolute top-2 left-2 rounded-3xl bg-white z-0 flex min-h-[260px] w-[276px] max-w-[276px]">
+            <div className="relative w-[200px] h-auto flex items-center justify-center mx-auto">
+              <Image
+                src={imageUrl}
+                alt={product.title}
+                fill
+                style={{ objectFit: "contain" }}
+                className="rounded-t-lg"
+              />
+            </div>
+          </div>
         </div>
-        <div className="text-2xl font-bold text-green-600 mb-3">
-          {formatPrice(product.price, product.currency_id)}
-        </div>
-        <p className="text-gray-600 text-sm mb-4">
-          Disponível: {product.available_quantity}
-        </p>
-        <div className="flex flex-col gap-2 mt-auto">
-          <Link
-            href={`/products/${product.id}`}
-            className="w-full bg-gray-200 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-300 flex items-center justify-center gap-2 font-semibold text-sm"
-          >
-            <Eye size={16} />
-            Ver Detalhes
-          </Link>
-          <a
-            href={product.permalink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 flex items-center justify-center gap-2 font-semibold text-sm"
-          >
-            <ShoppingCart size={16} />
-            Comprar no MercadoLivre
-          </a>
+        <div className="p-4 flex flex-col">
+          <h2 className="text-lg font-semibold text-gray-800 mb-2 line-clamp-2">
+            {product.title}
+          </h2>
+          <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
+            <span className="flex items-center gap-1">
+              <Package size={14} />
+              {getConditionText(product.condition)}
+            </span>
+            <span className="flex items-center gap-1">
+              <User size={14} />
+              {product.seller_nickname}
+            </span>
+          </div>
+          <div className="text-2xl font-bold text-green-600 mb-3">
+            {formatPrice(product.price, product.currency_id)}
+          </div>
+          <p className="text-gray-600 text-sm mb-4">
+            Disponível: {product.available_quantity}
+          </p>
+          <div className="flex flex-col gap-2 mt-auto">
+            <Link
+              href={`/products/${product.id}`}
+              className="w-full bg-gray-200 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-300 flex items-center justify-center gap-2 font-semibold text-sm"
+            >
+              <Eye size={16} />
+              Ver Detalhes
+            </Link>
+            <a
+              href={product.permalink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 flex items-center justify-center gap-2 font-semibold text-sm"
+            >
+              <ShoppingCart size={16} />
+              Comprar no MercadoLivre
+            </a>
+          </div>
         </div>
       </div>
     </div>

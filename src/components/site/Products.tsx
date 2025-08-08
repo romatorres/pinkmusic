@@ -13,6 +13,7 @@ interface Product {
   available_quantity: number;
   seller_nickname: string;
   permalink: string;
+  pictures: { url: string }[];
 }
 
 interface ApiResponse<T> {
