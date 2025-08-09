@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { Eye, Trash2, Edit } from "lucide-react";
 import Link from "next/link";
 import {
@@ -14,12 +13,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
@@ -46,12 +40,13 @@ const ProductsPage = () => {
   const [productId, setProductId] = useState("");
   const [isAdding, setIsAdding] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
-  const router = useRouter();
 
   const fetchProducts = async (categoryId?: string) => {
     setLoading(true);
     try {
-      const url = categoryId ? `/api/products?categoryId=${categoryId}` : "/api/products";
+      const url = categoryId
+        ? `/api/products?categoryId=${categoryId}`
+        : "/api/products";
       const response = await fetch(url);
       const result = await response.json();
       if (result.success) {
@@ -59,7 +54,7 @@ const ProductsPage = () => {
       } else {
         toast.error(result.error || "Erro ao carregar produtos.");
       }
-    } catch (error) {
+    } catch {
       toast.error("Erro de conexão ao buscar produtos.");
     } finally {
       setLoading(false);
@@ -68,7 +63,7 @@ const ProductsPage = () => {
 
   useEffect(() => {
     fetchProducts();
-    fetch('/api/categories')
+    fetch("/api/categories")
       .then((res) => res.json())
       .then(setCategories)
       .catch(() => toast.error("Erro ao carregar categorias."));
@@ -94,7 +89,10 @@ const ProductsPage = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ productId, categoryId: selectedCategory || null }),
+        body: JSON.stringify({
+          productId,
+          categoryId: selectedCategory || null,
+        }),
       });
 
       const result = await response.json();
@@ -130,7 +128,7 @@ const ProductsPage = () => {
       } else {
         toast.error(result.error || "Erro ao deletar produto.");
       }
-    } catch (error) {
+    } catch {
       toast.error("Erro de conexão ao deletar produto.");
     }
   };
@@ -155,7 +153,9 @@ const ProductsPage = () => {
         <CardContent>
           <form onSubmit={handleAddSubmit} className="flex items-end gap-4">
             <div className="flex-grow">
-              <Label htmlFor="productId">ID do Produto do Mercado Livre</Label>
+              <Label htmlFor="productId" className="mb-2">
+                ID do Produto do Mercado Livre
+              </Label>
               <Input
                 id="productId"
                 type="text"
@@ -195,7 +195,7 @@ const ProductsPage = () => {
         <CardContent>
           {loading ? (
             <div className="flex justify-center items-center h-64">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
             </div>
           ) : (
             <Table>
@@ -214,7 +214,9 @@ const ProductsPage = () => {
                 {products.map((product) => (
                   <TableRow key={product.id}>
                     <TableCell>{product.id}</TableCell>
-                    <TableCell className="font-medium">{product.title}</TableCell>
+                    <TableCell className="font-medium">
+                      {product.title}
+                    </TableCell>
                     <TableCell>
                       {new Intl.NumberFormat("pt-BR", {
                         style: "currency",
@@ -223,10 +225,12 @@ const ProductsPage = () => {
                     </TableCell>
                     <TableCell>{product.available_quantity}</TableCell>
                     <TableCell>
-                      <Badge variant="outline">{getConditionText(product.condition)}</Badge>
+                      <Badge variant="outline">
+                        {getConditionText(product.condition)}
+                      </Badge>
                     </TableCell>
                     <TableCell>
-                      {product.category ? product.category.name : 'N/A'}
+                      {product.category ? product.category.name : "N/A"}
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">

@@ -80,7 +80,7 @@ export function Sidebar() {
 
       <div
         className={cn(
-          "h-screen bg-[#51A44A] text-white flex flex-col",
+          "h-screen bg-emerald-950 text-white flex flex-col",
           "fixed md:static z-40 transition-all duration-300 ease-in-out",
           isMobile
             ? isMobileMenuOpen
