@@ -17,6 +17,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import Pagination from "@/components/ui/Pagination"; // Importando o componente
 
 interface Category {
   id: string;
@@ -41,16 +42,28 @@ const ProductsPage = () => {
   const [isAdding, setIsAdding] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
 
-  const fetchProducts = async (categoryId?: string) => {
+  // State para paginação
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [limit, setLimit] = useState(10);
+
+  const fetchProducts = async (page: number, categoryId?: string) => {
     setLoading(true);
     try {
-      const url = categoryId
-        ? `/api/products?categoryId=${categoryId}`
-        : "/api/products";
-      const response = await fetch(url);
+      const params = new URLSearchParams({
+        page: String(page),
+        limit: String(limit),
+      });
+      if (categoryId) {
+        params.append("categoryId", categoryId);
+      }
+
+      const response = await fetch(`/api/products?${params.toString()}`);
       const result = await response.json();
+
       if (result.success) {
-        setProducts(result.data);
+        setProducts(result.data.products);
+        setTotalProducts(result.data.total);
       } else {
         toast.error(result.error || "Erro ao carregar produtos.");
       }
@@ -61,17 +74,24 @@ const ProductsPage = () => {
     }
   };
 
+  // Efeito para buscar categorias (executa uma vez)
   useEffect(() => {
-    fetchProducts();
     fetch("/api/categories")
       .then((res) => res.json())
       .then(setCategories)
       .catch(() => toast.error("Erro ao carregar categorias."));
   }, []);
 
+  // Efeito para buscar produtos quando a página, filtro ou limite mudar
   useEffect(() => {
-    fetchProducts(selectedCategory);
+    fetchProducts(currentPage, selectedCategory);
+  }, [currentPage, selectedCategory, limit]);
+  
+    // Efeito para resetar a página para 1 quando o filtro de categoria mudar
+  useEffect(() => {
+    setCurrentPage(1);
   }, [selectedCategory]);
+
 
   const handleAddSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -100,7 +120,7 @@ const ProductsPage = () => {
       if (response.ok && result.success) {
         toast.success(result.message || "Produto adicionado com sucesso!");
         setProductId("");
-        fetchProducts(selectedCategory); // Refresh the list with current filter
+        fetchProducts(currentPage, selectedCategory); // Refresh a lista
       } else {
         toast.error(result.error || "Erro ao adicionar produto.");
       }
@@ -124,7 +144,7 @@ const ProductsPage = () => {
       const result = await response.json();
       if (result.success) {
         toast.success("Produto deletado com sucesso!");
-        fetchProducts(); // Refresh the list
+        fetchProducts(currentPage, selectedCategory); // Refresh a lista
       } else {
         toast.error(result.error || "Erro ao deletar produto.");
       }
@@ -141,6 +161,8 @@ const ProductsPage = () => {
     };
     return conditions[condition] || condition;
   };
+
+  const totalPages = Math.ceil(totalProducts / limit);
 
   return (
     <div className="p-8">
@@ -165,22 +187,6 @@ const ProductsPage = () => {
                 required
               />
             </div>
-            <div>
-              <Label htmlFor="categoryFilter">Filtrar por Categoria</Label>
-              <select
-                id="categoryFilter"
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="w-full p-2 border rounded"
-              >
-                <option value="">Todas as Categorias</option>
-                {categories.map((category) => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
-                  </option>
-                ))}
-              </select>
-            </div>
             <Button type="submit" disabled={isAdding}>
               {isAdding ? "Adicionando..." : "Adicionar Produto"}
             </Button>
@@ -190,7 +196,42 @@ const ProductsPage = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Todos os Produtos</CardTitle>
+          <div className="flex justify-between items-center">
+            <CardTitle>Todos os Produtos</CardTitle>
+            <div className="flex items-center gap-4">
+               <div>
+                <select
+                  id="categoryFilter"
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="w-full p-2 border rounded"
+                >
+                  <option value="">Todas as Categorias</option>
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex items-center gap-2">
+                <Label htmlFor="limit-select">Itens por página:</Label>
+                <select
+                  id="limit-select"
+                  value={limit}
+                  onChange={(e) => {
+                    setLimit(Number(e.target.value));
+                    setCurrentPage(1); // Reseta para página 1 ao mudar o limite
+                  }}
+                  className="p-2 border rounded"
+                >
+                  <option value={10}>10</option>
+                  <option value={20}>20</option>
+                  <option value={50}>50</option>
+                </select>
+              </div>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -198,65 +239,81 @@ const ProductsPage = () => {
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>ID</TableHead>
-                  <TableHead>Título</TableHead>
-                  <TableHead>Preço</TableHead>
-                  <TableHead>Quantidade</TableHead>
-                  <TableHead>Condição</TableHead>
-                  <TableHead>Categoria</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {products.map((product) => (
-                  <TableRow key={product.id}>
-                    <TableCell>{product.id}</TableCell>
-                    <TableCell className="font-medium">
-                      {product.title}
-                    </TableCell>
-                    <TableCell>
-                      {new Intl.NumberFormat("pt-BR", {
-                        style: "currency",
-                        currency: "BRL",
-                      }).format(product.price)}
-                    </TableCell>
-                    <TableCell>{product.available_quantity}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline">
-                        {getConditionText(product.condition)}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {product.category ? product.category.name : "N/A"}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <Link href={`/products/${product.id}`} target="_blank">
-                          <Button variant="ghost" size="icon">
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                        </Link>
-                        <Link href={`/dashboard/products/${product.id}/edit`}>
-                          <Button variant="ghost" size="icon">
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                        </Link>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDelete(product.id)}
-                        >
-                          <Trash2 className="h-4 w-4 text-red-500" />
-                        </Button>
-                      </div>
-                    </TableCell>
+            <>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>ID</TableHead>
+                    <TableHead>Título</TableHead>
+                    <TableHead>Preço</TableHead>
+                    <TableHead>Quantidade</TableHead>
+                    <TableHead>Condição</TableHead>
+                    <TableHead>Categoria</TableHead>
+                    <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {products.map((product) => (
+                    <TableRow key={product.id}>
+                      <TableCell>{product.id}</TableCell>
+                      <TableCell className="font-medium">
+                        {product.title}
+                      </TableCell>
+                      <TableCell>
+                        {new Intl.NumberFormat("pt-BR", {
+                          style: "currency",
+                          currency: "BRL",
+                        }).format(product.price)}
+                      </TableCell>
+                      <TableCell>{product.available_quantity}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline">
+                          {getConditionText(product.condition)}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        {product.category ? product.category.name : "N/A"}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <Link
+                            href={`/products/${product.id}`}
+                            target="_blank"
+                          >
+                            <Button variant="ghost" size="icon">
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </Link>
+                          <Link
+                            href={`/dashboard/products/${product.id}/edit`}
+                          >
+                            <Button variant="ghost" size="icon">
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                          </Link>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDelete(product.id)}
+                          >
+                            <Trash2 className="h-4 w-4 text-red-500" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              {totalPages > 1 && (
+                <div className="mt-4 flex justify-center">
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
+                  />
+                </div>
+              )}
+            </>
           )}
         </CardContent>
       </Card>

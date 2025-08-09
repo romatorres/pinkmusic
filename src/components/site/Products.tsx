@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import ProductCard from "./ProductCard";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
+import Pagination from "../ui/Pagination";
 
 interface Product {
   id: string;
@@ -18,26 +19,44 @@ interface Product {
   pictures: { url: string }[];
 }
 
-interface ApiResponse<T> {
+interface ApiResponse {
   success: boolean;
-  data?: T;
+  data?: {
+    products: Product[];
+    total: number;
+  };
   error?: string;
 }
 
-const Products: React.FC = () => {
+interface ProductsProps {
+  limit?: number;
+  showPagination?: boolean;
+  showSeeAllButton?: boolean;
+}
+
+const Products: React.FC<ProductsProps> = ({
+  limit = 12,
+  showPagination = false,
+  showSeeAllButton = true,
+}) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalProducts, setTotalProducts] = useState(0);
 
-  const fetchProducts = async () => {
+  const fetchProducts = async (page: number = 1) => {
     setLoading(true);
     setError("");
     try {
-      const response = await fetch("/api/products");
-      const result: ApiResponse<Product[]> = await response.json();
+      const response = await fetch(
+        `/api/products?page=${page}&limit=${limit}`
+      );
+      const result: ApiResponse = await response.json();
 
       if (result.success && result.data) {
-        setProducts(result.data);
+        setProducts(result.data.products);
+        setTotalProducts(result.data.total);
       } else {
         setError(result.error || "Erro ao carregar produtos");
       }
@@ -49,8 +68,10 @@ const Products: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchProducts();
-  }, []);
+    fetchProducts(currentPage);
+  }, [currentPage, limit]);
+
+  const totalPages = Math.ceil(totalProducts / limit);
 
   return (
     <div className="max-w-7xl mx-auto p-6">
@@ -69,7 +90,7 @@ const Products: React.FC = () => {
 
         {!loading && products.length === 0 && !error && (
           <div className="text-center text-gray-600 text-lg">
-            Nenhum produto encontrado. Adicione um produto usando o campo acima.
+            Nenhum produto encontrado.
           </div>
         )}
 
@@ -79,13 +100,26 @@ const Products: React.FC = () => {
           ))}
         </div>
       </div>
-      <div className="mt-12 flex justify-center">
-        <Link href={"/products-all"}>
-          <button className="w-full lg:w-auto bg-sidebar-primary text-foreground py-3 px-6 rounded-full hover:bg-background border-primary border-[1px] flex items-center justify-center gap-2 font-semibold text-sm cursor-pointer">
-            Todos os Produtos <ArrowRight size={20} />
-          </button>
-        </Link>
-      </div>
+
+      {showPagination && totalPages > 1 && (
+        <div className="mt-12 flex justify-center">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        </div>
+      )}
+
+      {showSeeAllButton && (
+        <div className="mt-12 flex justify-center">
+          <Link href={"/products-all"}>
+            <button className="w-full lg:w-auto bg-sidebar-primary text-foreground py-3 px-6 rounded-full hover:bg-background border-primary border-[1px] flex items-center justify-center gap-2 font-semibold text-sm cursor-pointer">
+              Todos os Produtos <ArrowRight size={20} />
+            </button>
+          </Link>
+        </div>
+      )}
     </div>
   );
 };

@@ -14,7 +14,7 @@ export default function Home() {
         <Header />
         <Hero />
         <Partners />
-        <Products />
+        <Products limit={12} showSeeAllButton={true} />
         <About />
         <Newsletter />
         <Contact />
