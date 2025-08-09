@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import ProductCard from "./ProductCard";
+import { ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 interface Product {
   id: string;
@@ -52,28 +54,37 @@ const Products: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto p-6">
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
-          {error}
-        </div>
-      )}
+      <div>
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+            {error}
+          </div>
+        )}
 
-      {loading && products.length === 0 && (
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-        </div>
-      )}
+        {loading && products.length === 0 && (
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+          </div>
+        )}
 
-      {!loading && products.length === 0 && !error && (
-        <div className="text-center text-gray-600 text-lg">
-          Nenhum produto encontrado. Adicione um produto usando o campo acima.
-        </div>
-      )}
+        {!loading && products.length === 0 && !error && (
+          <div className="text-center text-gray-600 text-lg">
+            Nenhum produto encontrado. Adicione um produto usando o campo acima.
+          </div>
+        )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {products.map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {products.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </div>
+      </div>
+      <div className="mt-12 flex justify-center">
+        <Link href={"/products-all"}>
+          <button className="w-full lg:w-auto bg-sidebar-primary text-foreground py-3 px-6 rounded-full hover:bg-background border-primary border-[1px] flex items-center justify-center gap-2 font-semibold text-sm cursor-pointer">
+            Todos os Produtos <ArrowRight size={20} />
+          </button>
+        </Link>
       </div>
     </div>
   );
