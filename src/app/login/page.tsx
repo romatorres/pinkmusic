@@ -19,6 +19,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
+import Image from "next/image";
 
 const loginSchema = z.object({
   email: z
@@ -71,8 +72,18 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-4">
-      <Card className="w-full max-w-md">
+    <div className="flex flex-col min-h-screen items-center justify-center p-4">
+      <Card className="w-full max-w-lg ">
+        {/* Logo */}
+        <div className="relative w-[170px] md:w-[200px] lg:w-[240px] aspect-[240/70.5] mt-4 mb-10 mx-auto">
+          <Image
+            src="/img/logo-pink.svg"
+            alt="Logo da empresa"
+            fill
+            className="object-contain"
+            priority
+          />
+        </div>
         <CardHeader>
           <CardTitle className="text-2xl text-center">Login</CardTitle>
         </CardHeader>
@@ -108,7 +119,7 @@ export default function LoginPage() {
               <Button type="submit" className="w-full">
                 Login
               </Button>
-              <p className="text-center text-sm text-muted-foreground mt-4">
+              <p className="text-center text-sm text-primary mt-4">
                 Não tem uma conta?{" "}
                 <Link href="/register" className="underline">
                   Registre-se
