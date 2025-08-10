@@ -49,9 +49,7 @@ const Products: React.FC<ProductsProps> = ({
     setLoading(true);
     setError("");
     try {
-      const response = await fetch(
-        `/api/products?page=${page}&limit=${limit}`
-      );
+      const response = await fetch(`/api/products?page=${page}&limit=${limit}`);
       const result: ApiResponse = await response.json();
 
       if (result.success && result.data) {
@@ -84,7 +82,7 @@ const Products: React.FC<ProductsProps> = ({
 
         {loading && products.length === 0 && (
           <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
           </div>
         )}
 

@@ -7,17 +7,13 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { Category } from "@/lib/types";
 
 interface ProductData {
   title: string;
   price: number;
   available_quantity: number;
   categoryId: string | null;
-}
-
-interface Category {
-  id: string;
-  name: string;
 }
 
 export default function EditProductPage() {

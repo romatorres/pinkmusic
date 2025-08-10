@@ -10,38 +10,52 @@ import {
 import { MenuIcon } from "lucide-react";
 import { PageContainer } from "../ui/Page-container";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
+import Link from "next/link";
+import Social from "./Social";
 
 export default function Header() {
+  const pathname = usePathname();
+  const isHomePage = pathname === "/";
+
   return (
-    <header className="absolute left-0 top-0 right-0 z-10 flex min-h-[100px] w-full items-center justify-center py-4 md:min-h-[124px]">
+    <header
+      className={cn(
+        "left-0 top-0 right-0 z-10 flex min-h-[100px] w-full items-center justify-center py-3 md:min-h-[124px]",
+        isHomePage ? "absolute" : "relative bg-card shadow-sm"
+      )}
+    >
       <PageContainer>
         <div className="flex h-[70px] w-full items-center justify-between">
           {/* Logo */}
           <div className="relative w-[170px] md:w-[200px] lg:w-[240px] aspect-[240/70.5]">
-            <Image
-              src="/img/logo-pink.svg"
-              alt="Logo da empresa"
-              fill
-              className="object-contain"
-              priority
-            />
+            <Link href="/">
+              <Image
+                src="/img/logo-pink.svg"
+                alt="Logo da empresa"
+                fill
+                className="object-contain"
+                priority
+              />
+            </Link>
           </div>
 
           {/* Desktop Navigation */}
           <div className="hidden items-center gap-12 md:flex">
-            <nav className="flex items-center gap-7 text-base font-medium text-primary cursor-pointer">
-              <a
-                href="#"
+            <nav className="flex items-center gap-7 text-base font-medium cursor-pointerb text-primary">
+              <Link
+                href="/"
                 className="transition-colors duration-300 ease-in-out hover:text-secondary"
               >
                 Home
-              </a>
-              <a
-                href="#"
+              </Link>
+              <Link
+                href="/products-all"
                 className="transition-colors duration-300 ease-in-out hover:text-secondary"
               >
                 Produtos
-              </a>
+              </Link>
               <a
                 href="#"
                 className="transition-colors duration-300 ease-in-out hover:text-secondary"
@@ -55,36 +69,16 @@ export default function Header() {
                 Contatos
               </a>
             </nav>
-            <div className="flex items-center gap-4">
-              <Image
-                src="/img/icon-facebook.svg"
-                alt="Icon Social Facebook"
-                width={44}
-                height={44}
-                className="object-contain transition-transform duration-300 ease-in-out hover:scale-110 hover:cursor-pointer"
-              />
-              <Image
-                src="/img/icon-instagram.svg"
-                alt="Icon Social Instagram"
-                width={44}
-                height={44}
-                className="object-contain transition-transform duration-300 ease-in-out hover:scale-110 hover:cursor-pointer"
-              />
-              <Image
-                src="/img/icon-twitter.svg"
-                alt="Icon Social Twitter"
-                width={44}
-                height={44}
-                className="object-contain transition-transform duration-300 ease-in-out hover:scale-110 hover:cursor-pointer"
-              />
-            </div>
+            <Social />
           </div>
 
           {/* Mobile Navigation */}
           <div className="md:hidden">
             <Sheet>
               <SheetTrigger asChild>
-                <button className="text-primary">
+                <button
+                  className={cn(isHomePage ? "text-primary" : "text-gray-800")}
+                >
                   <MenuIcon size={32} />
                 </button>
               </SheetTrigger>
@@ -95,12 +89,12 @@ export default function Header() {
                   </SheetTitle>
                 </SheetHeader>
                 <nav className="mx-6 mt-8 flex flex-col gap-5 text-base font-medium text-primary">
-                  <a href="#" className="hover:text-secondary">
+                  <Link href="/" className="hover:text-secondary">
                     Home
-                  </a>
-                  <a href="#" className="hover:text-secondary">
+                  </Link>
+                  <Link href="/products-all" className="hover:text-secondary">
                     Produtos
-                  </a>
+                  </Link>
                   <a href="#" className="hover:text-secondary">
                     Sobre
                   </a>
@@ -108,29 +102,7 @@ export default function Header() {
                     Contatos
                   </a>
                 </nav>
-                <div className="mt-8 flex items-center justify-center gap-6">
-                  <Image
-                    src="/img/icon-facebook.svg"
-                    alt="Icon Social Facebook"
-                    width={44}
-                    height={44}
-                    className="object-contain transition-transform duration-300 ease-in-out hover:scale-110 hover:cursor-pointer"
-                  />
-                  <Image
-                    src="/img/icon-instagram.svg"
-                    alt="Icon Social Instagram"
-                    width={44}
-                    height={44}
-                    className="object-contain transition-transform duration-300 ease-in-out hover:scale-110 hover:cursor-pointer"
-                  />
-                  <Image
-                    src="/img/icon-twitter.svg"
-                    alt="Icon Social Twitter"
-                    width={44}
-                    height={44}
-                    className="object-contain transition-transform duration-300 ease-in-out hover:scale-110 hover:cursor-pointer"
-                  />
-                </div>
+                <Social />
               </SheetContent>
             </Sheet>
           </div>

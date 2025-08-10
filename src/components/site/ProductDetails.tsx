@@ -5,6 +5,7 @@ import Image from "next/image";
 import { ShoppingCart, Package, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { PageContainer } from "../ui/Page-container";
+import Social from "./Social";
 
 interface Product {
   id: string;
@@ -45,12 +46,12 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
 
   return (
     <PageContainer>
-      <div className="mx-auto p-6 mt-8">
+      <div className="mx-auto p-6 my-10">
         <Link
           href="/"
           className="flex items-center gap-2 px-5 py-3 mb-6 w-fit border-[1px] border-primary text-primary rounded-full hover:bg-sidebar-primary"
         >
-          <ArrowLeft size={20} /> Voltar para a Galeria
+          <ArrowLeft size={20} /> Voltar para a Home
         </Link>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -121,7 +122,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
                   : "Produto esgotado"}
               </p>
             </div>
-
+            <Social />
             {/* Atributos */}
             {product.attributes && product.attributes.length > 0 && (
               <div className="border-t pt-6">

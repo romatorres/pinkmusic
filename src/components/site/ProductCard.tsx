@@ -43,62 +43,75 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       ? product.pictures[0].url
       : product.thumbnail;
   return (
-    <div key={product.id} className="w-[300px] max-w-full">
-      <div className="bg-card rounded-3xl shadow-sm overflow-hidden flex justify-center flex-col min-h-[480px] items-stretch gap-2.5 transition-transform duration-300 ease-in-out hover:translate-y-[-5px]">
-        <div className="relative flex min-h-[260px] w-full flex-col justify-center py-[65px]">
-          <div className="absolute top-2 left-2 rounded-3xl bg-white z-0 flex min-h-[260px] w-[276px] max-w-[276px]">
-            <div className="relative w-[200px] h-auto flex items-center justify-center mx-auto">
-              <Image
-                src={imageUrl}
-                alt={product.title}
-                fill
-                style={{ objectFit: "contain" }}
-                className="rounded-t-lg"
-              />
+    <div
+      key={product.id}
+      className="w-full max-w-xs sm:max-w-sm md:max-w-[300px]"
+    >
+      <div className="bg-card rounded-3xl shadow-sm overflow-hidden flex flex-col min-h-[460px] sm:min-h-[480px] transition-transform duration-300 ease-in-out hover:translate-y-[-5px]">
+        {/* Container da imagem com efeito de borda responsivo */}
+        <div className="relative flex min-h-[220px] sm:min-h-[260px] w-full flex-col justify-center p-2">
+          {/* Div absoluta com efeito de borda (8px de margem em todas as direções) */}
+          <div className="absolute inset-2 rounded-2xl sm:rounded-3xl bg-white shadow-inner">
+            <div className="relative w-full h-full flex items-center justify-center p-3 sm:p-4">
+              <div className="relative w-full h-full max-w-[160px] max-h-[160px] sm:max-w-[200px] sm:max-h-[200px]">
+                <Image
+                  src={imageUrl}
+                  alt={product.title}
+                  fill
+                  sizes="(max-width: 640px) 160px, 200px"
+                  style={{ objectFit: "contain" }}
+                  className="rounded-lg"
+                />
+              </div>
             </div>
           </div>
         </div>
-        <div className="p-4 flex flex-col">
-          <h2 className="text-lg font-semibold text-foreground mb-2 line-clamp-2">
+
+        {/* Conteúdo do card */}
+        <div className="p-3 sm:p-4 flex flex-col flex-1">
+          <h2 className="text-base sm:text-lg font-semibold text-foreground mb-2 line-clamp-2">
             {product.title}
           </h2>
-          <div className="flex items-center gap-2 text-sm text-primary mb-2">
+
+          <div className="flex items-center gap-2 text-xs sm:text-sm text-primary mb-2">
             <span className="flex items-center gap-1">
-              <Package size={14} />
+              <Package size={12} className="sm:w-[14px] sm:h-[14px]" />
               {getConditionText(product.condition)}
             </span>
           </div>
+
           <div className="flex justify-between items-center mb-3">
-            <div className="text-4xl font-tanker text-foreground">
+            <div className="text-2xl sm:text-4xl font-tanker text-foreground leading-tight">
               {formatPrice(product.price, product.currency_id)}
             </div>
-            <div>
-              <button className="rounded-[25px] bg-primary self-stretch flex items-center gap-3 justify-center w-10 h-10 my-auto px-2.5 border-none cursor-pointer transition-colors duration-300 ease-in-out hover:bg-primary/85">
-                <a
-                  href={product.permalink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <Image
-                    src="/img/icon-store.svg"
-                    alt="Add to Cart"
-                    width={20}
-                    height={20}
-                    className="aspect-square object-contain object-center self-stretch my-auto"
-                  />
-                </a>
-              </button>
-            </div>
+            <button className="rounded-full bg-primary flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 border-none cursor-pointer transition-colors duration-300 ease-in-out hover:bg-primary/85 shrink-0">
+              <a
+                href={product.permalink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center w-full h-full"
+              >
+                <Image
+                  src="/img/icon-store.svg"
+                  alt="Add to Cart"
+                  width={16}
+                  height={16}
+                  className="sm:w-5 sm:h-5 object-contain"
+                />
+              </a>
+            </button>
           </div>
-          <p className="text-primary text-sm mb-4">
+
+          <p className="text-primary text-xs sm:text-sm mb-4">
             Disponível: {product.available_quantity}
           </p>
-          <div className="flex flex-col gap-2 mt-3">
+
+          <div className="flex flex-col gap-2 mt-auto">
             <Link
               href={`/products/${product.id}`}
-              className="w-full bg-sidebar-primary text-foreground py-3 px-4 rounded-full hover:bg-background border-primary border-[1px] flex items-center justify-center gap-2 font-semibold text-sm"
+              className="w-full bg-sidebar-primary text-foreground py-2.5 sm:py-3 px-3 sm:px-4 rounded-full hover:bg-background border-primary border-[1px] flex items-center justify-center gap-2 font-semibold text-xs sm:text-sm transition-colors duration-300"
             >
-              <Eye size={16} />
+              <Eye size={14} className="sm:w-4 sm:h-4" />
               Ver Detalhes
             </Link>
           </div>

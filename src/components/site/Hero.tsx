@@ -57,37 +57,47 @@ export default function Hero() {
             >
               <CarouselContent>
                 <CarouselItem className="flex w-full items-center justify-center">
-                  <img
-                    src={`/img/carousel/carousel-1.png`}
-                    alt={`Carousel image 1`}
+                  <Image
+                    src="/img/carousel/carousel-1.png"
+                    alt="Carousel image 1"
+                    width={430}
+                    height={300}
                     className="h-auto w-full max-w-[85%] object-contain sm:max-w-[75%] md:max-w-[85%] lg:max-w-[90%] xl:max-w-[430px]"
                   />
                 </CarouselItem>
                 <CarouselItem className="flex w-full items-center justify-center">
-                  <img
-                    src={`/img/carousel/carousel-2.png`}
-                    alt={`Carousel image 2`}
+                  <Image
+                    src="/img/carousel/carousel-2.png"
+                    alt="Carousel image 2"
+                    width={430}
+                    height={300}
                     className="h-auto w-full max-w-[85%] object-contain sm:max-w-[75%] md:max-w-[85%] lg:max-w-[90%] xl:max-w-[430px]"
                   />
                 </CarouselItem>
                 <CarouselItem className="flex w-full items-center justify-center">
-                  <img
-                    src={`/img/carousel/carousel-3.png`}
-                    alt={`Carousel image 3`}
+                  <Image
+                    src="/img/carousel/carousel-3.png"
+                    alt="Carousel image 3"
+                    width={430}
+                    height={300}
                     className="h-auto w-full max-w-[85%] object-contain sm:max-w-[75%] md:max-w-[85%] lg:max-w-[90%] xl:max-w-[430px]"
                   />
                 </CarouselItem>
                 <CarouselItem className="flex w-full items-center justify-center">
-                  <img
-                    src={`/img/carousel/carousel-4.png`}
-                    alt={`Carousel image 4`}
+                  <Image
+                    src="/img/carousel/carousel-4.png"
+                    alt="Carousel image 4"
+                    width={430}
+                    height={300}
                     className="h-auto w-full max-w-[85%] object-contain sm:max-w-[75%] md:max-w-[85%] lg:max-w-[90%] xl:max-w-[430px]"
                   />
                 </CarouselItem>
                 <CarouselItem className="flex w-full items-center justify-center">
-                  <img
-                    src={`/img/carousel/carousel-5.png`}
-                    alt={`Carousel image 5`}
+                  <Image
+                    src="/img/carousel/carousel-5.png"
+                    alt="Carousel image 5"
+                    width={430}
+                    height={300}
                     className="h-auto w-full max-w-[85%] object-contain sm:max-w-[75%] md:max-w-[85%] lg:max-w-[90%] xl:max-w-[430px]"
                   />
                 </CarouselItem>

@@ -19,10 +19,8 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import Pagination from "@/components/ui/Pagination"; // Importando o componente
 
-interface Category {
-  id: string;
-  name: string;
-}
+import CategoryFilter from "@/components/ui/CategoryFilter";
+import { Category } from "@/lib/types";
 
 interface Product {
   id: string;
@@ -36,7 +34,7 @@ interface Product {
 
 const ProductsPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
+
   const [loading, setLoading] = useState(true);
   const [productId, setProductId] = useState("");
   const [isAdding, setIsAdding] = useState(false);
@@ -75,23 +73,16 @@ const ProductsPage = () => {
   };
 
   // Efeito para buscar categorias (executa uma vez)
-  useEffect(() => {
-    fetch("/api/categories")
-      .then((res) => res.json())
-      .then(setCategories)
-      .catch(() => toast.error("Erro ao carregar categorias."));
-  }, []);
 
   // Efeito para buscar produtos quando a página, filtro ou limite mudar
   useEffect(() => {
     fetchProducts(currentPage, selectedCategory);
   }, [currentPage, selectedCategory, limit]);
-  
-    // Efeito para resetar a página para 1 quando o filtro de categoria mudar
+
+  // Efeito para resetar a página para 1 quando o filtro de categoria mudar
   useEffect(() => {
     setCurrentPage(1);
   }, [selectedCategory]);
-
 
   const handleAddSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -199,20 +190,12 @@ const ProductsPage = () => {
           <div className="flex justify-between items-center">
             <CardTitle>Todos os Produtos</CardTitle>
             <div className="flex items-center gap-4">
-               <div>
-                <select
-                  id="categoryFilter"
+              <div>
+                <CategoryFilter
                   value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="w-full p-2 border rounded"
-                >
-                  <option value="">Todas as Categorias</option>
-                  {categories.map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.name}
-                    </option>
-                  ))}
-                </select>
+                  onChange={setSelectedCategory}
+                  className="w-full px-3 py-2 border rounded border-foreground"
+                />
               </div>
               <div className="flex items-center gap-2">
                 <Label htmlFor="limit-select">Itens por página:</Label>
@@ -284,9 +267,7 @@ const ProductsPage = () => {
                               <Eye className="h-4 w-4" />
                             </Button>
                           </Link>
-                          <Link
-                            href={`/dashboard/products/${product.id}/edit`}
-                          >
+                          <Link href={`/dashboard/products/${product.id}/edit`}>
                             <Button variant="ghost" size="icon">
                               <Edit className="h-4 w-4" />
                             </Button>

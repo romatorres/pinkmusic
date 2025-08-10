@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
+import LayoutWrapper from "@/components/site/LayoutWrapper";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -18,7 +19,7 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body className={`${inter.variable} font-sans`} cz-shortcut-listen="true">
-        {children}
+        <LayoutWrapper>{children}</LayoutWrapper>
         <Toaster />
       </body>
     </html>

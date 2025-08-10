@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import React from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface PaginationProps {
   currentPage: number;
@@ -9,7 +9,11 @@ interface PaginationProps {
   onPageChange: (page: number) => void;
 }
 
-const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPageChange }) => {
+const Pagination: React.FC<PaginationProps> = ({
+  currentPage,
+  totalPages,
+  onPageChange,
+}) => {
   const handlePrevious = () => {
     if (currentPage > 1) {
       onPageChange(currentPage - 1);
@@ -31,7 +35,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
       >
         <ChevronLeft size={20} />
       </button>
-      <span className="text-sm text-gray-700">
+      <span className="text-sm text-foreground">
         Página {currentPage} de {totalPages}
       </span>
       <button
