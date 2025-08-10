@@ -5,7 +5,12 @@ export default function ProductAll() {
   return (
     <section>
       <PageContainer>
-        <Products limit={20} showPagination={true} showSeeAllButton={false} />
+        <Products
+          limit={20}
+          showPagination={true}
+          showSeeAllButton={false}
+          showCategoryFilter={true}
+        />
       </PageContainer>
     </section>
   );

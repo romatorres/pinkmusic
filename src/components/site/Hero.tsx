@@ -11,6 +11,7 @@ import {
 import Autoplay from "embla-carousel-autoplay";
 import * as React from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Hero() {
   const plugin = React.useRef(
@@ -28,26 +29,34 @@ export default function Hero() {
               em um só lugar!
             </h1>
             <div className="mt-8 flex w-full flex-col items-center justify-center sm:flex-row md:mt-10 md:justify-start gap-6 md:gap-4">
-              <button className="flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-full bg-primary lg:px-10 lg:py-4 md:px-7 md:py-3 px-7 py-3 text-lg font-semibold text-white transition-colors duration-300 ease-in-out hover:cursor-pointer hover:bg-secondary sm:w-auto">
-                <Image
-                  src="/img/icon-store.svg"
-                  alt="E-commerce Icon"
-                  width={22}
-                  height={22}
-                  className="aspect-square object-contain"
-                />
-                E-commerce
-              </button>
-              <button className="flex w-full items-center justify-center gap-2 whitespace-nowrap border-primary border-[1px] rounded-full bg-white lg:px-10 lg:py-4 md:px-7 md:py-3 px-7 py-3 text-lg font-semibold text-primary transition-colors duration-300 ease-in-out hover:cursor-pointer hover:bg-background sm:w-auto">
-                <Image
-                  src="/img/icon-location.svg"
-                  alt="Store Localização"
-                  width={22}
-                  height={22}
-                  className="aspect-square object-contain"
-                />
-                Loja Física
-              </button>
+              <Link
+                href="https://www.mercadolivre.com.br/pagina/pinkmusic"
+                passHref
+                target="_blank"
+              >
+                <button className="flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-full bg-primary lg:px-10 lg:py-4 md:px-7 md:py-3 px-7 py-3 text-lg font-semibold text-white transition-colors duration-300 ease-in-out hover:cursor-pointer hover:bg-secondary sm:w-auto">
+                  <Image
+                    src="/img/icon-store.svg"
+                    alt="E-commerce Icon"
+                    width={22}
+                    height={22}
+                    className="aspect-square object-contain"
+                  />
+                  E-commerce
+                </button>
+              </Link>
+              <Link href="/store-location">
+                <button className="flex w-full items-center justify-center gap-2 whitespace-nowrap border-primary border-[1px] rounded-full bg-white lg:px-10 lg:py-4 md:px-7 md:py-3 px-7 py-3 text-lg font-semibold text-primary transition-colors duration-300 ease-in-out hover:cursor-pointer hover:bg-background sm:w-auto">
+                  <Image
+                    src="/img/icon-location.svg"
+                    alt="Store Localização"
+                    width={22}
+                    height={22}
+                    className="aspect-square object-contain"
+                  />
+                  Loja Física
+                </button>
+              </Link>
             </div>
           </div>
           <div className="flex w-full items-center justify-center md:w-1/2">

@@ -35,7 +35,8 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({
       value={value}
       onChange={(e) => onChange(e.target.value)}
       className={
-        className || "w-full px-3 py-2 border rounded border-foreground"
+        className ||
+        "w-full px-3 py-2 border rounded border-foreground max-w-2xs bg-sidebar-primary text-foreground "
       }
     >
       <option value="">Todas as Categorias</option>
