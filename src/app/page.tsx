@@ -12,9 +12,13 @@ export default function Home() {
         <Hero />
         <Partners />
         <Products limit={12} showSeeAllButton={true} />
-        <About />
+        <section id="about">
+          <About />
+        </section>
         <Newsletter />
-        <Contact />
+        <section id="contact">
+          <Contact />
+        </section>
       </div>
     </main>
   );

@@ -2,6 +2,7 @@
 
 import {
   Sheet,
+  SheetClose,
   SheetContent,
   SheetHeader,
   SheetTitle,
@@ -56,18 +57,18 @@ export default function Header() {
               >
                 Produtos
               </Link>
-              <a
-                href="#"
+              <Link
+                href="/#about"
                 className="transition-colors duration-300 ease-in-out hover:text-secondary"
               >
                 Sobre
-              </a>
-              <a
-                href="#"
+              </Link>
+              <Link
+                href="/#contact"
                 className="transition-colors duration-300 ease-in-out hover:text-secondary"
               >
                 Contatos
-              </a>
+              </Link>
             </nav>
             <Social />
           </div>
@@ -82,25 +83,33 @@ export default function Header() {
                   <MenuIcon size={32} />
                 </button>
               </SheetTrigger>
-              <SheetContent>
+              <SheetContent onCloseAutoFocus={(e) => e.preventDefault()}>
                 <SheetHeader>
                   <SheetTitle className="text-2xl text-primary">
                     Menu
                   </SheetTitle>
                 </SheetHeader>
                 <nav className="mx-6 mt-8 flex flex-col gap-5 text-base font-medium text-primary">
-                  <Link href="/" className="hover:text-secondary">
-                    Home
-                  </Link>
-                  <Link href="/products-all" className="hover:text-secondary">
-                    Produtos
-                  </Link>
-                  <a href="#" className="hover:text-secondary">
-                    Sobre
-                  </a>
-                  <a href="#" className="hover:text-secondary">
-                    Contatos
-                  </a>
+                  <SheetClose asChild>
+                    <Link href="/" className="hover:text-secondary">
+                      Home
+                    </Link>
+                  </SheetClose>
+                  <SheetClose asChild>
+                    <Link href="/products-all" className="hover:text-secondary">
+                      Produtos
+                    </Link>
+                  </SheetClose>
+                  <SheetClose asChild>
+                    <Link href="/#about" className="hover:text-secondary">
+                      Sobre
+                    </Link>
+                  </SheetClose>
+                  <SheetClose asChild>
+                    <Link href="/#contact" className="hover:text-secondary">
+                      Contatos
+                    </Link>
+                  </SheetClose>
                 </nav>
                 <Social />
               </SheetContent>

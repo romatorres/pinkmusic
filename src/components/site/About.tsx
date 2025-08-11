@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { PageContainer } from "../ui/Page-container";
 import Image from "next/image";
 
@@ -27,26 +28,35 @@ export default function About() {
             </p>
 
             <div className="mt-10 flex w-full flex-wrap items-center justify-start gap-6 font-inter text-xl font-medium lg:mt-[60px] lg:max-w-full">
-              <button className="flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-full bg-primary px-7 py-3 text-lg font-semibold text-white transition-colors duration-300 ease-in-out hover:cursor-pointer hover:bg-secondary sm:w-auto lg:px-10 lg:py-4">
-                <Image
-                  src="/img/icon-store.svg"
-                  alt="E-commerce Icon"
-                  width={22}
-                  height={22}
-                  className="aspect-square object-contain"
-                />
-                E-commerce
-              </button>
-              <button className="flex w-full items-center justify-center gap-2 whitespace-nowrap border-primary border-[1px] rounded-full bg-white px-7 py-3 text-lg font-semibold text-primary transition-colors duration-300 ease-in-out hover:cursor-pointer hover:bg-background sm:w-auto lg:px-10 lg:py-4">
-                <Image
-                  src="/img/icon-location.svg"
-                  alt="Store Localização"
-                  width={22}
-                  height={22}
-                  className="aspect-square object-contain"
-                />
-                Loja Física
-              </button>
+              <Link
+                href="https://www.mercadolivre.com.br/pagina/pinkmusic"
+                passHref
+                target="_blank"
+                className="w-full md:w-auto"
+              >
+                <button className="flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-full bg-primary px-7 py-3 text-lg font-semibold text-white transition-colors duration-300 ease-in-out hover:cursor-pointer hover:bg-secondary sm:w-auto lg:px-10 lg:py-4">
+                  <Image
+                    src="/img/icon-store.svg"
+                    alt="E-commerce Icon"
+                    width={22}
+                    height={22}
+                    className="aspect-square object-contain"
+                  />
+                  E-commerce
+                </button>
+              </Link>
+              <Link href="#contact" className="w-full md:w-auto">
+                <button className="flex w-full items-center justify-center gap-2 whitespace-nowrap border-primary border-[1px] rounded-full bg-white px-7 py-3 text-lg font-semibold text-primary transition-colors duration-300 ease-in-out hover:cursor-pointer hover:bg-background sm:w-auto lg:px-10 lg:py-4">
+                  <Image
+                    src="/img/icon-location.svg"
+                    alt="Store Localização"
+                    width={22}
+                    height={22}
+                    className="aspect-square object-contain"
+                  />
+                  Loja Física
+                </button>
+              </Link>
             </div>
           </div>
 
