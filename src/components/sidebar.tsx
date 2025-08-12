@@ -5,7 +5,16 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import { LogOut } from "lucide-react";
+import {
+  ChartBarStacked,
+  LayoutDashboard,
+  LogOut,
+  Settings,
+  ShoppingCart,
+  User,
+  UserPen,
+  Users,
+} from "lucide-react";
 
 export function Sidebar() {
   const { user, logout } = useAuthStore();
@@ -38,7 +47,7 @@ export function Sidebar() {
   };
 
   const isActive = (path: string) => {
-    return pathname.startsWith(path) ? "bg-blue-700" : "";
+    return pathname.startsWith(path) ? "bg-secondary" : "";
   };
 
   const isSettingsActive = () => {
@@ -112,47 +121,58 @@ export function Sidebar() {
             <li>
               <Link
                 href="/dashboard"
-                className={`block p-2 rounded hover:bg-[#469D3F] transition ${
+                className={`block p-2 rounded hover:bg-secondary/50 transition ${
                   isActive("/dashboard") && pathname === "/dashboard"
-                    ? "bg-[#45973E]"
+                    ? "bg-secondary"
                     : ""
                 }`}
                 onClick={() => isMobile && setIsMobileMenuOpen(false)}
               >
-                Dashboard
+                <span className="flex gap-2 items-center">
+                  <LayoutDashboard size={20} />
+                  Dashboard
+                </span>
               </Link>
             </li>
             <li>
               <Link
                 href="/dashboard/partners"
-                className={`block p-2 rounded hover:bg-[#469D3F] transition ${
-                  isActive("/dashboard/partners") ? "bg-[#45973E]" : ""
+                className={`block p-2 rounded hover:bg-secondary/50 transition ${
+                  isActive("/dashboard/partners") ? "bg-secondary" : ""
                 }`}
                 onClick={() => isMobile && setIsMobileMenuOpen(false)}
               >
-                Parceiros
+                <span className="flex gap-2 items-center">
+                  <Users size={20} />
+                  Parceiros
+                </span>
               </Link>
             </li>
             <li>
               <Link
                 href="/dashboard/products"
-                className={`block p-2 rounded hover:bg-[#469D3F] transition ${
-                  isActive("/dashboard/products") ? "bg-[#45973E]" : ""
+                className={`block p-2 rounded hover:bg-secondary/50 transition ${
+                  isActive("/dashboard/products") ? "bg-secondary" : ""
                 }`}
                 onClick={() => isMobile && setIsMobileMenuOpen(false)}
               >
-                Produtos
+                <span className="flex gap-2 items-center">
+                  <ShoppingCart size={20} /> Produtos
+                </span>
               </Link>
             </li>
             <li>
               <Link
                 href="/dashboard/categories"
-                className={`block p-2 rounded hover:bg-[#469D3F] transition ${
-                  isActive("/dashboard/categories") ? "bg-[#45973E]" : ""
+                className={`block p-2 rounded hover:bg-secondary/50 transition ${
+                  isActive("/dashboard/categories") ? "bg-secondary" : ""
                 }`}
                 onClick={() => isMobile && setIsMobileMenuOpen(false)}
               >
-                Categorias
+                <span className="flex gap-2 items-center">
+                  <ChartBarStacked size={20} />
+                  Categorias
+                </span>
               </Link>
             </li>
 
@@ -160,11 +180,14 @@ export function Sidebar() {
               <div className="space-y-1">
                 <button
                   onClick={() => setSettingsOpen(!settingsOpen)}
-                  className={`w-full flex items-center justify-between p-2 rounded hover:bg-[#469D3F] transition ${
-                    isSettingsActive() ? "bg-primary" : ""
+                  className={`w-full flex items-center justify-between p-2 rounded hover:bg-secondary/50 transition ${
+                    isSettingsActive() ? "bg-secondary" : ""
                   }`}
                 >
-                  <span>Configurações</span>
+                  <span className="flex gap-2 items-center">
+                    <Settings size={20} />
+                    Configurações
+                  </span>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     className={`h-4 w-4 transition-transform ${
@@ -190,21 +213,27 @@ export function Sidebar() {
                 >
                   <Link
                     href="/dashboard/register"
-                    className={`block p-2 rounded hover:bg-[#469D3F] transition ${
-                      pathname === "/dashboard/settings" ? "bg-[#45973E]" : ""
+                    className={`block p-2 rounded hover:bg-secondary/50 transition ${
+                      pathname === "/dashboard/settings" ? "bg-secondary" : ""
                     }`}
                     onClick={() => isMobile && setIsMobileMenuOpen(false)}
                   >
-                    Novo Usuario
+                    <span className="flex gap-2 items-center">
+                      <User size={20} />
+                      Novo Usuario
+                    </span>
                   </Link>
                   <Link
                     href="/dashboard/profile"
-                    className={`block p-2 rounded bg-[#469D3F] transition ${
-                      pathname === "/dashboard/profile" ? "bg-[#45973E]" : ""
+                    className={`block p-2 rounded bg-secondary transition ${
+                      pathname === "/dashboard/profile" ? "bg-secondary" : ""
                     }`}
                     onClick={() => isMobile && setIsMobileMenuOpen(false)}
                   >
-                    Meu Perfil
+                    <span className="flex gap-2 items-center">
+                      <UserPen size={20} />
+                      Meu Perfil
+                    </span>
                   </Link>
                 </div>
               </div>
@@ -213,8 +242,11 @@ export function Sidebar() {
         </nav>
 
         <div className="p-4 border-t border-foreground">
-          <button onClick={handleLogout} className=" flex gap-2 cursor-pointer">
-            Logout
+          <button
+            onClick={handleLogout}
+            className=" flex gap-2 cursor-pointer hover:bg-secondary px-6 py-3 rounded-full"
+          >
+            Sair
             <span className="text-destructive">
               <LogOut />
             </span>

@@ -1,7 +1,14 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import React, { useState, useEffect } from "react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -24,6 +31,10 @@ const registerSchema = z.object({
     .string()
     .min(1, { message: "O email é obrigatório." })
     .email({ message: "Email inválido" }),
+  name: z
+    .string()
+    .min(1, { message: "O nome é obrigatório." })
+    .min(3, { message: "O nome deve ter pelo menos 4 caracteres" }),
   password: z
     .string()
     .min(1, { message: "A senha é obrigatória." })
@@ -32,13 +43,42 @@ const registerSchema = z.object({
 
 type RegisterFormInputs = z.infer<typeof registerSchema>;
 
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+}
+
 export default function RegisterPage() {
-  const router = useRouter();
+  const [loading, setLoading] = useState(true);
+  const [users, setUsers] = useState<User[]>([]); // Assuming User type for now
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await fetch("/api/auth/users"); // Assuming this endpoint exists
+        if (!response.ok) {
+          throw new Error("Failed to fetch users");
+        }
+        const data = await response.json();
+        setUsers(data);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+        toast.error("Erro ao carregar usuários.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
 
   const form = useForm<RegisterFormInputs>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
       email: "",
+      name: "",
       password: "",
     },
   });
@@ -57,7 +97,7 @@ export default function RegisterPage() {
 
       if (response.ok) {
         toast.success("Usuário registrado com sucesso!");
-        router.push("/login");
+        /* router.push("/login"); */
       } else {
         toast.error(responseData.message || "Erro ao registrar usuário.");
       }
@@ -68,10 +108,11 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-4">
-      <Card className="w-full max-w-lg">
+    <div className="md:pt-8 pt-12">
+      <h1 className="md:text-3xl text-2xl font-bold mb-6">Cadastrar Usuário</h1>
+      <Card className="mb-8">
         <CardHeader>
-          <CardTitle className="text-2xl text-center">Registro</CardTitle>
+          <CardTitle>Adicione um novo usuário</CardTitle>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -83,7 +124,20 @@ export default function RegisterPage() {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="m@example.com" {...field} />
+                      <Input placeholder="email@email.com" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nome</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Nome do usuário" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -94,25 +148,57 @@ export default function RegisterPage() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password</FormLabel>
+                    <FormLabel>Senha</FormLabel>
                     <FormControl>
-                      <Input type="password" {...field} />
+                      <Input placeholder="******" type="password" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full">
-                Registrar
+              <Button type="submit" className="md:w-auto w-full">
+                Cadastrar
               </Button>
-              <p className="text-center text-sm text-primary mt-4">
-                Já tem uma conta?{" "}
-                <Link href="/login" className="underline">
-                  Faça login
-                </Link>
-              </p>
             </form>
           </Form>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Todos os Usuários</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <div className="flex justify-center items-center h-64">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              {users.length === 0 ? (
+                <p className="text-center text-gray-500">Nenhum usuário cadastrado.</p>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Nome</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Função</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {users.map((user) => (
+                      <TableRow key={user.id}>
+                        <TableCell>{user.name}</TableCell>
+                        <TableCell>{user.email}</TableCell>
+                        <TableCell>{user.role}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

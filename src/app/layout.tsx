@@ -7,8 +7,8 @@ import LayoutWrapper from "@/components/site/LayoutWrapper";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
-  title: "Api Mercado Livre",
-  description: "Consumir a API do Mercado Livre com Next.js",
+  title: "Pink Music",
+  description: "Esta é a pagina da loja Pink Music Instrumentos Musicais",
 };
 
 export default function RootLayout({
