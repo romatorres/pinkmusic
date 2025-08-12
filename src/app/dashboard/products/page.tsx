@@ -32,7 +32,7 @@ interface Product {
   category?: Category;
 }
 
-const ProductsPage = () => {
+export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
 
   const [loading, setLoading] = useState(true);
@@ -156,49 +156,61 @@ const ProductsPage = () => {
   const totalPages = Math.ceil(totalProducts / limit);
 
   return (
-    <div className="p-8">
-      <h1 className="text-3xl font-bold mb-6">Gerenciar Produtos</h1>
+    <div className="md:pt-8 pt-12">
+      <h1 className="md:text-3xl text-2xl font-bold mb-6">
+        Gerenciar Produtos
+      </h1>
 
       <Card className="mb-8">
         <CardHeader>
           <CardTitle>Adicionar Novo Produto</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleAddSubmit} className="flex items-end gap-4">
-            <div className="flex-grow">
-              <Label htmlFor="productId" className="mb-2">
-                ID do Produto do Mercado Livre
-              </Label>
-              <Input
-                id="productId"
-                type="text"
-                placeholder="Ex: MLB123456789"
-                value={productId}
-                onChange={(e) => setProductId(e.target.value)}
-                required
-              />
+          <form onSubmit={handleAddSubmit}>
+            <div className="flex md:flex-row flex-col gap-4 md:items-end items-start ">
+              <div className="w-full">
+                <Label htmlFor="productId" className="mb-2">
+                  ID do Produto do Mercado Livre
+                </Label>
+                <Input
+                  id="productId"
+                  type="text"
+                  placeholder="Ex: MLB123456789"
+                  value={productId}
+                  onChange={(e) => setProductId(e.target.value)}
+                  required
+                />
+              </div>
+              <Button
+                type="submit"
+                disabled={isAdding}
+                className="md:w-auto w-full"
+              >
+                {isAdding ? "Adicionando..." : "Adicionar Produto"}
+              </Button>
             </div>
-            <Button type="submit" disabled={isAdding}>
-              {isAdding ? "Adicionando..." : "Adicionar Produto"}
-            </Button>
           </form>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col justify-between items-start gap-4">
             <CardTitle>Todos os Produtos</CardTitle>
-            <div className="flex items-center gap-4">
-              <div>
+            <div className="flex md:flex-row flex-col items-start md:items-center gap-4 w-full">
+              {/* Filtro de Categoria: */}
+              <div className="w-full">
                 <CategoryFilter
                   value={selectedCategory}
                   onChange={setSelectedCategory}
                   className="w-full px-3 py-2 border rounded border-foreground"
                 />
               </div>
-              <div className="flex items-center gap-2">
-                <Label htmlFor="limit-select">Itens por página:</Label>
+              {/* Select Itens por pagina */}
+              <div className="flex items-center gap-2 w-full">
+                <Label htmlFor="limit-select" className="whitespace-nowrap">
+                  Itens por página:
+                </Label>
                 <select
                   id="limit-select"
                   value={limit}
@@ -206,7 +218,7 @@ const ProductsPage = () => {
                     setLimit(Number(e.target.value));
                     setCurrentPage(1); // Reseta para página 1 ao mudar o limite
                   }}
-                  className="p-2 border rounded"
+                  className="p-2 border rounded w-full"
                 >
                   <option value={10}>10</option>
                   <option value={20}>20</option>
@@ -230,7 +242,9 @@ const ProductsPage = () => {
                     <TableHead>Título</TableHead>
                     <TableHead>Preço</TableHead>
                     <TableHead>Quantidade</TableHead>
-                    <TableHead>Condição</TableHead>
+                    <TableHead className="hidden md:table-header">
+                      Condição
+                    </TableHead>
                     <TableHead>Categoria</TableHead>
                     <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
@@ -249,7 +263,7 @@ const ProductsPage = () => {
                         }).format(product.price)}
                       </TableCell>
                       <TableCell>{product.available_quantity}</TableCell>
-                      <TableCell>
+                      <TableCell className="hidden md:table-cell">
                         <Badge variant="outline">
                           {getConditionText(product.condition)}
                         </Badge>
@@ -300,6 +314,4 @@ const ProductsPage = () => {
       </Card>
     </div>
   );
-};
-
-export default ProductsPage;
+}

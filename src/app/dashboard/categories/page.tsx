@@ -72,14 +72,14 @@ export default function CategoriesPage() {
   };
 
   return (
-    <div className="p-8">
-      <h1 className="text-3xl font-bold mb-6">Categories</h1>
+    <div className="md:pt-8 pt-12">
+      <h1 className="md:text-3xl text-2xl font-bold mb-6">Categories</h1>
       <Card className="mb-8">
         <CardContent>
           <form onSubmit={handleSubmit}>
-            <div className="flex gap-2 items-end">
-              <div>
-                <Label className="mb-2">Nova categoria</Label>
+            <div className="flex md:flex-row flex-col gap-4 md:items-end items-start">
+              <div className="w-full">
+                <Label className="mb-3">Nova categoria</Label>
                 <Input
                   type="text"
                   value={name}
@@ -87,7 +87,7 @@ export default function CategoriesPage() {
                   placeholder="Nova Categoria"
                 />
               </div>
-              <Button type="submit">
+              <Button type="submit" className="md:w-auto w-full">
                 {editingCategory ? "Atualizar" : "Adicionar Categoria"}
               </Button>
             </div>

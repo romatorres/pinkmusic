@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"; // Importar Card components
 import { toast } from "sonner";
+import Image from "next/image";
 
 interface Partner {
   id: string;
@@ -87,8 +88,10 @@ export default function PartnersPage() {
   };
 
   return (
-    <div className="p-8">
-      <h1 className="text-3xl font-bold mb-4">Gerenciar Parceiros</h1>
+    <div className="md:pt-8 pt-12">
+      <h1 className="md:text-3xl text-2xl font-bold mb-6">
+        Gerenciar Parceiros
+      </h1>
 
       <Card className="mb-8 ">
         <CardHeader>
@@ -121,7 +124,9 @@ export default function PartnersPage() {
                 required
               />
             </div>
-            <Button type="submit">Adicionar Parceiro</Button>
+            <Button type="submit" className="md:w-auto w-full">
+              Adicionar Parceiro
+            </Button>
           </form>
         </CardContent>
       </Card>
@@ -134,9 +139,11 @@ export default function PartnersPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {partners.map((partner) => (
               <Card key={partner.id} className="flex flex-col items-center p-4">
-                <img
+                <Image
                   src={`/partners/${partner.imageUrl}`}
                   alt={partner.name}
+                  width={24}
+                  height={24}
                   className="w-24 h-24 object-contain mb-4"
                 />
                 <p className="text-lg font-semibold text-center mb-2">
