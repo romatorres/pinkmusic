@@ -18,7 +18,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
-import Image from "next/image";
 
 const registerSchema = z.object({
   email: z
@@ -71,16 +70,6 @@ export default function RegisterPage() {
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
       <Card className="w-full max-w-lg">
-        {/* Logo */}
-        <div className="relative w-[170px] md:w-[200px] lg:w-[240px] aspect-[240/70.5] mt-4 mb-10 mx-auto">
-          <Image
-            src="/img/logo-pink.svg"
-            alt="Logo da empresa"
-            fill
-            className="object-contain"
-            priority
-          />
-        </div>
         <CardHeader>
           <CardTitle className="text-2xl text-center">Registro</CardTitle>
         </CardHeader>

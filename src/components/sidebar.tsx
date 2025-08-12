@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import { Button } from "./ui/button";
+import { LogOut } from "lucide-react";
 
 export function Sidebar() {
   const { user, logout } = useAuthStore();
@@ -189,20 +189,18 @@ export function Sidebar() {
                   }`}
                 >
                   <Link
-                    href="/dashboard/settings"
+                    href="/dashboard/register"
                     className={`block p-2 rounded hover:bg-[#469D3F] transition ${
                       pathname === "/dashboard/settings" ? "bg-[#45973E]" : ""
                     }`}
                     onClick={() => isMobile && setIsMobileMenuOpen(false)}
                   >
-                    Configurações Gerais
+                    Novo Usuario
                   </Link>
                   <Link
-                    href="/dashboard/settings/profile"
-                    className={`block p-2 rounded bg-[#45973E] transition ${
-                      pathname === "/dashboard/settings/profile"
-                        ? "bg-emerald-600"
-                        : ""
+                    href="/dashboard/profile"
+                    className={`block p-2 rounded bg-[#469D3F] transition ${
+                      pathname === "/dashboard/profile" ? "bg-[#45973E]" : ""
                     }`}
                     onClick={() => isMobile && setIsMobileMenuOpen(false)}
                   >
@@ -215,13 +213,12 @@ export function Sidebar() {
         </nav>
 
         <div className="p-4 border-t border-foreground">
-          <Button
-            onClick={handleLogout}
-            variant={"destructive"}
-            className="w-full"
-          >
-            Sair
-          </Button>
+          <button onClick={handleLogout} className=" flex gap-2 cursor-pointer">
+            Logout
+            <span className="text-destructive">
+              <LogOut />
+            </span>
+          </button>
         </div>
       </div>
 
