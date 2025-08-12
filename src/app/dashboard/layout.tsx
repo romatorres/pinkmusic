@@ -12,17 +12,32 @@ export default function DashboardLayout({
 }) {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
-  const { token } = useAuthStore();
+  const { setUser, isAuth } = useAuthStore();
 
   useEffect(() => {
-    if (!token) {
-      router.push("/login");
-    } else {
-      setLoading(false);
-    }
-  }, [token, router]);
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch("/api/auth/me");
+        if (response.ok) {
+          const userData = await response.json();
+          setUser(userData);
+        } else {
+          setUser(null);
+          router.push("/login");
+        }
+      } catch (error) {
+        console.error("Failed to fetch user data:", error);
+        setUser(null);
+        router.push("/login");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  if (loading) {
+    fetchUserData();
+  }, [setUser, router]);
+
+  if (loading || !isAuth) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         Carregando...

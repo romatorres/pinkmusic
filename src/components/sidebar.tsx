@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 
 export function Sidebar() {
-  const { role, clearToken } = useAuthStore();
+  const { user, logout } = useAuthStore();
   const pathname = usePathname();
   const router = useRouter();
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -25,9 +25,16 @@ export function Sidebar() {
     return () => window.removeEventListener("resize", checkIfMobile);
   }, []);
 
-  const handleLogout = () => {
-    clearToken();
-    router.push("/");
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", {
+        method: "POST",
+      });
+      logout();
+      router.push("/");
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
   };
 
   const isActive = (path: string) => {
@@ -45,7 +52,7 @@ export function Sidebar() {
   const MobileMenuButton = () => (
     <button
       onClick={toggleMobileMenu}
-      className="md:hidden fixed top-4 left-4 z-50 p-2 rounded-md bg-emerald-600 text-white"
+      className="md:hidden fixed top-4 left-4 z-50 p-2 rounded-md bg-primary text-white"
       aria-label="Menu"
     >
       <svg
@@ -80,7 +87,7 @@ export function Sidebar() {
 
       <div
         className={cn(
-          "h-screen bg-emerald-950 text-white flex flex-col",
+          "h-screen bg-primary text-white flex flex-col",
           "fixed md:static z-40 transition-all duration-300 ease-in-out",
           isMobile
             ? isMobileMenuOpen
@@ -90,9 +97,14 @@ export function Sidebar() {
           isMobileMenuOpen && "shadow-xl"
         )}
       >
-        <div className="p-4 border-b border-gray-800">
+        <div className="p-4 border-b border-foreground flex flex-col md:items-start items-end">
           <h2 className="text-xl font-bold">Painel de Controle</h2>
-          <p className="text-xs text-emerald-200">{role}</p>
+          {user && (
+            <p className="text-xs text-emerald-200 flex flex-col md:items-start items-end">
+              <span>{user.name}</span>
+              <span>{user.role}</span>
+            </p>
+          )}
         </div>
 
         <nav className="flex-1 p-4 overflow-y-auto">
@@ -149,7 +161,7 @@ export function Sidebar() {
                 <button
                   onClick={() => setSettingsOpen(!settingsOpen)}
                   className={`w-full flex items-center justify-between p-2 rounded hover:bg-[#469D3F] transition ${
-                    isSettingsActive() ? "bg-[#45973E]" : ""
+                    isSettingsActive() ? "bg-primary" : ""
                   }`}
                 >
                   <span>Configurações</span>
@@ -202,7 +214,7 @@ export function Sidebar() {
           </ul>
         </nav>
 
-        <div className="p-4 border-t border-gray-800">
+        <div className="p-4 border-t border-foreground">
           <Button
             onClick={handleLogout}
             variant={"destructive"}

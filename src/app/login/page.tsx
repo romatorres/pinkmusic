@@ -59,7 +59,6 @@ export default function LoginPage() {
       const responseData = await response.json();
 
       if (response.ok) {
-        setToken(responseData.token);
         toast.success("Login realizado com sucesso!");
         router.push("/dashboard");
       } else {
