@@ -36,8 +36,8 @@ export default function Contact() {
           <h2 className="my-auto self-stretch font-normal">Contatos</h2>
         </div>
         <div className="flex flex-col items-center justify-center md:py-6 py-2 px-4 w-full">
-          <div className="w-full md:mb-16 mb-8 border border-b-[1px] border-b-ring">
-            <div className="flex flex-col items-center justify-center w-full gap-2 md:p-6 p-4 ">
+          <div className="w-full border border-b-[1px] border-b-ring bg-card md:mb-16 md:mt-6 mt-4 mb-8 py-7 rounded-2xl">
+            <div className="flex flex-col items-center justify-center w-full gap-2">
               <div>
                 <Image
                   src="/img/icon-email_contacts.svg"
@@ -47,10 +47,10 @@ export default function Contact() {
                   className="aspect-square object-contain object-center sm:w-16 w-12 self-stretch flex-shrink-0 my-auto"
                 />
               </div>
-              <h3 className="text-primary sm:text-xl text-lg font-normal">
+              <h3 className="text-primary sm:text-xl text-md font-normal">
                 E-MAIL
               </h3>
-              <p className="text-foreground font-medium sm:text-2xl text-xl md:mb-10 mb-6">
+              <p className="text-foreground font-medium sm:text-2xl text-lg">
                 <a href="mailto:vendas@pinkmusic.com.br">
                   VENDAS@PINKMUSIC.COM.BR
                 </a>
@@ -60,36 +60,6 @@ export default function Contact() {
           {/* Informações de Contato */}
           <div className="space-y-8 w-full">
             <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-8 w-full">
-              <div>
-                <h2 className="text-2xl font-bold text-foreground mb-6 flex items-center gap-4">
-                  <Image
-                    src="/img/icon-location_contacts.svg"
-                    alt="Localização"
-                    width={48}
-                    height={48}
-                    className="aspect-square object-contain object-center sm:w-12 w-10 self-stretch flex-shrink-0 my-auto"
-                  />
-                  Nossa Localização
-                </h2>
-                <div className="space-y-4">
-                  <div className="flex items-start space-x-3">
-                    <div>
-                      <p className="font-semibold text-foreground">
-                        {address.street1}
-                      </p>
-                      <p className="font-semibold text-foreground">
-                        {address.street2}
-                      </p>
-                      <p className="text-primary">{address.district}</p>
-                      <p className="text-primary">
-                        {address.city} - {address.state}
-                      </p>
-                      <p className="text-primary">CEP: {address.zipCode}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
               <div>
                 <h2 className="text-2xl font-bold text-foreground mb-6 flex items-center gap-4">
                   <Image
@@ -137,6 +107,36 @@ export default function Contact() {
                     <p className="text-primary">Segunda a Sexta: 8h às 18h</p>
                     <p className="text-primary">Sábado: 8h às 13h</p>
                     <p className="text-primary">Domingo: Fechado</p>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h2 className="text-2xl font-bold text-foreground mb-6 flex items-center gap-4">
+                  <Image
+                    src="/img/icon-location_contacts.svg"
+                    alt="Localização"
+                    width={48}
+                    height={48}
+                    className="aspect-square object-contain object-center sm:w-12 w-10 self-stretch flex-shrink-0 my-auto"
+                  />
+                  Nossa Localização
+                </h2>
+                <div className="space-y-4">
+                  <div className="flex items-start space-x-3">
+                    <div>
+                      <p className="font-semibold text-foreground">
+                        {address.street1}
+                      </p>
+                      <p className="font-semibold text-foreground">
+                        {address.street2}
+                      </p>
+                      <p className="text-primary">{address.district}</p>
+                      <p className="text-primary">
+                        {address.city} - {address.state}
+                      </p>
+                      <p className="text-primary">CEP: {address.zipCode}</p>
+                    </div>
                   </div>
                 </div>
               </div>
