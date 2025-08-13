@@ -13,13 +13,40 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Label } from "@/components/ui/label";
 import { Edit, Trash2 } from "lucide-react";
+
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { toast } from "sonner";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+
+const categoriesSchema = z.object({
+  name: z
+    .string()
+    .min(1, { message: "O nome da categoria é obrigatório." })
+    .min(3, { message: "A categoria deve ter pelo menos 3 caracteres" }),
+});
+
+type CategoriesFormInputs = z.infer<typeof categoriesSchema>;
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
-  const [name, setName] = useState("");
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+
+  const form = useForm<CategoriesFormInputs>({
+    resolver: zodResolver(categoriesSchema),
+    defaultValues: {
+      name: "",
+    },
+  });
 
   useEffect(() => {
     fetch("/api/categories")
@@ -27,8 +54,7 @@ export default function CategoriesPage() {
       .then(setCategories);
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (data: CategoriesFormInputs) => {
     const method = editingCategory ? "PUT" : "POST";
     const url = editingCategory
       ? `/api/categories/${editingCategory.id}`
@@ -37,7 +63,7 @@ export default function CategoriesPage() {
     const res = await fetch(url, {
       method,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name }),
+      body: JSON.stringify(data),
     });
 
     if (res.ok) {
@@ -51,14 +77,26 @@ export default function CategoriesPage() {
       } else {
         setCategories([...categories, updatedCategory]);
       }
-      setName("");
+      form.reset();
       setEditingCategory(null);
+      toast.success(
+        `Categoria ${
+          editingCategory ? "atualizada" : "criada"
+        } com sucesso!`
+      );
+    } else {
+      toast.error("Ocorreu um erro. Tente novamente.");
     }
   };
 
   const handleEdit = (category: Category) => {
-    setName(category.name);
+    form.setValue("name", category.name);
     setEditingCategory(category);
+  };
+
+  const handleCancelEdit = () => {
+    form.reset();
+    setEditingCategory(null);
   };
 
   const handleDelete = async (id: string) => {
@@ -68,42 +106,54 @@ export default function CategoriesPage() {
 
     if (res.ok) {
       setCategories(categories.filter((c) => c.id !== id));
+      toast.success("Categoria deletada com sucesso!");
+    } else {
+      toast.error("Ocorreu um erro ao deletar a categoria.");
     }
   };
 
   return (
     <div className="md:pt-8 pt-12">
-      <h1 className="md:text-3xl text-2xl font-bold mb-6">Categories</h1>
+      <h1 className="md:text-3xl text-2xl font-bold mb-6">Categorias</h1>
       <Card className="mb-8">
-        <CardContent>
-          <form onSubmit={handleSubmit}>
-            <div className="flex md:flex-row flex-col gap-4 md:items-end items-start">
-              <div className="w-full">
-                <Label className="mb-3">Nova categoria</Label>
-                <Input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Nova Categoria"
-                />
+        <CardContent className="pt-6">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <div className="flex md:flex-row flex-col gap-4 md:items-end items-start">
+                <div className="w-full">
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Categoria</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Nova categoria" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <Button type="submit" className="md:w-auto w-full">
+                  {editingCategory ? "Atualizar" : "Adicionar Categoria"}
+                </Button>
+                {editingCategory && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleCancelEdit}
+                    className="md:w-auto w-full"
+                  >
+                    Cancelar
+                  </Button>
+                )}
               </div>
-              <Button type="submit" className="md:w-auto w-full">
-                {editingCategory ? "Atualizar" : "Adicionar Categoria"}
-              </Button>
-            </div>
-            {editingCategory && (
-              <button
-                onClick={() => {
-                  setName("");
-                  setEditingCategory(null);
-                }}
-              >
-                Cancel
-              </button>
-            )}
-          </form>
+            </form>
+          </Form>
         </CardContent>
       </Card>
+
       <Card>
         <CardContent>
           <Table>

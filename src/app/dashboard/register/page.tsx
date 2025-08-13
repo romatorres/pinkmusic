@@ -25,6 +25,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
+import { Edit, Trash2 } from "lucide-react";
 
 const registerSchema = z.object({
   email: z
@@ -34,7 +35,7 @@ const registerSchema = z.object({
   name: z
     .string()
     .min(1, { message: "O nome é obrigatório." })
-    .min(3, { message: "O nome deve ter pelo menos 4 caracteres" }),
+    .min(3, { message: "O nome deve ter pelo menos 3 caracteres" }),
   password: z
     .string()
     .min(1, { message: "A senha é obrigatória." })
@@ -52,27 +53,8 @@ interface User {
 
 export default function RegisterPage() {
   const [loading, setLoading] = useState(true);
-  const [users, setUsers] = useState<User[]>([]); // Assuming User type for now
-
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const response = await fetch("/api/auth/users"); // Assuming this endpoint exists
-        if (!response.ok) {
-          throw new Error("Failed to fetch users");
-        }
-        const data = await response.json();
-        setUsers(data);
-      } catch (error) {
-        console.error("Error fetching users:", error);
-        toast.error("Erro ao carregar usuários.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUsers();
-  }, []);
+  const [users, setUsers] = useState<User[]>([]);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
 
   const form = useForm<RegisterFormInputs>({
     resolver: zodResolver(registerSchema),
@@ -83,10 +65,40 @@ export default function RegisterPage() {
     },
   });
 
-  const onSubmit = async (data: RegisterFormInputs) => {
+  const fetchUsers = async () => {
+    setLoading(true);
     try {
-      const response = await fetch("/api/auth/register", {
-        method: "POST",
+      const response = await fetch("/api/auth/users");
+      if (!response.ok) {
+        throw new Error("Falha ao buscar usuários");
+      }
+      const data = await response.json();
+      setUsers(data);
+    } catch (error) {
+      console.error("Erro ao buscar usuários:", error);
+      toast.error("Erro ao carregar usuários.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const onSubmit = async (data: RegisterFormInputs) => {
+    const isEditing = !!editingUser;
+    // NOTA: Ao editar, o campo de senha deveria ser opcional.
+    // A implementação atual exige uma senha em cada atualização.
+    // Considere ajustar o schema do Zod para atualizações.
+    const url = isEditing
+      ? `/api/user/${editingUser?.id}`
+      : "/api/auth/register";
+    const method = isEditing ? "PUT" : "POST";
+
+    try {
+      const response = await fetch(url, {
+        method,
         headers: {
           "Content-Type": "application/json",
         },
@@ -96,14 +108,48 @@ export default function RegisterPage() {
       const responseData = await response.json();
 
       if (response.ok) {
-        toast.success("Usuário registrado com sucesso!");
-        /* router.push("/login"); */
+        toast.success(
+          `Usuário ${isEditing ? "atualizado" : "registrado"} com sucesso!`
+        );
+        form.reset();
+        setEditingUser(null);
+        fetchUsers(); // Atualiza a lista de usuários
       } else {
-        toast.error(responseData.message || "Erro ao registrar usuário.");
+        toast.error(
+          responseData.message ||
+            `Erro ao ${isEditing ? "atualizar" : "registrar"} usuário.`
+        );
       }
     } catch (err) {
-      console.error("Registration error:", err);
+      console.error("Form submission error:", err);
       toast.error("Um erro inesperado ocorreu.");
+    }
+  };
+
+  const handleEdit = (user: User) => {
+    form.setValue("name", user.name);
+    form.setValue("email", user.email);
+    // Não é recomendado pré-preencher a senha.
+    // O admin deve apenas definir uma nova senha, não ver a antiga.
+    form.setValue("password", "");
+    setEditingUser(user);
+  };
+
+  const handleCancelEdit = () => {
+    form.reset();
+    setEditingUser(null);
+  };
+
+  const handleDelete = async (id: string) => {
+    const res = await fetch(`/api/user/${id}`, {
+      method: "DELETE",
+    });
+
+    if (res.ok) {
+      toast.success("Usuário deletado com sucesso!");
+      fetchUsers(); // Atualiza a lista de usuários
+    } else {
+      toast.error("Ocorreu um erro ao deletar o usuário.");
     }
   };
 
@@ -150,15 +196,31 @@ export default function RegisterPage() {
                   <FormItem>
                     <FormLabel>Senha</FormLabel>
                     <FormControl>
-                      <Input placeholder="******" type="password" {...field} />
+                      <Input
+                        placeholder="Deixe em branco para não alterar"
+                        type="password"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="md:w-auto w-full">
-                Cadastrar
-              </Button>
+              <div className="flex gap-2">
+                <Button type="submit" className="w-full md:w-auto">
+                  {editingUser ? "Atualizar Usuário" : "Adicionar Usuário"}
+                </Button>
+                {editingUser && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleCancelEdit}
+                    className="w-full md:w-auto"
+                  >
+                    Cancelar
+                  </Button>
+                )}
+              </div>
             </form>
           </Form>
         </CardContent>
@@ -176,7 +238,9 @@ export default function RegisterPage() {
           ) : (
             <div className="overflow-x-auto">
               {users.length === 0 ? (
-                <p className="text-center text-gray-500">Nenhum usuário cadastrado.</p>
+                <p className="text-center text-gray-500">
+                  Nenhum usuário cadastrado.
+                </p>
               ) : (
                 <Table>
                   <TableHeader>
@@ -184,6 +248,7 @@ export default function RegisterPage() {
                       <TableHead>Nome</TableHead>
                       <TableHead>Email</TableHead>
                       <TableHead>Função</TableHead>
+                      <TableHead className="text-right">Ações</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -192,6 +257,24 @@ export default function RegisterPage() {
                         <TableCell>{user.name}</TableCell>
                         <TableCell>{user.email}</TableCell>
                         <TableCell>{user.role}</TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <Button
+                              onClick={() => handleEdit(user)}
+                              variant="ghost"
+                              size="icon"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              onClick={() => handleDelete(user.id)}
+                              variant="ghost"
+                              size="icon"
+                            >
+                              <Trash2 className="h-4 w-4 text-red-500" />
+                            </Button>
+                          </div>
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
