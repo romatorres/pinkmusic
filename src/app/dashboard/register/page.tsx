@@ -37,9 +37,11 @@ const registerSchema = z.object({
     .min(1, { message: "O nome é obrigatório." })
     .min(3, { message: "O nome deve ter pelo menos 3 caracteres" }),
   password: z
-    .string()
-    .min(1, { message: "A senha é obrigatória." })
-    .min(6, { message: "A senha deve ter pelo menos 6 caracteres" }),
+    .union([
+      z.string().min(6, "A senha deve ter pelo menos 6 caracteres"),
+      z.literal(""),
+    ])
+    .optional(),
 });
 
 type RegisterFormInputs = z.infer<typeof registerSchema>;
@@ -88,11 +90,8 @@ export default function RegisterPage() {
 
   const onSubmit = async (data: RegisterFormInputs) => {
     const isEditing = !!editingUser;
-    // NOTA: Ao editar, o campo de senha deveria ser opcional.
-    // A implementação atual exige uma senha em cada atualização.
-    // Considere ajustar o schema do Zod para atualizações.
     const url = isEditing
-      ? `/api/user/${editingUser?.id}`
+      ? `/api/auth/users/${editingUser?.id}`
       : "/api/auth/register";
     const method = isEditing ? "PUT" : "POST";
 
@@ -129,9 +128,6 @@ export default function RegisterPage() {
   const handleEdit = (user: User) => {
     form.setValue("name", user.name);
     form.setValue("email", user.email);
-    // Não é recomendado pré-preencher a senha.
-    // O admin deve apenas definir uma nova senha, não ver a antiga.
-    form.setValue("password", "");
     setEditingUser(user);
   };
 
@@ -141,7 +137,7 @@ export default function RegisterPage() {
   };
 
   const handleDelete = async (id: string) => {
-    const res = await fetch(`/api/user/${id}`, {
+    const res = await fetch(`/api/auth/users/${id}`, {
       method: "DELETE",
     });
 

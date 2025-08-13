@@ -8,7 +8,7 @@ export async function GET() {
         id: true,
         name: true,
         email: true,
-        role: true, // Assuming 'role' field exists in your User model
+        role: true,
       },
     });
     return NextResponse.json(users);

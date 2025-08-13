@@ -92,7 +92,7 @@ export function Sidebar() {
         {/* Header do Sidebar */}
         <div className="p-4 border-b border-foreground">
           <div className="flex flex-col md:items-start items-end">
-            <h2 className="text-xl font-bold">Painel de Controle</h2>
+            <h2 className="text-xl font-bold">Pink Music</h2>
             {user && (
               <p className="text-xs text-emerald-200 flex flex-col md:items-start items-end">
                 <span>{user.name}</span>
