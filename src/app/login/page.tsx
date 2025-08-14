@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useAuthStore } from "@/store/authStore";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -36,7 +35,6 @@ type LoginFormInputs = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
   const router = useRouter();
-  const { setToken } = useAuthStore();
 
   const form = useForm<LoginFormInputs>({
     resolver: zodResolver(loginSchema),
@@ -96,7 +94,7 @@ export default function LoginPage() {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="m@example.com" {...field} />
+                      <Input placeholder="seu@email.com" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
