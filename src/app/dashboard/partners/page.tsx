@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"; // Importar Card components
 import { toast } from "sonner";
-import Image from "next/image";
 
 interface Partner {
   id: string;
@@ -87,6 +86,15 @@ export default function PartnersPage() {
     }
   };
 
+  // Função para determinar se a URL é base64 ou caminho de arquivo
+  const getImageSrc = (imageUrl: string) => {
+    if (imageUrl.startsWith('data:')) {
+      return imageUrl; // É uma URL de dados base64
+    }
+    // Se não for base64, assume que é um caminho de arquivo
+    return `/partners/${imageUrl}`;
+  };
+
   return (
     <div className="md:pt-8 pt-12">
       <h1 className="md:text-3xl text-2xl font-bold mb-6">
@@ -118,6 +126,7 @@ export default function PartnersPage() {
               <Input
                 id="partnerImage"
                 type="file"
+                accept="image/*"
                 onChange={(e) =>
                   setNewPartnerImage(e.target.files ? e.target.files[0] : null)
                 }
@@ -139,11 +148,9 @@ export default function PartnersPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {partners.map((partner) => (
               <Card key={partner.id} className="flex flex-col items-center p-4">
-                <Image
-                  src={`/partners/${partner.imageUrl}`}
+                <img
+                  src={getImageSrc(partner.imageUrl)}
                   alt={partner.name}
-                  width={24}
-                  height={24}
                   className="w-24 h-24 object-contain mb-4"
                 />
                 <p className="text-lg font-semibold text-center mb-2">

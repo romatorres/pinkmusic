@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { PageContainer } from "../ui/Page-container";
-import Image from "next/image";
 
 interface Partner {
   id: string;
@@ -27,6 +26,15 @@ export default function Partners() {
     fetchPartners();
   }, []);
 
+  // Função para determinar se a URL é base64 ou caminho de arquivo
+  const getImageSrc = (imageUrl: string) => {
+    if (imageUrl.startsWith('data:')) {
+      return imageUrl; // É uma URL de dados base64
+    }
+    // Se não for base64, assume que é um caminho de arquivo
+    return `/partners/${imageUrl}`;
+  };
+
   // Duplicar os parceiros para criar o efeito de carrossel infinito
   const extendedLogos =
     partners.length > 0 ? Array(5).fill(partners).flat() : [];
@@ -41,10 +49,9 @@ export default function Partners() {
                 key={`${logo.id}-${index}`}
                 className="relative mx-8 h-10 w-28 flex-shrink-0"
               >
-                <Image
-                  src={`/partners/${logo.imageUrl}`}
+                <img
+                  src={getImageSrc(logo.imageUrl)}
                   alt={logo.name}
-                  fill
                   className="mx-8 self-stretch object-contain object-center flex-shrink-0 my-auto grayscale opacity-70 transition-all duration-300 ease-in-out hover:grayscale-0 hover:opacity-100 hover:scale-105"
                 />
               </div>

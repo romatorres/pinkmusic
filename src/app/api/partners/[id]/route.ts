@@ -1,6 +1,4 @@
 import { NextResponse } from "next/server";
-import { unlink } from "fs/promises";
-import path from "path";
 import prisma from "@/lib/prisma";
 
 export async function DELETE(
@@ -8,19 +6,21 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
+    
     const partner = await prisma.partner.findUnique({
-      where: { id: (await params).id },
+      where: { id },
     });
 
     if (!partner) {
       return new NextResponse("Partner not found", { status: 404 });
     }
 
-    const imagePath = path.join(process.cwd(), "public/partners", partner.imageUrl);
-    await unlink(imagePath);
+    // Não precisamos mais deletar o arquivo do sistema de arquivos
+    // pois agora armazenamos a imagem como URL de dados
 
     await prisma.partner.delete({
-      where: { id: (await params).id },
+      where: { id },
     });
 
     return new NextResponse(null, { status: 204 });
