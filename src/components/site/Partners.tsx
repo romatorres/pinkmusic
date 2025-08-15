@@ -28,7 +28,7 @@ export default function Partners() {
 
   // Função para determinar se a URL é base64 ou caminho de arquivo
   const getImageSrc = (imageUrl: string) => {
-    if (imageUrl.startsWith('data:')) {
+    if (imageUrl.startsWith("data:")) {
       return imageUrl; // É uma URL de dados base64
     }
     // Se não for base64, assume que é um caminho de arquivo
@@ -47,7 +47,7 @@ export default function Partners() {
             {extendedLogos.map((logo, index) => (
               <div
                 key={`${logo.id}-${index}`}
-                className="relative mx-8 h-10 w-28 flex-shrink-0"
+                className="relative mx-8 h-10 w-28 flex-shrink-0 flex items-center"
               >
                 <img
                   src={getImageSrc(logo.imageUrl)}

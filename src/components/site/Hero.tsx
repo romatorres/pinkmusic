@@ -23,7 +23,7 @@ export default function Hero() {
       <PageContainer>
         <div className="flex w-full max-w-[1440px] flex-col-reverse items-center gap-8 md:gap-4 px-4 md:flex-row md:items-center md:justify-between mt-12">
           <div className="flex flex-col items-center justify-center text-center md:w-1/2 md:items-start md:text-left">
-            <h1 className="m-0 font-['Tanker'] text-5xl md:text-5xl lg:text-6xl xl:text-[80px] leading-tight text-primary md:leading-14 lg:leading-16 xl:leading-24 lg:tracking-[3.2px]">
+            <h1 className="m-0 font-tanker text-5xl md:text-5xl lg:text-6xl xl:text-[80px] leading-tight text-primary md:leading-14 lg:leading-16 xl:leading-24 lg:tracking-[3.2px]">
               Tudo para <br />
               sua música <br />
               em um só lugar!
