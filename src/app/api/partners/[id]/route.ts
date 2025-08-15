@@ -5,11 +5,11 @@ import prisma from "@/lib/prisma";
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const partner = await prisma.partner.findUnique({
-      where: { id: params.id },
+      where: { id: (await params).id },
     });
 
     if (!partner) {
@@ -20,7 +20,7 @@ export async function DELETE(
     await unlink(imagePath);
 
     await prisma.partner.delete({
-      where: { id: params.id },
+      where: { id: (await params).id },
     });
 
     return new NextResponse(null, { status: 204 });
