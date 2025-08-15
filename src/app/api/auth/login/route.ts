@@ -46,7 +46,10 @@ export async function POST(request: Request) {
 
     // Gerar token usando jose para manter consistência
     const secret = new TextEncoder().encode(process.env.JWT_SECRET);
-    const token = await new jose.SignJWT({ userId: user.id, role: user.role })
+    const token = await new jose.SignJWT({ 
+      userId: user.id, 
+      role: user.role 
+    })
       .setProtectedHeader({ alg: 'HS256' })
       .setIssuedAt()
       .setExpirationTime('7d')

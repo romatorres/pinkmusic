@@ -26,7 +26,14 @@ export async function GET(request: NextRequest) {
     try {
       const secret = new TextEncoder().encode(process.env.JWT_SECRET);
       const { payload } = await jose.jwtVerify(token, secret);
-      const decodedToken = payload as DecodedToken;
+      
+      // Converter o payload para o tipo DecodedToken
+      const decodedToken: DecodedToken = {
+        userId: payload.userId as string,
+        role: payload.role as string,
+        iat: payload.iat as number,
+        exp: payload.exp as number
+      };
 
       const user = await prisma.user.findUnique({
         where: { id: decodedToken.userId },
