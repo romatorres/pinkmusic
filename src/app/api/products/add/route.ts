@@ -50,7 +50,7 @@ async function fetchProductDetailsFromMercadoLibre(itemId: string, baseUrl: stri
     throw new Error("Token de acesso do MercadoLivre não configurado.");
   }
 
-  const headers = {
+  let headers = {
     "Authorization": `Bearer ${accessToken}`,
   };
 
@@ -64,7 +64,9 @@ async function fetchProductDetailsFromMercadoLibre(itemId: string, baseUrl: stri
     const newTokens = await refreshMercadoLivreToken(baseUrl);
     
     // Usar o novo token para a nova requisição
-    headers.Authorization = `Bearer ${newTokens.accessToken}`;
+    headers = {
+      "Authorization": `Bearer ${newTokens.accessToken}`,
+    };
     const retryResponse = await fetch(url, { headers });
 
     if (!retryResponse.ok) {
