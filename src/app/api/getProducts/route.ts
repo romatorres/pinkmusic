@@ -52,6 +52,31 @@ async function fetchProductFromMercadoLibre(
   });
 }
 
+async function refreshMercadoLivreToken(baseUrl: string) {
+  try {
+    const refreshResponse = await fetch(`${baseUrl}/api/refreshToken`, {
+      method: "POST",
+    });
+
+    const refreshResult = await refreshResponse.json();
+
+    if (!refreshResult.success) {
+      throw new Error(
+        `Falha ao renovar o token: ${refreshResult.error || "Erro desconhecido"}`
+      );
+    }
+
+    // Retorna os novos tokens
+    return {
+      accessToken: refreshResult.accessToken,
+      refreshToken: refreshResult.refreshToken
+    };
+  } catch (error) {
+    console.error("Erro ao renovar token:", error);
+    throw error;
+  }
+}
+
 export async function GET(req: NextRequest) {
   try {
     const item_id = req.nextUrl.searchParams.get("item_id") || "MLB3312824304";
@@ -68,24 +93,15 @@ export async function GET(req: NextRequest) {
       const currentUrl = new URL(req.url);
       const baseUrl = `${currentUrl.protocol}//${currentUrl.host}`;
 
-      const refreshResponse = await fetch(`${baseUrl}/api/refreshToken`, {
-        method: "POST",
-      });
-
-      const refreshResult = await refreshResponse.json();
-
-      if (!refreshResult.success) {
-        throw new Error(
-          `Falha ao renovar o token: ${refreshResult.error || "Erro desconhecido"}`
-        );
-      }
+      // Tentar renovar o token
+      const newTokens = await refreshMercadoLivreToken(baseUrl);
 
       console.log("Token renovado com sucesso. Tentando novamente...");
 
-      // Tenta novamente com o novo token
+      // Tenta novamente com o novo token (apenas para esta requisição)
       response = await fetchProductFromMercadoLibre(
         item_id,
-        process.env.MERCADOLIBRE_ACCESS_TOKEN
+        newTokens.accessToken
       );
     }
 

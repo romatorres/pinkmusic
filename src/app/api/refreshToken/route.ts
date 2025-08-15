@@ -1,6 +1,4 @@
 import { NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
 
 export async function POST() {
   try {
@@ -42,28 +40,17 @@ export async function POST() {
     const new_access_token = data.access_token;
     const new_refresh_token = data.refresh_token;
 
-    // Atualizar o arquivo .env.local
-    const envPath = path.resolve(process.cwd(), ".env.local");
-    let envFileContent = fs.readFileSync(envPath, "utf8");
-
-    envFileContent = envFileContent.replace(
-      /^MERCADOLIBRE_ACCESS_TOKEN=.*/m,
-      `MERCADOLIBRE_ACCESS_TOKEN=${new_access_token}`
-    );
-    envFileContent = envFileContent.replace(
-      /^MERCADOLIBRE_REFRESH_TOKEN=.*/m,
-      `MERCADOLIBRE_REFRESH_TOKEN=${new_refresh_token}`
-    );
-
-    fs.writeFileSync(envPath, envFileContent);
-
-    // Atualizar as variáveis de ambiente no processo atual
-    process.env.MERCADOLIBRE_ACCESS_TOKEN = new_access_token;
-    process.env.MERCADOLIBRE_REFRESH_TOKEN = new_refresh_token;
+    // Em vez de tentar escrever no arquivo .env.local (que não funciona na Vercel),
+    // vamos retornar os novos tokens para que o client possa usá-los
+    // Na Vercel, as variáveis de ambiente devem ser atualizadas pelo dashboard
 
     return NextResponse.json({
       success: true,
       message: "Token atualizado com sucesso!",
+      accessToken: new_access_token,
+      refreshToken: new_refresh_token,
+      expiresIn: data.expires_in,
+      tokenType: data.token_type
     });
   } catch (error) {
     console.error("Erro ao renovar token:", error);

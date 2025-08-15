@@ -28,7 +28,32 @@ interface MercadoLibreProductDetails {
   permalink: string;
 }
 
-async function fetchProductDetailsFromMercadoLibre(itemId: string) {
+async function refreshMercadoLivreToken(baseUrl: string) {
+  try {
+    const refreshResponse = await fetch(`${baseUrl}/api/refreshToken`, {
+      method: "POST",
+    });
+
+    const refreshResult = await refreshResponse.json();
+
+    if (!refreshResult.success) {
+      throw new Error(
+        `Falha ao renovar o token: ${refreshResult.error || "Erro desconhecido"}`
+      );
+    }
+
+    // Retorna os novos tokens
+    return {
+      accessToken: refreshResult.accessToken,
+      refreshToken: refreshResult.refreshToken
+    };
+  } catch (error) {
+    console.error("Erro ao renovar token:", error);
+    throw error;
+  }
+}
+
+async function fetchProductDetailsFromMercadoLibre(itemId: string, baseUrl: string) {
   let access_token = process.env.MERCADOLIBRE_ACCESS_TOKEN;
 
   if (!access_token) {
@@ -50,28 +75,12 @@ async function fetchProductDetailsFromMercadoLibre(itemId: string) {
   // Handle token refresh if necessary
   if (response.status === 401 || response.status === 403) {
     console.log("Token inválido ou expirado ao buscar detalhes. Renovando...");
-    const refreshResponse = await fetch(
-      "http://localhost:3000/api/refreshToken",
-      {
-        method: "POST",
-      }
-    );
-    const refreshResult = await refreshResponse.json();
-
-    if (!refreshResult.success) {
-      throw new Error(
-        `Falha ao renovar o token: ${
-          refreshResult.error || "Erro desconhecido"
-        }`
-      );
-    }
-    access_token = process.env.MERCADOLIBRE_ACCESS_TOKEN; // Get the newly updated token
-    if (!access_token) {
-      throw new Error(
-        "Token de acesso do MercadoLivre não configurado após renovação."
-      );
-    }
-    headers.Authorization = `Bearer ${access_token}`;
+    
+    // Tentar renovar o token
+    const newTokens = await refreshMercadoLivreToken(baseUrl);
+    
+    // Usar o novo token para a nova requisição
+    headers.Authorization = `Bearer ${newTokens.accessToken}`;
     response = await fetch(url, { method: "GET", headers: headers }); // Retry with new token
   }
 
@@ -100,6 +109,10 @@ export async function GET(
       );
     }
 
+    // Obter a URL base da requisição atual
+    const currentUrl = new URL(req.url);
+    const baseUrl = `${currentUrl.protocol}//${currentUrl.host}`;
+
     // Fetch from our database first
     const productFromDb = await prisma.product.findUnique({
       where: { id: id },
@@ -114,7 +127,7 @@ export async function GET(
 
     // Fetch full details from Mercado Libre API
     const productDetailsFromMl: MercadoLibreProductDetails =
-      await fetchProductDetailsFromMercadoLibre(id);
+      await fetchProductDetailsFromMercadoLibre(id, baseUrl);
 
     // Combine data (or just use ML data if it's more comprehensive for display)
     const combinedProduct = {

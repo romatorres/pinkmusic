@@ -18,7 +18,32 @@ interface MercadoLibreProductDetails {
   };
 }
 
-async function fetchProductDetailsFromMercadoLibre(itemId: string): Promise<MercadoLibreProductDetails> {
+async function refreshMercadoLivreToken(baseUrl: string) {
+  try {
+    const refreshResponse = await fetch(`${baseUrl}/api/refreshToken`, {
+      method: "POST",
+    });
+
+    const refreshResult = await refreshResponse.json();
+
+    if (!refreshResult.success) {
+      throw new Error(
+        `Falha ao renovar o token: ${refreshResult.error || "Erro desconhecido"}`
+      );
+    }
+
+    // Retorna os novos tokens
+    return {
+      accessToken: refreshResult.accessToken,
+      refreshToken: refreshResult.refreshToken
+    };
+  } catch (error) {
+    console.error("Erro ao renovar token:", error);
+    throw error;
+  }
+}
+
+async function fetchProductDetailsFromMercadoLibre(itemId: string, baseUrl: string): Promise<MercadoLibreProductDetails> {
   const accessToken = process.env.MERCADOLIBRE_ACCESS_TOKEN;
 
   if (!accessToken) {
@@ -30,26 +55,16 @@ async function fetchProductDetailsFromMercadoLibre(itemId: string): Promise<Merc
   };
 
   const url = `https://api.mercadolibre.com/items/${itemId}`;
-  const response = await fetch(url, { headers });
+  let response = await fetch(url, { headers });
 
   if (response.status === 401 || response.status === 403) {
     console.log("Token inválido ou expirado, tentando renovar...");
-    // Assuming you have an endpoint to refresh the token
-    const refreshResponse = await fetch("http://localhost:3000/api/refreshToken", {
-      method: "POST",
-    });
-    const refreshResult = await refreshResponse.json();
-
-    if (!refreshResult.success) {
-      throw new Error(`Falha ao renovar o token: ${refreshResult.error || "Erro desconhecido"}`);
-    }
     
-    const newAccessToken = process.env.MERCADOLIBRE_ACCESS_TOKEN;
-    if (!newAccessToken) {
-        throw new Error("Token de acesso do MercadoLivre não configurado após renovação.");
-    }
+    // Tentar renovar o token
+    const newTokens = await refreshMercadoLivreToken(baseUrl);
     
-    headers.Authorization = `Bearer ${newAccessToken}`;
+    // Usar o novo token para a nova requisição
+    headers.Authorization = `Bearer ${newTokens.accessToken}`;
     const retryResponse = await fetch(url, { headers });
 
     if (!retryResponse.ok) {
@@ -78,6 +93,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Obter a URL base da requisição atual
+    const currentUrl = new URL(req.url);
+    const baseUrl = `${currentUrl.protocol}//${currentUrl.host}`;
+
     const existingProduct = await prisma.product.findUnique({
       where: { permalink: `https://api.mercadolibre.com/items/${productId}` },
     });
@@ -89,7 +108,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const productDetails = await fetchProductDetailsFromMercadoLibre(productId);
+    const productDetails = await fetchProductDetailsFromMercadoLibre(productId, baseUrl);
 
     const newProduct = await prisma.product.create({
       data: {
