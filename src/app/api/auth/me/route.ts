@@ -1,5 +1,5 @@
 import { NextResponse, NextRequest } from "next/server";
-import jwt from "jsonwebtoken";
+import * as jose from "jose";
 import prisma from "@/lib/prisma";
 
 interface DecodedToken {
@@ -11,24 +11,37 @@ interface DecodedToken {
 
 export async function GET(request: NextRequest) {
   try {
+    // Verificar se JWT_SECRET está definido
+    if (!process.env.JWT_SECRET) {
+      console.error("JWT_SECRET is not defined");
+      return NextResponse.json({ message: "Erro de configuração do servidor." }, { status: 500 });
+    }
+
     const token = request.cookies.get("auth_token")?.value;
 
     if (!token) {
       return NextResponse.json({ message: "Não autorizado." }, { status: 401 });
     }
 
-    const decodedToken: DecodedToken = jwt.verify(token, process.env.JWT_SECRET!) as DecodedToken;
+    try {
+      const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+      const { payload } = await jose.jwtVerify(token, secret);
+      const decodedToken = payload as DecodedToken;
 
-    const user = await prisma.user.findUnique({
-      where: { id: decodedToken.userId },
-      select: { id: true, email: true, role: true, name: true },
-    });
+      const user = await prisma.user.findUnique({
+        where: { id: decodedToken.userId },
+        select: { id: true, email: true, role: true, name: true },
+      });
 
-    if (!user) {
-      return NextResponse.json({ message: "Usuário não encontrado." }, { status: 404 });
+      if (!user) {
+        return NextResponse.json({ message: "Usuário não encontrado." }, { status: 404 });
+      }
+
+      return NextResponse.json(user);
+    } catch (error) {
+      console.error("Token verification error:", error);
+      return NextResponse.json({ message: "Token inválido." }, { status: 401 });
     }
-
-    return NextResponse.json(user);
   } catch (error) {
     console.error("Error fetching user data:", error);
     return NextResponse.json({ message: "Não autorizado." }, { status: 401 });
