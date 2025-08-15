@@ -42,11 +42,15 @@ export async function POST(request: Request) {
 
     console.log("Parceiro criado com sucesso:", partner.id);
     return NextResponse.json(partner);
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error creating partner - Tipo do erro:", typeof error);
-    console.error("Error creating partner - Nome do erro:", error?.name);
-    console.error("Error creating partner - Mensagem:", error?.message);
-    console.error("Error creating partner - Stack:", error?.stack);
+    if (error instanceof Error) {
+      console.error("Error creating partner - Nome do erro:", error.name);
+      console.error("Error creating partner - Mensagem:", error.message);
+      console.error("Error creating partner - Stack:", error.stack);
+    } else {
+      console.error("Error creating partner - Erro desconhecido:", error);
+    }
     return new NextResponse("Internal Server Error", { status: 500 });
   }
 }
