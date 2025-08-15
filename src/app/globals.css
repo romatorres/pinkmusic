@@ -11,7 +11,7 @@ html {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-inter);
-  --font-tanker: "Tanker", sans-serif;
+  --font-tanker: "Tanker", Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
