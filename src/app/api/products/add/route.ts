@@ -55,7 +55,7 @@ async function fetchProductDetailsFromMercadoLibre(itemId: string, baseUrl: stri
   };
 
   const url = `https://api.mercadolibre.com/items/${itemId}`;
-  let response = await fetch(url, { headers });
+  const response = await fetch(url, { headers });
 
   if (response.status === 401 || response.status === 403) {
     console.log("Token inválido ou expirado, tentando renovar...");
