@@ -11,7 +11,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -144,15 +143,6 @@ export default function ProductsPage() {
     }
   };
 
-  const getConditionText = (condition: string) => {
-    const conditions: { [key: string]: string } = {
-      new: "Novo",
-      used: "Usado",
-      not_specified: "Não especificado",
-    };
-    return conditions[condition] || condition;
-  };
-
   const totalPages = Math.ceil(totalProducts / limit);
 
   return (
@@ -245,9 +235,7 @@ export default function ProductsPage() {
                       <TableHead className="min-w-[100px]">
                         Quantidade
                       </TableHead>
-                      <TableHead className="min-w-[120px] hidden md:table-cell">
-                        Condição
-                      </TableHead>
+
                       <TableHead className="min-w-[150px]">Categoria</TableHead>
                       <TableHead className="min-w-[120px] text-right">
                         Ações
@@ -262,7 +250,7 @@ export default function ProductsPage() {
                         </TableCell>
                         <TableCell className="font-medium">
                           <div
-                            className="max-w-[200px] truncate"
+                            className="max-w-[490px] truncate"
                             title={product.title}
                           >
                             {product.title}
@@ -276,11 +264,6 @@ export default function ProductsPage() {
                         </TableCell>
                         <TableCell className="text-center">
                           {product.available_quantity}
-                        </TableCell>
-                        <TableCell className="hidden md:table-cell">
-                          <Badge variant="outline">
-                            {getConditionText(product.condition)}
-                          </Badge>
                         </TableCell>
                         <TableCell>
                           <div
