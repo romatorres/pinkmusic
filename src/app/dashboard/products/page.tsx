@@ -218,7 +218,7 @@ export default function ProductsPage() {
                     setLimit(Number(e.target.value));
                     setCurrentPage(1); // Reseta para página 1 ao mudar o limite
                   }}
-                  className="p-2 border rounded w-full"
+                  className="p-2 border border-foreground rounded w-full"
                 >
                   <option value={10}>10</option>
                   <option value={20}>20</option>
@@ -235,70 +235,92 @@ export default function ProductsPage() {
             </div>
           ) : (
             <>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>ID</TableHead>
-                    <TableHead>Título</TableHead>
-                    <TableHead>Preço</TableHead>
-                    <TableHead>Quantidade</TableHead>
-                    <TableHead className="hidden md:table-header">
-                      Condição
-                    </TableHead>
-                    <TableHead>Categoria</TableHead>
-                    <TableHead className="text-right">Ações</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {products.map((product) => (
-                    <TableRow key={product.id}>
-                      <TableCell>{product.id}</TableCell>
-                      <TableCell className="font-medium">
-                        {product.title}
-                      </TableCell>
-                      <TableCell>
-                        {new Intl.NumberFormat("pt-BR", {
-                          style: "currency",
-                          currency: "BRL",
-                        }).format(product.price)}
-                      </TableCell>
-                      <TableCell>{product.available_quantity}</TableCell>
-                      <TableCell className="hidden md:table-cell">
-                        <Badge variant="outline">
-                          {getConditionText(product.condition)}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        {product.category ? product.category.name : "N/A"}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <Link
-                            href={`/products/${product.id}`}
-                            target="_blank"
-                          >
-                            <Button variant="ghost" size="icon">
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                          </Link>
-                          <Link href={`/dashboard/products/${product.id}/edit`}>
-                            <Button variant="ghost" size="icon">
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                          </Link>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleDelete(product.id)}
-                          >
-                            <Trash2 className="h-4 w-4 text-red-500" />
-                          </Button>
-                        </div>
-                      </TableCell>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="min-w-[100px]">ID</TableHead>
+                      <TableHead className="min-w-[200px]">Título</TableHead>
+                      <TableHead className="min-w-[120px]">Preço</TableHead>
+                      <TableHead className="min-w-[100px]">
+                        Quantidade
+                      </TableHead>
+                      <TableHead className="min-w-[120px] hidden md:table-cell">
+                        Condição
+                      </TableHead>
+                      <TableHead className="min-w-[150px]">Categoria</TableHead>
+                      <TableHead className="min-w-[120px] text-right">
+                        Ações
+                      </TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {products.map((product) => (
+                      <TableRow key={product.id}>
+                        <TableCell className="font-mono text-sm truncate max-w-[100px]">
+                          {product.id}
+                        </TableCell>
+                        <TableCell className="font-medium">
+                          <div
+                            className="max-w-[200px] truncate"
+                            title={product.title}
+                          >
+                            {product.title}
+                          </div>
+                        </TableCell>
+                        <TableCell className="font-semibold">
+                          {new Intl.NumberFormat("pt-BR", {
+                            style: "currency",
+                            currency: "BRL",
+                          }).format(product.price)}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          {product.available_quantity}
+                        </TableCell>
+                        <TableCell className="hidden md:table-cell">
+                          <Badge variant="outline">
+                            {getConditionText(product.condition)}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div
+                            className="max-w-[150px] truncate"
+                            title={product.category?.name || "N/A"}
+                          >
+                            {product.category ? product.category.name : "N/A"}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <Link
+                              href={`/products/${product.id}`}
+                              target="_blank"
+                            >
+                              <Button variant="ghost" size="icon">
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                            </Link>
+                            <Link
+                              href={`/dashboard/products/${product.id}/edit`}
+                            >
+                              <Button variant="ghost" size="icon">
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                            </Link>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleDelete(product.id)}
+                            >
+                              <Trash2 className="h-4 w-4 text-red-500" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
               {totalPages > 1 && (
                 <div className="mt-4 flex justify-center">
                   <Pagination

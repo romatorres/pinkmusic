@@ -48,7 +48,7 @@ export default function EditProductPage() {
           } else {
             toast.error("Erro ao buscar categorias.");
           }
-        } catch (error) {
+        } catch {
           toast.error("Erro de conexão ao buscar dados.");
         } finally {
           setLoading(false);
@@ -97,11 +97,15 @@ export default function EditProductPage() {
       } else {
         toast.error(result.error || "Erro ao atualizar produto.");
       }
-    } catch (error) {
+    } catch {
       toast.error("Erro de conexão ao atualizar produto.");
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCancel = () => {
+    router.push("/dashboard/products");
   };
 
   if (loading) {
@@ -116,14 +120,16 @@ export default function EditProductPage() {
     <div className="p-8">
       <h1 className="text-3xl font-bold mb-4">Editar Produto</h1>
 
-      <Card className="max-w-md mx-auto">
+      <Card className="mb-8">
         <CardHeader>
           <CardTitle>Editar informações do Produto</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <Label htmlFor="title">Título</Label>
+              <Label htmlFor="title" className="mb-2">
+                Título
+              </Label>
               <Input
                 id="title"
                 name="title"
@@ -134,7 +140,9 @@ export default function EditProductPage() {
               />
             </div>
             <div>
-              <Label htmlFor="price">Preço</Label>
+              <Label htmlFor="price" className="mb-2">
+                Preço
+              </Label>
               <Input
                 id="price"
                 name="price"
@@ -145,7 +153,9 @@ export default function EditProductPage() {
               />
             </div>
             <div>
-              <Label htmlFor="available_quantity">Quantidade Disponível</Label>
+              <Label htmlFor="available_quantity" className="mb-2">
+                Quantidade Disponível
+              </Label>
               <Input
                 id="available_quantity"
                 name="available_quantity"
@@ -156,13 +166,15 @@ export default function EditProductPage() {
               />
             </div>
             <div>
-              <Label htmlFor="categoryId">Categoria</Label>
+              <Label htmlFor="categoryId" className="mb-2">
+                Categoria
+              </Label>
               <select
                 id="categoryId"
                 name="categoryId"
                 value={product.categoryId || ""}
                 onChange={handleChange}
-                className="w-full p-2 border rounded"
+                className="w-full p-2 border border-foreground rounded"
               >
                 <option value="">Selecione uma categoria</option>
                 {categories.map((category) => (
@@ -172,26 +184,24 @@ export default function EditProductPage() {
                 ))}
               </select>
             </div>
-            <div>
-              <Label htmlFor="categoryId">Categoria</Label>
-              <select
-                id="categoryId"
-                name="categoryId"
-                value={product.categoryId || ""}
-                onChange={handleChange}
-                className="w-full p-2 border rounded"
+            <div className="flex flex-col md:flex-row gap-4 pt-4">
+              <Button
+                type="submit"
+                className="md:w-auto w-full"
+                disabled={loading}
               >
-                <option value="">Selecione uma categoria</option>
-                {categories.map((category) => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
-                  </option>
-                ))}
-              </select>
+                {loading ? "Salvando..." : "Salvar Alterações"}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className="md:w-auto w-full"
+                onClick={handleCancel}
+                disabled={loading}
+              >
+                Cancelar
+              </Button>
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Salvando..." : "Salvar Alterações"}
-            </Button>
           </form>
         </CardContent>
       </Card>
