@@ -10,12 +10,18 @@ export default function OverviewPage() {
       <h1 className="md:text-3xl text-2xl font-bold mb-6">
         Painel de controle
       </h1>
-      <p>Sejá bem vindo ao dashboard.</p>
+      {user && (
+        <div className="text-foreground flex gap-1">
+          <p>Olá,</p>
+          <span className="font-bold"> {user.name},</span>
+          <p>seja bem-vindo ao dashboard.</p>
+        </div>
+      )}
 
       {user?.role === "ADMIN" && (
         <div className="mt-8 p-4 border border-foreground rounded-md">
           <h2 className="text-2xl font-bold text-foreground">
-            Área doS Administrador
+            Área do Administrador
           </h2>
           <p>Conteúdo exclusivo para administradores.</p>
         </div>
