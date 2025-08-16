@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { PageContainer } from "../ui/Page-container";
+import Image from "next/image";
 
 interface Partner {
   id: string;
@@ -49,9 +50,10 @@ export default function Partners() {
                 key={`${logo.id}-${index}`}
                 className="relative mx-8 h-10 w-28 flex-shrink-0 flex items-center"
               >
-                <img
+                <Image
                   src={getImageSrc(logo.imageUrl)}
                   alt={logo.name}
+                  fill
                   className="mx-8 self-stretch object-contain object-center flex-shrink-0 my-auto grayscale opacity-70 transition-all duration-300 ease-in-out hover:grayscale-0 hover:opacity-100 hover:scale-105"
                 />
               </div>

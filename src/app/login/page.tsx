@@ -113,15 +113,9 @@ export default function LoginPage() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full">
-                Login
+              <Button type="submit" className="w-full mb-6">
+                Entrar
               </Button>
-              <p className="text-center text-sm text-primary mt-4">
-                Não tem uma conta?{" "}
-                <Link href="/register" className="underline">
-                  Registre-se
-                </Link>
-              </p>
             </form>
           </Form>
         </CardContent>
