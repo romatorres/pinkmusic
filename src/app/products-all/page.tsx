@@ -6,8 +6,9 @@ import { SearchInput } from "@/components/ui/SearchInput";
 import CategoryFilter from "@/components/ui/CategoryFilter";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import { Suspense } from "react";
 
-export default function ProductAll() {
+function ProductAllContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [searchTerm, setSearchTerm] = useState(
@@ -54,5 +55,13 @@ export default function ProductAll() {
         />
       </PageContainer>
     </section>
+  );
+}
+
+export default function ProductAll() {
+  return (
+    <Suspense fallback={<div>Carregando...</div>}>
+      <ProductAllContent />
+    </Suspense>
   );
 }
