@@ -5,7 +5,6 @@ import ProductCard from "./ProductCard";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import Pagination from "../ui/Pagination";
-import CategoryFilter from "../ui/CategoryFilter";
 import { Carousel, CarouselContent, CarouselItem } from "../ui/carousel";
 
 interface Product {
@@ -50,7 +49,6 @@ const Products: React.FC<ProductsProps> = ({
   const [error, setError] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalProducts, setTotalProducts] = useState(0);
-  
 
   const fetchProducts = async (page: number = 1) => {
     setLoading(true);
@@ -87,7 +85,6 @@ const Products: React.FC<ProductsProps> = ({
 
   return (
     <div className="max-w-7xl mx-auto p-6">
-      
       <div>
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">

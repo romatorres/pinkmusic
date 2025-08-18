@@ -49,9 +49,9 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
       <div className="mx-auto p-6 my-10">
         <Link
           href="/"
-          className="flex items-center gap-2 px-5 py-3 mb-6 w-fit border-[1px] border-primary text-primary rounded-full hover:bg-sidebar-primary"
+          className="flex items-center gap-2 px-5 py-3 mb-6 w-fit text-primary rounded-full hover:bg-sidebar-primary"
         >
-          <ArrowLeft size={20} /> Voltar para a Home
+          <ArrowLeft size={20} /> Voltar
         </Link>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
