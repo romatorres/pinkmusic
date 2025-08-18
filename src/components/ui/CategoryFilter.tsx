@@ -3,6 +3,13 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Category } from "@/lib/types";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface CategoryFilterProps {
   value: string;
@@ -10,11 +17,7 @@ interface CategoryFilterProps {
   className?: string;
 }
 
-const CategoryFilter: React.FC<CategoryFilterProps> = ({
-  value,
-  onChange,
-  className,
-}) => {
+const CategoryFilter: React.FC<CategoryFilterProps> = ({ value, onChange }) => {
   const [categories, setCategories] = useState<Category[]>([]);
 
   useEffect(() => {
@@ -29,23 +32,24 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({
       .catch(() => toast.error("Erro ao carregar categorias."));
   }, []);
 
+  const handleValueChange = (newValue: string) => {
+    onChange(newValue === "all" ? "" : newValue);
+  };
+
   return (
-    <select
-      id="categoryFilter"
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      className={
-        className ||
-        "w-full px-3 py-2 border rounded border-foreground max-w-2xs bg-sidebar-primary text-foreground "
-      }
-    >
-      <option value="">Todas as Categorias</option>
-      {categories.map((category) => (
-        <option key={category.id} value={category.id}>
-          {category.name}
-        </option>
-      ))}
-    </select>
+    <Select onValueChange={handleValueChange} value={value || "all"}>
+      <SelectTrigger>
+        <SelectValue placeholder="Buscar por Categorias" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="all">Buscar por Categorias</SelectItem>
+        {categories.map((category) => (
+          <SelectItem key={category.id} value={category.id}>
+            {category.name}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 };
 

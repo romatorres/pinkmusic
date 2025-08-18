@@ -34,29 +34,34 @@ interface ProductsProps {
   limit?: number;
   showPagination?: boolean;
   showSeeAllButton?: boolean;
-  showCategoryFilter?: boolean;
+  searchQuery?: string;
+  categoryId?: string;
 }
 
 const Products: React.FC<ProductsProps> = ({
   limit = 12,
   showPagination = false,
   showSeeAllButton = true,
-  showCategoryFilter = false,
+  searchQuery = "",
+  categoryId = "",
 }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalProducts, setTotalProducts] = useState(0);
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  
 
   const fetchProducts = async (page: number = 1) => {
     setLoading(true);
     setError("");
     try {
       let url = `/api/products?page=${page}&limit=${limit}`;
-      if (selectedCategory) {
-        url += `&categoryId=${selectedCategory}`;
+      if (categoryId) {
+        url += `&categoryId=${categoryId}`;
+      }
+      if (searchQuery) {
+        url += `&search=${searchQuery}`;
       }
       const response = await fetch(url);
       const result: ApiResponse = await response.json();
@@ -76,21 +81,13 @@ const Products: React.FC<ProductsProps> = ({
 
   useEffect(() => {
     fetchProducts(currentPage);
-  }, [currentPage, limit, selectedCategory]);
+  }, [currentPage, limit, categoryId, searchQuery]);
 
   const totalPages = Math.ceil(totalProducts / limit);
 
   return (
     <div className="max-w-7xl mx-auto p-6">
-      {showCategoryFilter && (
-        <div className="my-8 flex md:flex-row flex-col justify-end md:items-end items-start gap-4">
-          <p className="text-primary">Escolha uma categoria:</p>
-          <CategoryFilter
-            value={selectedCategory}
-            onChange={setSelectedCategory}
-          />
-        </div>
-      )}
+      
       <div>
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">

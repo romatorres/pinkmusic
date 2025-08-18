@@ -12,7 +12,16 @@ export async function GET(req: Request) {
 
     const skip = (page - 1) * limit;
 
-    const whereClause = categoryId ? { categoryId } : {};
+    const searchQuery = searchParams.get("search");
+
+    const whereClause: any = categoryId ? { categoryId } : {};
+
+    if (searchQuery) {
+      whereClause.title = {
+        contains: searchQuery,
+        mode: "insensitive",
+      };
+    }
 
     const [products, total] = await Promise.all([
       prisma.product.findMany({
