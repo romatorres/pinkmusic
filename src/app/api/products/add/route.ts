@@ -43,7 +43,7 @@ async function refreshMercadoLivreToken(baseUrl: string) {
   }
 }
 
-async function fetchProductDetailsFromMercadoLibre(itemId: string, baseUrl: string): Promise<MercadoLibreProductDetails> {
+async function fetchProductDetailsFromMercadoLivre(itemId: string, baseUrl: string): Promise<MercadoLibreProductDetails> {
   const accessToken = process.env.MERCADOLIBRE_ACCESS_TOKEN;
 
   if (!accessToken) {
@@ -99,18 +99,41 @@ export async function POST(req: NextRequest) {
     const currentUrl = new URL(req.url);
     const baseUrl = `${currentUrl.protocol}//${currentUrl.host}`;
 
+    const permalink = `https://api.mercadolibre.com/items/${productId}`;
     const existingProduct = await prisma.product.findUnique({
-      where: { permalink: `https://api.mercadolibre.com/items/${productId}` },
+      where: { permalink },
     });
 
     if (existingProduct) {
       return NextResponse.json(
-        { success: true, message: "Produto já existe no banco de dados.", productId: existingProduct.id },
-        { status: 200 }
+        { 
+          success: false, 
+          error: "Produto já cadastrado no sistema. Não é permitido o cadastro duplicado de produtos do Mercado Livre.",
+          productId: existingProduct.id,
+          message: "Produto já existe no banco de dados."
+        },
+        { status: 409 }
       );
     }
 
-    const productDetails = await fetchProductDetailsFromMercadoLibre(productId, baseUrl);
+    const productDetails = await fetchProductDetailsFromMercadoLivre(productId, baseUrl);
+
+    // Verificar se o produto já existe pelo ID do Mercado Livre também
+    const existingProductById = await prisma.product.findUnique({
+      where: { id: productDetails.id },
+    });
+
+    if (existingProductById) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: "Produto já cadastrado no sistema. Não é permitido o cadastro duplicado de produtos do Mercado Livre.",
+          productId: existingProductById.id,
+          message: "Produto já existe no banco de dados."
+        },
+        { status: 409 }
+      );
+    }
 
     const newProduct = await prisma.product.create({
       data: {

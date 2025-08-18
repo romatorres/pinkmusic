@@ -16,7 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import Pagination from "@/components/ui/Pagination"; // Importando o componente
+import Pagination from "@/components/ui/Pagination";
 
 import CategoryFilter from "@/components/ui/CategoryFilter";
 import { Category } from "@/lib/types";
@@ -39,7 +39,7 @@ export default function ProductsPage() {
   const [isAdding, setIsAdding] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
 
-  // State para paginação
+  // Estados para paginação
   const [currentPage, setCurrentPage] = useState(1);
   const [totalProducts, setTotalProducts] = useState(0);
   const [limit, setLimit] = useState(10);
@@ -70,8 +70,6 @@ export default function ProductsPage() {
       setLoading(false);
     }
   };
-
-  // Efeito para buscar categorias (executa uma vez)
 
   // Efeito para buscar produtos quando a página, filtro ou limite mudar
   useEffect(() => {
@@ -111,6 +109,9 @@ export default function ProductsPage() {
         toast.success(result.message || "Produto adicionado com sucesso!");
         setProductId("");
         fetchProducts(currentPage, selectedCategory); // Refresh a lista
+      } else if (response.status === 409) {
+        // Produto duplicado
+        toast.error(result.error || "Produto já cadastrado no sistema.");
       } else {
         toast.error(result.error || "Erro ao adicionar produto.");
       }
@@ -229,7 +230,7 @@ export default function ProductsPage() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="min-w-[100px]">ID</TableHead>
+                      <TableHead className="min-w-[120px]">ID</TableHead>
                       <TableHead className="min-w-[200px]">Título</TableHead>
                       <TableHead className="min-w-[120px]">Preço</TableHead>
                       <TableHead className="min-w-[100px]">

@@ -40,10 +40,6 @@ export async function POST() {
     const new_access_token = data.access_token;
     const new_refresh_token = data.refresh_token;
 
-    // Em vez de tentar escrever no arquivo .env.local (que não funciona na Vercel),
-    // vamos retornar os novos tokens para que o client possa usá-los
-    // Na Vercel, as variáveis de ambiente devem ser atualizadas pelo dashboard
-
     return NextResponse.json({
       success: true,
       message: "Token atualizado com sucesso!",

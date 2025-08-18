@@ -72,7 +72,7 @@ async function fetchProductDetailsFromMercadoLibre(itemId: string, baseUrl: stri
     headers: headers,
   });
 
-  // Handle token refresh if necessary
+  // Manipule a atualização do token se necessário
   if (response.status === 401 || response.status === 403) {
     console.log("Token inválido ou expirado ao buscar detalhes. Renovando...");
     
@@ -84,7 +84,7 @@ async function fetchProductDetailsFromMercadoLibre(itemId: string, baseUrl: stri
       "Authorization": `Bearer ${newTokens.accessToken}`,
       "Content-Type": "application/json",
     };
-    response = await fetch(url, { method: "GET", headers }); // Retry with new token
+    response = await fetch(url, { method: "GET", headers }); // Tentar novamente com novo token
   }
 
   if (!response.ok) {
@@ -116,7 +116,7 @@ export async function GET(
     const currentUrl = new URL(req.url);
     const baseUrl = `${currentUrl.protocol}//${currentUrl.host}`;
 
-    // Fetch from our database first
+    // Busque primeiro no banco de dados
     const productFromDb = await prisma.product.findUnique({
       where: { id: id },
     });
@@ -128,17 +128,17 @@ export async function GET(
       );
     }
 
-    // Fetch full details from Mercado Libre API
+    // Obtenha detalhes completos da API do Mercado Livre
     const productDetailsFromMl: MercadoLibreProductDetails =
       await fetchProductDetailsFromMercadoLibre(id, baseUrl);
 
-    // Combine data (or just use ML data if it's more comprehensive for display)
+    // Combine dados (ou use apenas dados do ML se forem mais abrangentes para exibição)
     const combinedProduct = {
       ...productFromDb,
       ...productDetailsFromMl,
-      // Ensure permalink from DB is used if ML's is different or missing
+      // Garante que o link permanente do banco de dados seja usado se o do ML for diferente ou ausente
       permalink: productFromDb.permalink || productDetailsFromMl.permalink,
-      // Override seller_nickname if ML provides a more accurate one
+      // Substituir seller_nickname se o ML fornecer um mais preciso
       seller_nickname:
         productDetailsFromMl.seller?.nickname || productFromDb.seller_nickname,
     };
