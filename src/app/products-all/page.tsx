@@ -69,7 +69,7 @@ function ProductAllContent() {
   return (
     <section>
       <PageContainer>
-        <div className="flex justify-between my-8">
+        <div className="flex md:flex-row flex-col justify-between my-8">
           <div>
             <Link
               href="/"
