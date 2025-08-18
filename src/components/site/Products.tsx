@@ -104,7 +104,7 @@ const Products: React.FC<ProductsProps> = ({
           </div>
         )}
 
-        <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 mx-auto max-w-[1440px]">
+        <div className="hidden sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mx-auto max-w-[1440px]">
           {products.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
@@ -140,7 +140,7 @@ const Products: React.FC<ProductsProps> = ({
       )}
 
       {showSeeAllButton && (
-        <div className="mt-12 flex justify-center">
+        <div className="mt-12 mb-8 flex justify-center">
           <Link href={"/products-all"}>
             <button className="w-full lg:w-auto bg-sidebar-primary text-foreground py-3 px-6 rounded-full hover:bg-background border-primary border-[1px] flex items-center justify-center gap-2 font-semibold text-sm cursor-pointer">
               Todos os Produtos <ArrowRight size={20} />
