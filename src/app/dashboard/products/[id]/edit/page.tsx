@@ -8,6 +8,15 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Category } from "@/lib/types";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 interface ProductData {
   title: string;
@@ -20,6 +29,7 @@ export default function EditProductPage() {
   const [product, setProduct] = useState<ProductData | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const router = useRouter();
   const params = useParams();
   const { id } = params;
@@ -201,6 +211,59 @@ export default function EditProductPage() {
               >
                 Cancelar
               </Button>
+              <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    className="md:w-auto w-full"
+                    disabled={loading}
+                  >
+                    Deletar Produto
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Confirmar Exclusão</DialogTitle>
+                    <DialogDescription>
+                      Tem certeza que deseja deletar este produto? Esta ação não pode ser desfeita.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <DialogFooter>
+                    <Button
+                      variant="outline"
+                      onClick={() => setIsDeleteDialogOpen(false)}
+                      disabled={loading}
+                    >
+                      Cancelar
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      onClick={async () => {
+                        try {
+                          const response = await fetch(`/api/products/${id}`, {
+                            method: "DELETE",
+                          });
+                          const result = await response.json();
+                          if (response.ok && result.success) {
+                            toast.success("Produto deletado com sucesso!");
+                            router.push("/dashboard/products");
+                          } else {
+                            toast.error(result.error || "Erro ao deletar produto.");
+                            setIsDeleteDialogOpen(false);
+                          }
+                        } catch {
+                          toast.error("Erro de conexão ao deletar produto.");
+                          setIsDeleteDialogOpen(false);
+                        }
+                      }}
+                      disabled={loading}
+                    >
+                      {loading ? "Deletando..." : "Deletar"}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             </div>
           </form>
         </CardContent>

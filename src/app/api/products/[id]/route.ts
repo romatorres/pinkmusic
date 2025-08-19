@@ -253,3 +253,49 @@ export async function PUT(
     );
   }
 }
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    // Aguarde os params antes de acessar suas propriedades
+    const { id } = await params;
+
+    if (!id) {
+      return NextResponse.json(
+        { success: false, error: "ID do produto não fornecido." },
+        { status: 400 }
+      );
+    }
+
+    // Verifique se o produto existe antes de tentar deletar
+    const productExists = await prisma.product.findUnique({
+      where: { id: id },
+    });
+
+    if (!productExists) {
+      return NextResponse.json(
+        { success: false, error: "Produto não encontrado." },
+        { status: 404 }
+      );
+    }
+
+    // Deleta o produto
+    await prisma.product.delete({
+      where: { id: id },
+    });
+
+    return NextResponse.json({ success: true, message: "Produto deletado com sucesso." });
+  } catch (error) {
+    console.error("Erro ao deletar produto:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        error:
+          error instanceof Error ? error.message : "Erro interno do servidor",
+      },
+      { status: 500 }
+    );
+  }
+}
