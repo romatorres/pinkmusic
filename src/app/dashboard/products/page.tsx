@@ -11,6 +11,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -38,6 +47,7 @@ export default function ProductsPage() {
   const [productId, setProductId] = useState("");
   const [isAdding, setIsAdding] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [productToDelete, setProductToDelete] = useState<string | null>(null);
 
   // Estados para paginação
   const [currentPage, setCurrentPage] = useState(1);
@@ -120,27 +130,6 @@ export default function ProductsPage() {
       toast.error("Erro de conexão ao adicionar produto.");
     } finally {
       setIsAdding(false);
-    }
-  };
-
-  const handleDelete = async (productId: string) => {
-    if (!confirm("Tem certeza que deseja deletar este produto?")) {
-      return;
-    }
-
-    try {
-      const response = await fetch(`/api/products/${productId}`, {
-        method: "DELETE",
-      });
-      const result = await response.json();
-      if (result.success) {
-        toast.success("Produto deletado com sucesso!");
-        fetchProducts(currentPage, selectedCategory); // Refresh a lista
-      } else {
-        toast.error(result.error || "Erro ao deletar produto.");
-      }
-    } catch {
-      toast.error("Erro de conexão ao deletar produto.");
     }
   };
 
@@ -291,13 +280,79 @@ export default function ProductsPage() {
                                 <Edit className="h-4 w-4" />
                               </Button>
                             </Link>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleDelete(product.id)}
+
+                            <Dialog
+                              open={productToDelete === product.id}
+                              onOpenChange={(open) => {
+                                if (!open) setProductToDelete(null);
+                              }}
                             >
-                              <Trash2 className="h-4 w-4 text-red-500" />
-                            </Button>
+                              <DialogTrigger asChild>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon"
+                                  disabled={loading}
+                                  onClick={() => setProductToDelete(product.id)}
+                                >
+                                  <Trash2 className="h-4 w-4 text-red-500" />
+                                </Button>
+                              </DialogTrigger>
+                              <DialogContent>
+                                <DialogHeader>
+                                  <DialogTitle>Confirmar Exclusão</DialogTitle>
+                                  <DialogDescription>
+                                    Tem certeza que deseja deletar este produto?
+                                    Esta ação não pode ser desfeita.
+                                  </DialogDescription>
+                                </DialogHeader>
+                                <DialogFooter>
+                                  <Button
+                                    variant="outline"
+                                    onClick={() => setProductToDelete(null)}
+                                    disabled={loading}
+                                  >
+                                    Cancelar
+                                  </Button>
+                                  <Button
+                                    variant="destructive"
+                                    onClick={async () => {
+                                      try {
+                                        const response = await fetch(
+                                          `/api/products/${product.id}`,
+                                          {
+                                            method: "DELETE",
+                                          }
+                                        );
+                                        const result = await response.json();
+                                        if (response.ok && result.success) {
+                                          toast.success(
+                                            "Produto deletado com sucesso!"
+                                          );
+                                          setProductToDelete(null);
+                                          fetchProducts(
+                                            currentPage,
+                                            selectedCategory
+                                          );
+                                        } else {
+                                          toast.error(
+                                            result.error ||
+                                              "Erro ao deletar produto."
+                                          );
+                                        }
+                                      } catch {
+                                        toast.error(
+                                          "Erro de conexão ao deletar produto."
+                                        );
+                                      }
+                                    }}
+                                    disabled={loading}
+                                  >
+                                    {loading ? "Deletando..." : "Deletar"}
+                                  </Button>
+                                </DialogFooter>
+                              </DialogContent>
+                            </Dialog>
                           </div>
                         </TableCell>
                       </TableRow>
