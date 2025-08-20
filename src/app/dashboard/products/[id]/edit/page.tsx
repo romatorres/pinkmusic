@@ -194,7 +194,7 @@ export default function EditProductPage() {
               </Button>
               <Button
                 type="button"
-                variant="black"
+                variant="outline"
                 className="md:w-auto w-full px-10"
                 onClick={handleCancel}
                 disabled={loading}
