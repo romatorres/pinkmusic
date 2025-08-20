@@ -14,7 +14,9 @@ export async function GET(req: Request) {
 
     const searchQuery = searchParams.get("search");
 
-    const whereClause: Prisma.ProductWhereInput = categoryId ? { categoryId } : {};
+    const whereClause: Prisma.ProductWhereInput = categoryId
+      ? { categoryId }
+      : {};
 
     if (searchQuery) {
       whereClause.title = {

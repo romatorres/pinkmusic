@@ -4,20 +4,8 @@ import React, { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import ProductDetails from "@/components/site/ProductDetails";
 import { ArrowLeft } from "lucide-react";
-
-interface Product {
-  id: string;
-  title: string;
-  price: number;
-  currency_id: string;
-  thumbnail: string;
-  condition: string;
-  available_quantity: number;
-  seller_nickname: string;
-  permalink: string;
-  pictures: { id: string; url: string; secure_url: string }[];
-  attributes?: { id: string; name: string; value_name: string }[];
-}
+import { useProductStore } from "@/store/productStore";
+import type { Product } from "@/lib/types";
 
 interface ApiResponse<T> {
   success: boolean;
@@ -31,16 +19,25 @@ export default function ProductDetailsPage({
   params: Promise<{ id: string }>;
 }) {
   const router = useRouter();
-  // Use React.use() para unwrap o Promise params
   const { id } = use(params);
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
 
+  const { getProductById, updateProduct } = useProductStore();
+
   useEffect(() => {
     if (id) {
       const fetchProductDetails = async () => {
-        setLoading(true);
+        // Tenta pegar do store primeiro para uma exibição rápida
+        const productFromStore = getProductById(id);
+        if (productFromStore) {
+          setProduct(productFromStore);
+          setLoading(false);
+        } else {
+          setLoading(true);
+        }
+
         setError("");
         try {
           const response = await fetch(`/api/products/${id}`);
@@ -48,6 +45,24 @@ export default function ProductDetailsPage({
 
           if (result.success && result.data) {
             setProduct(result.data);
+            updateProduct(result.data); // ATUALIZA O STORE GLOBAL
+
+            // Envia os dados atualizados para o backend para persistir no Prisma
+            try {
+              const response = await fetch(`/api/products/${id}`, {
+                method: "PUT",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(result.data),
+              });
+
+              if (!response.ok) {
+                console.error("Erro ao atualizar produto no backend:", await response.text());
+              }
+            } catch (backendError) {
+              console.error("Erro de conexão ao atualizar produto no backend:", backendError);
+            }
           } else {
             setError(result.error || "Erro ao carregar detalhes do produto");
           }
@@ -59,7 +74,7 @@ export default function ProductDetailsPage({
       };
       fetchProductDetails();
     }
-  }, [id]);
+  }, [id, getProductById, updateProduct]);
 
   if (loading) {
     return (

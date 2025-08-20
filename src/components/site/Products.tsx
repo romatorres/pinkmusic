@@ -6,19 +6,8 @@ import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import Pagination from "../ui/Pagination";
 import { Carousel, CarouselContent, CarouselItem } from "../ui/carousel";
-
-interface Product {
-  id: string;
-  title: string;
-  price: number;
-  currency_id: string;
-  thumbnail: string;
-  condition: string;
-  available_quantity: number;
-  seller_nickname: string;
-  permalink: string;
-  pictures: { url: string }[];
-}
+import { useProductStore } from "@/store/productStore";
+import type { Product } from "@/lib/types";
 
 interface ApiResponse {
   success: boolean;
@@ -44,7 +33,9 @@ const Products: React.FC<ProductsProps> = ({
   searchQuery = "",
   categoryId = "",
 }) => {
-  const [products, setProducts] = useState<Product[]>([]);
+  // Usando o store global em vez do estado local
+  const { products, setProducts } = useProductStore();
+  
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -65,9 +56,11 @@ const Products: React.FC<ProductsProps> = ({
       const result: ApiResponse = await response.json();
 
       if (result.success && result.data) {
-        setProducts(result.data.products);
-        setTotalProducts(result.data.total);
+        // Atualiza o store global, garantindo que seja sempre um array
+        setProducts(result.data.products || []);
+        setTotalProducts(result.data.total || 0);
       } else {
+        setProducts([]); // Garante que products seja um array em caso de erro
         setError(result.error || "Erro ao carregar produtos");
       }
     } catch {
@@ -78,8 +71,13 @@ const Products: React.FC<ProductsProps> = ({
   };
 
   useEffect(() => {
+    // Sempre limpa os produtos no store global para forçar o estado de carregamento
+    // e garantir que não haja dados "antigos" sendo exibidos enquanto a nova busca ocorre.
+    setProducts([]); // Limpa o array de produtos no store
+    setTotalProducts(0); // Também reseta o total para consistência na paginação
+
     fetchProducts(currentPage);
-  }, [currentPage, limit, categoryId, searchQuery]);
+  }, [currentPage, limit, categoryId, searchQuery, setProducts, setTotalProducts]);
 
   const totalPages = Math.ceil(totalProducts / limit);
 
@@ -92,20 +90,20 @@ const Products: React.FC<ProductsProps> = ({
           </div>
         )}
 
-        {loading && products.length === 0 && (
+        {loading && products?.length === 0 && (
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
           </div>
         )}
 
-        {!loading && products.length === 0 && !error && (
+        {!loading && products?.length === 0 && !error && (
           <div className="text-center text-gray-600 text-lg">
             Nenhum produto encontrado.
           </div>
         )}
 
         <div className="hidden sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mx-auto max-w-[1440px]">
-          {products.map((product) => (
+          {products?.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>
@@ -119,7 +117,7 @@ const Products: React.FC<ProductsProps> = ({
             className="w-full max-w-[640px] mx-auto"
           >
             <CarouselContent>
-              {products.map((product) => (
+              {products?.map((product) => (
                 <CarouselItem key={product.id} className="basis-[290px]">
                   <ProductCard product={product} />
                 </CarouselItem>

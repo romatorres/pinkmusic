@@ -6,24 +6,7 @@ import { ShoppingCart, Package, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { PageContainer } from "../ui/Page-container";
 import Social from "./Social";
-
-interface Product {
-  id: string;
-  title: string;
-  price: number;
-  currency_id: string;
-  thumbnail: string;
-  condition: string;
-  available_quantity: number;
-  seller_nickname: string;
-  permalink: string;
-  pictures: { id: string; url: string; secure_url: string }[];
-  attributes?: { id: string; name: string; value_name: string }[];
-}
-
-interface ProductDetailsProps {
-  product: Product;
-}
+import type { ProductDetailsProps } from "@/lib/types";
 
 const formatPrice = (price: number, currency: string) => {
   return new Intl.NumberFormat("pt-BR", {
@@ -58,16 +41,21 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
           {/* Imagens */}
           <div className="space-y-4">
             <div className="aspect-square bg-white rounded-lg overflow-hidden relative w-full">
-              <Image
-                src={
-                  product.pictures?.[selectedImage]?.secure_url ||
-                  product.thumbnail
-                }
-                alt={product.title}
-                fill
-                style={{ objectFit: "contain" }}
-                className="rounded-lg"
-              />
+              {(
+                product.pictures?.[selectedImage]?.secure_url ||
+                product.thumbnail
+              ) && (
+                <Image
+                  src={
+                    product.pictures?.[selectedImage]?.secure_url ||
+                    product.thumbnail
+                  }
+                  alt={product.title}
+                  fill
+                  style={{ objectFit: "contain" }}
+                  className="rounded-lg"
+                />
+              )}
             </div>
 
             {product.pictures && product.pictures.length > 1 && (
@@ -83,12 +71,14 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
                     }`}
                   >
                     <div className="relative w-full h-full">
-                      <Image
-                        src={picture.secure_url}
-                        alt={`Thumbnail ${index + 1}`}
-                        fill
-                        style={{ objectFit: "cover" }}
-                      />
+                      {picture.secure_url && (
+                        <Image
+                          src={picture.secure_url}
+                          alt={`Thumbnail ${index + 1}`}
+                          fill
+                          style={{ objectFit: "cover" }}
+                        />
+                      )}
                     </div>
                   </button>
                 ))}

@@ -166,8 +166,6 @@ export async function PUT(
     const { id } = await params;
     const rawData = await req.json();
 
-    console.log("Dados recebidos:", rawData); // Debug
-
     // Lista dos campos válidos que podem ser atualizados no modelo Product
     const allowedFields = [
       "title",
@@ -191,8 +189,6 @@ export async function PUT(
         }
         return obj;
       }, {} as Record<string, unknown>);
-
-    console.log("Dados filtrados:", filteredData); // Debug
 
     // Verificar se há dados para atualizar
     if (Object.keys(filteredData).length === 0) {
