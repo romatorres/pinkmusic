@@ -26,6 +26,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import Pagination from "@/components/ui/Pagination";
+import { SearchInput } from "@/components/ui/SearchInput";
+import { useSearchParams } from "next/navigation";
 
 import CategoryFilter from "@/components/ui/CategoryFilter";
 import { Category } from "@/lib/types";
@@ -48,13 +50,21 @@ export default function ProductsPage() {
   const [isAdding, setIsAdding] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [productToDelete, setProductToDelete] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+  const [searchTerm, setSearchTerm] = useState(
+    searchParams.get("search") || ""
+  );
 
   // Estados para paginação
   const [currentPage, setCurrentPage] = useState(1);
   const [totalProducts, setTotalProducts] = useState(0);
   const [limit, setLimit] = useState(10);
 
-  const fetchProducts = async (page: number, categoryId?: string) => {
+  const fetchProducts = async (
+    page: number,
+    categoryId?: string,
+    search?: string
+  ) => {
     setLoading(true);
     try {
       const params = new URLSearchParams({
@@ -63,6 +73,9 @@ export default function ProductsPage() {
       });
       if (categoryId) {
         params.append("categoryId", categoryId);
+      }
+      if (search) {
+        params.append("search", search);
       }
 
       const response = await fetch(`/api/products?${params.toString()}`);
@@ -81,15 +94,15 @@ export default function ProductsPage() {
     }
   };
 
-  // Efeito para buscar produtos quando a página, filtro ou limite mudar
+  // Efeito para buscar produtos quando a página, filtro, busca ou limite mudar
   useEffect(() => {
-    fetchProducts(currentPage, selectedCategory);
-  }, [currentPage, selectedCategory, limit]);
+    fetchProducts(currentPage, selectedCategory, searchTerm);
+  }, [currentPage, selectedCategory, limit, searchTerm]);
 
-  // Efeito para resetar a página para 1 quando o filtro de categoria mudar
+  // Efeito para resetar a página para 1 quando o filtro de categoria ou busca mudar
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedCategory]);
+  }, [selectedCategory, searchTerm]);
 
   const handleAddSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -118,7 +131,7 @@ export default function ProductsPage() {
       if (response.ok && result.success) {
         toast.success(result.message || "Produto adicionado com sucesso!");
         setProductId("");
-        fetchProducts(currentPage, selectedCategory); // Refresh a lista
+        fetchProducts(currentPage, selectedCategory, searchTerm); // Refresh a lista
       } else if (response.status === 409) {
         // Produto duplicado
         toast.error(result.error || "Produto já cadastrado no sistema.");
@@ -131,6 +144,10 @@ export default function ProductsPage() {
     } finally {
       setIsAdding(false);
     }
+  };
+
+  const getPlaceholder = () => {
+    return "Buscar por produtos...";
   };
 
   const totalPages = Math.ceil(totalProducts / limit);
@@ -177,18 +194,29 @@ export default function ProductsPage() {
         <CardHeader>
           <div className="flex flex-col justify-between items-start gap-4">
             <CardTitle>Todos os Produtos</CardTitle>
-            <div className="flex md:flex-row flex-col items-start md:items-center gap-4 w-full">
+            <div className="flex lg:flex-row flex-col items-start md:items-center gap-4 w-full">
               {/* Filtro de Categoria: */}
               <div className="w-full">
                 <CategoryFilter
                   value={selectedCategory}
                   onChange={setSelectedCategory}
-                  className="w-full px-3 py-2 border rounded border-foreground"
+                  className="w-full "
+                />
+              </div>
+              {/* Filtro de Produtos: */}
+              <div className="w-full">
+                <SearchInput
+                  value={searchTerm}
+                  onChange={setSearchTerm}
+                  placeholder={getPlaceholder()}
                 />
               </div>
               {/* Select Itens por pagina */}
-              <div className="flex items-center gap-2 w-full">
-                <Label htmlFor="limit-select" className="whitespace-nowrap">
+              <div className="flex flex-col lg:flex-row items-center gap-2 w-full">
+                <Label
+                  htmlFor="limit-select"
+                  className="text-start whitespace-nowrap"
+                >
                   Itens por página:
                 </Label>
                 <select
@@ -332,7 +360,8 @@ export default function ProductsPage() {
                                           setProductToDelete(null);
                                           fetchProducts(
                                             currentPage,
-                                            selectedCategory
+                                            selectedCategory,
+                                            searchTerm
                                           );
                                         } else {
                                           toast.error(
