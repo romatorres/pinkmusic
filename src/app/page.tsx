@@ -11,7 +11,7 @@ export default function Home() {
       <div className="relative w-full">
         <Hero />
         <Partners />
-        <Products limit={12} showSeeAllButton={true} />
+        <Products limit={12} showSeeAllButton={true} randomizeProducts={true} />
         <section id="about">
           <About />
         </section>

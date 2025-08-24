@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import ProductCard from "./ProductCard";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
@@ -24,7 +24,90 @@ interface ProductsProps {
   showSeeAllButton?: boolean;
   searchQuery?: string;
   categoryId?: string;
+  randomizeProducts?: boolean;
+  pageKey?: string;
 }
+
+// Cache global para produtos já buscados
+const productsCache = new Map<string, Product[]>();
+
+// Função Fisher-Yates shuffle melhorada
+const shuffleArray = <T,>(array: T[]): T[] => {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+};
+
+// Estratégia 2: Sistema de cache com múltiplas páginas
+const fetchMultiplePagesAndShuffle = async (
+  limit: number,
+  categoryId: string,
+  searchQuery: string
+): Promise<{ products: Product[]; total: number }> => {
+  const cacheKey = `${categoryId}-${searchQuery}`;
+
+  try {
+    // Verifica se já temos produtos em cache
+    if (productsCache.has(cacheKey)) {
+      const cachedProducts = productsCache.get(cacheKey) || [];
+      const shuffled = shuffleArray(cachedProducts);
+      return {
+        products: shuffled.slice(0, limit),
+        total: cachedProducts.length,
+      };
+    }
+
+    // Busca múltiplas páginas para criar um pool maior
+    const pagesToFetch = 3; // Busca as primeiras 3 páginas
+    const pageSize = 50; // Tamanho de cada página
+    const allProducts: Product[] = [];
+
+    const fetchPromises = Array.from({ length: pagesToFetch }, (_, index) => {
+      let url = `/api/products?page=${index + 1}&limit=${pageSize}`;
+
+      if (categoryId) {
+        url += `&categoryId=${categoryId}`;
+      }
+      if (searchQuery) {
+        url += `&search=${searchQuery}`;
+      }
+
+      return fetch(url).then((res) => res.json());
+    });
+
+    const results = await Promise.all(fetchPromises);
+    let totalCount = 0;
+
+    results.forEach((result) => {
+      if (result.success && result.data) {
+        allProducts.push(...(result.data.products || []));
+        totalCount = Math.max(totalCount, result.data.total || 0);
+      }
+    });
+
+    // Remove duplicatas baseado no ID
+    const uniqueProducts = allProducts.filter(
+      (product, index, self) =>
+        index === self.findIndex((p) => p.id === product.id)
+    );
+
+    // Armazena no cache por 5 minutos
+    productsCache.set(cacheKey, uniqueProducts);
+    setTimeout(() => productsCache.delete(cacheKey), 5 * 60 * 1000);
+
+    const shuffled = shuffleArray(uniqueProducts);
+    return {
+      products: shuffled.slice(0, limit),
+      total: totalCount,
+    };
+  } catch (error) {
+    console.error("Erro ao buscar múltiplas páginas:", error);
+    return { products: [], total: 0 };
+  }
+};
 
 const Products: React.FC<ProductsProps> = ({
   limit = 12,
@@ -32,52 +115,78 @@ const Products: React.FC<ProductsProps> = ({
   showSeeAllButton = true,
   searchQuery = "",
   categoryId = "",
+  randomizeProducts = false,
 }) => {
-  // Usando o store global em vez do estado local
-  const { products, setProducts } = useProductStore();
-  
+  const { products: globalProducts, setProducts: setGlobalProducts } =
+    useProductStore();
+
+  const [localProducts, setLocalProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalProducts, setTotalProducts] = useState(0);
 
+  const hasRandomized = useRef(false);
+
+  const products = randomizeProducts ? localProducts : globalProducts;
+  const setProducts = randomizeProducts ? setLocalProducts : setGlobalProducts;
+
   const fetchProducts = async (page: number = 1) => {
     setLoading(true);
     setError("");
-    try {
-      let url = `/api/products?page=${page}&limit=${limit}`;
-      if (categoryId) {
-        url += `&categoryId=${categoryId}`;
-      }
-      if (searchQuery) {
-        url += `&search=${searchQuery}`;
-      }
-      const response = await fetch(url);
-      const result: ApiResponse = await response.json();
 
-      if (result.success && result.data) {
-        // Atualiza o store global, garantindo que seja sempre um array
-        setProducts(result.data.products || []);
-        setTotalProducts(result.data.total || 0);
+    try {
+      if (randomizeProducts && !hasRandomized.current) {
+        // Usa a estratégia 2 (múltiplas páginas com cache) por ser mais eficiente
+        const result = await fetchMultiplePagesAndShuffle(
+          limit,
+          categoryId,
+          searchQuery
+        );
+
+        setProducts(result.products);
+        setTotalProducts(result.total);
+        hasRandomized.current = true;
       } else {
-        setProducts([]); // Garante que products seja um array em caso de erro
-        setError(result.error || "Erro ao carregar produtos");
+        // Busca normal para produtos não randomizados ou paginação
+        let url = `/api/products?page=${page}&limit=${limit}`;
+
+        if (categoryId) {
+          url += `&categoryId=${categoryId}`;
+        }
+        if (searchQuery) {
+          url += `&search=${searchQuery}`;
+        }
+
+        const response = await fetch(url);
+        const result: ApiResponse = await response.json();
+
+        if (result.success && result.data) {
+          setProducts(result.data.products || []);
+          setTotalProducts(result.data.total || 0);
+        } else {
+          setProducts([]);
+          setError(result.error || "Erro ao carregar produtos");
+        }
       }
     } catch {
       setError("Erro de conexão ao buscar produtos");
+      setProducts([]);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    // Sempre limpa os produtos no store global para forçar o estado de carregamento
-    // e garantir que não haja dados "antigos" sendo exibidos enquanto a nova busca ocorre.
-    setProducts([]); // Limpa o array de produtos no store
-    setTotalProducts(0); // Também reseta o total para consistência na paginação
-
+    hasRandomized.current = false;
     fetchProducts(currentPage);
-  }, [currentPage, limit, categoryId, searchQuery, setProducts, setTotalProducts]);
+  }, [currentPage, limit, categoryId, searchQuery]);
+
+  useEffect(() => {
+    setProducts([]);
+    setCurrentPage(1);
+    hasRandomized.current = false;
+  }, [categoryId, searchQuery]);
 
   const totalPages = Math.ceil(totalProducts / limit);
 
@@ -90,20 +199,20 @@ const Products: React.FC<ProductsProps> = ({
           </div>
         )}
 
-        {loading && products?.length === 0 && (
+        {loading && products.length === 0 && (
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
           </div>
         )}
 
-        {!loading && products?.length === 0 && !error && (
+        {!loading && products.length === 0 && !error && (
           <div className="text-center text-gray-600 text-lg">
             Nenhum produto encontrado.
           </div>
         )}
 
         <div className="hidden sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mx-auto max-w-[1440px]">
-          {products?.map((product) => (
+          {products.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>
@@ -117,7 +226,7 @@ const Products: React.FC<ProductsProps> = ({
             className="w-full max-w-[640px] mx-auto"
           >
             <CarouselContent>
-              {products?.map((product) => (
+              {products.map((product) => (
                 <CarouselItem key={product.id} className="basis-[290px]">
                   <ProductCard product={product} />
                 </CarouselItem>
@@ -127,7 +236,7 @@ const Products: React.FC<ProductsProps> = ({
         </div>
       </div>
 
-      {showPagination && totalPages > 1 && (
+      {showPagination && totalPages > 1 && !randomizeProducts && (
         <div className="mt-12 flex justify-center">
           <Pagination
             currentPage={currentPage}
