@@ -254,7 +254,7 @@ html {
 /* Responsivo - Mobile First */
 @media (max-width: 768px) {
   .whatsapp-btn {
-    @apply w-12 h-12;
+    @apply w-16 h-16;
   }
 
   .whatsapp-btn-bottom-right {
