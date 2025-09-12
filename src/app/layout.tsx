@@ -3,7 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import LayoutWrapper from "@/components/site/LayoutWrapper";
-import WhatsAppButton from "@/components/site/WhatsAppButton";
+import ConditionalWhatsApp from "@/components/whatsapp/ConditionalWhatsApp";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -30,10 +30,7 @@ export default function RootLayout({
       <body className={`${inter.variable} font-sans`} cz-shortcut-listen="true">
         <LayoutWrapper>{children}</LayoutWrapper>
         {/* Botão WhatsApp */}
-        <WhatsAppButton
-          phoneNumber="5575991988685"
-          message="Olá! Vi seu site e gostaria de mais informações."
-        />
+        <ConditionalWhatsApp />
         <Toaster />
       </body>
     </html>
