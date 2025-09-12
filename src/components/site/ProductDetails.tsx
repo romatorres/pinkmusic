@@ -31,7 +31,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
     <PageContainer>
       <div className="mx-auto p-6 my-10">
         <Link
-          href="/"
+          href="/products-all"
           className="flex items-center gap-2 px-5 py-3 mb-6 w-fit text-primary rounded-full hover:bg-sidebar-primary"
         >
           <ArrowLeft size={20} /> Voltar
@@ -41,10 +41,8 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
           {/* Imagens */}
           <div className="space-y-4">
             <div className="aspect-square bg-white rounded-lg overflow-hidden relative w-full">
-              {(
-                product.pictures?.[selectedImage]?.secure_url ||
-                product.thumbnail
-              ) && (
+              {(product.pictures?.[selectedImage]?.secure_url ||
+                product.thumbnail) && (
                 <Image
                   src={
                     product.pictures?.[selectedImage]?.secure_url ||
