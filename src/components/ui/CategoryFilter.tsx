@@ -28,7 +28,12 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({ value, onChange }) => {
         }
         return res.json();
       })
-      .then(setCategories)
+      .then((data: Category[]) => {
+        const sortedCategories = data.sort((a, b) =>
+          a.name.localeCompare(b.name)
+        );
+        setCategories(sortedCategories);
+      })
       .catch(() => toast.error("Erro ao carregar categorias."));
   }, []);
 

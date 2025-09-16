@@ -16,11 +16,15 @@ export default function LayoutWrapper({
     pathname.startsWith(path)
   );
 
-  return (
-    <>
-      {showHeaderFooter && <Header />}
-      {children}
-      {showHeaderFooter && <Footer />}
-    </>
-  );
+  if (showHeaderFooter) {
+    return (
+      <div className="flex flex-col min-h-screen">
+        <Header />
+        <main className="flex-grow">{children}</main>
+        <Footer />
+      </div>
+    );
+  }
+
+  return <>{children}</>;
 }
