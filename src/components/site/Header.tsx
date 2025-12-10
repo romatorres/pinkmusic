@@ -23,31 +23,41 @@ import { useState, useEffect } from "react";
 export default function Header() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [searchTerm, setSearchTerm] = useState(
+  const [inputValue, setInputValue] = useState(
     searchParams.get("search") || ""
   );
   const pathname = usePathname();
   const isHomePage = pathname === "/";
 
   useEffect(() => {
-    if (pathname === "/" && searchTerm === "") {
+    setInputValue(searchParams.get("search") || "");
+  }, [searchParams]);
+
+  useEffect(() => {
+    const currentSearchInUrl = searchParams.get("search") || "";
+    if (inputValue === currentSearchInUrl) {
       return;
     }
 
     const handler = setTimeout(() => {
       const params = new URLSearchParams(searchParams);
-      if (searchTerm) {
-        params.set("search", searchTerm);
+      if (inputValue) {
+        params.set("search", inputValue);
       } else {
         params.delete("search");
       }
-      router.push(`/products-all?${params.toString()}`);
+
+      if (inputValue) {
+        router.push(`/products-all?${params.toString()}`);
+      } else if (pathname === "/products-all") {
+        router.push(`/products-all?${params.toString()}`);
+      }
     }, 300);
 
     return () => {
       clearTimeout(handler);
     };
-  }, [searchTerm, router, pathname, searchParams]);
+  }, [inputValue, searchParams, pathname, router]);
 
   return (
     <header
@@ -75,8 +85,8 @@ export default function Header() {
           <div className="hidden md:flex flex-1 max-w-xl mx-8">
             <div className="flex-1 w-full">
               <SearchInput
-                value={searchTerm}
-                onChange={setSearchTerm}
+                value={inputValue}
+                onChange={setInputValue}
                 placeholder="Buscar produto..."
               />
             </div>
@@ -163,8 +173,8 @@ export default function Header() {
             <Input
               type="search"
               placeholder="Buscar produtos..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
               className="pl-10 pr-4 h-10 bg-background border-primary/20"
               aria-label="Buscar produtos"
             />
