@@ -3,6 +3,8 @@
 import { usePathname } from "next/navigation";
 import Header from "@/components/site/Header";
 import Footer from "@/components/site/Footer";
+import TopBar from "./TopBar";
+import { Suspense } from "react";
 
 export default function LayoutWrapper({
   children,
@@ -10,7 +12,7 @@ export default function LayoutWrapper({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const noHeaderFooter = ["/login", "/register", "/dashboard"];
+  const noHeaderFooter = ["/login", "/register", "/dashboard", "/_not-found"];
 
   const showHeaderFooter = !noHeaderFooter.some((path) =>
     pathname.startsWith(path)
@@ -19,7 +21,10 @@ export default function LayoutWrapper({
   if (showHeaderFooter) {
     return (
       <div className="flex flex-col min-h-screen">
-        <Header />
+        <TopBar />
+        <Suspense fallback={<div>Carregando Header...</div>}>
+          <Header />
+        </Suspense>
         <main className="flex-grow">{children}</main>
         <Footer />
       </div>

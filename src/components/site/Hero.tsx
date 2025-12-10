@@ -12,6 +12,7 @@ import Autoplay from "embla-carousel-autoplay";
 import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
+import Social from "./Social";
 
 export default function Hero() {
   const plugin = React.useRef(
@@ -21,43 +22,48 @@ export default function Hero() {
   return (
     <section className="relative flex w-full flex-col items-center justify-center bg-[url('/img/bg-hero.jpg')] bg-cover bg-center py-20 md:min-h-[680px] md:py-28">
       <PageContainer>
-        <div className="flex w-full max-w-[1440px] flex-col-reverse items-center gap-8 md:gap-4 px-4 md:flex-row md:items-center md:justify-between mt-12">
-          <div className="flex flex-col items-center justify-center text-center md:w-1/2 md:items-start md:text-left">
+        <div className="flex w-full max-w-[1440px] flex-col-reverse items-center gap-8 md:gap-4 px-4 lg:flex-row lg:items-center lg:justify-between mt-12">
+          <div className="flex flex-col items-center justify-center text-center lg:w-1/2 lg:items-start lg:text-left">
             <h1 className="m-0 font-tanker text-5xl md:text-5xl lg:text-6xl xl:text-[80px] leading-tight text-primary md:leading-14 lg:leading-16 xl:leading-24 lg:tracking-[3.2px]">
               Tudo para <br />
               sua música <br />
               em um só lugar!
             </h1>
-            <div className="flex w-full flex-col items-stretch justify-center md:justify-start md:flex-row md:items-center mt-8 md:mt-10 gap-6 md:gap-4">
-              <Link
-                href="https://www.mercadolivre.com.br/pagina/pinkmusic"
-                passHref
-                target="_blank"
-                className="w-full md:w-auto"
-              >
-                <button className="flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-full bg-primary lg:px-10 lg:py-4 md:px-7 md:py-3 px-7 py-3 text-lg font-semibold text-white transition-colors duration-300 ease-in-out hover:cursor-pointer hover:bg-secondary">
-                  <Image
-                    src="/img/icon-store.svg"
-                    alt="E-commerce Icon"
-                    width={22}
-                    height={22}
-                    className="aspect-square object-contain"
-                  />
-                  E-commerce
-                </button>
-              </Link>
-              <Link href="#contact" className="w-full md:w-auto">
-                <button className="flex w-full items-center justify-center gap-2 whitespace-nowrap border-primary border-[1px] rounded-full bg-white lg:px-10 lg:py-4 md:px-7 md:py-3 px-7 py-3 text-lg font-semibold text-primary transition-colors duration-300 ease-in-out hover:cursor-pointer hover:bg-background">
-                  <Image
-                    src="/img/icon-location.svg"
-                    alt="Store Localização"
-                    width={22}
-                    height={22}
-                    className="aspect-square object-contain"
-                  />
-                  Loja Física
-                </button>
-              </Link>
+            <div className="w-full">
+              <div className="flex w-full flex-col items-stretch justify-center md:justify-start md:flex-row md:items-center mt-8 md:mt-10 gap-6 md:gap-4">
+                <Link
+                  href="https://www.mercadolivre.com.br/pagina/pinkmusic"
+                  passHref
+                  target="_blank"
+                  className="w-full"
+                >
+                  <button className="flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-full bg-primary lg:px-10 lg:py-4 md:px-7 md:py-3 px-7 py-3 text-lg font-semibold text-white transition-colors duration-300 ease-in-out hover:cursor-pointer hover:bg-secondary">
+                    <Image
+                      src="/img/icon-store.svg"
+                      alt="E-commerce Icon"
+                      width={22}
+                      height={22}
+                      className="aspect-square object-contain"
+                    />
+                    E-commerce
+                  </button>
+                </Link>
+                <Link href="#contact" className="w-full">
+                  <button className="flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border-primary border-[1px] bg-white lg:px-10 lg:py-4 md:px-7 md:py-3 px-7 py-3 text-lg font-semibold text-primary transition-colors duration-300 ease-in-out hover:cursor-pointer hover:bg-background">
+                    <Image
+                      src="/img/icon-location.svg"
+                      alt="Store Localização"
+                      width={22}
+                      height={22}
+                      className="aspect-square object-contain"
+                    />
+                    Loja Física
+                  </button>
+                </Link>
+              </div>
+              <div className="mt-8 md:mt-10">
+                <Social />
+              </div>
             </div>
           </div>
           <div className="flex w-full items-center justify-center md:w-1/2">

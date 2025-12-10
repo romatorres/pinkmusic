@@ -30,7 +30,7 @@ export function SearchInput({
         onChange={(e) => onChange(e.target.value)}
       />
       <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-        <Search className="h-5 w-5 text-primary/80" />
+        <Search className="h-5 w-5 text-primary/40" />
       </div>
       {value && (
         <button

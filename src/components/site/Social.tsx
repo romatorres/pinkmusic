@@ -3,7 +3,7 @@ import Image from "next/image";
 export default function Social() {
   return (
     <section>
-      <div className="flex items-center gap-6 md:gap-4 md:mt-0 mt-8 justify-center md:justify-normal">
+      <div className="flex items-center gap-6 md:gap-6 lg:mt-0 mt-8 justify-center lg:justify-normal">
         <a
           href="https://www.facebook.com/PinkMusicInstrumentos/"
           target="_blank"
@@ -11,8 +11,8 @@ export default function Social() {
           <Image
             src="/img/icon-facebook.svg"
             alt="Icon Social Facebook"
-            width={44}
-            height={44}
+            width={56}
+            height={56}
             className="object-contain transition-transform duration-300 ease-in-out hover:scale-110 hover:cursor-pointer"
           />
         </a>
@@ -23,8 +23,8 @@ export default function Social() {
           <Image
             src="/img/icon-instagram.svg"
             alt="Icon Social Instagram"
-            width={44}
-            height={44}
+            width={56}
+            height={56}
             className="object-contain transition-transform duration-300 ease-in-out hover:scale-110 hover:cursor-pointer"
           />
         </a>
@@ -32,8 +32,8 @@ export default function Social() {
           <Image
             src="/img/icon-whatsapp.svg"
             alt="Icon Social Twitter"
-            width={44}
-            height={44}
+            width={56}
+            height={56}
             className="object-contain transition-transform duration-300 ease-in-out hover:scale-110 hover:cursor-pointer"
           />
         </a>

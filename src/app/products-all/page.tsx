@@ -2,69 +2,36 @@
 
 import Products from "@/components/site/Products";
 import { PageContainer } from "@/components/ui/Page-container";
-import { SearchInput } from "@/components/ui/SearchInput";
 import CategoryFilter from "@/components/ui/CategoryFilter";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
-import { Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { Category } from "@/lib/types";
 
-function ProductAllContent() {
+function ProductAllClientContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [searchTerm, setSearchTerm] = useState(
-    searchParams.get("search") || ""
-  );
+  const searchTerm = searchParams.get("search") || "";
   const [categoryId, setCategoryId] = useState(
     searchParams.get("categoryId") || ""
   );
-  const [categoryName, setCategoryName] = useState("");
 
-  // Buscar o nome da categoria selecionada para usar no placeholder
   useEffect(() => {
+    const params = new URLSearchParams();
+    if (searchTerm) {
+      params.set("search", searchTerm);
+    }
     if (categoryId) {
-      fetch(`/api/categories`)
-        .then((res) => res.json())
-        .then((categories: Category[]) => {
-          const category = categories.find((cat) => cat.id === categoryId);
-          if (category) {
-            setCategoryName(category.name);
-          }
-        })
-        .catch(() => {
-          setCategoryName("");
-        });
-    } else {
-      setCategoryName("");
+      params.set("categoryId", categoryId);
     }
-  }, [categoryId]);
-
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      const params = new URLSearchParams();
-      if (searchTerm) {
-        params.set("search", searchTerm);
-      }
-      if (categoryId) {
-        params.set("categoryId", categoryId);
-      }
-      router.push(`/products-all?${params.toString()}`);
-    }, 300);
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [searchTerm, categoryId, router]);
-
-  // Gerar placeholder dinâmico com base na categoria selecionada
-  const getPlaceholder = () => {
-    if (categoryName) {
-      return `Buscar por ${categoryName.toLowerCase()}...`;
+    // Não inclua a navegação aqui para evitar loops,
+    // o Header já cuida da parte de search.
+    // Apenas atualize para a categoria.
+    const newUrl = `/products-all?${params.toString()}`;
+    if (window.location.pathname + window.location.search !== newUrl) {
+      router.push(newUrl);
     }
-    return "Buscar por produtos...";
-  };
+  }, [categoryId, router, searchTerm]);
 
   return (
     <section>
@@ -79,13 +46,6 @@ function ProductAllContent() {
             </Link>
           </div>
           <div className="flex flex-col justify-end md:flex-row gap-4">
-            <div className="flex-1 md:max-w-xs w-full">
-              <SearchInput
-                value={searchTerm}
-                onChange={setSearchTerm}
-                placeholder={getPlaceholder()}
-              />
-            </div>
             <div className="flex-1 md:max-w-xs w-full">
               <CategoryFilter value={categoryId} onChange={setCategoryId} />
             </div>
@@ -106,7 +66,7 @@ function ProductAllContent() {
 export default function ProductAll() {
   return (
     <Suspense fallback={<div>Carregando...</div>}>
-      <ProductAllContent />
+      <ProductAllClientContent />
     </Suspense>
   );
 }

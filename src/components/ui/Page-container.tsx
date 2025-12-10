@@ -1,8 +1,8 @@
-import * as React from "react"
-import { cn } from "@/lib/utils"
+import * as React from "react";
+import { cn } from "@/lib/utils";
 
 interface PageContainerProps extends React.HTMLAttributes<HTMLDivElement> {
-  children: React.ReactNode
+  children: React.ReactNode;
 }
 
 const PageContainer = React.forwardRef<HTMLDivElement, PageContainerProps>(
@@ -10,15 +10,18 @@ const PageContainer = React.forwardRef<HTMLDivElement, PageContainerProps>(
     return (
       <div
         ref={ref}
-        className={cn("mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8", className)}
+        className={cn(
+          "mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8",
+          className
+        )}
         {...props}
       >
         {children}
       </div>
-    )
+    );
   }
-)
+);
 
-PageContainer.displayName = "PageContainer"
+PageContainer.displayName = "PageContainer";
 
-export { PageContainer }
+export { PageContainer };

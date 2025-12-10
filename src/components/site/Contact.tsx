@@ -12,7 +12,6 @@ export default function Contact() {
     district: "Centro",
     city: "Feira de Santana",
     state: "BA",
-    zipCode: "44002-000",
     full: "Rua JJ Seabra, 31, Centro, Feira de Santana - BA, 44002-000",
   };
 
@@ -35,107 +34,118 @@ export default function Contact() {
           <div className="my-auto h-7 w-2 shrink-0 self-stretch bg-secondary" />
           <h2 className="my-auto self-stretch font-normal">Contatos</h2>
         </div>
+        <div className="text-center my-16">
+          <h2 className="text-3xl md:text-5xl font-tanker text-primary mt-3">
+            Fale com a gente
+          </h2>
+          <p className="text-foreground mt-4 max-w-2xl mx-auto">
+            Tire suas dúvidas, peça orçamentos ou venha nos visitar. Estamos
+            prontos para ajudar você a encontrar o instrumento perfeito.
+          </p>
+        </div>
         <div className="flex flex-col items-center justify-center md:py-6 py-2 px-4 w-full">
-          <div className="w-full border border-b-[1px] border-b-ring bg-card md:mb-16 md:mt-6 mt-4 mb-8 py-7 rounded-2xl">
-            <div className="flex flex-col items-center justify-center w-full gap-2">
-              <div>
-                <Image
-                  src="/img/icon-email_contacts.svg"
-                  alt="Email"
-                  width={64}
-                  height={64}
-                  className="aspect-square object-contain object-center sm:w-16 w-12 self-stretch flex-shrink-0 my-auto"
-                />
-              </div>
-              <h3 className="text-primary sm:text-xl text-md font-normal">
-                E-MAIL
-              </h3>
-              <p className="text-foreground font-medium sm:text-2xl text-lg">
-                <a href="mailto:vendas@pinkmusic.com.br">
-                  VENDAS@PINKMUSIC.COM.BR
-                </a>
-              </p>
-            </div>
-          </div>
           {/* Informações de Contato */}
           <div className="space-y-8 w-full">
-            <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-8 w-full">
-              <div>
-                <h2 className="text-2xl font-bold text-foreground mb-6 flex items-center gap-4">
+            <div className="grid lg:grid-cols-4 md:grid-cols-2 grid-cols-1 gap-8 w-full">
+              {/* EMAIL */}
+              <div className="group bg-card rounded-2xl flex flex-col space-y-2 justify-center items-center p-6 shadow-card hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-border/50 text-center">
+                <div className="mb-4">
+                  <Image
+                    src="/img/icon-email_contacts.svg"
+                    alt="Email"
+                    width={56}
+                    height={56}
+                    className="aspect-square object-contain object-center w-14 self-stretch flex-shrink-0 my-auto"
+                  />
+                </div>
+                <h3 className="text-foreground sm:text-2xl text-xl font-semibold">
+                  E-MAIL
+                </h3>
+                <p className="text-foreground flex flex-col">
+                  <a href="mailto:vendas@pinkmusic.com.br">
+                    vendas@pinkmusic.com.br
+                  </a>
+                  <a href="mailto:contato@pinkmusic.com.br">
+                    contato@pinkmusic.com.br
+                  </a>
+                </p>
+              </div>
+              {/* WHATSAPP */}
+              <div className="group bg-card rounded-2xl flex flex-col space-y-2 justify-center items-center p-6 shadow-card hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-border/50 text-center">
+                <div className="text-2xl font-bold text-foreground mb-6 flex items-center gap-4">
                   <Image
                     src="/img/icon-whats_contacts.svg"
                     alt="Localização"
-                    width={48}
-                    height={48}
-                    className="aspect-square object-contain object-center sm:w-12 w-10 self-stretch flex-shrink-0 my-auto"
+                    width={56}
+                    height={56}
+                    className="aspect-square object-contain object-center w-14 self-stretch flex-shrink-0 my-auto"
                   />
-                  Nosso Whatsapp
-                </h2>
+                </div>
+                <h3 className="text-foreground sm:text-2xl text-xl font-semibold">
+                  WHATSAPP
+                </h3>
                 <div className="flex items-center space-x-3">
                   <div>
-                    <p className="font-semibold text-foreground">
+                    <p className="text-foreground">
                       <a href="https://wa.me/5575999661614" target="_blank">
                         Loja 01 | (75) 99966-1614
                       </a>
                     </p>
-                    <p className="font-semibold text-foreground">
+                    <p className="text-foreground">
                       <a href="https://wa.me/5575991988685" target="_blank">
                         Loja 02 | (75) 99198-8685
                       </a>
                     </p>
-                    <p className="text-sm text-primary">WhatsApp disponível</p>
                   </div>
                 </div>
               </div>
-
-              <div>
-                <h2 className="text-2xl font-bold text-foreground mb-6 flex items-center gap-4">
+              {/* HORARIOS */}
+              <div className="group bg-card rounded-2xl flex flex-col space-y-2 justify-center items-center p-6 shadow-card hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-border/50 text-center">
+                <div className="text-2xl font-bold text-foreground mb-6 flex items-center gap-4">
                   <Image
                     src="/img/icon-horario_contacts.svg"
                     alt="Localização"
-                    width={48}
-                    height={48}
-                    className="aspect-square object-contain object-center sm:w-12 w-10 self-stretch flex-shrink-0 my-auto"
+                    width={56}
+                    height={56}
+                    className="aspect-square object-contain object-center w-14 self-stretch flex-shrink-0 my-auto"
                   />
-                  Nossos Horários
-                </h2>
+                </div>
+                <h3 className="text-foreground sm:text-2xl text-xl font-semibold">
+                  HORÁRIOS
+                </h3>
                 <div className="flex items-center space-x-3">
                   <div>
-                    <p className="font-semibold text-foreground">
-                      Horário de Funcionamento
+                    <p className="text-foreground">
+                      Segunda a Sexta: 8h às 18h
                     </p>
-                    <p className="text-primary">Segunda a Sexta: 8h às 18h</p>
-                    <p className="text-primary">Sábado: 8h às 13h</p>
-                    <p className="text-primary">Domingo: Fechado</p>
+                    <p className="text-foreground">Sábado: 8h às 13h</p>
+                    <p className="text-foreground">Domingo: Fechado</p>
                   </div>
                 </div>
               </div>
-
-              <div>
+              {/* LOCALIZAÇAO */}
+              <div className="group bg-card rounded-2xl flex flex-col space-y-2 justify-center items-center p-6 shadow-card hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-border/50 text-center">
                 <h2 className="text-2xl font-bold text-foreground mb-6 flex items-center gap-4">
                   <Image
                     src="/img/icon-location_contacts.svg"
                     alt="Localização"
-                    width={48}
-                    height={48}
-                    className="aspect-square object-contain object-center sm:w-12 w-10 self-stretch flex-shrink-0 my-auto"
+                    width={56}
+                    height={56}
+                    className="aspect-square object-contain object-center w-14 self-stretch flex-shrink-0 my-auto"
                   />
-                  Nossa Localização
                 </h2>
+                <h3 className="text-foreground sm:text-2xl text-xl font-semibold">
+                  ENDEREÇO
+                </h3>
                 <div className="space-y-4">
                   <div className="flex items-start space-x-3">
                     <div>
-                      <p className="font-semibold text-foreground">
-                        {address.street1}
-                      </p>
-                      <p className="font-semibold text-foreground">
-                        {address.street2}
-                      </p>
+                      <p className="text-foreground">{address.street1}</p>
+                      <p className="text-foreground">{address.street2}</p>
                       <p className="text-primary">{address.district}</p>
                       <p className="text-primary">
                         {address.city} - {address.state}
                       </p>
-                      <p className="text-primary">CEP: {address.zipCode}</p>
                     </div>
                   </div>
                 </div>

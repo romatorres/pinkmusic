@@ -8,28 +8,57 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { MenuIcon } from "lucide-react";
+import { MenuIcon, Search } from "lucide-react";
 import { PageContainer } from "../ui/Page-container";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import Social from "./Social";
+import { Input } from "../ui/input";
+import { SearchInput } from "@/components/ui/SearchInput";
+import { useSearchParams, useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 
 export default function Header() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [searchTerm, setSearchTerm] = useState(
+    searchParams.get("search") || ""
+  );
   const pathname = usePathname();
   const isHomePage = pathname === "/";
+
+  useEffect(() => {
+    if (pathname === "/" && searchTerm === "") {
+      return;
+    }
+
+    const handler = setTimeout(() => {
+      const params = new URLSearchParams(searchParams);
+      if (searchTerm) {
+        params.set("search", searchTerm);
+      } else {
+        params.delete("search");
+      }
+      router.push(`/products-all?${params.toString()}`);
+    }, 300);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchTerm, router, pathname, searchParams]);
 
   return (
     <header
       className={cn(
-        "left-0 top-0 right-0 z-10 flex min-h-[100px] w-full items-center justify-center py-3 md:min-h-[124px]",
-        isHomePage ? "absolute" : "relative bg-card shadow-sm"
+        "left-0  right-0 z-10 flex min-h-[100px] w-full items-center justify-center py-3 md:min-h-[124px]",
+        isHomePage ? "absolute top-6" : "relative top-0"
       )}
     >
       <PageContainer>
+        {/* Logo */}
         <div className="flex h-[70px] w-full items-center justify-between">
-          {/* Logo */}
           <div className="relative w-[170px] md:w-[200px] lg:w-[240px] aspect-[240/70.5]">
             <Link href="/">
               <Image
@@ -42,8 +71,19 @@ export default function Header() {
             </Link>
           </div>
 
+          {/* Search - Desktop */}
+          <div className="hidden md:flex flex-1 max-w-xl mx-8">
+            <div className="flex-1 w-full">
+              <SearchInput
+                value={searchTerm}
+                onChange={setSearchTerm}
+                placeholder="Buscar produto..."
+              />
+            </div>
+          </div>
+
           {/* Desktop Navigation */}
-          <div className="hidden items-center gap-12 md:flex">
+          <div className="hidden items-center gap-12 lg:flex">
             <nav className="flex items-center gap-7 text-base font-medium cursor-pointerb text-primary">
               <Link
                 href="/"
@@ -70,11 +110,10 @@ export default function Header() {
                 Contatos
               </Link>
             </nav>
-            <Social />
           </div>
 
           {/* Mobile Navigation */}
-          <div className="md:hidden">
+          <div className="lg:hidden">
             <Sheet>
               <SheetTrigger asChild>
                 <button
@@ -114,6 +153,21 @@ export default function Header() {
                 <Social />
               </SheetContent>
             </Sheet>
+          </div>
+        </div>
+
+        {/* Search - Mobile */}
+        <div className="md:hidden mt-0">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary/50" />
+            <Input
+              type="search"
+              placeholder="Buscar produtos..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 pr-4 h-10 bg-background border-primary/20"
+              aria-label="Buscar produtos"
+            />
           </div>
         </div>
       </PageContainer>

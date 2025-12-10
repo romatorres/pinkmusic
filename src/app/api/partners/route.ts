@@ -5,15 +5,13 @@ export async function GET() {
   try {
     const partners = await prisma.partner.findMany();
     return NextResponse.json(partners);
-  } catch (error) {
+  } catch {
     return new NextResponse("Internal Server Error", { status: 500 });
   }
 }
 
 export async function POST(request: Request) {
   try {
-    console.log("Iniciando criação de parceiro");
-    
     const data = await request.formData();
     const name = data.get("name") as string;
     const image = data.get("image") as File;
@@ -26,12 +24,11 @@ export async function POST(request: Request) {
     // Converter a imagem para base64
     const bytes = await image.arrayBuffer();
     const buffer = Buffer.from(bytes);
-    const base64Image = buffer.toString('base64');
-    
+    const base64Image = buffer.toString("base64");
+
     // Criar uma URL de dados para a imagem
-    const mimeType = image.type || 'image/jpeg';
+    const mimeType = image.type || "image/jpeg";
     const imageUrl = `data:${mimeType};base64,${base64Image}`;
-    console.log("Imagem convertida, criando parceiro no banco");
 
     const partner = await prisma.partner.create({
       data: {
@@ -40,7 +37,6 @@ export async function POST(request: Request) {
       },
     });
 
-    console.log("Parceiro criado com sucesso:", partner.id);
     return NextResponse.json(partner);
   } catch (error: unknown) {
     console.error("Error creating partner - Tipo do erro:", typeof error);
