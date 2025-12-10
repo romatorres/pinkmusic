@@ -9,7 +9,8 @@ export default function TopBar() {
         </div>
         <div className="flex items-center gap-4 text-sm">
           <a
-            href="tel:+5575999661614"
+            href="https://wa.me/5575999661614"
+            target="_blank"
             className="flex items-center gap-1.5 hover:opacity-80 transition-opacity"
           >
             <Phone className="h-3.5 w-3.5" />
