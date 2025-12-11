@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -42,10 +39,40 @@ model Product {
   seller_nickname    String
   permalink          String    @unique
   pictures           Picture[]
+  
+  // NOVO: Relação com Marca
+  brand              Brand?    @relation(fields: [brandId], references: [id])
+  brandId            String?
+  
   category           Category? @relation(fields: [categoryId], references: [id])
   categoryId         String?
+  
+  // NOVO: Campos para relevância
+  views              Int       @default(0)
+  sales              Int       @default(0)
+  rating             Float?    @default(0)
+  featured           Boolean   @default(false)
+  
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
+  
+  // NOVO: Índices para otimizar consultas
+  @@index([brandId])
+  @@index([categoryId])
+  @@index([views])
+  @@index([sales])
+  @@index([featured])
+}
+
+// NOVO: Model para Marcas
+model Brand {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  slug      String    @unique
+  logo      String?
+  products  Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 model Category {
