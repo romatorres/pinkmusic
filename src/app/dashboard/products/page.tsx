@@ -30,7 +30,7 @@ import { SearchInput } from "@/components/ui/SearchInput";
 import { useSearchParams } from "next/navigation";
 
 import CategoryFilter from "@/components/ui/CategoryFilter";
-import { Category } from "@/lib/types";
+import { Category, Brand } from "@/lib/types";
 
 interface Product {
   id: string;
@@ -40,15 +40,24 @@ interface Product {
   condition: string;
   categoryId?: string;
   category?: Category;
+  brandId?: string;
+  brand?: Brand;
 }
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
-
+  const [brands, setBrands] = useState<Brand[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [productId, setProductId] = useState("");
   const [isAdding, setIsAdding] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [selectedBrand, setSelectedBrand] = useState<string>("");
+
+  // Estados para o formulário de adicionar (separados dos filtros)
+  const [formCategory, setFormCategory] = useState<string>("");
+  const [formBrand, setFormBrand] = useState<string>("");
+
   const [productToDelete, setProductToDelete] = useState<string | null>(null);
   const searchParams = useSearchParams();
   const [searchTerm, setSearchTerm] = useState(
@@ -60,9 +69,23 @@ export default function ProductsPage() {
   const [totalProducts, setTotalProducts] = useState(0);
   const [limit, setLimit] = useState(10);
 
+  // Buscar marcas e categorias ao carregar a página
+  useEffect(() => {
+    Promise.all([
+      fetch("/api/brands").then((res) => res.json()),
+      fetch("/api/categories").then((res) => res.json()),
+    ])
+      .then(([brandsData, categoriesData]) => {
+        setBrands(brandsData);
+        setCategories(categoriesData);
+      })
+      .catch(() => toast.error("Erro ao carregar dados"));
+  }, []);
+
   const fetchProducts = async (
     page: number,
     categoryId?: string,
+    brandId?: string,
     search?: string
   ) => {
     setLoading(true);
@@ -73,6 +96,9 @@ export default function ProductsPage() {
       });
       if (categoryId) {
         params.append("categoryId", categoryId);
+      }
+      if (brandId) {
+        params.append("brandId", brandId);
       }
       if (search) {
         params.append("search", search);
@@ -94,15 +120,15 @@ export default function ProductsPage() {
     }
   };
 
-  // Efeito para buscar produtos quando a página, filtro, busca ou limite mudar
+  // Efeito para buscar produtos quando a página, filtros, busca ou limite mudar
   useEffect(() => {
-    fetchProducts(currentPage, selectedCategory, searchTerm);
-  }, [currentPage, selectedCategory, limit, searchTerm]);
+    fetchProducts(currentPage, selectedCategory, selectedBrand, searchTerm);
+  }, [currentPage, selectedCategory, selectedBrand, limit, searchTerm]);
 
-  // Efeito para resetar a página para 1 quando o filtro de categoria ou busca mudar
+  // Efeito para resetar a página para 1 quando os filtros mudarem
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedCategory, searchTerm]);
+  }, [selectedCategory, selectedBrand, searchTerm]);
 
   const handleAddSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -122,7 +148,8 @@ export default function ProductsPage() {
         },
         body: JSON.stringify({
           productId,
-          categoryId: selectedCategory || null,
+          categoryId: formCategory || null,
+          brandId: formBrand || null,
         }),
       });
 
@@ -131,9 +158,10 @@ export default function ProductsPage() {
       if (response.ok && result.success) {
         toast.success(result.message || "Produto adicionado com sucesso!");
         setProductId("");
-        fetchProducts(currentPage, selectedCategory, searchTerm); // Refresh a lista
+        setFormCategory("");
+        setFormBrand("");
+        fetchProducts(currentPage, selectedCategory, selectedBrand, searchTerm);
       } else if (response.status === 409) {
-        // Produto duplicado
         toast.error(result.error || "Produto já cadastrado no sistema.");
       } else {
         toast.error(result.error || "Erro ao adicionar produto.");
@@ -163,8 +191,8 @@ export default function ProductsPage() {
           <CardTitle>Adicionar Novo Produto</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleAddSubmit}>
-            <div className="flex md:flex-row flex-col gap-4 md:items-end items-start ">
+          <form onSubmit={handleAddSubmit} className="space-y-4">
+            <div className="flex flex-col gap-4">
               <div className="w-full">
                 <Label htmlFor="productId" className="mb-2">
                   ID do Produto do Mercado Livre
@@ -178,14 +206,50 @@ export default function ProductsPage() {
                   required
                 />
               </div>
-              <Button
-                type="submit"
-                disabled={isAdding}
-                className="md:w-auto w-full"
-              >
-                {isAdding ? "Adicionando..." : "Adicionar Produto"}
-              </Button>
+              <div className="w-full">
+                <Label htmlFor="formCategory" className="mb-2">
+                  Categoria (Opcional)
+                </Label>
+                <select
+                  id="formCategory"
+                  value={formCategory}
+                  onChange={(e) => setFormCategory(e.target.value)}
+                  className="w-full p-3 border border-primary/40 rounded-full"
+                >
+                  <option value="">Selecione uma categoria</option>
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="w-full">
+                <Label htmlFor="formBrand" className="mb-2">
+                  Marca (Opcional)
+                </Label>
+                <select
+                  id="formBrand"
+                  value={formBrand}
+                  onChange={(e) => setFormBrand(e.target.value)}
+                  className="w-full p-3 border border-primary/40 rounded-full"
+                >
+                  <option value="">Selecione uma marca</option>
+                  {brands.map((brand) => (
+                    <option key={brand.id} value={brand.id}>
+                      {brand.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
+            <Button
+              type="submit"
+              disabled={isAdding}
+              className="md:w-auto w-full"
+            >
+              {isAdding ? "Adicionando..." : "Adicionar Produto"}
+            </Button>
           </form>
         </CardContent>
       </Card>
@@ -200,8 +264,23 @@ export default function ProductsPage() {
                 <CategoryFilter
                   value={selectedCategory}
                   onChange={setSelectedCategory}
-                  className="w-full "
+                  className="w-full"
                 />
+              </div>
+              {/* Filtro de Marca: */}
+              <div className="w-full">
+                <select
+                  value={selectedBrand}
+                  onChange={(e) => setSelectedBrand(e.target.value)}
+                  className="w-full p-2 border border-foreground rounded"
+                >
+                  <option value="">Todas as Marcas</option>
+                  {brands.map((brand) => (
+                    <option key={brand.id} value={brand.id}>
+                      {brand.name}
+                    </option>
+                  ))}
+                </select>
               </div>
               {/* Filtro de Produtos: */}
               <div className="w-full">
@@ -211,7 +290,7 @@ export default function ProductsPage() {
                   placeholder={getPlaceholder()}
                 />
               </div>
-              {/* Select Itens por pagina */}
+              {/* Select Itens por página */}
               <div className="flex flex-col lg:flex-row items-center gap-2 w-full">
                 <Label
                   htmlFor="limit-select"
@@ -224,7 +303,7 @@ export default function ProductsPage() {
                   value={limit}
                   onChange={(e) => {
                     setLimit(Number(e.target.value));
-                    setCurrentPage(1); // Reseta para página 1 ao mudar o limite
+                    setCurrentPage(1);
                   }}
                   className="p-2 border border-foreground rounded w-full"
                 >
@@ -253,8 +332,8 @@ export default function ProductsPage() {
                       <TableHead className="min-w-[100px]">
                         Quantidade
                       </TableHead>
-
                       <TableHead className="min-w-[150px]">Categoria</TableHead>
+                      <TableHead className="min-w-[150px]">Marca</TableHead>
                       <TableHead className="min-w-[120px] text-right">
                         Ações
                       </TableHead>
@@ -289,6 +368,14 @@ export default function ProductsPage() {
                             title={product.category?.name || "N/A"}
                           >
                             {product.category ? product.category.name : "N/A"}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div
+                            className="max-w-[150px] truncate"
+                            title={product.brand?.name || "N/A"}
+                          >
+                            {product.brand ? product.brand.name : "N/A"}
                           </div>
                         </TableCell>
                         <TableCell className="text-right">
@@ -361,6 +448,7 @@ export default function ProductsPage() {
                                           fetchProducts(
                                             currentPage,
                                             selectedCategory,
+                                            selectedBrand,
                                             searchTerm
                                           );
                                         } else {

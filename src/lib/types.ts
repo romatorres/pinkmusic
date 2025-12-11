@@ -1,9 +1,8 @@
-
 export interface Category {
-    id: string;
-    name: string;
-  }
-  
+  id: string;
+  name: string;
+}
+
 export interface Product {
   id: string;
   title: string;
@@ -21,4 +20,15 @@ export interface Product {
 export interface ProductDetailsProps {
   product: Product;
 }
-  
+
+export interface Brand {
+  id: string;
+  name: string;
+  slug: string;
+  logo: string | null;
+  _count?: {
+    products: number;
+  };
+  createdAt: Date;
+  updatedAt: Date;
+}

@@ -7,18 +7,20 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Category } from "@/lib/types";
+import { Category, Brand } from "@/lib/types";
 
 interface ProductData {
   title: string;
   price: number;
   available_quantity: number;
   categoryId: string | null;
+  brandId: string | null;
 }
 
 export default function EditProductPage() {
   const [product, setProduct] = useState<ProductData | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [brands, setBrands] = useState<Brand[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const params = useParams();
@@ -26,15 +28,18 @@ export default function EditProductPage() {
 
   useEffect(() => {
     if (id) {
-      const fetchProductAndCategories = async () => {
+      const fetchProductAndData = async () => {
         try {
-          const [productResponse, categoriesResponse] = await Promise.all([
-            fetch(`/api/products/${id}`),
-            fetch("/api/categories"),
-          ]);
+          const [productResponse, categoriesResponse, brandsResponse] =
+            await Promise.all([
+              fetch(`/api/products/${id}`),
+              fetch("/api/categories"),
+              fetch("/api/brands"),
+            ]);
 
           const productResult = await productResponse.json();
           const categoriesResult = await categoriesResponse.json();
+          const brandsResult = await brandsResponse.json();
 
           if (productResult.success) {
             setProduct(productResult.data);
@@ -48,13 +53,19 @@ export default function EditProductPage() {
           } else {
             toast.error("Erro ao buscar categorias.");
           }
+
+          if (Array.isArray(brandsResult)) {
+            setBrands(brandsResult);
+          } else {
+            toast.error("Erro ao buscar marcas.");
+          }
         } catch {
           toast.error("Erro de conexão ao buscar dados.");
         } finally {
           setLoading(false);
         }
       };
-      fetchProductAndCategories();
+      fetchProductAndData();
     }
   }, [id, router]);
 
@@ -147,6 +158,7 @@ export default function EditProductPage() {
                 id="price"
                 name="price"
                 type="number"
+                step="0.01"
                 value={product.price}
                 onChange={handleChange}
                 required
@@ -180,6 +192,25 @@ export default function EditProductPage() {
                 {categories.map((category) => (
                   <option key={category.id} value={category.id}>
                     {category.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <Label htmlFor="brandId" className="mb-2">
+                Marca
+              </Label>
+              <select
+                id="brandId"
+                name="brandId"
+                value={product.brandId || ""}
+                onChange={handleChange}
+                className="w-full p-2 border border-foreground rounded"
+              >
+                <option value="">Selecione uma marca</option>
+                {brands.map((brand) => (
+                  <option key={brand.id} value={brand.id}>
+                    {brand.name}
                   </option>
                 ))}
               </select>

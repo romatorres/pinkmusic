@@ -38,14 +38,15 @@ async function refreshMercadoLivreToken(baseUrl: string) {
 
     if (!refreshResult.success) {
       throw new Error(
-        `Falha ao renovar o token: ${refreshResult.error || "Erro desconhecido"}`
+        `Falha ao renovar o token: ${
+          refreshResult.error || "Erro desconhecido"
+        }`
       );
     }
 
-    // Retorna os novos tokens
     return {
       accessToken: refreshResult.accessToken,
-      refreshToken: refreshResult.refreshToken
+      refreshToken: refreshResult.refreshToken,
     };
   } catch (error) {
     console.error("Erro ao renovar token:", error);
@@ -53,7 +54,10 @@ async function refreshMercadoLivreToken(baseUrl: string) {
   }
 }
 
-async function fetchProductDetailsFromMercadoLibre(itemId: string, baseUrl: string) {
+async function fetchProductDetailsFromMercadoLibre(
+  itemId: string,
+  baseUrl: string
+) {
   const access_token = process.env.MERCADOLIBRE_ACCESS_TOKEN;
 
   if (!access_token) {
@@ -72,19 +76,16 @@ async function fetchProductDetailsFromMercadoLibre(itemId: string, baseUrl: stri
     headers: headers,
   });
 
-  // Manipule a atualização do token se necessário
   if (response.status === 401 || response.status === 403) {
     console.log("Token inválido ou expirado ao buscar detalhes. Renovando...");
-    
-    // Tentar renovar o token
+
     const newTokens = await refreshMercadoLivreToken(baseUrl);
-    
-    // Usar o novo token para a nova requisição
+
     headers = {
       "Authorization": `Bearer ${newTokens.accessToken}`,
       "Content-Type": "application/json",
     };
-    response = await fetch(url, { method: "GET", headers }); // Tentar novamente com novo token
+    response = await fetch(url, { method: "GET", headers });
   }
 
   if (!response.ok) {
@@ -102,7 +103,6 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Aguarde os params antes de acessar suas propriedades
     const { id } = await params;
 
     if (!id) {
@@ -112,13 +112,16 @@ export async function GET(
       );
     }
 
-    // Obter a URL base da requisição atual
     const currentUrl = new URL(req.url);
     const baseUrl = `${currentUrl.protocol}//${currentUrl.host}`;
 
-    // Busque primeiro no banco de dados
     const productFromDb = await prisma.product.findUnique({
       where: { id: id },
+      include: {
+        category: true,
+        brand: true, // NOVO: Incluir marca
+        pictures: true,
+      },
     });
 
     if (!productFromDb) {
@@ -128,17 +131,13 @@ export async function GET(
       );
     }
 
-    // Obtenha detalhes completos da API do Mercado Livre
     const productDetailsFromMl: MercadoLibreProductDetails =
       await fetchProductDetailsFromMercadoLibre(id, baseUrl);
 
-    // Combine dados (ou use apenas dados do ML se forem mais abrangentes para exibição)
     const combinedProduct = {
       ...productFromDb,
       ...productDetailsFromMl,
-      // Garante que o link permanente do banco de dados seja usado se o do ML for diferente ou ausente
       permalink: productFromDb.permalink || productDetailsFromMl.permalink,
-      // Substituir seller_nickname se o ML fornecer um mais preciso
       seller_nickname:
         productDetailsFromMl.seller?.nickname || productFromDb.seller_nickname,
     };
@@ -162,11 +161,9 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Aguarde os params antes de acessar suas propriedades
     const { id } = await params;
     const rawData = await req.json();
 
-    // Lista dos campos válidos que podem ser atualizados no modelo Product
     const allowedFields = [
       "title",
       "price",
@@ -176,21 +173,19 @@ export async function PUT(
       "available_quantity",
       "seller_nickname",
       "permalink",
-      "categoryId", // Campo correto para a chave estrangeira da categoria
+      "categoryId",
+      "brandId", // NOVO: Permitir atualizar marca
     ];
 
-    // Filtrar apenas os campos que existem no schema
     const filteredData = Object.keys(rawData)
       .filter((key) => allowedFields.includes(key))
       .reduce((obj, key) => {
-        // Só adicionar campos que não são undefined ou null
         if (rawData[key] !== undefined && rawData[key] !== null) {
           obj[key] = rawData[key];
         }
         return obj;
       }, {} as Record<string, unknown>);
 
-    // Verificar se há dados para atualizar
     if (Object.keys(filteredData).length === 0) {
       return NextResponse.json(
         {
@@ -205,8 +200,9 @@ export async function PUT(
       where: { id: id },
       data: filteredData,
       include: {
-        category: true, // Incluir a categoria relacionada
-        pictures: true, // Incluir as imagens relacionadas
+        category: true,
+        brand: true, // NOVO: Incluir marca na resposta
+        pictures: true,
       },
     });
 
@@ -214,7 +210,6 @@ export async function PUT(
   } catch (error) {
     console.error("Erro ao atualizar produto:", error);
 
-    // Tratar erros específicos do Prisma
     if (error instanceof Error) {
       if (error.message.includes("Unknown argument")) {
         return NextResponse.json(
@@ -255,7 +250,6 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Aguarde os params antes de acessar suas propriedades
     const { id } = await params;
 
     if (!id) {
@@ -265,7 +259,6 @@ export async function DELETE(
       );
     }
 
-    // Verifique se o produto existe antes de tentar deletar
     const productExists = await prisma.product.findUnique({
       where: { id: id },
     });
@@ -277,12 +270,14 @@ export async function DELETE(
       );
     }
 
-    // Deleta o produto
     await prisma.product.delete({
       where: { id: id },
     });
 
-    return NextResponse.json({ success: true, message: "Produto deletado com sucesso." });
+    return NextResponse.json({
+      success: true,
+      message: "Produto deletado com sucesso.",
+    });
   } catch (error) {
     console.error("Erro ao deletar produto:", error);
     return NextResponse.json(

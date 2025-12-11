@@ -16,6 +16,7 @@ import {
   Users,
   Menu,
   X,
+  Bandage,
 } from "lucide-react";
 
 export function Sidebar() {
@@ -157,6 +158,19 @@ export function Sidebar() {
                 >
                   <ChartBarStacked size={20} />
                   <span>Categorias</span>
+                </Link>
+              </li>
+
+              <li>
+                <Link
+                  href="/dashboard/brands"
+                  className={`flex items-center space-x-2 p-2 rounded hover:bg-secondary/50 transition ${
+                    isActive("/dashboard/brands") ? "bg-secondary" : ""
+                  }`}
+                  onClick={() => isMobile && setIsMobileMenuOpen(false)}
+                >
+                  <Bandage size={20} />
+                  <span>Marcas</span>
                 </Link>
               </li>
 

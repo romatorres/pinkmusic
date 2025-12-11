@@ -28,14 +28,15 @@ async function refreshMercadoLivreToken(baseUrl: string) {
 
     if (!refreshResult.success) {
       throw new Error(
-        `Falha ao renovar o token: ${refreshResult.error || "Erro desconhecido"}`
+        `Falha ao renovar o token: ${
+          refreshResult.error || "Erro desconhecido"
+        }`
       );
     }
 
-    // Retorna os novos tokens
     return {
       accessToken: refreshResult.accessToken,
-      refreshToken: refreshResult.refreshToken
+      refreshToken: refreshResult.refreshToken,
     };
   } catch (error) {
     console.error("Erro ao renovar token:", error);
@@ -43,7 +44,10 @@ async function refreshMercadoLivreToken(baseUrl: string) {
   }
 }
 
-async function fetchProductDetailsFromMercadoLivre(itemId: string, baseUrl: string): Promise<MercadoLibreProductDetails> {
+async function fetchProductDetailsFromMercadoLivre(
+  itemId: string,
+  baseUrl: string
+): Promise<MercadoLibreProductDetails> {
   const accessToken = process.env.MERCADOLIBRE_ACCESS_TOKEN;
 
   if (!accessToken) {
@@ -59,26 +63,28 @@ async function fetchProductDetailsFromMercadoLivre(itemId: string, baseUrl: stri
 
   if (response.status === 401 || response.status === 403) {
     console.log("Token inválido ou expirado, tentando renovar...");
-    
-    // Tentar renovar o token
+
     const newTokens = await refreshMercadoLivreToken(baseUrl);
-    
-    // Usar o novo token para a nova requisição
+
     headers = {
       "Authorization": `Bearer ${newTokens.accessToken}`,
     };
     const retryResponse = await fetch(url, { headers });
 
     if (!retryResponse.ok) {
-        const errorText = await retryResponse.text();
-        throw new Error(`Erro na API do MercadoLivre após renovação: ${retryResponse.status} - ${errorText}`);
+      const errorText = await retryResponse.text();
+      throw new Error(
+        `Erro na API do MercadoLivre após renovação: ${retryResponse.status} - ${errorText}`
+      );
     }
     return retryResponse.json();
   }
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(`Erro na API do MercadoLivre: ${response.status} - ${errorText}`);
+    throw new Error(
+      `Erro na API do MercadoLivre: ${response.status} - ${errorText}`
+    );
   }
 
   return response.json();
@@ -86,16 +92,15 @@ async function fetchProductDetailsFromMercadoLivre(itemId: string, baseUrl: stri
 
 export async function POST(req: NextRequest) {
   try {
-    const { productId, categoryId } = await req.json();
+    const { productId, categoryId, brandId } = await req.json(); // NOVO: brandId
 
-    if (!productId || typeof productId !== 'string') {
+    if (!productId || typeof productId !== "string") {
       return NextResponse.json(
         { success: false, error: "ID do produto não fornecido ou inválido." },
         { status: 400 }
       );
     }
 
-    // Obter a URL base da requisição atual
     const currentUrl = new URL(req.url);
     const baseUrl = `${currentUrl.protocol}//${currentUrl.host}`;
 
@@ -106,30 +111,34 @@ export async function POST(req: NextRequest) {
 
     if (existingProduct) {
       return NextResponse.json(
-        { 
-          success: false, 
-          error: "Produto já cadastrado no sistema. Não é permitido o cadastro duplicado de produtos do Mercado Livre.",
+        {
+          success: false,
+          error:
+            "Produto já cadastrado no sistema. Não é permitido o cadastro duplicado de produtos do Mercado Livre.",
           productId: existingProduct.id,
-          message: "Produto já existe no banco de dados."
+          message: "Produto já existe no banco de dados.",
         },
         { status: 409 }
       );
     }
 
-    const productDetails = await fetchProductDetailsFromMercadoLivre(productId, baseUrl);
+    const productDetails = await fetchProductDetailsFromMercadoLivre(
+      productId,
+      baseUrl
+    );
 
-    // Verificar se o produto já existe pelo ID do Mercado Livre também
     const existingProductById = await prisma.product.findUnique({
       where: { id: productDetails.id },
     });
 
     if (existingProductById) {
       return NextResponse.json(
-        { 
-          success: false, 
-          error: "Produto já cadastrado no sistema. Não é permitido o cadastro duplicado de produtos do Mercado Livre.",
+        {
+          success: false,
+          error:
+            "Produto já cadastrado no sistema. Não é permitido o cadastro duplicado de produtos do Mercado Livre.",
           productId: existingProductById.id,
-          message: "Produto já existe no banco de dados."
+          message: "Produto já existe no banco de dados.",
         },
         { status: 409 }
       );
@@ -147,21 +156,25 @@ export async function POST(req: NextRequest) {
         seller_nickname: productDetails.seller?.nickname || "Não informado",
         permalink: productDetails.permalink,
         pictures: {
-          create: productDetails.pictures.map((p) => ({ url: p.url }))
+          create: productDetails.pictures.map((p) => ({ url: p.url })),
         },
-        categoryId: categoryId,
+        categoryId: categoryId || null, // Pode ser null
+        brandId: brandId || null, // NOVO: Pode ser null
       },
     });
 
-    return NextResponse.json({
-      success: true,
-      message: "Produto adicionado com sucesso!",
-      productId: newProduct.id
-    }, { status: 201 });
-
+    return NextResponse.json(
+      {
+        success: true,
+        message: "Produto adicionado com sucesso!",
+        productId: newProduct.id,
+      },
+      { status: 201 }
+    );
   } catch (error) {
     console.error("Erro ao adicionar produto:", error);
-    const errorMessage = error instanceof Error ? error.message : "Erro interno do servidor";
+    const errorMessage =
+      error instanceof Error ? error.message : "Erro interno do servidor";
     return NextResponse.json(
       { success: false, error: errorMessage },
       { status: 500 }
