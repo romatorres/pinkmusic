@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Eye, Trash2, Edit } from "lucide-react";
 import Link from "next/link";
 import {
@@ -20,9 +20,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import Pagination from "@/components/ui/Pagination";
@@ -30,6 +36,8 @@ import { SearchInput } from "@/components/ui/SearchInput";
 import { useSearchParams } from "next/navigation";
 
 import CategoryFilter from "@/components/ui/CategoryFilter";
+import BrandFilter from "@/components/ui/BrandFilter";
+import ProductForm from "./_components/ProductForm";
 import { Category, Brand } from "@/lib/types";
 
 interface Product {
@@ -46,18 +54,9 @@ interface Product {
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [brands, setBrands] = useState<Brand[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
-  const [productId, setProductId] = useState("");
-  const [isAdding, setIsAdding] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [selectedBrand, setSelectedBrand] = useState<string>("");
-
-  // Estados para o formulário de adicionar (separados dos filtros)
-  const [formCategory, setFormCategory] = useState<string>("");
-  const [formBrand, setFormBrand] = useState<string>("");
-
   const [productToDelete, setProductToDelete] = useState<string | null>(null);
   const searchParams = useSearchParams();
   const [searchTerm, setSearchTerm] = useState(
@@ -68,6 +67,10 @@ export default function ProductsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalProducts, setTotalProducts] = useState(0);
   const [limit, setLimit] = useState(10);
+
+  // Buscar categorias e marcas para o formulário
+  const [brands, setBrands] = useState<Brand[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
 
   // Buscar marcas e categorias ao carregar a página
   useEffect(() => {
@@ -82,100 +85,84 @@ export default function ProductsPage() {
       .catch(() => toast.error("Erro ao carregar dados"));
   }, []);
 
-  const fetchProducts = async (
-    page: number,
-    categoryId?: string,
-    brandId?: string,
-    search?: string
-  ) => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams({
-        page: String(page),
-        limit: String(limit),
-      });
-      if (categoryId) {
-        params.append("categoryId", categoryId);
-      }
-      if (brandId) {
-        params.append("brandId", brandId);
-      }
-      if (search) {
-        params.append("search", search);
-      }
+  const fetchProducts = useCallback(
+    async (
+      page: number,
+      categoryId?: string,
+      brandId?: string,
+      search?: string
+    ) => {
+      setLoading(true);
+      try {
+        const params = new URLSearchParams({
+          page: String(page),
+          limit: String(limit),
+        });
+        if (categoryId) {
+          params.append("categoryId", categoryId);
+        }
+        if (brandId) {
+          params.append("brandId", brandId);
+        }
+        if (search) {
+          params.append("search", search);
+        }
 
-      const response = await fetch(`/api/products?${params.toString()}`);
-      const result = await response.json();
+        const response = await fetch(`/api/products?${params.toString()}`);
+        const result = await response.json();
 
-      if (result.success) {
-        setProducts(result.data.products);
-        setTotalProducts(result.data.total);
-      } else {
-        toast.error(result.error || "Erro ao carregar produtos.");
+        if (result.success) {
+          setProducts(result.data.products);
+          setTotalProducts(result.data.total);
+        } else {
+          toast.error(result.error || "Erro ao carregar produtos.");
+        }
+      } catch {
+        toast.error("Erro de conexão ao buscar produtos.");
+      } finally {
+        setLoading(false);
       }
-    } catch {
-      toast.error("Erro de conexão ao buscar produtos.");
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    [limit]
+  );
 
   // Efeito para buscar produtos quando a página, filtros, busca ou limite mudar
   useEffect(() => {
     fetchProducts(currentPage, selectedCategory, selectedBrand, searchTerm);
-  }, [currentPage, selectedCategory, selectedBrand, limit, searchTerm]);
+  }, [
+    currentPage,
+    selectedCategory,
+    selectedBrand,
+    limit,
+    searchTerm,
+    fetchProducts,
+  ]);
 
   // Efeito para resetar a página para 1 quando os filtros mudarem
   useEffect(() => {
     setCurrentPage(1);
   }, [selectedCategory, selectedBrand, searchTerm]);
 
-  const handleAddSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsAdding(true);
-
-    if (!productId) {
-      toast.error("Por favor, insira um ID de produto.");
-      setIsAdding(false);
-      return;
-    }
-
-    try {
-      const response = await fetch("/api/products/add", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          productId,
-          categoryId: formCategory || null,
-          brandId: formBrand || null,
-        }),
-      });
-
-      const result = await response.json();
-
-      if (response.ok && result.success) {
-        toast.success(result.message || "Produto adicionado com sucesso!");
-        setProductId("");
-        setFormCategory("");
-        setFormBrand("");
-        fetchProducts(currentPage, selectedCategory, selectedBrand, searchTerm);
-      } else if (response.status === 409) {
-        toast.error(result.error || "Produto já cadastrado no sistema.");
-      } else {
-        toast.error(result.error || "Erro ao adicionar produto.");
-      }
-    } catch (error) {
-      console.error("Erro ao adicionar produto:", error);
-      toast.error("Erro de conexão ao adicionar produto.");
-    } finally {
-      setIsAdding(false);
-    }
+  const handleProductAdded = () => {
+    fetchProducts(currentPage, selectedCategory, selectedBrand, searchTerm);
   };
 
-  const getPlaceholder = () => {
-    return "Buscar por produtos...";
+  const handleDeleteProduct = async (productId: string) => {
+    try {
+      const response = await fetch(`/api/products/${productId}`, {
+        method: "DELETE",
+      });
+      const result = await response.json();
+      if (response.ok && result.success) {
+        toast.success("Produto deletado com sucesso!");
+        setProductToDelete(null);
+        fetchProducts(currentPage, selectedCategory, selectedBrand, searchTerm);
+      } else {
+        toast.error(result.error || "Erro ao deletar produto.");
+      }
+    } catch {
+      toast.error("Erro de conexão ao deletar produto.");
+    }
   };
 
   const totalPages = Math.ceil(totalProducts / limit);
@@ -186,80 +173,27 @@ export default function ProductsPage() {
         Gerenciar Produtos
       </h1>
 
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle>Adicionar Novo Produto</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleAddSubmit} className="space-y-4">
-            <div className="flex flex-col gap-4">
-              <div className="w-full">
-                <Label htmlFor="productId" className="mb-2">
-                  ID do Produto do Mercado Livre
-                </Label>
-                <Input
-                  id="productId"
-                  type="text"
-                  placeholder="Ex: MLB123456789"
-                  value={productId}
-                  onChange={(e) => setProductId(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="w-full">
-                <Label htmlFor="formCategory" className="mb-2">
-                  Categoria (Opcional)
-                </Label>
-                <select
-                  id="formCategory"
-                  value={formCategory}
-                  onChange={(e) => setFormCategory(e.target.value)}
-                  className="w-full p-3 border border-primary/40 rounded-full"
-                >
-                  <option value="">Selecione uma categoria</option>
-                  {categories.map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="w-full">
-                <Label htmlFor="formBrand" className="mb-2">
-                  Marca (Opcional)
-                </Label>
-                <select
-                  id="formBrand"
-                  value={formBrand}
-                  onChange={(e) => setFormBrand(e.target.value)}
-                  className="w-full p-3 border border-primary/40 rounded-full"
-                >
-                  <option value="">Selecione uma marca</option>
-                  {brands.map((brand) => (
-                    <option key={brand.id} value={brand.id}>
-                      {brand.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-            <Button
-              type="submit"
-              disabled={isAdding}
-              className="md:w-auto w-full"
-            >
-              {isAdding ? "Adicionando..." : "Adicionar Produto"}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+      <ProductForm
+        categories={categories}
+        brands={brands}
+        onProductAdded={handleProductAdded}
+      />
 
       <Card>
         <CardHeader>
           <div className="flex flex-col justify-between items-start gap-4">
             <CardTitle>Todos os Produtos</CardTitle>
-            <div className="flex lg:flex-row flex-col items-start md:items-center gap-4 w-full">
-              {/* Filtro de Categoria: */}
+            <div className="flex flex-col items-start gap-4 w-full border border-primary/40 rounded-md p-4">
+              <p>Filtros</p>
+              {/* Busca */}
+              <div className="w-full">
+                <SearchInput
+                  value={searchTerm}
+                  onChange={setSearchTerm}
+                  placeholder="Buscar por produtos..."
+                />
+              </div>
+              {/* Filtro de Categoria */}
               <div className="w-full">
                 <CategoryFilter
                   value={selectedCategory}
@@ -267,50 +201,39 @@ export default function ProductsPage() {
                   className="w-full"
                 />
               </div>
-              {/* Filtro de Marca: */}
+              {/* Filtro de Marca */}
               <div className="w-full">
-                <select
+                <BrandFilter
                   value={selectedBrand}
-                  onChange={(e) => setSelectedBrand(e.target.value)}
-                  className="w-full p-2 border border-foreground rounded"
-                >
-                  <option value="">Todas as Marcas</option>
-                  {brands.map((brand) => (
-                    <option key={brand.id} value={brand.id}>
-                      {brand.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              {/* Filtro de Produtos: */}
-              <div className="w-full">
-                <SearchInput
-                  value={searchTerm}
-                  onChange={setSearchTerm}
-                  placeholder={getPlaceholder()}
+                  onChange={setSelectedBrand}
+                  className="w-full"
                 />
               </div>
-              {/* Select Itens por página */}
-              <div className="flex flex-col lg:flex-row items-center gap-2 w-full">
+
+              {/* Itens por página */}
+              <div className="flex flex-col lg:flex-row gap-2 w-full">
                 <Label
                   htmlFor="limit-select"
                   className="text-start whitespace-nowrap"
                 >
                   Itens por página:
                 </Label>
-                <select
-                  id="limit-select"
-                  value={limit}
-                  onChange={(e) => {
-                    setLimit(Number(e.target.value));
+                <Select
+                  value={String(limit)}
+                  onValueChange={(newValue) => {
+                    setLimit(Number(newValue));
                     setCurrentPage(1);
                   }}
-                  className="p-2 border border-foreground rounded w-full"
                 >
-                  <option value={10}>10</option>
-                  <option value={20}>20</option>
-                  <option value={50}>50</option>
-                </select>
+                  <SelectTrigger id="limit-select">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="10">10</SelectItem>
+                    <SelectItem value="20">20</SelectItem>
+                    <SelectItem value="50">50</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </div>
@@ -431,38 +354,9 @@ export default function ProductsPage() {
                                   </Button>
                                   <Button
                                     variant="destructive"
-                                    onClick={async () => {
-                                      try {
-                                        const response = await fetch(
-                                          `/api/products/${product.id}`,
-                                          {
-                                            method: "DELETE",
-                                          }
-                                        );
-                                        const result = await response.json();
-                                        if (response.ok && result.success) {
-                                          toast.success(
-                                            "Produto deletado com sucesso!"
-                                          );
-                                          setProductToDelete(null);
-                                          fetchProducts(
-                                            currentPage,
-                                            selectedCategory,
-                                            selectedBrand,
-                                            searchTerm
-                                          );
-                                        } else {
-                                          toast.error(
-                                            result.error ||
-                                              "Erro ao deletar produto."
-                                          );
-                                        }
-                                      } catch {
-                                        toast.error(
-                                          "Erro de conexão ao deletar produto."
-                                        );
-                                      }
-                                    }}
+                                    onClick={() =>
+                                      handleDeleteProduct(product.id)
+                                    }
                                     disabled={loading}
                                   >
                                     {loading ? "Deletando..." : "Deletar"}
