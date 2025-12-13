@@ -157,7 +157,7 @@ const Products: React.FC<ProductsProps> = ({
   const hasProducts = products.length > 0;
 
   const renderGrid = () => (
-    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
       {products.map((product) => (
         <ProductCard key={product.id} product={product} />
       ))}
@@ -195,7 +195,7 @@ const Products: React.FC<ProductsProps> = ({
   );
 
   return (
-    <div className="w-full">
+    <div className="w-full px-2">
       {loading && (
         <div className="flex justify-center items-center h-64">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
@@ -235,7 +235,7 @@ const Products: React.FC<ProductsProps> = ({
       )}
 
       {showSeeAllButton && (
-        <div className="mt-12 mb-8 flex justify-center">
+        <div className="mt-12 mb-8 mx-2 flex justify-center">
           <Link
             href="/products-all"
             className="w-full sm:w-auto bg-primary text-primary-foreground py-3 px-6 rounded-full hover:bg-primary/90 flex items-center justify-center gap-2 font-semibold text-sm transition-colors"
