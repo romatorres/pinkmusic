@@ -29,7 +29,7 @@ export default function BrandFilter({
       try {
         const response = await fetch("/api/brands");
         const data = await response.json();
-        setBrands(data);
+        setBrands(data.data);
       } catch (error) {
         console.error("Erro ao buscar marcas:", error);
       } finally {
