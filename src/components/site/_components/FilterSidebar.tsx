@@ -7,7 +7,6 @@ import {
   Tag,
   Banknote,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
@@ -74,17 +73,15 @@ export default function FilterSidebar({
     priceRange[1] < 10000;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {hasActiveFilters && (
-        <Button
-          variant="ghost"
-          size="sm"
+        <button
           onClick={onClearFilters}
-          className="w-full justify-center text-destructive hover:text-destructive hover:bg-destructive/10 rounded-lg"
+          className="flex items-center text-destructive hover:text-destructive/80 cursor-pointer"
         >
-          <X className="h-4 w-4 mr-1.5" />
-          Limpar todos os filtros
-        </Button>
+          <X className="h-5 w-5 mr-1.5" />
+          <span>Limpar todos os filtros</span>
+        </button>
       )}
 
       {/* Categories */}
