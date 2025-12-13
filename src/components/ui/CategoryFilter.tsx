@@ -28,8 +28,8 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({ value, onChange }) => {
         }
         return res.json();
       })
-      .then((data: Category[]) => {
-        const sortedCategories = data.sort((a, b) =>
+      .then((response: { success: boolean; data: Category[] }) => {
+        const sortedCategories = response.data.sort((a, b) =>
           a.name.localeCompare(b.name)
         );
         setCategories(sortedCategories);

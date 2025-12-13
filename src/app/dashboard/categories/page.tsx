@@ -51,7 +51,13 @@ export default function CategoriesPage() {
   useEffect(() => {
     fetch("/api/categories")
       .then((res) => res.json())
-      .then(setCategories);
+      .then((response: { success: boolean; data: Category[] }) => {
+        if (response.success) {
+          setCategories(response.data);
+        } else {
+          toast.error("Erro ao carregar categorias.");
+        }
+      });
   }, []);
 
   const onSubmit = async (data: CategoriesFormInputs) => {

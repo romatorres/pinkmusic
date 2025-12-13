@@ -48,14 +48,14 @@ export default function EditProductPage() {
             router.push("/dashboard/products");
           }
 
-          if (Array.isArray(categoriesResult)) {
-            setCategories(categoriesResult);
+          if (categoriesResult.success) {
+            setCategories(categoriesResult.data);
           } else {
             toast.error("Erro ao buscar categorias.");
           }
 
-          if (Array.isArray(brandsResult)) {
-            setBrands(brandsResult);
+          if (brandsResult.success) {
+            setBrands(brandsResult.data);
           } else {
             toast.error("Erro ao buscar marcas.");
           }

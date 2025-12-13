@@ -78,9 +78,17 @@ export default function ProductsPage() {
       fetch("/api/brands").then((res) => res.json()),
       fetch("/api/categories").then((res) => res.json()),
     ])
-      .then(([brandsData, categoriesData]) => {
-        setBrands(brandsData);
-        setCategories(categoriesData);
+      .then(([brandsResponse, categoriesResponse]) => {
+        if (brandsResponse.success) {
+          setBrands(brandsResponse.data);
+        } else {
+          toast.error("Erro ao carregar marcas.");
+        }
+        if (categoriesResponse.success) {
+          setCategories(categoriesResponse.data);
+        } else {
+          toast.error("Erro ao carregar categorias.");
+        }
       })
       .catch(() => toast.error("Erro ao carregar dados"));
   }, []);
