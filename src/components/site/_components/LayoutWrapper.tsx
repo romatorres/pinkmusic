@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 import Header from "@/components/site/Header";
 import Footer from "@/components/site/Footer";
-import TopBar from "./TopBar";
+import TopBar from "../TopBar";
 import { Suspense } from "react";
 
 export default function LayoutWrapper({

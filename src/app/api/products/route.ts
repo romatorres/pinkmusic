@@ -6,28 +6,37 @@ const prisma = new PrismaClient();
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
-    const categoryId = searchParams.get("categoryId");
-    const brandId = searchParams.get("brandId"); // NOVO
+    const categoryIds = searchParams.get("categoryIds")?.split(",");
+    const brandIds = searchParams.get("brandIds")?.split(",");
+    const minPrice = searchParams.get("minPrice");
+    const maxPrice = searchParams.get("maxPrice");
     const page = parseInt(searchParams.get("page") || "1", 10);
     const limit = parseInt(searchParams.get("limit") || "12", 10);
+    const sortBy = searchParams.get("sortBy") || "relevance";
 
     const skip = (page - 1) * limit;
-
     const searchQuery = searchParams.get("search");
 
     const whereClause: Prisma.ProductWhereInput = {};
 
-    // Filtro por categoria
-    if (categoryId) {
-      whereClause.categoryId = categoryId;
+    if (categoryIds && categoryIds.length > 0) {
+      whereClause.categoryId = { in: categoryIds };
     }
 
-    // NOVO: Filtro por marca
-    if (brandId) {
-      whereClause.brandId = brandId;
+    if (brandIds && brandIds.length > 0) {
+      whereClause.brandId = { in: brandIds };
     }
 
-    // Filtro por busca
+    if (minPrice || maxPrice) {
+      whereClause.price = {};
+      if (minPrice) {
+        whereClause.price.gte = parseFloat(minPrice);
+      }
+      if (maxPrice) {
+        whereClause.price.lte = parseFloat(maxPrice);
+      }
+    }
+
     if (searchQuery) {
       whereClause.title = {
         contains: searchQuery,
@@ -35,18 +44,25 @@ export async function GET(req: Request) {
       };
     }
 
+    let orderBy: Prisma.ProductOrderByWithRelationInput = {};
+    if (sortBy === "price-asc") {
+      orderBy = { price: "asc" };
+    } else if (sortBy === "price-desc") {
+      orderBy = { price: "desc" };
+    } else {
+      orderBy = { sales: "desc" };
+    }
+
     const [products, total] = await Promise.all([
       prisma.product.findMany({
         where: whereClause,
         skip: skip,
         take: limit,
-        orderBy: {
-          title: "asc",
-        },
+        orderBy,
         include: {
           pictures: true,
           category: true,
-          brand: true, // NOVO: Incluir dados da marca
+          brand: true,
         },
       }),
       prisma.product.count({

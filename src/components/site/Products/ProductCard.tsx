@@ -2,20 +2,8 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Package, Eye } from "lucide-react";
-
-interface Product {
-  id: string;
-  title: string;
-  price: number;
-  currency_id: string;
-  thumbnail: string;
-  condition: string;
-  available_quantity: number;
-  seller_nickname: string;
-  permalink: string;
-  pictures: { url: string }[];
-}
+import { Package, ShoppingCart } from "lucide-react";
+import type { Product } from "@/lib/types";
 
 interface ProductCardProps {
   product: Product;
@@ -26,15 +14,6 @@ const formatPrice = (price: number, currency: string) => {
     style: "currency",
     currency: currency === "BRL" ? "BRL" : "USD",
   }).format(price);
-};
-
-const getConditionText = (condition: string) => {
-  const conditions: { [key: string]: string } = {
-    new: "Novo",
-    used: "Usado",
-    not_specified: "Não especificado",
-  };
-  return conditions[condition] || condition;
 };
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
@@ -69,50 +48,37 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
         {/* Conteúdo do card */}
         <div className="p-3 sm:p-4 flex flex-col flex-1">
-          <h2 className="text-base sm:text-lg font-semibold text-foreground mb-2 line-clamp-2">
+          <h2 className="text-sm sm:text-base font-semibold text-foreground mb-2 line-clamp-2">
             {product.title}
           </h2>
 
-          <div className="flex items-center gap-2 text-xs sm:text-sm text-primary mb-2">
+          <div className="flex items-center gap-2 text-sm sm:text-base font-semibold text-primary mb-2">
             <span className="flex items-center gap-1">
-              <Package size={12} className="sm:w-[14px] sm:h-[14px]" />
-              {getConditionText(product.condition)}
+              <Package size={12} className="sm:w-4 sm:h-4" />
+              {product.brand.name}
             </span>
           </div>
 
-          <div className="flex justify-between items-center mb-3">
+          <div className="flex justify-start items-center mb-2">
             <div className="text-2xl sm:text-4xl font-tanker text-foreground leading-tight">
               {formatPrice(product.price, product.currency_id)}
             </div>
-            <button className="rounded-full bg-primary flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 border-none cursor-pointer transition-colors duration-300 ease-in-out hover:bg-primary/85 shrink-0">
-              <a
-                href={product.permalink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center w-full h-full"
-              >
-                <Image
-                  src="/img/icon-store.svg"
-                  alt="Add to Cart"
-                  width={16}
-                  height={16}
-                  className="sm:w-5 sm:h-5 object-contain"
-                />
-              </a>
-            </button>
           </div>
 
           <p className="text-primary text-xs sm:text-sm mb-4">
-            Disponível: {product.available_quantity}
+            Disponível:{" "}
+            <span className="font-semibold text-base">
+              {product.available_quantity}
+            </span>
           </p>
-
-          <div className="flex flex-col gap-2 mt-auto">
+          <div className="space-y-3">
             <Link
               href={`/products/${product.id}`}
-              className="w-full bg-sidebar-primary text-foreground py-2.5 sm:py-3 px-3 sm:px-4 rounded-full hover:bg-background border-primary border-[1px] flex items-center justify-center gap-2 font-semibold text-xs sm:text-sm transition-colors duration-300"
+              rel="noopener noreferrer"
+              className="w-full bg-primary text-white py-3 px-6 rounded-full hover:bg-primary/85 flex items-center justify-center gap-2 font-semibold"
             >
-              <Eye size={14} className="sm:w-4 sm:h-4" />
-              Ver Detalhes
+              <ShoppingCart size={20} />
+              Comprar
             </Link>
           </div>
         </div>

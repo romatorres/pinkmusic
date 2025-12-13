@@ -3,7 +3,7 @@ import { MapPin, Phone } from "lucide-react";
 export default function TopBar() {
   return (
     <div className="bg-primary">
-      <div className="flex mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-2 items-center justify-between text-background text-center ">
+      <div className="flex mx-auto w-full container px-4 sm:px-6 lg:px-8 py-2 items-center justify-between text-background text-center ">
         <div className="text-sm">
           <p>Olá! Seja bem vindo!</p>
         </div>

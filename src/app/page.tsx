@@ -1,6 +1,6 @@
 import Hero from "@/components/site/Hero";
 import Partners from "@/components/site/Partners";
-import Products from "@/components/site/Products";
+import Products from "@/components/site/Products/Products";
 import About from "@/components/site/About";
 import Newsletter from "@/components/site/Newsletter";
 import Contact from "@/components/site/Contact";
@@ -13,7 +13,11 @@ export default function Home() {
         <div className="relative w-full">
           <Hero />
           <Partners />
-          <Products limit={12} showSeeAllButton={true} randomizeProducts={true} />
+          <Products
+            limit={12}
+            showSeeAllButton={true}
+            randomizeProducts={true}
+          />
           <section id="about">
             <About />
           </section>

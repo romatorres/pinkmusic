@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
-import LayoutWrapper from "@/components/site/LayoutWrapper";
+import LayoutWrapper from "@/components/site/_components/LayoutWrapper";
 import ConditionalWhatsApp from "@/components/whatsapp/ConditionalWhatsApp";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });

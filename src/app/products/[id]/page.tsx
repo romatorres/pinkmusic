@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
-import ProductDetails from "@/components/site/ProductDetails";
+import ProductDetails from "@/components/site/Products/ProductDetails";
 import { ArrowLeft } from "lucide-react";
 import { useProductStore } from "@/store/productStore";
 import type { Product } from "@/lib/types";
@@ -58,10 +58,16 @@ export default function ProductDetailsPage({
               });
 
               if (!response.ok) {
-                console.error("Erro ao atualizar produto no backend:", await response.text());
+                console.error(
+                  "Erro ao atualizar produto no backend:",
+                  await response.text()
+                );
               }
             } catch (backendError) {
-              console.error("Erro de conexão ao atualizar produto no backend:", backendError);
+              console.error(
+                "Erro de conexão ao atualizar produto no backend:",
+                backendError
+              );
             }
           } else {
             setError(result.error || "Erro ao carregar detalhes do produto");

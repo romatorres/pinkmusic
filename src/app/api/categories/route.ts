@@ -1,25 +1,25 @@
-import { PrismaClient } from "@prisma/client";
 import { NextResponse } from "next/server";
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 export async function GET() {
   try {
-    const categories = await prisma.category.findMany();
-    return NextResponse.json(categories);
-  } catch {
-    return new NextResponse("Internal Server Error", { status: 500 });
-  }
-}
-
-export async function POST(request: Request) {
-  try {
-    const { name } = await request.json();
-    const category = await prisma.category.create({
-      data: { name },
+    const categories = await prisma.category.findMany({
+      orderBy: {
+        name: "asc",
+      },
     });
-    return NextResponse.json(category, { status: 201 });
-  } catch {
-    return new NextResponse("Internal Server Error", { status: 500 });
+    return NextResponse.json({ success: true, data: categories });
+  } catch (error) {
+    console.error("Erro ao buscar categorias:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        error:
+          error instanceof Error ? error.message : "Erro interno do servidor",
+      },
+      { status: 500 }
+    );
   }
 }

@@ -12,7 +12,7 @@ import Autoplay from "embla-carousel-autoplay";
 import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import Social from "./Social";
+import Social from "./_components/Social";
 
 export default function Hero() {
   const plugin = React.useRef(

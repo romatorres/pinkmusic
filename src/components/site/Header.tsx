@@ -14,7 +14,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import Social from "./Social";
+import Social from "./_components/Social";
 import { Input } from "../ui/input";
 import { SearchInput } from "@/components/ui/SearchInput";
 import { useSearchParams, useRouter } from "next/navigation";

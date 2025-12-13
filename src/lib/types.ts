@@ -10,6 +10,7 @@ export interface Product {
   currency_id: string;
   thumbnail: string;
   condition: string;
+  brand: Brand;
   available_quantity: number;
   seller_nickname: string;
   permalink: string;
