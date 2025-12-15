@@ -26,6 +26,7 @@ function ProductAllClientContent() {
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   const [brands, setBrands] = useState<Brand[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [filteredCount, setFilteredCount] = useState(0);
 
   // Memoize derived state from URL to prevent unnecessary re-renders
   const searchTerm = searchParams.get("search") || "";
@@ -193,7 +194,7 @@ function ProductAllClientContent() {
               hasActiveFilters={hasActiveFilters}
               activeFilterCount={activeFilterCount}
               onOpenFilters={() => setMobileFilterOpen(true)}
-              filteredCount={0}
+              filteredCount={filteredCount}
             />
 
             <Products
@@ -208,6 +209,7 @@ function ProductAllClientContent() {
               minPrice={debouncedPriceRange[0]}
               maxPrice={debouncedPriceRange[1]}
               sortBy={sortBy}
+              onProductsLoad={setFilteredCount}
             />
           </main>
         </div>

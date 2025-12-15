@@ -29,6 +29,7 @@ interface ProductsProps {
   sortBy?: string;
   randomizeProducts?: boolean;
   forceGridOnMobile?: boolean;
+  onProductsLoad?: (total: number) => void;
 }
 
 const shuffleArray = <T,>(array: T[]): T[] => {
@@ -52,6 +53,7 @@ const Products: React.FC<ProductsProps> = ({
   sortBy,
   randomizeProducts = false,
   forceGridOnMobile = false,
+  onProductsLoad = () => {},
 }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -137,6 +139,10 @@ const Products: React.FC<ProductsProps> = ({
     sortBy,
     randomizeProducts,
   ]);
+
+  useEffect(() => {
+    onProductsLoad(totalProducts);
+  }, [totalProducts, onProductsLoad]);
 
   // Reset page to 1 when filters change (but not for randomization)
   useEffect(() => {

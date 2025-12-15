@@ -61,7 +61,7 @@ export default function MobileFilterBar({
         </div>
       </div>
 
-      <p className="text-sm text-muted-foreground mt-3 text-center">
+      <p className="text-sm text-primary mt-3 text-center">
         {filteredCount} {filteredCount === 1 ? "produto" : "produtos"}
       </p>
     </div>
