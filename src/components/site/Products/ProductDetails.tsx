@@ -29,21 +29,21 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
           >
             <Link
               href="/"
-              className="flex items-center gap-1 text-primary/90 hover:text-primary transition-colors"
+              className="flex items-center gap-1 text-primary/60 hover:text-primary transition-colors"
             >
               <Home className="h-4 w-4" />
               <span className="hidden sm:inline">Home</span>
             </Link>
             <Link
               href="/products-all"
-              className="flex items-center gap-1 text-primary/90 hover:text-primary transition-colors"
+              className="flex items-center gap-1 text-primary/60 hover:text-primary transition-colors"
             >
               <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
               <span className="font-medium">Produtos</span>
             </Link>
 
             <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
-            <span className="text-foreground font-medium truncate max-w-[200px]">
+            <span className="text-primary font-medium truncate max-w-[200px]">
               {product.title}
             </span>
           </nav>

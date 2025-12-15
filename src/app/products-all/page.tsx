@@ -136,13 +136,13 @@ function ProductAllClientContent() {
           >
             <Link
               href="/"
-              className="flex items-center gap-1 text-primary/90 hover:text-primary transition-colors"
+              className="flex items-center gap-1 text-primary/60 hover:text-primary transition-colors"
             >
               <Home className="h-4 w-4" />
               <span className="hidden sm:inline">Home</span>
             </Link>
             <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
-            <span className="text-foreground font-medium">Produtos</span>
+            <span className="text-primary font-medium">Produtos</span>
           </nav>
         </div>
       </div>
@@ -150,7 +150,7 @@ function ProductAllClientContent() {
       <PageContainer>
         <div className="flex gap-6 items-start py-8">
           <aside className="hidden lg:block w-80 flex-shrink-0">
-            <div className="sticky top-28 bg-white/60 backdrop-blur-sm rounded-2xl border border-border/50 p-6 shadow-sm">
+            <div className="sticky top-28 bg-popover backdrop-blur-sm rounded-2xl border border-border/50 p-6 shadow-sm">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
                   <Filter className="h-5 w-5 text-primary" />

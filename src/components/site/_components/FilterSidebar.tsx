@@ -87,9 +87,9 @@ export default function FilterSidebar({
       {/* Categories */}
       <Collapsible open={categoryOpen} onOpenChange={setCategoryOpen}>
         <CollapsibleTrigger asChild>
-          <button className="w-full flex items-center justify-between p-3 rounded-xl hover:bg-secondary/50 transition-colors group">
+          <button className="w-full flex items-center justify-between p-3 rounded-xl hover:bg-secondary/10 transition-colors group">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/15 transition-colors">
+              <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-secondary/20 transition-colors">
                 <Sliders className="h-4 w-4 text-primary" />
               </div>
               <span className="font-semibold text-foreground">Categorias</span>
@@ -115,7 +115,7 @@ export default function FilterSidebar({
               className={`flex items-center space-x-3 p-2.5 rounded-lg cursor-pointer transition-all ${
                 selectedCategories.includes(category.id)
                   ? "bg-primary/10"
-                  : "hover:bg-secondary/50"
+                  : "hover:bg-secondary/10"
               }`}
               onClick={() => handleCategoryToggle(category.id)}
             >
@@ -138,9 +138,9 @@ export default function FilterSidebar({
       {/* Brands */}
       <Collapsible open={brandOpen} onOpenChange={setBrandOpen}>
         <CollapsibleTrigger asChild>
-          <button className="w-full flex items-center justify-between p-3 rounded-xl hover:bg-secondary/50 transition-colors group">
+          <button className="w-full flex items-center justify-between p-3 rounded-xl hover:bg-secondary/10 transition-colors group">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/15 transition-colors">
+              <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-secondary/20 transition-colors">
                 <Tag className="h-4 w-4 text-primary" />
               </div>
               <span className="font-semibold text-foreground">Marcas</span>
@@ -166,7 +166,7 @@ export default function FilterSidebar({
               className={`flex items-center space-x-3 p-2.5 rounded-lg cursor-pointer transition-all ${
                 selectedBrands.includes(brand.id)
                   ? "bg-primary/10"
-                  : "hover:bg-secondary/50"
+                  : "hover:bg-secondary/10"
               }`}
               onClick={() => handleBrandToggle(brand.id)}
             >
@@ -189,9 +189,9 @@ export default function FilterSidebar({
       {/* Price Range */}
       <Collapsible open={priceOpen} onOpenChange={setPriceOpen}>
         <CollapsibleTrigger asChild>
-          <button className="w-full flex items-center justify-between p-3 rounded-xl hover:bg-secondary/50 transition-colors group">
+          <button className="w-full flex items-center justify-between p-3 rounded-xl hover:bg-secondary/10 transition-colors group">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/15 transition-colors">
+              <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-secondary/20 transition-colors">
                 <Banknote className="h-4 w-4 text-primary" />
               </div>
               <span className="font-semibold text-foreground">

@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -28,13 +27,19 @@ export default function MobileFilterBar({
   filteredCount,
 }: MobileFilterBarProps) {
   return (
-    <div className="lg:hidden sticky top-[68px] z-10 bg-background/80 backdrop-blur-sm p-4 border-b border-border/60">
+    <div className="lg:hidden sticky top-10 z-10 bg-background backdrop-blur-sm p-4 border border-card mb-4">
       <div className="flex items-center justify-between gap-3 w-full">
         {/* Botão Filtros - agora ocupa metade do espaço */}
-        <Button
-          variant={hasActiveFilters ? "secondary" : "outline"}
+        <button
+          /* variant={hasActiveFilters ? "secondary" : "outline"} */
           onClick={onOpenFilters}
-          className="flex-1 min-w-0 border-primary/40"
+          className={`flex-1 min-w-0 rounded-full px-2 py-3 cursor-pointer items-center justify-center gap-2 text-primary text-sm
+            ${
+              hasActiveFilters
+                ? `flex bg-secondary`
+                : `flex border border-primary/40`
+            }
+          `}
         >
           <Filter className="h-4 w-4 mr-1 flex-shrink-0" />
           <span className="truncate">Filtros</span>
@@ -43,12 +48,12 @@ export default function MobileFilterBar({
               {activeFilterCount}
             </span>
           )}
-        </Button>
+        </button>
 
         {/* Select de ordenação - também ocupa metade do espaço */}
-        <div className="flex items-center gap-2 flex-1 min-w-0">
+        <div className="flex items-center flex-1 min-w-0 w-full">
           <Select value={sortBy} onValueChange={onSortChange}>
-            <SelectTrigger className="flex-1 min-w-0">
+            <SelectTrigger className="flex-1 min-w-0 w-full">
               <SelectValue placeholder="Ordenar por" />
             </SelectTrigger>
 
@@ -60,10 +65,13 @@ export default function MobileFilterBar({
           </Select>
         </div>
       </div>
-
-      <p className="text-sm text-primary mt-3 text-start">
-        {filteredCount} {filteredCount === 1 ? "produto" : "produtos"}
-      </p>
+      {hasActiveFilters === false ? (
+        <div className="hidden" />
+      ) : (
+        <p className="text-sm text-primary mt-3 text-sta">
+          {filteredCount} {filteredCount === 1 ? "produto" : "produtos"}
+        </p>
+      )}
     </div>
   );
 }
