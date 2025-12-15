@@ -70,7 +70,7 @@ export default function FilterSidebar({
     selectedCategories.length > 0 ||
     selectedBrands.length > 0 ||
     priceRange[0] > 0 ||
-    priceRange[1] < 10000;
+    priceRange[1] < 50000;
 
   return (
     <div className="space-y-4">
@@ -212,7 +212,7 @@ export default function FilterSidebar({
               onValueChange={(value) =>
                 onPriceChange(value as [number, number])
               }
-              max={10000}
+              max={50000}
               min={0}
               step={100}
               className="w-full"
@@ -220,11 +220,11 @@ export default function FilterSidebar({
             />
           </div>
           <div className="flex items-center justify-between">
-            <div className="px-3 py-2 rounded-lg bg-secondary text-sm font-medium">
+            <div className="px-3 py-2 rounded-full bg-background text-sm font-medium">
               {formatPrice(priceRange[0])}
             </div>
             <div className="h-px flex-1 bg-border mx-3" />
-            <div className="px-3 py-2 rounded-lg bg-secondary text-sm font-medium">
+            <div className="px-3 py-2 rounded-full bg-background text-sm font-medium">
               {formatPrice(priceRange[1])}
             </div>
           </div>

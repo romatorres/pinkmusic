@@ -48,7 +48,7 @@ function ProductAllClientContent() {
   const maxPriceParam = searchParams.get("maxPrice");
   const priceRange: [number, number] = useMemo(() => {
     const min = minPriceParam || "0";
-    const max = maxPriceParam || "10000";
+    const max = maxPriceParam || "50000";
     return [Number(min), Number(max)];
   }, [minPriceParam, maxPriceParam]);
 
@@ -150,7 +150,7 @@ function ProductAllClientContent() {
       <PageContainer>
         <div className="flex gap-6 items-start py-8">
           <aside className="hidden lg:block w-80 flex-shrink-0">
-            <div className="sticky top-28 bg-card/80 backdrop-blur-sm rounded-2xl border border-border/50 p-6 shadow-sm">
+            <div className="sticky top-28 bg-white/60 backdrop-blur-sm rounded-2xl border border-border/50 p-6 shadow-sm">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
                   <Filter className="h-5 w-5 text-primary" />
