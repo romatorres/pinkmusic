@@ -147,7 +147,7 @@ function ProductAllClientContent() {
       </div>
 
       <PageContainer>
-        <div className="flex gap-12 items-start py-8">
+        <div className="flex gap-6 items-start py-8">
           <aside className="hidden lg:block w-80 flex-shrink-0">
             <div className="sticky top-28 bg-card/80 backdrop-blur-sm rounded-2xl border border-border/50 p-6 shadow-sm">
               <div className="flex items-center gap-3 mb-6">

@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { toast } from "sonner";
+import React from "react";
 import { Category } from "@/lib/types";
 import {
   Select,
@@ -14,29 +13,15 @@ import {
 interface CategoryFilterProps {
   value: string;
   onChange: (categoryId: string) => void;
+  categories: Category[];
   className?: string;
 }
 
-const CategoryFilter: React.FC<CategoryFilterProps> = ({ value, onChange }) => {
-  const [categories, setCategories] = useState<Category[]>([]);
-
-  useEffect(() => {
-    fetch("/api/categories")
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error("Failed to fetch categories");
-        }
-        return res.json();
-      })
-      .then((response: { success: boolean; data: Category[] }) => {
-        const sortedCategories = response.data.sort((a, b) =>
-          a.name.localeCompare(b.name)
-        );
-        setCategories(sortedCategories);
-      })
-      .catch(() => toast.error("Erro ao carregar categorias."));
-  }, []);
-
+const CategoryFilter: React.FC<CategoryFilterProps> = ({
+  value,
+  onChange,
+  categories,
+}) => {
   const handleValueChange = (newValue: string) => {
     onChange(newValue === "all" ? "" : newValue);
   };

@@ -27,8 +27,13 @@ export async function PUT(
         slug,
         logo: logo || null,
       },
+      include: {
+        _count: {
+          select: { products: true },
+        },
+      },
     });
-    return NextResponse.json(brand);
+    return NextResponse.json({ success: true, data: brand });
   } catch (error) {
     console.error("Error editing brand:", error);
     return new NextResponse("Internal Server Error", { status: 500 });

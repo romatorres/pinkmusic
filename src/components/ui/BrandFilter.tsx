@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { Brand } from "@/lib/types";
 import {
   Select,
@@ -13,49 +12,19 @@ import {
 interface BrandFilterProps {
   value: string;
   onChange: (value: string) => void;
+  brands: Brand[];
   className?: string;
 }
 
 export default function BrandFilter({
   value,
   onChange,
+  brands,
   className = "",
 }: BrandFilterProps) {
-  const [brands, setBrands] = useState<Brand[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchBrands = async () => {
-      try {
-        const response = await fetch("/api/brands");
-        const data = await response.json();
-        setBrands(data.data);
-      } catch (error) {
-        console.error("Erro ao buscar marcas:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchBrands();
-  }, []);
-
   const handleValueChange = (newValue: string) => {
     onChange(newValue === "all" ? "" : newValue);
   };
-
-  if (loading) {
-    return (
-      <Select value="all" disabled>
-        <SelectTrigger className={className}>
-          <SelectValue placeholder="Carregando marcas..." />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">Carregando marcas...</SelectItem>
-        </SelectContent>
-      </Select>
-    );
-  }
 
   return (
     <Select onValueChange={handleValueChange} value={value || "all"}>

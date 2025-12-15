@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Filter, ListOrdered } from "lucide-react";
+import { Filter } from "lucide-react";
 
 interface MobileFilterBarProps {
   sortBy: string;
@@ -29,26 +29,29 @@ export default function MobileFilterBar({
 }: MobileFilterBarProps) {
   return (
     <div className="lg:hidden sticky top-[68px] z-10 bg-background/80 backdrop-blur-sm p-4 border-b border-border/60">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex items-center justify-between gap-3 w-full">
+        {/* Botão Filtros - agora ocupa metade do espaço */}
         <Button
           variant={hasActiveFilters ? "secondary" : "outline"}
           onClick={onOpenFilters}
-          className="flex-1"
+          className="flex-1 min-w-0 border-primary/40"
         >
-          <Filter className="h-4 w-4 mr-2" />
-          <span>Filtros</span>
+          <Filter className="h-4 w-4 mr-1 flex-shrink-0" />
+          <span className="truncate">Filtros</span>
           {hasActiveFilters && (
-            <span className="ml-2 bg-primary text-primary-foreground h-5 w-5 flex items-center justify-center rounded-full text-xs">
+            <span className="ml-2 bg-primary text-primary-foreground h-5 w-5 flex items-center justify-center rounded-full text-xs flex-shrink-0">
               {activeFilterCount}
             </span>
           )}
         </Button>
-        <div className="flex items-center gap-2">
-          <ListOrdered className="h-5 w-5 text-muted-foreground" />
+
+        {/* Select de ordenação - também ocupa metade do espaço */}
+        <div className="flex items-center gap-2 flex-1 min-w-0">
           <Select value={sortBy} onValueChange={onSortChange}>
-            <SelectTrigger className="w-40">
+            <SelectTrigger className="flex-1 min-w-0">
               <SelectValue placeholder="Ordenar por" />
             </SelectTrigger>
+
             <SelectContent>
               <SelectItem value="relevance">Relevância</SelectItem>
               <SelectItem value="price-asc">Preço: Menor</SelectItem>
@@ -57,6 +60,7 @@ export default function MobileFilterBar({
           </Select>
         </div>
       </div>
+
       <p className="text-sm text-muted-foreground mt-3 text-center">
         {filteredCount} {filteredCount === 1 ? "produto" : "produtos"}
       </p>

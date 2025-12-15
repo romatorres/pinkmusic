@@ -206,6 +206,7 @@ export default function ProductsPage() {
                 <CategoryFilter
                   value={selectedCategory}
                   onChange={setSelectedCategory}
+                  categories={categories}
                   className="w-full"
                 />
               </div>
@@ -214,6 +215,7 @@ export default function ProductsPage() {
                 <BrandFilter
                   value={selectedBrand}
                   onChange={setSelectedBrand}
+                  brands={brands}
                   className="w-full"
                 />
               </div>

@@ -58,7 +58,7 @@ export default function BrandsPage() {
   useEffect(() => {
     fetch("/api/brands")
       .then((res) => res.json())
-      .then(setBrands);
+      .then((data) => setBrands(data.data || []));
   }, []);
 
   const onSubmit = async (data: BrandsFormInputs) => {
@@ -72,13 +72,13 @@ export default function BrandsPage() {
     });
 
     if (res.ok) {
-      const updatedBrand = await res.json();
+      const newBrand = await res.json();
       if (editingBrand) {
         setBrands(
-          brands.map((b) => (b.id === updatedBrand.id ? updatedBrand : b))
+          brands.map((b) => (b.id === newBrand.data.id ? newBrand.data : b))
         );
       } else {
-        setBrands([...brands, updatedBrand]);
+        setBrands([...brands, newBrand.data]);
       }
       form.reset();
       setEditingBrand(null);
