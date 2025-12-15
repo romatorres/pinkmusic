@@ -35,8 +35,8 @@ import Pagination from "@/components/ui/Pagination";
 import { SearchInput } from "@/components/ui/SearchInput";
 import { useSearchParams } from "next/navigation";
 
-import CategoryFilter from "@/components/ui/CategoryFilter";
-import BrandFilter from "@/components/ui/BrandFilter";
+import CategoryFilter from "@/components/site/_components/CategoryFilter";
+import BrandFilter from "@/components/site/_components/BrandFilter";
 import ProductForm from "./_components/ProductForm";
 import { Category, Brand } from "@/lib/types";
 

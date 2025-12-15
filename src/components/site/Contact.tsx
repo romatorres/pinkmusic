@@ -34,7 +34,7 @@ export default function Contact() {
           <div className="my-auto h-7 w-2 shrink-0 self-stretch bg-secondary" />
           <h2 className="my-auto self-stretch font-normal">Contatos</h2>
         </div>
-        <div className="text-center my-16">
+        <div className="text-center sm:mb-12 mb-8 mt-6">
           <h2 className="text-3xl md:text-5xl font-tanker text-primary mt-3">
             Fale com a gente
           </h2>
