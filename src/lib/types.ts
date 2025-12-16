@@ -2,6 +2,8 @@ export interface Category {
   id: string;
   name: string;
   products?: { brandId: string | null }[];
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface Product {
