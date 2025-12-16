@@ -1,6 +1,7 @@
 export interface Category {
   id: string;
   name: string;
+  products?: { brandId: string | null }[];
 }
 
 export interface Product {
@@ -27,6 +28,7 @@ export interface Brand {
   name: string;
   slug: string;
   logo: string | null;
+  products?: { categoryId: string | null }[];
   _count?: {
     products: number;
   };

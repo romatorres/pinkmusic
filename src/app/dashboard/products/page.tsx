@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Eye, Trash2, Edit } from "lucide-react";
 import Link from "next/link";
 import {
@@ -92,6 +92,36 @@ export default function ProductsPage() {
       })
       .catch(() => toast.error("Erro ao carregar dados"));
   }, []);
+
+  const brandsForFilter = useMemo(() => {
+    if (!selectedCategory) {
+      return brands;
+    }
+    const category = categories.find((c) => c.id === selectedCategory);
+    if (!category || !category.products) {
+      return [];
+    }
+    const brandIdsInCategory = [
+      ...new Set(category.products.map((p) => p.brandId).filter(Boolean)),
+    ];
+    return brands.filter((brand) => brandIdsInCategory.includes(brand.id));
+  }, [selectedCategory, brands, categories]);
+
+  const categoriesForFilter = useMemo(() => {
+    if (!selectedBrand) {
+      return categories;
+    }
+    const brand = brands.find((b) => b.id === selectedBrand);
+    if (!brand || !brand.products) {
+      return [];
+    }
+    const categoryIdsForBrand = [
+      ...new Set(brand.products.map((p) => p.categoryId).filter(Boolean)),
+    ];
+    return categories.filter((category) =>
+      categoryIdsForBrand.includes(category.id)
+    );
+  }, [selectedBrand, brands, categories]);
 
   const fetchProducts = useCallback(
     async (
@@ -206,7 +236,7 @@ export default function ProductsPage() {
                 <CategoryFilter
                   value={selectedCategory}
                   onChange={setSelectedCategory}
-                  categories={categories}
+                  categories={categoriesForFilter}
                   className="w-full"
                 />
               </div>
@@ -215,7 +245,7 @@ export default function ProductsPage() {
                 <BrandFilter
                   value={selectedBrand}
                   onChange={setSelectedBrand}
-                  brands={brands}
+                  brands={brandsForFilter}
                   className="w-full"
                 />
               </div>

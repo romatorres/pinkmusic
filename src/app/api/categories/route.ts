@@ -9,6 +9,13 @@ export async function GET() {
       orderBy: {
         name: "asc",
       },
+      include: {
+        products: {
+          select: {
+            brandId: true,
+          },
+        },
+      },
     });
     return NextResponse.json({ success: true, data: categories });
   } catch (error) {

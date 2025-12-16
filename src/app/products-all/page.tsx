@@ -13,7 +13,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { Brand, Category } from "@prisma/client";
+import { Brand, Category } from "@/lib/types";
 import MobileFilterBar from "@/components/site/_components/MobileFilterBar";
 import { useDebounce } from "use-debounce";
 
@@ -75,6 +75,46 @@ function ProductAllClientContent() {
     };
     fetchFilters();
   }, []);
+
+  const filteredBrands = useMemo(() => {
+    if (selectedCategories.length === 0) {
+      return brands;
+    }
+    const brandIds = new Set<string>();
+    const selectedCategoryData = categories.filter((c) =>
+      selectedCategories.includes(c.id)
+    );
+
+    selectedCategoryData.forEach((cat) => {
+      cat.products?.forEach((p) => {
+        if (p.brandId) {
+          brandIds.add(p.brandId);
+        }
+      });
+    });
+
+    return brands.filter((b) => brandIds.has(b.id));
+  }, [selectedCategories, brands, categories]);
+
+  const filteredCategories = useMemo(() => {
+    if (selectedBrands.length === 0) {
+      return categories;
+    }
+    const categoryIds = new Set<string>();
+    const selectedBrandData = brands.filter((b) =>
+      selectedBrands.includes(b.id)
+    );
+
+    selectedBrandData.forEach((br) => {
+      br.products?.forEach((p) => {
+        if (p.categoryId) {
+          categoryIds.add(p.categoryId);
+        }
+      });
+    });
+
+    return categories.filter((c) => categoryIds.has(c.id));
+  }, [selectedBrands, brands, categories]);
 
   // Update URL from state changes
   const updateURL = (
@@ -170,8 +210,8 @@ function ProductAllClientContent() {
                 </div>
               </div>
               <FilterSidebar
-                brands={brands}
-                categories={categories}
+                brands={filteredBrands}
+                categories={filteredCategories}
                 selectedCategories={selectedCategories}
                 selectedBrands={selectedBrands}
                 priceRange={priceRange}
@@ -240,8 +280,8 @@ function ProductAllClientContent() {
           </SheetHeader>
           <div className="p-4">
             <FilterSidebar
-              brands={brands}
-              categories={categories}
+              brands={filteredBrands}
+              categories={filteredCategories}
               selectedCategories={selectedCategories}
               selectedBrands={selectedBrands}
               priceRange={priceRange}

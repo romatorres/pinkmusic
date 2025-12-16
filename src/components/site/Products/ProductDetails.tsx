@@ -2,7 +2,13 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import { ShoppingCart, Package, Home, ChevronRight } from "lucide-react";
+import {
+  ShoppingCart,
+  Package,
+  Home,
+  ChevronRight,
+  TriangleAlert,
+} from "lucide-react";
 import Link from "next/link";
 import { PageContainer } from "@/components/ui/Page-container";
 import Social from "../_components/Social";
@@ -124,7 +130,17 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
                     : "Produto esgotado"}
                 </p>
               </div>
-              <Social />
+
+              <div className="flex items-start md:items-center gap-2">
+                <span className="text-destructive text-sm">
+                  <TriangleAlert size={20} />
+                </span>
+                <p className="text-sm font-semibold text-primary">
+                  Descrições, características e imagens são de responsabilidade
+                  do Mercado Livre.
+                </p>
+              </div>
+
               {/* Atributos */}
               {product.attributes && product.attributes.length > 0 && (
                 <div className="border-t pt-6">
@@ -158,6 +174,9 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
                   <ShoppingCart size={20} />
                   Comprar no MercadoLivre
                 </a>
+              </div>
+              <div className="w-full flex items-center justify-center lg:mt-12 md:mt-0 mt-0">
+                <Social />
               </div>
             </div>
           </div>

@@ -13,6 +13,11 @@ export async function GET() {
         _count: {
           select: { products: true },
         },
+        products: {
+          select: {
+            categoryId: true,
+          },
+        },
       },
     });
     return NextResponse.json({ success: true, data: brands });
@@ -58,6 +63,11 @@ export async function POST(req: Request) {
       include: {
         _count: {
           select: { products: true },
+        },
+        products: {
+          select: {
+            categoryId: true,
+          },
         },
       },
     });
