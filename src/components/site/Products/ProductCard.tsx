@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import Image from "next/image";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Package, ShoppingCart } from "lucide-react";
 import type { Product } from "@/lib/types";
 
@@ -17,16 +17,32 @@ const formatPrice = (price: number, currency: string) => {
 };
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+  const router = useRouter();
   const imageUrl =
     product.pictures && product.pictures.length > 0
       ? product.pictures[0].url
       : product.thumbnail;
+
+  // Handler para navegar ao clicar no card
+  const handleCardClick = () => {
+    router.push(`/products/${product.id}`);
+  };
+
+  // Handler para o botão de compra
+  const handleBuyClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation(); // Impede que o clique suba para o card
+    window.open(product.permalink, "_blank", "noopener,noreferrer");
+  };
+
   return (
     <div
       key={product.id}
       className="w-full max-w-xs sm:max-w-sm md:max-w-[300px]"
     >
-      <div className="bg-card rounded-3xl shadow-sm overflow-hidden flex flex-col min-h-[460px] sm:min-h-[480px] transition-transform duration-300 ease-in-out hover:translate-y-[-5px]">
+      <div
+        onClick={handleCardClick}
+        className="bg-card rounded-3xl shadow-sm overflow-hidden flex flex-col min-h-[460px] sm:min-h-[480px] transition-transform duration-300 ease-in-out hover:translate-y-[-5px] cursor-pointer"
+      >
         {/* Container da imagem com efeito de borda responsivo */}
         <div className="relative flex min-h-[220px] sm:min-h-[260px] w-full flex-col justify-center p-2">
           {/* Div absoluta com efeito de borda (8px de margem em todas as direções) */}
@@ -71,15 +87,16 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               {product.available_quantity}
             </span>
           </p>
+
           <div className="space-y-3">
-            <Link
-              href={`/products/${product.id}`}
-              rel="noopener noreferrer"
-              className="w-full bg-primary text-white py-3 px-6 rounded-full hover:bg-primary/85 flex items-center justify-center gap-2 font-semibold"
+            <button
+              type="button"
+              onClick={handleBuyClick}
+              className="w-full bg-primary text-white py-3 px-6 rounded-full hover:bg-primary/85 flex items-center justify-center gap-2 font-semibold transition-colors cursor-pointer"
             >
               <ShoppingCart size={20} />
               Comprar
-            </Link>
+            </button>
           </div>
         </div>
       </div>
