@@ -168,7 +168,7 @@ function ProductAllClientContent() {
   return (
     <section>
       {/* Breadcrumb */}
-      <div className="bg-primary/5 border-b border-primary/10 w-full">
+      <div className="bg-breadcrumb border-b border-gray-300 w-full">
         <div className="mx-auto w-full container px-4 sm:px-6 lg:px-8 py-3">
           <nav
             className="flex items-center gap-2 text-sm"

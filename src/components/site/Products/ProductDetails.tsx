@@ -26,7 +26,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
 
   return (
     <section>
-      <div className="bg-primary/5 border-b border-primary/10 w-full">
+      <div className="bg-breadcrumb border-b border-gray-300 w-full">
         {/* Breadcrumb */}
         <div className="mx-auto w-full container px-4 sm:px-6 lg:px-8 py-3">
           <nav
