@@ -30,3 +30,16 @@ export async function GET() {
     );
   }
 }
+
+export async function POST(request: Request) {
+  try {
+    const { name } = await request.json();
+    const category = await prisma.category.create({
+      data: { name },
+    });
+    return NextResponse.json(category);
+  } catch (error) {
+    console.error("Error creating category:", error);
+    return new NextResponse("Internal Server Error", { status: 500 });
+  }
+}

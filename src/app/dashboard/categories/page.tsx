@@ -60,6 +60,10 @@ export default function CategoriesPage() {
       });
   }, []);
 
+  const sortCategories = (categoryList: Category[]) => {
+    return [...categoryList].sort((a, b) => a.name.localeCompare(b.name));
+  };
+
   const onSubmit = async (data: CategoriesFormInputs) => {
     const method = editingCategory ? "PUT" : "POST";
     const url = editingCategory
@@ -76,12 +80,14 @@ export default function CategoriesPage() {
       const updatedCategory = await res.json();
       if (editingCategory) {
         setCategories(
-          categories.map((c) =>
-            c.id === updatedCategory.id ? updatedCategory : c
+          sortCategories(
+            categories.map((c) =>
+              c.id === updatedCategory.id ? updatedCategory : c
+            )
           )
         );
       } else {
-        setCategories([...categories, updatedCategory]);
+        setCategories(sortCategories([...categories, updatedCategory]));
       }
       form.reset();
       setEditingCategory(null);
@@ -111,7 +117,7 @@ export default function CategoriesPage() {
     });
 
     if (res.ok) {
-      setCategories(categories.filter((c) => c.id !== id));
+      setCategories(sortCategories(categories.filter((c) => c.id !== id)));
       toast.success("Categoria deletada com sucesso!");
     } else {
       toast.error("Ocorreu um erro ao deletar a categoria.");
