@@ -81,7 +81,7 @@ export async function GET(req: NextRequest) {
       where: { key: "MERCADOLIBRE_ACCESS_TOKEN" },
     });
 
-    let accessToken = dbAccessToken?.value || process.env.MERCADOLIBRE_ACCESS_TOKEN;
+    const accessToken = dbAccessToken?.value || process.env.MERCADOLIBRE_ACCESS_TOKEN;
 
     let response = await fetchProductFromMercadoLibre(
       item_id,

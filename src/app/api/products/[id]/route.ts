@@ -61,7 +61,7 @@ async function fetchProductDetailsFromMercadoLibre(
     where: { key: "MERCADOLIBRE_ACCESS_TOKEN" },
   });
 
-  let access_token = dbAccessToken?.value || process.env.MERCADOLIBRE_ACCESS_TOKEN;
+  const access_token = dbAccessToken?.value || process.env.MERCADOLIBRE_ACCESS_TOKEN;
 
   if (!access_token) {
     throw new Error("Token de acesso do MercadoLivre não configurado.");
