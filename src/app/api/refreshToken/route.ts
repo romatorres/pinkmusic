@@ -1,10 +1,18 @@
 import { NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
 
 export async function POST() {
   try {
     const client_id = process.env.MERCADOLIBRE_CLIENT_ID;
     const client_secret = process.env.MERCADOLIBRE_CLIENT_SECRET;
-    const refresh_token = process.env.MERCADOLIBRE_REFRESH_TOKEN;
+
+    // Tenta buscar o refresh_token do banco de dados primeiro
+    const dbRefreshToken = await prisma.systemSetting.findUnique({
+      where: { key: "MERCADOLIBRE_REFRESH_TOKEN" },
+    });
+
+    // Se não houver no banco, usa o do env (primeira vez)
+    const refresh_token = dbRefreshToken?.value || process.env.MERCADOLIBRE_REFRESH_TOKEN;
 
     if (!client_id || !client_secret || !refresh_token) {
       return NextResponse.json(
@@ -34,15 +42,36 @@ export async function POST() {
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.message || "Erro ao renovar o token.");
+      console.error("Erro ML API:", data);
+      return NextResponse.json(
+        {
+          success: false,
+          error: data.message || data.error_description || "Erro ao renovar o token.",
+        },
+        { status: response.status }
+      );
     }
 
     const new_access_token = data.access_token;
     const new_refresh_token = data.refresh_token;
 
+    // Salva os novos tokens no banco de dados para uso futuro
+    await prisma.$transaction([
+      prisma.systemSetting.upsert({
+        where: { key: "MERCADOLIBRE_ACCESS_TOKEN" },
+        update: { value: new_access_token },
+        create: { key: "MERCADOLIBRE_ACCESS_TOKEN", value: new_access_token },
+      }),
+      prisma.systemSetting.upsert({
+        where: { key: "MERCADOLIBRE_REFRESH_TOKEN" },
+        update: { value: new_refresh_token },
+        create: { key: "MERCADOLIBRE_REFRESH_TOKEN", value: new_refresh_token },
+      }),
+    ]);
+
     return NextResponse.json({
       success: true,
-      message: "Token atualizado com sucesso!",
+      message: "Token atualizado com sucesso no banco de dados!",
       accessToken: new_access_token,
       refreshToken: new_refresh_token,
       expiresIn: data.expires_in,

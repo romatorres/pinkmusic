@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
 
 interface MercadoLibreProduct {
   id: string;
@@ -24,12 +25,6 @@ interface MercadoLibreProduct {
     nickname: string;
   };
 }
-
-/* interface ApiResponse {
-  success: boolean;
-  data?: MercadoLibreProduct;
-  error?: string;
-} */
 
 async function fetchProductFromMercadoLibre(
   item_id: string,
@@ -81,24 +76,31 @@ export async function GET(req: NextRequest) {
   try {
     const item_id = req.nextUrl.searchParams.get("item_id") || "MLB3312824304";
 
+    // Busca o token do banco de dados primeiro
+    const dbAccessToken = await prisma.systemSetting.findUnique({
+      where: { key: "MERCADOLIBRE_ACCESS_TOKEN" },
+    });
+
+    let accessToken = dbAccessToken?.value || process.env.MERCADOLIBRE_ACCESS_TOKEN;
+
     let response = await fetchProductFromMercadoLibre(
       item_id,
-      process.env.MERCADOLIBRE_ACCESS_TOKEN
+      accessToken
     );
 
     if (response.status === 401 || response.status === 403) {
-      console.log("Token inválido ou expirado. Renovando...");
+      console.log("Token inválido ou expirado no banco. Renovando...");
 
       // Obter a URL base da requisição atual
       const currentUrl = new URL(req.url);
       const baseUrl = `${currentUrl.protocol}//${currentUrl.host}`;
 
-      // Tentar renovar o token
+      // Tentar renovar o token (isso já atualiza o banco)
       const newTokens = await refreshMercadoLivreToken(baseUrl);
 
       console.log("Token renovado com sucesso. Tentando novamente...");
 
-      // Tenta novamente com o novo token (apenas para esta requisição)
+      // Tenta novamente com o novo token
       response = await fetchProductFromMercadoLibre(
         item_id,
         newTokens.accessToken

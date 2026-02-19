@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import prisma from "@/lib/prisma";
 
 interface MercadoLibreProductDetails {
   id: string;
@@ -48,7 +46,12 @@ async function fetchProductDetailsFromMercadoLivre(
   itemId: string,
   baseUrl: string
 ): Promise<MercadoLibreProductDetails> {
-  const accessToken = process.env.MERCADOLIBRE_ACCESS_TOKEN;
+  // Busca o token do banco de dados primeiro
+  const dbAccessToken = await prisma.systemSetting.findUnique({
+    where: { key: "MERCADOLIBRE_ACCESS_TOKEN" },
+  });
+
+  let accessToken = dbAccessToken?.value || process.env.MERCADOLIBRE_ACCESS_TOKEN;
 
   if (!accessToken) {
     throw new Error("Token de acesso do MercadoLivre não configurado.");

@@ -64,6 +64,12 @@ model Product {
   @@index([featured])
 }
 
+model SystemSetting {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String
+}
+
 // NOVO: Model para Marcas
 model Brand {
   id        String    @id @default(cuid())
