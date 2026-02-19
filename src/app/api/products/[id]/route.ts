@@ -148,11 +148,15 @@ export async function GET(
     return NextResponse.json({ success: true, data: combinedProduct });
   } catch (error) {
     console.error("Erro ao buscar produto por ID:", error);
+    
+    const isMLBuilderError = error instanceof Error && error.message.includes("MercadoLivre");
+
     return NextResponse.json(
       {
         success: false,
-        error:
-          error instanceof Error ? error.message : "Erro interno do servidor",
+        error: isMLBuilderError 
+          ? "Não foi possível sincronizar os detalhes do produto com o Mercado Livre. Tente novamente em alguns instantes." 
+          : "Erro ao processar a requisição do produto.",
       },
       { status: 500 }
     );

@@ -176,10 +176,14 @@ export async function POST(req: NextRequest) {
     );
   } catch (error) {
     console.error("Erro ao adicionar produto:", error);
-    const errorMessage =
-      error instanceof Error ? error.message : "Erro interno do servidor";
+    
+    const errorMessage = error instanceof Error ? error.message : "";
+    const friendlyMessage = errorMessage.includes("MercadoLivre")
+      ? "Erro ao obter informações do Mercado Livre. Verifique o ID do produto ou tente novamente mais tarde."
+      : "Não foi possível cadastrar o produto devido a um erro interno.";
+
     return NextResponse.json(
-      { success: false, error: errorMessage },
+      { success: false, error: friendlyMessage },
       { status: 500 }
     );
   }

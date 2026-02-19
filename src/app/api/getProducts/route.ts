@@ -125,11 +125,14 @@ export async function GET(req: NextRequest) {
   } catch (error) {
     console.error("Erro ao buscar produto:", error);
 
+    const isMLBuilderError = error instanceof Error && error.message.includes("MercadoLivre");
+
     return NextResponse.json(
       {
         success: false,
-        error:
-          error instanceof Error ? error.message : "Erro interno do servidor",
+        error: isMLBuilderError 
+          ? "Não foi possível carregar os dados do produto no momento. Por favor, tente novamente mais tarde." 
+          : "Ocorreu um erro inesperado no servidor.",
       },
       { status: 500 }
     );
