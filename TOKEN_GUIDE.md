@@ -2,6 +2,10 @@
 
 Este guia explica como renovar manualmente o acesso à API do Mercado Livre caso a renovação automática falhe.
 
+## Link do Mercado Livre Developers para acessar Meus Aplicativos
+
+- `https://developers.mercadolivre.com.br/devcenter`
+
 ## Dados da sua Aplicação
 
 - **Client ID:** `292503393972257`
