@@ -4,6 +4,7 @@ import "./globals.css";
 import { Toaster } from "sonner";
 import LayoutWrapper from "@/components/site/_components/LayoutWrapper";
 import ConditionalWhatsApp from "@/components/whatsapp/ConditionalWhatsApp";
+import { Analytics } from "@vercel/analytics/next";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -29,6 +30,7 @@ export default function RootLayout({
       </head>
       <body className={`${inter.variable} font-sans`} cz-shortcut-listen="true">
         <LayoutWrapper>{children}</LayoutWrapper>
+        <Analytics />
         {/* Botão WhatsApp */}
         <ConditionalWhatsApp />
         <Toaster />
