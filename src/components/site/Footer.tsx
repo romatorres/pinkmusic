@@ -21,7 +21,7 @@ export default function Footer() {
             © 2025 Copyright Pink Music Instrumentos Musicais
           </div>
           <a
-            href="https://romatorres.dev.br/"
+            href="https://romatorres-dev.vercel.app/"
             target="_blank"
             className="flex gap-2"
           >
