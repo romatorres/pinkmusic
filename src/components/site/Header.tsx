@@ -11,63 +11,31 @@ import {
 import { MenuIcon, Search } from "lucide-react";
 import { PageContainer } from "../ui/Page-container";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import Social from "./_components/Social";
 import { Input } from "../ui/input";
 import { SearchInput } from "@/components/ui/SearchInput";
-import { useSearchParams, useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { Suspense, useEffect, useState } from "react";
 
-export default function Header() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const [inputValue, setInputValue] = useState(
-    searchParams.get("search") || ""
-  );
-  const pathname = usePathname();
-  const isHomePage = pathname === "/";
-
-  useEffect(() => {
-    setInputValue(searchParams.get("search") || "");
-  }, [searchParams]);
-
-  useEffect(() => {
-    const currentSearchInUrl = searchParams.get("search") || "";
-    if (inputValue === currentSearchInUrl) {
-      return;
-    }
-
-    const handler = setTimeout(() => {
-      const params = new URLSearchParams(searchParams);
-      if (inputValue) {
-        params.set("search", inputValue);
-      } else {
-        params.delete("search");
-      }
-
-      if (inputValue) {
-        router.push(`/products-all?${params.toString()}`);
-      } else if (pathname === "/products-all") {
-        router.push(`/products-all?${params.toString()}`);
-      }
-    }, 300);
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [inputValue, searchParams, pathname, router]);
-
+function HeaderLayout({
+  inputValue,
+  setInputValue,
+  isHomePage,
+}: {
+  inputValue: string;
+  setInputValue: (value: string) => void;
+  isHomePage: boolean;
+}) {
   return (
     <header
       className={cn(
-        "left-0  right-0 z-10 flex min-h-[100px] w-full items-center justify-center py-3 md:min-h-[124px]",
+        "left-0 right-0 z-10 flex min-h-[100px] w-full items-center justify-center py-3 md:min-h-[124px]",
         isHomePage ? "absolute top-6" : "relative top-0"
       )}
     >
       <PageContainer>
-        {/* Logo */}
         <div className="flex h-[70px] w-full items-center justify-between">
           <div className="relative w-[170px] md:w-[200px] lg:w-[240px] aspect-[240/70.5]">
             <Link href="/">
@@ -81,7 +49,6 @@ export default function Header() {
             </Link>
           </div>
 
-          {/* Search - Desktop */}
           <div className="hidden md:flex flex-1 max-w-xl mx-8">
             <div className="flex-1 w-full">
               <SearchInput
@@ -92,7 +59,6 @@ export default function Header() {
             </div>
           </div>
 
-          {/* Desktop Navigation */}
           <div className="hidden items-center gap-12 lg:flex">
             <nav className="flex items-center gap-7 text-base font-medium cursor-pointerb text-primary">
               <Link
@@ -122,7 +88,6 @@ export default function Header() {
             </nav>
           </div>
 
-          {/* Mobile Navigation */}
           <div className="lg:hidden">
             <Sheet>
               <SheetTrigger asChild>
@@ -166,7 +131,6 @@ export default function Header() {
           </div>
         </div>
 
-        {/* Search - Mobile */}
         <div className="md:hidden mt-0">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary/50" />
@@ -182,5 +146,66 @@ export default function Header() {
         </div>
       </PageContainer>
     </header>
+  );
+}
+
+function HeaderContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const [inputValue, setInputValue] = useState(searchParams.get("search") || "");
+  const isHomePage = pathname === "/";
+
+  useEffect(() => {
+    setInputValue(searchParams.get("search") || "");
+  }, [searchParams]);
+
+  useEffect(() => {
+    const currentSearchInUrl = searchParams.get("search") || "";
+    if (inputValue === currentSearchInUrl) {
+      return;
+    }
+
+    const handler = setTimeout(() => {
+      const params = new URLSearchParams(searchParams);
+      if (inputValue) {
+        params.set("search", inputValue);
+      } else {
+        params.delete("search");
+      }
+
+      if (inputValue) {
+        router.push(`/products-all?${params.toString()}`);
+      } else if (pathname === "/products-all") {
+        router.push(`/products-all?${params.toString()}`);
+      }
+    }, 300);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [inputValue, pathname, router, searchParams]);
+
+  return (
+    <HeaderLayout
+      inputValue={inputValue}
+      setInputValue={setInputValue}
+      isHomePage={isHomePage}
+    />
+  );
+}
+
+export default function Header() {
+  const pathname = usePathname();
+  const isHomePage = pathname === "/";
+
+  return (
+    <Suspense
+      fallback={
+        <HeaderLayout inputValue="" setInputValue={() => {}} isHomePage={isHomePage} />
+      }
+    >
+      <HeaderContent />
+    </Suspense>
   );
 }

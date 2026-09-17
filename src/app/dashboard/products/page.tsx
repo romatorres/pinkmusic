@@ -1,6 +1,12 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  Suspense,
+} from "react";
 import { Eye, Trash2, Edit } from "lucide-react";
 import Link from "next/link";
 import {
@@ -53,7 +59,7 @@ interface Product {
   brand?: Brand;
 }
 
-export default function ProductsPage() {
+function ProductsPageContent() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
@@ -424,5 +430,13 @@ export default function ProductsPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function ProductsPage() {
+  return (
+    <Suspense fallback={<div className="p-6">Carregando produtos...</div>}>
+      <ProductsPageContent />
+    </Suspense>
   );
 }
