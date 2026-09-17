@@ -4,7 +4,6 @@ import { usePathname } from "next/navigation";
 import Header from "@/components/site/Header";
 import Footer from "@/components/site/Footer";
 import TopBar from "../TopBar";
-import { Suspense } from "react";
 
 export default function LayoutWrapper({
   children,
@@ -20,11 +19,9 @@ export default function LayoutWrapper({
 
   if (showHeaderFooter) {
     return (
-      <div className="flex flex-col min-h-screen">
+      <div className="flex min-h-screen flex-col">
         <TopBar />
-        <Suspense fallback={<div>Carregando Header...</div>}>
-          <Header />
-        </Suspense>
+        <Header />
         <main className="flex-grow">{children}</main>
         <Footer />
       </div>

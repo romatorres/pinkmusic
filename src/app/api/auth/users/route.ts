@@ -1,8 +1,15 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { requireAdmin } from "@/lib/auth";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const authResult = await requireAdmin(request);
+
+    if (authResult.response) {
+      return authResult.response;
+    }
+
     const users = await prisma.user.findMany({
       select: {
         id: true,
@@ -11,6 +18,7 @@ export async function GET() {
         role: true,
       },
     });
+
     return NextResponse.json(users);
   } catch (error) {
     console.error("Error fetching users:", error);

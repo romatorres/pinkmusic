@@ -3,6 +3,7 @@
 import React, { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import ProductDetails from "@/components/site/Products/ProductDetails";
+import { LoadingState } from "@/components/ui/loading-state";
 import { ArrowLeft } from "lucide-react";
 import { useProductStore } from "@/store/productStore";
 import type { Product } from "@/lib/types";
@@ -45,30 +46,7 @@ export default function ProductDetailsPage({
 
           if (result.success && result.data) {
             setProduct(result.data);
-            updateProduct(result.data); // ATUALIZA O STORE GLOBAL
-
-            // Envia os dados atualizados para o backend para persistir no Prisma
-            try {
-              const response = await fetch(`/api/products/${id}`, {
-                method: "PUT",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify(result.data),
-              });
-
-              if (!response.ok) {
-                console.error(
-                  "Erro ao atualizar produto no backend:",
-                  await response.text()
-                );
-              }
-            } catch (backendError) {
-              console.error(
-                "Erro de conexão ao atualizar produto no backend:",
-                backendError
-              );
-            }
+            updateProduct(result.data);
           } else {
             setError(result.error || "Erro ao carregar detalhes do produto");
           }
@@ -83,11 +61,7 @@ export default function ProductDetailsPage({
   }, [id, getProductById, updateProduct]);
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      </div>
-    );
+    return <LoadingState label="Carregando produto..." size="lg" fullHeight />;
   }
 
   if (error) {

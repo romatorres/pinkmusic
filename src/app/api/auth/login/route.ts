@@ -2,10 +2,15 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import * as jose from "jose";
+import {
+  checkRateLimit,
+  clearRateLimit,
+  isValidEmail,
+  normalizeEmail,
+} from "@/lib/authValidation";
 
 export async function POST(request: Request) {
   try {
-    // Verificar se JWT_SECRET está definido
     if (!process.env.JWT_SECRET) {
       console.error("JWT_SECRET is not defined");
       return NextResponse.json(
@@ -15,7 +20,8 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { email, password } = body;
+    const email = typeof body.email === "string" ? body.email : "";
+    const password = typeof body.password === "string" ? body.password : "";
 
     if (!email || !password) {
       return NextResponse.json(
@@ -24,8 +30,28 @@ export async function POST(request: Request) {
       );
     }
 
+    const normalizedEmail = normalizeEmail(email);
+
+    if (!isValidEmail(normalizedEmail)) {
+      return NextResponse.json(
+        { message: "Email inválido." },
+        { status: 400 }
+      );
+    }
+
+    const allowedAttempts = checkRateLimit(request, normalizedEmail);
+
+    if (!allowedAttempts) {
+      return NextResponse.json(
+        {
+          message: "Muitas tentativas de login. Tente novamente em alguns minutos.",
+        },
+        { status: 429 }
+      );
+    }
+
     const user = await prisma.user.findUnique({
-      where: { email },
+      where: { email: normalizedEmail },
     });
 
     if (!user) {
@@ -44,15 +70,16 @@ export async function POST(request: Request) {
       );
     }
 
-    // Gerar token usando jose para manter consistência
+    clearRateLimit(request, normalizedEmail);
+
     const secret = new TextEncoder().encode(process.env.JWT_SECRET);
-    const token = await new jose.SignJWT({ 
-      userId: user.id, 
-      role: user.role 
+    const token = await new jose.SignJWT({
+      userId: user.id,
+      role: user.role,
     })
-      .setProtectedHeader({ alg: 'HS256' })
+      .setProtectedHeader({ alg: "HS256" })
       .setIssuedAt()
-      .setExpirationTime('7d')
+      .setExpirationTime("7d")
       .sign(secret);
 
     const response = NextResponse.json({ message: "Login bem-sucedido." });
@@ -62,7 +89,7 @@ export async function POST(request: Request) {
       secure: process.env.NODE_ENV === "production",
       path: "/",
       sameSite: "lax",
-      maxAge: 60 * 60 * 24 * 7, // 7 dias
+      maxAge: 60 * 60 * 24 * 7,
     });
 
     return response;

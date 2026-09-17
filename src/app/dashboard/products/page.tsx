@@ -33,6 +33,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import Pagination from "@/components/ui/Pagination";
 import { SearchInput } from "@/components/ui/SearchInput";
+import { LoadingState } from "@/components/ui/loading-state";
 import { useSearchParams } from "next/navigation";
 
 import CategoryFilter from "@/components/site/_components/CategoryFilter";
@@ -280,9 +281,7 @@ export default function ProductsPage() {
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="flex justify-center items-center h-64">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-            </div>
+            <LoadingState label="Carregando produtos..." className="min-h-[220px]" />
           ) : (
             <>
               <div className="overflow-x-auto">

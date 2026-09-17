@@ -3,7 +3,7 @@
 import Products from "@/components/site/Products/Products";
 import { PageContainer } from "@/components/ui/Page-container";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useState, useEffect, Suspense, useTransition, useMemo } from "react";
+import { useState, useEffect, useTransition, useMemo } from "react";
 import Link from "next/link";
 import { ChevronRight, Filter, Home } from "lucide-react";
 import FilterSidebar from "@/components/site/_components/FilterSidebar";
@@ -298,9 +298,5 @@ function ProductAllClientContent() {
 }
 
 export default function ProductAll() {
-  return (
-    <Suspense fallback={<div className="text-center py-12">Carregando...</div>}>
-      <ProductAllClientContent />
-    </Suspense>
-  );
+  return <ProductAllClientContent />;
 }

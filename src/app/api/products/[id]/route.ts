@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { requireAdmin } from "@/lib/auth";
 
 interface MercadoLibreProductDetails {
   id: string;
@@ -168,6 +169,12 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const authResult = await requireAdmin(req);
+
+    if (authResult.response) {
+      return authResult.response;
+    }
+
     const { id } = await params;
     const rawData = await req.json();
 
@@ -257,6 +264,12 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const authResult = await requireAdmin(req);
+
+    if (authResult.response) {
+      return authResult.response;
+    }
+
     const { id } = await params;
 
     if (!id) {

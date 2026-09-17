@@ -1,13 +1,20 @@
 import { PrismaClient } from "@prisma/client";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/auth";
 
 const prisma = new PrismaClient();
 
 export async function PUT(
-  request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const authResult = await requireAdmin(request);
+
+    if (authResult.response) {
+      return authResult.response;
+    }
+
     const { name, logo } = await request.json();
 
     // Gera o slug automaticamente
@@ -41,10 +48,16 @@ export async function PUT(
 }
 
 export async function DELETE(
-  request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const authResult = await requireAdmin(request);
+
+    if (authResult.response) {
+      return authResult.response;
+    }
+
     await prisma.brand.delete({
       where: { id: (await params).id },
     });

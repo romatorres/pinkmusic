@@ -7,55 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-
-const profileSchema = z.object({
-  name: z
-    .string()
-    .min(1, { message: "O nome é obrigatório." })
-    .min(3, { message: "O nome deve ter pelo menos 3 caracteres" }),
-});
-
-const passwordSchema = z
-  .object({
-    newPassword: z
-      .string()
-      .min(6, { message: "A senha deve ter pelo menos 6 caracteres" }),
-    confirmNewPassword: z.string(),
-  })
-  .refine((data) => data.newPassword === data.confirmNewPassword, {
-    message: "As senhas não coincidem",
-    path: ["confirmNewPassword"],
-  });
-
-type ProfileFormInputs = z.infer<typeof profileSchema>;
-type PasswordFormInputs = z.infer<typeof passwordSchema>;
-
 export default function ProfilePage() {
   const { user, setUser } = useAuthStore();
   const [name, setName] = useState(user?.name || "");
 
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
-
-  // Formulário de perfil
-  const profileForm = useForm<ProfileFormInputs>({
-    resolver: zodResolver(profileSchema),
-    defaultValues: {
-      name: user?.name || "",
-    },
-  });
-
-  // Formulário de senha
-  const passwordForm = useForm<PasswordFormInputs>({
-    resolver: zodResolver(passwordSchema),
-    defaultValues: {
-      newPassword: "",
-      confirmNewPassword: "",
-    },
-  });
 
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault();

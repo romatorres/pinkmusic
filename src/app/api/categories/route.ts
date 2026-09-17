@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
+import { requireAdmin } from "@/lib/auth";
 
 const prisma = new PrismaClient();
 
@@ -31,8 +32,14 @@ export async function GET() {
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
+    const authResult = await requireAdmin(request);
+
+    if (authResult.response) {
+      return authResult.response;
+    }
+
     const { name } = await request.json();
     const category = await prisma.category.create({
       data: { name },

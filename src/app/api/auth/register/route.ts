@@ -1,36 +1,81 @@
-import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-import bcrypt from 'bcryptjs';
+import { NextResponse } from "next/server";
+import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
+import {
+  isStrongPassword,
+  isValidEmail,
+  normalizeEmail,
+} from "@/lib/authValidation";
 
 const prisma = new PrismaClient();
 
 export async function POST(request: Request) {
   try {
-    const { email, password, name } = await request.json();
+    const body = await request.json();
+    const email = typeof body.email === "string" ? body.email : "";
+    const password = typeof body.password === "string" ? body.password : "";
+    const name = typeof body.name === "string" ? body.name.trim() : "";
 
     if (!email || !password) {
-      return NextResponse.json({ message: 'Email and password are required' }, { status: 400 });
+      return NextResponse.json(
+        { message: "Email e senha são obrigatórios." },
+        { status: 400 }
+      );
     }
 
-    const existingUser = await prisma.user.findUnique({ where: { email } });
+    const normalizedEmail = normalizeEmail(email);
+
+    if (!isValidEmail(normalizedEmail)) {
+      return NextResponse.json(
+        { message: "Email inválido." },
+        { status: 400 }
+      );
+    }
+
+    if (!isStrongPassword(password)) {
+      return NextResponse.json(
+        {
+          message:
+            "A senha deve ter pelo menos 8 caracteres e conter letras e números.",
+        },
+        { status: 400 }
+      );
+    }
+
+    const existingUser = await prisma.user.findUnique({
+      where: { email: normalizedEmail },
+    });
+
     if (existingUser) {
-      return NextResponse.json({ message: 'User already exists' }, { status: 409 });
+      return NextResponse.json(
+        { message: "Usuário já cadastrado." },
+        { status: 409 }
+      );
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await prisma.user.create({
       data: {
-        email,
+        email: normalizedEmail,
         password: hashedPassword,
-        name, // Add the name field here
-        role: "USER", // Atribui o role padrão
+        name: name || "Usuário",
+        role: "USER",
       },
     });
 
-    return NextResponse.json({ message: 'User registered successfully', user: { id: user.id, email: user.email } }, { status: 201 });
+    return NextResponse.json(
+      {
+        message: "Usuário cadastrado com sucesso.",
+        user: { id: user.id, email: user.email },
+      },
+      { status: 201 }
+    );
   } catch (error) {
-    console.error('Registration error:', error);
-    return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
+    console.error("Registration error:", error);
+    return NextResponse.json(
+      { message: "Erro interno do servidor." },
+      { status: 500 }
+    );
   }
 }

@@ -1,16 +1,34 @@
 import { PrismaClient } from "@prisma/client";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
+import { requireAuth } from "@/lib/auth";
 
 const prisma = new PrismaClient();
 
 export async function PUT(
-  request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const authResult = await requireAuth(request);
+
+    if (authResult.response) {
+      return authResult.response;
+    }
+
+    const { id } = await params;
     const { name, email, password } = await request.json();
     const updateData: { name?: string; email?: string; password?: string } = {};
+
+    const isAdmin = authResult.user?.role === "ADMIN";
+    const isOwner = authResult.user?.userId === id;
+
+    if (!isAdmin && !isOwner) {
+      return NextResponse.json(
+        { message: "Acesso negado." },
+        { status: 403 }
+      );
+    }
 
     if (name) {
       updateData.name = name;
@@ -19,14 +37,14 @@ export async function PUT(
       updateData.email = email;
     }
     if (password) {
-      // Se uma nova senha for fornecida, criptografá-la
       updateData.password = await bcrypt.hash(password, 10);
     }
 
     const user = await prisma.user.update({
-      where: { id: (await params).id },
-      data: updateData, // Usar updateData
+      where: { id },
+      data: updateData,
     });
+
     return NextResponse.json(user);
   } catch (error) {
     console.error("Error editing user:", error);
@@ -35,13 +53,31 @@ export async function PUT(
 }
 
 export async function DELETE(
-  request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const authResult = await requireAuth(request);
+
+    if (authResult.response) {
+      return authResult.response;
+    }
+
+    const { id } = await params;
+    const isAdmin = authResult.user?.role === "ADMIN";
+    const isOwner = authResult.user?.userId === id;
+
+    if (!isAdmin && !isOwner) {
+      return NextResponse.json(
+        { message: "Acesso negado." },
+        { status: 403 }
+      );
+    }
+
     await prisma.user.delete({
-      where: { id: (await params).id },
+      where: { id },
     });
+
     return new NextResponse(null, { status: 204 });
   } catch (error) {
     console.error("Error deleting user:", error);

@@ -1,6 +1,7 @@
 "use client";
 
 import { Sidebar } from "@/app/dashboard/_components/sidebar";
+import { LoadingState } from "@/components/ui/loading-state";
 import { useAuthStore } from "@/store/authStore";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -39,8 +40,17 @@ export default function DashboardLayout({
 
   if (loading || !isAuth) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        Carregando...
+      <div className="flex h-screen overflow-hidden bg-background">
+        <aside className="hidden w-64 border-r border-border/60 bg-muted/40 p-4 lg:block" />
+
+        <main className="flex-1 p-4 lg:p-8">
+          <LoadingState
+            label="Verificando sessão..."
+            size="lg"
+            fullHeight
+            className="bg-background"
+          />
+        </main>
       </div>
     );
   }

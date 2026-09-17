@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -148,11 +149,15 @@ export default function PartnersPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {partners.map((partner) => (
               <Card key={partner.id} className="flex flex-col items-center p-4">
-                <img
-                  src={getImageSrc(partner.imageUrl)}
-                  alt={partner.name}
-                  className="w-24 h-24 object-contain mb-4"
-                />
+                <div className="relative mb-4 h-24 w-24">
+                  <Image
+                    src={getImageSrc(partner.imageUrl)}
+                    alt={partner.name}
+                    fill
+                    unoptimized
+                    className="object-contain"
+                  />
+                </div>
                 <p className="text-lg font-semibold text-center mb-2">
                   {partner.name}
                 </p>

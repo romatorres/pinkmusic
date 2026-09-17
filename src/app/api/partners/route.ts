@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { requireAdmin } from "@/lib/auth";
 
 export async function GET() {
   try {
@@ -10,8 +11,14 @@ export async function GET() {
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
+    const authResult = await requireAdmin(request);
+
+    if (authResult.response) {
+      return authResult.response;
+    }
+
     const data = await request.formData();
     const name = data.get("name") as string;
     const image = data.get("image") as File;

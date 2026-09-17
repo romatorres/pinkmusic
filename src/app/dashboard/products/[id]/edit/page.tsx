@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { LoadingState } from "@/components/ui/loading-state";
 import { toast } from "sonner";
 import { Category, Brand } from "@/lib/types";
 
@@ -120,7 +121,7 @@ export default function EditProductPage() {
   };
 
   if (loading) {
-    return <div className="p-8">Carregando...</div>;
+    return <LoadingState label="Carregando produto..." className="min-h-[50vh]" />;
   }
 
   if (!product) {

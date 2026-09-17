@@ -3,8 +3,9 @@ import type { NextRequest } from "next/server";
 import * as jose from "jose";
 
 export async function middleware(request: NextRequest) {
-  // Verificar se JWT_SECRET está definido
-  if (!process.env.JWT_SECRET) {
+  const jwtSecret = process.env.JWT_SECRET;
+
+  if (!jwtSecret) {
     console.error("JWT_SECRET is not defined");
     return NextResponse.redirect(new URL("/login", request.url));
   }
@@ -16,8 +17,23 @@ export async function middleware(request: NextRequest) {
   }
 
   try {
-    const secret = new TextEncoder().encode(process.env.JWT_SECRET);
-    await jose.jwtVerify(token, secret);
+    const secret = new TextEncoder().encode(jwtSecret);
+    const { payload } = await jose.jwtVerify(token, secret);
+    const role = typeof payload.role === "string" ? payload.role : null;
+    const pathname = request.nextUrl.pathname;
+
+    const isAdminRoute =
+      pathname === "/dashboard/register" ||
+      pathname.startsWith("/dashboard/register/");
+
+    if (isAdminRoute && role !== "ADMIN") {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
+
+    if (!role) {
+      return NextResponse.redirect(new URL("/login", request.url));
+    }
+
     return NextResponse.next();
   } catch (error) {
     console.error("Invalid token:", error);
@@ -26,5 +42,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: "/dashboard/:path*",
+  matcher: ["/dashboard/:path*"],
 };

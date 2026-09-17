@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { requireAdmin } from "@/lib/auth";
 
 interface MercadoLibreProductDetails {
   id: string;
@@ -95,6 +96,12 @@ async function fetchProductDetailsFromMercadoLivre(
 
 export async function POST(req: NextRequest) {
   try {
+    const authResult = await requireAdmin(req);
+
+    if (authResult.response) {
+      return authResult.response;
+    }
+
     const { productId, categoryId, brandId } = await req.json(); // NOVO: brandId
 
     if (!productId || typeof productId !== "string") {

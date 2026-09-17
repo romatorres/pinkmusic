@@ -5,6 +5,7 @@ import ProductCard from "./ProductCard";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import Pagination from "../../ui/Pagination";
+import { LoadingState } from "@/components/ui/loading-state";
 import { Carousel, CarouselContent, CarouselItem } from "../../ui/carousel";
 import type { Product } from "@/lib/types";
 
@@ -203,9 +204,7 @@ const Products: React.FC<ProductsProps> = ({
   return (
     <div className="w-full px-2">
       {loading && (
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-        </div>
+        <LoadingState label="Carregando produtos..." className="min-h-[220px]" />
       )}
 
       {!loading && !hasProducts && (

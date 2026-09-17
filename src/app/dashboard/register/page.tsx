@@ -26,6 +26,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
 import { Edit, Trash2 } from "lucide-react";
+import { LoadingState } from "@/components/ui/loading-state";
 
 const registerSchema = z.object({
   email: z
@@ -228,9 +229,7 @@ export default function RegisterPage() {
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="flex justify-center items-center h-64">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-            </div>
+            <LoadingState label="Carregando usuários..." className="min-h-[220px]" />
           ) : (
             <div className="overflow-x-auto">
               {users.length === 0 ? (
