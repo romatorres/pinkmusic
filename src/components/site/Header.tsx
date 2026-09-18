@@ -8,7 +8,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { MenuIcon, Search, ShoppingCart, User } from "lucide-react";
+import { MenuIcon, ShoppingCart, User } from "lucide-react";
 import { PageContainer } from "../ui/Page-container";
 import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -64,8 +64,6 @@ function HeaderLayout({
               />
             </div>
           </div>
-
-
 
           <div className="flex items-center lg:gap-7 gap-4 text-base font-medium cursor-pointerb text-primary">
 
