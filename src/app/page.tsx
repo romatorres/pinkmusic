@@ -3,7 +3,7 @@ import Partners from "@/components/site/Partners";
 import Products from "@/components/site/Products/Products";
 import About from "@/components/site/About";
 import Newsletter from "@/components/site/Newsletter";
-import Contact from "@/components/site/Contact";
+
 
 export default function Home() {
   return (
@@ -16,13 +16,11 @@ export default function Home() {
           showSeeAllButton={true}
           randomizeProducts={true}
         />
+        <Newsletter />
         <section id="about">
           <About />
         </section>
-        <Newsletter />
-        <section id="contact">
-          <Contact />
-        </section>
+
       </div>
     </main>
   );

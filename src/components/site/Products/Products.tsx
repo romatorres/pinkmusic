@@ -54,7 +54,7 @@ const Products: React.FC<ProductsProps> = ({
   sortBy,
   randomizeProducts = false,
   forceGridOnMobile = false,
-  onProductsLoad = () => {},
+  onProductsLoad = () => { },
 }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -240,7 +240,7 @@ const Products: React.FC<ProductsProps> = ({
       )}
 
       {showSeeAllButton && (
-        <div className="mt-12 mb-8 mx-2 flex justify-center">
+        <div className="my-12 mx-2 flex justify-center">
           <Link
             href="/products-all"
             className="w-full sm:w-auto bg-primary text-primary-foreground py-3 px-6 rounded-full hover:bg-primary/90 flex items-center justify-center gap-2 font-semibold text-sm transition-colors"

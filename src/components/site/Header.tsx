@@ -8,7 +8,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { MenuIcon, Search } from "lucide-react";
+import { MenuIcon, Search, ShoppingCart, User } from "lucide-react";
 import { PageContainer } from "../ui/Page-container";
 import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -65,28 +65,28 @@ function HeaderLayout({
           <div className="hidden items-center gap-12 lg:flex">
             <nav className="flex items-center gap-7 text-base font-medium cursor-pointerb text-primary">
               <Link
-                href="/"
-                className="transition-colors duration-300 ease-in-out hover:text-secondary"
-              >
-                Home
-              </Link>
-              <Link
                 href="/products-all"
-                className="transition-colors duration-300 ease-in-out hover:text-secondary"
+                className="transition-colors duration-200 ease-in-out hover:text-primary/70"
               >
                 Produtos
               </Link>
               <Link
                 href="/#about"
-                className="transition-colors duration-300 ease-in-out hover:text-secondary"
+                className="transition-colors duration-200 ease-in-out hover:text-primary/70"
               >
                 Sobre
               </Link>
               <Link
-                href="/#contact"
-                className="transition-colors duration-300 ease-in-out hover:text-secondary"
+                href="/#"
+                className="transition-colors duration-200 ease-in-out hover:text-primary/70"
               >
-                Contatos
+                <User />
+              </Link>
+              <Link
+                href="/#"
+                className="transition-colors duration-200 ease-in-out hover:text-primary/70"
+              >
+                <ShoppingCart />
               </Link>
             </nav>
           </div>
