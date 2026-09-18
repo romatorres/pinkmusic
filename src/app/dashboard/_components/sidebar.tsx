@@ -122,57 +122,61 @@ export function Sidebar() {
                 </Link>
               </li>
 
-              <li>
-                <Link
-                  href="/dashboard/partners"
-                  className={`flex items-center space-x-2 p-2 rounded hover:bg-secondary/50 transition ${
-                    isActive("/dashboard/partners") ? "bg-secondary" : ""
-                  }`}
-                  onClick={() => isMobile && setIsMobileMenuOpen(false)}
-                >
-                  <Users size={20} />
-                  <span>Parceiros</span>
-                </Link>
-              </li>
+              {user?.role === "ADMIN" && (
+                <>
+                  <li>
+                    <Link
+                      href="/dashboard/partners"
+                      className={`flex items-center space-x-2 p-2 rounded hover:bg-secondary/50 transition ${
+                        isActive("/dashboard/partners") ? "bg-secondary" : ""
+                      }`}
+                      onClick={() => isMobile && setIsMobileMenuOpen(false)}
+                    >
+                      <Users size={20} />
+                      <span>Parceiros</span>
+                    </Link>
+                  </li>
 
-              <li>
-                <Link
-                  href="/dashboard/products"
-                  className={`flex items-center space-x-2 p-2 rounded hover:bg-secondary/50 transition ${
-                    isActive("/dashboard/products") ? "bg-secondary" : ""
-                  }`}
-                  onClick={() => isMobile && setIsMobileMenuOpen(false)}
-                >
-                  <ShoppingCart size={20} />
-                  <span>Produtos</span>
-                </Link>
-              </li>
+                  <li>
+                    <Link
+                      href="/dashboard/products"
+                      className={`flex items-center space-x-2 p-2 rounded hover:bg-secondary/50 transition ${
+                        isActive("/dashboard/products") ? "bg-secondary" : ""
+                      }`}
+                      onClick={() => isMobile && setIsMobileMenuOpen(false)}
+                    >
+                      <ShoppingCart size={20} />
+                      <span>Produtos</span>
+                    </Link>
+                  </li>
 
-              <li>
-                <Link
-                  href="/dashboard/categories"
-                  className={`flex items-center space-x-2 p-2 rounded hover:bg-secondary/50 transition ${
-                    isActive("/dashboard/categories") ? "bg-secondary" : ""
-                  }`}
-                  onClick={() => isMobile && setIsMobileMenuOpen(false)}
-                >
-                  <ChartBarStacked size={20} />
-                  <span>Categorias</span>
-                </Link>
-              </li>
+                  <li>
+                    <Link
+                      href="/dashboard/categories"
+                      className={`flex items-center space-x-2 p-2 rounded hover:bg-secondary/50 transition ${
+                        isActive("/dashboard/categories") ? "bg-secondary" : ""
+                      }`}
+                      onClick={() => isMobile && setIsMobileMenuOpen(false)}
+                    >
+                      <ChartBarStacked size={20} />
+                      <span>Categorias</span>
+                    </Link>
+                  </li>
 
-              <li>
-                <Link
-                  href="/dashboard/brands"
-                  className={`flex items-center space-x-2 p-2 rounded hover:bg-secondary/50 transition ${
-                    isActive("/dashboard/brands") ? "bg-secondary" : ""
-                  }`}
-                  onClick={() => isMobile && setIsMobileMenuOpen(false)}
-                >
-                  <Bandage size={20} />
-                  <span>Marcas</span>
-                </Link>
-              </li>
+                  <li>
+                    <Link
+                      href="/dashboard/brands"
+                      className={`flex items-center space-x-2 p-2 rounded hover:bg-secondary/50 transition ${
+                        isActive("/dashboard/brands") ? "bg-secondary" : ""
+                      }`}
+                      onClick={() => isMobile && setIsMobileMenuOpen(false)}
+                    >
+                      <Bandage size={20} />
+                      <span>Marcas</span>
+                    </Link>
+                  </li>
+                </>
+              )}
 
               <li>
                 <div className="space-y-1">
@@ -209,16 +213,18 @@ export function Sidebar() {
                       settingsOpen || isSettingsActive() ? "block" : "hidden"
                     }`}
                   >
-                    <Link
-                      href="/dashboard/register"
-                      className={`flex items-center space-x-2 p-2 rounded hover:bg-secondary/50 transition ${
-                        pathname === "/dashboard/settings" ? "bg-secondary" : ""
-                      }`}
-                      onClick={() => isMobile && setIsMobileMenuOpen(false)}
-                    >
-                      <User size={20} />
-                      <span>Novo Usuario</span>
-                    </Link>
+                    {user?.role === "ADMIN" && (
+                      <Link
+                        href="/dashboard/register"
+                        className={`flex items-center space-x-2 p-2 rounded hover:bg-secondary/50 transition ${
+                          pathname === "/dashboard/settings" ? "bg-secondary" : ""
+                        }`}
+                        onClick={() => isMobile && setIsMobileMenuOpen(false)}
+                      >
+                        <User size={20} />
+                        <span>Novo Usuario</span>
+                      </Link>
+                    )}
 
                     <Link
                       href="/dashboard/profile"

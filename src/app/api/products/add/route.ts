@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
+import {
+  getMercadoLivreAccessToken,
+  refreshMercadoLivreToken,
+} from "@/lib/mercadolivre";
 
 interface MercadoLibreProductDetails {
   id: string;
@@ -17,42 +21,10 @@ interface MercadoLibreProductDetails {
   };
 }
 
-async function refreshMercadoLivreToken(baseUrl: string) {
-  try {
-    const refreshResponse = await fetch(`${baseUrl}/api/refreshToken`, {
-      method: "POST",
-    });
-
-    const refreshResult = await refreshResponse.json();
-
-    if (!refreshResult.success) {
-      throw new Error(
-        `Falha ao renovar o token: ${
-          refreshResult.error || "Erro desconhecido"
-        }`
-      );
-    }
-
-    return {
-      accessToken: refreshResult.accessToken,
-      refreshToken: refreshResult.refreshToken,
-    };
-  } catch (error) {
-    console.error("Erro ao renovar token:", error);
-    throw error;
-  }
-}
-
 async function fetchProductDetailsFromMercadoLivre(
-  itemId: string,
-  baseUrl: string
+  itemId: string
 ): Promise<MercadoLibreProductDetails> {
-  // Busca o token do banco de dados primeiro
-  const dbAccessToken = await prisma.systemSetting.findUnique({
-    where: { key: "MERCADOLIBRE_ACCESS_TOKEN" },
-  });
-
-  const accessToken = dbAccessToken?.value || process.env.MERCADOLIBRE_ACCESS_TOKEN;
+  const accessToken = await getMercadoLivreAccessToken();
 
   if (!accessToken) {
     throw new Error("Token de acesso do MercadoLivre não configurado.");
@@ -63,12 +35,12 @@ async function fetchProductDetailsFromMercadoLivre(
   };
 
   const url = `https://api.mercadolibre.com/items/${itemId}`;
-  const response = await fetch(url, { headers });
+  let response = await fetch(url, { headers });
 
   if (response.status === 401 || response.status === 403) {
     console.log("Token inválido ou expirado, tentando renovar...");
 
-    const newTokens = await refreshMercadoLivreToken(baseUrl);
+    const newTokens = await refreshMercadoLivreToken();
 
     headers = {
       "Authorization": `Bearer ${newTokens.accessToken}`,
@@ -132,10 +104,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const productDetails = await fetchProductDetailsFromMercadoLivre(
-      productId,
-      baseUrl
-    );
+    const productDetails = await fetchProductDetailsFromMercadoLivre(productId);
 
     const existingProductById = await prisma.product.findUnique({
       where: { id: productDetails.id },

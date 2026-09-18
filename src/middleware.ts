@@ -22,9 +22,17 @@ export async function middleware(request: NextRequest) {
     const role = typeof payload.role === "string" ? payload.role : null;
     const pathname = request.nextUrl.pathname;
 
-    const isAdminRoute =
-      pathname === "/dashboard/register" ||
-      pathname.startsWith("/dashboard/register/");
+    const adminPrefixes = [
+      "/dashboard/register",
+      "/dashboard/products",
+      "/dashboard/categories",
+      "/dashboard/brands",
+      "/dashboard/partners",
+    ];
+
+    const isAdminRoute = adminPrefixes.some(
+      (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
+    );
 
     if (isAdminRoute && role !== "ADMIN") {
       return NextResponse.redirect(new URL("/dashboard", request.url));

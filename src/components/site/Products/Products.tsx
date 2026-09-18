@@ -243,7 +243,7 @@ const Products: React.FC<ProductsProps> = ({
         <div className="my-12 mx-2 flex justify-center">
           <Link
             href="/products-all"
-            className="w-full sm:w-auto bg-primary text-primary-foreground py-3 px-6 rounded-full hover:bg-primary/90 flex items-center justify-center gap-2 font-semibold text-sm transition-colors"
+            className="w-full sm:w-auto border-2 border-primary/70 text-primary/70 py-3 px-6 rounded-full hover:bg-primary/10 flex items-center justify-center gap-2 font-semibold text-sm transition-colors"
           >
             <span>Todos os Produtos</span>
             <ArrowRight size={20} />

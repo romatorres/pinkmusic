@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
+import {
+  getMercadoLivreAccessToken,
+  refreshMercadoLivreToken,
+} from "@/lib/mercadolivre";
 
 interface MercadoLibreProductDetails {
   id: string;
@@ -27,42 +31,8 @@ interface MercadoLibreProductDetails {
   permalink: string;
 }
 
-async function refreshMercadoLivreToken(baseUrl: string) {
-  try {
-    const refreshResponse = await fetch(`${baseUrl}/api/refreshToken`, {
-      method: "POST",
-    });
-
-    const refreshResult = await refreshResponse.json();
-
-    if (!refreshResult.success) {
-      throw new Error(
-        `Falha ao renovar o token: ${
-          refreshResult.error || "Erro desconhecido"
-        }`
-      );
-    }
-
-    return {
-      accessToken: refreshResult.accessToken,
-      refreshToken: refreshResult.refreshToken,
-    };
-  } catch (error) {
-    console.error("Erro ao renovar token:", error);
-    throw error;
-  }
-}
-
-async function fetchProductDetailsFromMercadoLibre(
-  itemId: string,
-  baseUrl: string
-) {
-  // Busca o token do banco de dados primeiro
-  const dbAccessToken = await prisma.systemSetting.findUnique({
-    where: { key: "MERCADOLIBRE_ACCESS_TOKEN" },
-  });
-
-  const access_token = dbAccessToken?.value || process.env.MERCADOLIBRE_ACCESS_TOKEN;
+async function fetchProductDetailsFromMercadoLibre(itemId: string) {
+  const access_token = await getMercadoLivreAccessToken();
 
   if (!access_token) {
     throw new Error("Token de acesso do MercadoLivre não configurado.");
@@ -83,7 +53,7 @@ async function fetchProductDetailsFromMercadoLibre(
   if (response.status === 401 || response.status === 403) {
     console.log("Token inválido ou expirado ao buscar detalhes. Renovando...");
 
-    const newTokens = await refreshMercadoLivreToken(baseUrl);
+    const newTokens = await refreshMercadoLivreToken();
 
     headers = {
       "Authorization": `Bearer ${newTokens.accessToken}`,
@@ -116,9 +86,6 @@ export async function GET(
       );
     }
 
-    const currentUrl = new URL(req.url);
-    const baseUrl = `${currentUrl.protocol}//${currentUrl.host}`;
-
     const productFromDb = await prisma.product.findUnique({
       where: { id: id },
       include: {
@@ -136,7 +103,7 @@ export async function GET(
     }
 
     const productDetailsFromMl: MercadoLibreProductDetails =
-      await fetchProductDetailsFromMercadoLibre(id, baseUrl);
+      await fetchProductDetailsFromMercadoLibre(id);
 
     const combinedProduct = {
       ...productFromDb,
