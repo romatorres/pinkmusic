@@ -35,7 +35,7 @@ async function fetchProductDetailsFromMercadoLivre(
   };
 
   const url = `https://api.mercadolibre.com/items/${itemId}`;
-  let response = await fetch(url, { headers });
+  const response = await fetch(url, { headers });
 
   if (response.status === 401 || response.status === 403) {
     console.log("Token inválido ou expirado, tentando renovar...");
@@ -82,9 +82,6 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-
-    const currentUrl = new URL(req.url);
-    const baseUrl = `${currentUrl.protocol}//${currentUrl.host}`;
 
     const permalink = `https://api.mercadolibre.com/items/${productId}`;
     const existingProduct = await prisma.product.findUnique({
