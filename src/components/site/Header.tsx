@@ -39,6 +39,8 @@ function HeaderLayout({
     >
       <PageContainer>
         <div className="flex h-[70px] w-full items-center justify-between">
+
+          {/* Logo */}
           <div className="relative w-[170px] md:w-[200px] lg:w-[240px] aspect-[240/70.5]">
             <Link href="/">
               <Image
@@ -51,6 +53,7 @@ function HeaderLayout({
             </Link>
           </div>
 
+          {/* Busca */}
           <div className="hidden md:flex flex-1 max-w-xl mx-8">
             <div className="flex-1 w-full">
               <SearchInput
@@ -62,95 +65,94 @@ function HeaderLayout({
             </div>
           </div>
 
-          <div className="hidden items-center gap-12 lg:flex">
-            <nav className="flex items-center gap-7 text-base font-medium cursor-pointerb text-primary">
+          {/* Nav desktop */}
+          <div className="items-center gap-12">
+            <nav className="flex items-center lg:gap-7 gap-4 text-base font-medium cursor-pointerb text-primary">
               <Link
                 href="/products-all"
-                className="transition-colors duration-200 ease-in-out hover:text-primary/70"
+                className="hidden lg:flex transition-colors duration-200 ease-in-out hover:text-primary/70"
               >
                 Produtos
               </Link>
               <Link
                 href="/#about"
-                className="transition-colors duration-200 ease-in-out hover:text-primary/70"
+                className="hidden lg:flex transition-colors duration-200 ease-in-out hover:text-primary/70"
               >
                 Sobre
               </Link>
-              <Link
-                href="/#"
-                className="transition-colors duration-200 ease-in-out hover:text-primary/70"
-              >
-                <User />
-              </Link>
-              <Link
-                href="/#"
-                className="transition-colors duration-200 ease-in-out hover:text-primary/70"
-              >
-                <ShoppingCart />
-              </Link>
+
             </nav>
           </div>
 
-          <div className="lg:hidden">
-            <Sheet>
-              <SheetTrigger asChild>
-                <button
-                  className={cn(isHomePage ? "text-primary" : "text-gray-800")}
-                >
-                  <MenuIcon size={32} />
-                </button>
-              </SheetTrigger>
-              <SheetContent onCloseAutoFocus={(e) => e.preventDefault()}>
-                <SheetHeader>
-                  <SheetTitle className="text-2xl text-primary">
-                    Menu
-                  </SheetTitle>
-                </SheetHeader>
-                <nav className="mx-6 mt-8 flex flex-col gap-5 text-base font-medium text-primary">
-                  <SheetClose asChild>
-                    <Link href="/" className="hover:text-secondary">
-                      Home
-                    </Link>
-                  </SheetClose>
-                  <SheetClose asChild>
-                    <Link href="/products-all" className="hover:text-secondary">
-                      Produtos
-                    </Link>
-                  </SheetClose>
-                  <SheetClose asChild>
-                    <Link href="/#about" className="hover:text-secondary">
-                      Sobre
-                    </Link>
-                  </SheetClose>
-                  <SheetClose asChild>
-                    <Link href="/#contact" className="hover:text-secondary">
-                      Contatos
-                    </Link>
-                  </SheetClose>
-                </nav>
-                <Social />
-              </SheetContent>
-            </Sheet>
+          <div className="flex items-center lg:gap-7 gap-4 text-base font-medium cursor-pointerb text-primary">
+            <Link
+              href="/#"
+              className="transition-colors duration-200 ease-in-out hover:text-primary/70"
+            >
+              <User />
+            </Link>
+            <Link
+              href="/#"
+              className="transition-colors duration-200 ease-in-out hover:text-primary/70"
+            >
+              <ShoppingCart />
+            </Link>
+
+            {/* Nav mobile */}
+            <div className="lg:hidden">
+              <Sheet>
+                <SheetTrigger asChild>
+                  <button
+                    className={cn(isHomePage ? "text-primary items-center flex" : "text-gray-800")}
+                  >
+                    <MenuIcon size={32} />
+                  </button>
+                </SheetTrigger>
+                <SheetContent onCloseAutoFocus={(e) => e.preventDefault()}>
+                  <SheetHeader>
+                    <SheetTitle className="text-2xl text-primary">
+                      Menu
+                    </SheetTitle>
+                  </SheetHeader>
+                  <nav className="mx-6 mt-8 flex flex-col gap-5 text-base font-medium text-primary">
+                    <SheetClose asChild>
+                      <Link href="/" className="hover:text-secondary">
+                        Home
+                      </Link>
+                    </SheetClose>
+                    <SheetClose asChild>
+                      <Link href="/products-all" className="hover:text-secondary">
+                        Produtos
+                      </Link>
+                    </SheetClose>
+                    <SheetClose asChild>
+                      <Link href="/#about" className="hover:text-secondary">
+                        Sobre
+                      </Link>
+                    </SheetClose>
+                    <SheetClose asChild>
+                      <Link href="/#contact" className="hover:text-secondary">
+                        Contatos
+                      </Link>
+                    </SheetClose>
+                  </nav>
+                  <Social />
+                </SheetContent>
+              </Sheet>
+            </div>
           </div>
         </div>
 
-        <div className="md:hidden mt-0">
+        <div className="md:hidden mt-2">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary/50" />
-            <Input
-              type="search"
-              placeholder="Buscar produtos..."
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  onSearch(inputValue);
-                }
-              }}
-              className="pl-10 pr-4 h-10 bg-background border-primary/20"
-              aria-label="Buscar produtos"
-            />
+            <div className="flex-1 w-full">
+              <SearchInput
+                value={inputValue}
+                onChange={setInputValue}
+                onSearch={onSearch}
+                placeholder="Buscar produto..."
+              />
+            </div>
           </div>
         </div>
       </PageContainer>
@@ -211,8 +213,8 @@ export default function Header() {
       fallback={
         <HeaderLayout
           inputValue=""
-          setInputValue={() => {}}
-          onSearch={() => {}}
+          setInputValue={() => { }}
+          onSearch={() => { }}
           isHomePage={isHomePage}
         />
       }

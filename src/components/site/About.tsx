@@ -99,8 +99,9 @@ export default function About() {
             </div>
           </div>
         </div>
+
         {/* Contacts */}
-        <div className="text-center sm:mb-12 mb-8 mt-20">
+        <div className="text-center sm:mb-12 mb-8 md:mt-20 mt-2">
           <h2 className="text-3xl md:text-5xl font-tanker text-primary mt-3">
             Fale com a gente
           </h2>
