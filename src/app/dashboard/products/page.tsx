@@ -66,6 +66,9 @@ function ProductsPageContent() {
   const [selectedBrand, setSelectedBrand] = useState<string>("");
   const [productToDelete, setProductToDelete] = useState<string | null>(null);
   const searchParams = useSearchParams();
+  const [searchInput, setSearchInput] = useState(
+    searchParams.get("search") || ""
+  );
   const [searchTerm, setSearchTerm] = useState(
     searchParams.get("search") || ""
   );
@@ -233,8 +236,12 @@ function ProductsPageContent() {
               {/* Busca */}
               <div className="w-full">
                 <SearchInput
-                  value={searchTerm}
-                  onChange={setSearchTerm}
+                  value={searchInput}
+                  onChange={setSearchInput}
+                  onSearch={(value) => {
+                    setSearchTerm(value.trim());
+                    setCurrentPage(1);
+                  }}
                   placeholder="Buscar por produtos..."
                 />
               </div>

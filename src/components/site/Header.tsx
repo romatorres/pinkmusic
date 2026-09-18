@@ -17,15 +17,17 @@ import Link from "next/link";
 import Social from "./_components/Social";
 import { Input } from "../ui/input";
 import { SearchInput } from "@/components/ui/SearchInput";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 
 function HeaderLayout({
   inputValue,
   setInputValue,
+  onSearch,
   isHomePage,
 }: {
   inputValue: string;
   setInputValue: (value: string) => void;
+  onSearch: (value: string) => void;
   isHomePage: boolean;
 }) {
   return (
@@ -54,6 +56,7 @@ function HeaderLayout({
               <SearchInput
                 value={inputValue}
                 onChange={setInputValue}
+                onSearch={onSearch}
                 placeholder="Buscar produto..."
               />
             </div>
@@ -139,6 +142,12 @@ function HeaderLayout({
               placeholder="Buscar produtos..."
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  onSearch(inputValue);
+                }
+              }}
               className="pl-10 pr-4 h-10 bg-background border-primary/20"
               aria-label="Buscar produtos"
             />
@@ -160,36 +169,34 @@ function HeaderContent() {
     setInputValue(searchParams.get("search") || "");
   }, [searchParams]);
 
-  useEffect(() => {
-    const currentSearchInUrl = searchParams.get("search") || "";
-    if (inputValue === currentSearchInUrl) {
-      return;
-    }
+  const handleSearchSubmit = useCallback(
+    (nextValue: string) => {
+      const normalized = nextValue.trim();
+      const current = searchParams.get("search") || "";
 
-    const handler = setTimeout(() => {
+      if (normalized === current) {
+        return;
+      }
+
       const params = new URLSearchParams(searchParams);
-      if (inputValue) {
-        params.set("search", inputValue);
+      if (normalized) {
+        params.set("search", normalized);
       } else {
         params.delete("search");
       }
 
-      if (inputValue) {
-        router.push(`/products-all?${params.toString()}`);
-      } else if (pathname === "/products-all") {
-        router.push(`/products-all?${params.toString()}`);
-      }
-    }, 300);
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [inputValue, pathname, router, searchParams]);
+      const queryString = params.toString();
+      const targetPath = queryString ? `/products-all?${queryString}` : "/products-all";
+      router.push(targetPath);
+    },
+    [router, searchParams]
+  );
 
   return (
     <HeaderLayout
       inputValue={inputValue}
       setInputValue={setInputValue}
+      onSearch={handleSearchSubmit}
       isHomePage={isHomePage}
     />
   );
@@ -202,7 +209,12 @@ export default function Header() {
   return (
     <Suspense
       fallback={
-        <HeaderLayout inputValue="" setInputValue={() => {}} isHomePage={isHomePage} />
+        <HeaderLayout
+          inputValue=""
+          setInputValue={() => {}}
+          onSearch={() => {}}
+          isHomePage={isHomePage}
+        />
       }
     >
       <HeaderContent />
