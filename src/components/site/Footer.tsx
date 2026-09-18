@@ -4,6 +4,9 @@ import Image from "next/image";
 import { PageContainer } from "../ui/Page-container";
 
 export default function Footer() {
+  const year = new Date().getFullYear();
+
+
   return (
     <footer className="bg-primary md:py-10 py-6">
       <PageContainer>
@@ -18,7 +21,7 @@ export default function Footer() {
             />
           </a>
           <div className="text-center text-sm md:text-base text-white">
-            © 2025 Copyright Pink Music Instrumentos Musicais
+            <p>&copy; <span>{year}</span> Copyright Pink Music Instrumentos Musicais</p>
           </div>
           <a
             href="https://romatorres-dev.vercel.app/"

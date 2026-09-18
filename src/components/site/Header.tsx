@@ -65,26 +65,28 @@ function HeaderLayout({
             </div>
           </div>
 
-          {/* Nav desktop */}
-          <div className="items-center gap-12">
-            <nav className="flex items-center lg:gap-7 gap-4 text-base font-medium cursor-pointerb text-primary">
-              <Link
-                href="/products-all"
-                className="hidden lg:flex transition-colors duration-200 ease-in-out hover:text-primary/70"
-              >
-                Produtos
-              </Link>
-              <Link
-                href="/#about"
-                className="hidden lg:flex transition-colors duration-200 ease-in-out hover:text-primary/70"
-              >
-                Sobre
-              </Link>
 
-            </nav>
-          </div>
 
           <div className="flex items-center lg:gap-7 gap-4 text-base font-medium cursor-pointerb text-primary">
+
+            {/* Nav desktop */}
+            <div className="items-center gap-12">
+              <nav className="flex items-center lg:gap-7 gap-4 text-base font-medium cursor-pointerb text-primary">
+                <Link
+                  href="/products-all"
+                  className="hidden lg:flex transition-colors duration-200 ease-in-out hover:text-primary/70"
+                >
+                  Produtos
+                </Link>
+                <Link
+                  href="/#about"
+                  className="hidden lg:flex transition-colors duration-200 ease-in-out hover:text-primary/70"
+                >
+                  Sobre
+                </Link>
+              </nav>
+            </div>
+
             <Link
               href="/#"
               className="transition-colors duration-200 ease-in-out hover:text-primary/70"
@@ -97,7 +99,6 @@ function HeaderLayout({
             >
               <ShoppingCart />
             </Link>
-
             {/* Nav mobile */}
             <div className="lg:hidden">
               <Sheet>
@@ -128,11 +129,6 @@ function HeaderLayout({
                     <SheetClose asChild>
                       <Link href="/#about" className="hover:text-secondary">
                         Sobre
-                      </Link>
-                    </SheetClose>
-                    <SheetClose asChild>
-                      <Link href="/#contact" className="hover:text-secondary">
-                        Contatos
                       </Link>
                     </SheetClose>
                   </nav>
