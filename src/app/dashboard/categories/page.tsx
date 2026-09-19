@@ -94,9 +94,9 @@ export default function CategoriesPage() {
   };
 
   const handleMainSubmit = async (data: MainCategoryFormInputs) => {
-    const isEdit = editingCategory && !editingCategory.parentId;
+    const isEdit = Boolean(editingCategory);
     const method = isEdit ? "PUT" : "POST";
-    const url = isEdit ? `/api/categories/${editingCategory.id}` : "/api/categories";
+    const url = isEdit && editingCategory ? `/api/categories/${editingCategory.id}` : "/api/categories";
 
     const payload = {
       name: data.name,
@@ -120,9 +120,9 @@ export default function CategoriesPage() {
   };
 
   const handleSubSubmit = async (data: SubCategoryFormInputs) => {
-    const isEdit = editingCategory && !!editingCategory.parentId;
+    const isEdit = Boolean(editingCategory);
     const method = isEdit ? "PUT" : "POST";
-    const url = isEdit ? `/api/categories/${editingCategory.id}` : "/api/categories";
+    const url = isEdit && editingCategory ? `/api/categories/${editingCategory.id}` : "/api/categories";
 
     const payload = {
       name: data.name,
@@ -148,14 +148,16 @@ export default function CategoriesPage() {
   const handleEditMain = (category: Category) => {
     setActiveTab("main");
     setEditingCategory(category);
-    mainForm.setValue("name", category.name);
+    mainForm.reset({ name: category.name });
   };
 
   const handleEditSub = (category: Category) => {
     setActiveTab("sub");
     setEditingCategory(category);
-    subForm.setValue("name", category.name);
-    subForm.setValue("parentId", category.parentId || "");
+    subForm.reset({
+      name: category.name,
+      parentId: category.parentId || "",
+    });
   };
 
   const handleCancelEdit = () => {
@@ -255,7 +257,7 @@ export default function CategoriesPage() {
                   </div>
 
                   <div className="flex gap-3 justify-end pt-2">
-                    {editingCategory && !editingCategory.parentId && (
+                    {editingCategory && (
                       <Button
                         type="button"
                         variant="outline"
@@ -265,7 +267,7 @@ export default function CategoriesPage() {
                       </Button>
                     )}
                     <Button type="submit">
-                      {editingCategory && !editingCategory.parentId
+                      {editingCategory
                         ? "Atualizar Categoria Principal"
                         : "Adicionar Categoria Principal"}
                     </Button>
@@ -380,7 +382,7 @@ export default function CategoriesPage() {
                           <FormLabel>Categoria Pai</FormLabel>
                           <Select
                             onValueChange={field.onChange}
-                            value={field.value || ""}
+                            value={field.value || undefined}
                           >
                             <FormControl>
                               <SelectTrigger className="w-full">
@@ -408,7 +410,7 @@ export default function CategoriesPage() {
                   </div>
 
                   <div className="flex gap-3 justify-end pt-2">
-                    {editingCategory && !!editingCategory.parentId && (
+                    {editingCategory && (
                       <Button
                         type="button"
                         variant="outline"
@@ -418,7 +420,7 @@ export default function CategoriesPage() {
                       </Button>
                     )}
                     <Button type="submit">
-                      {editingCategory && !!editingCategory.parentId
+                      {editingCategory
                         ? "Atualizar Subcategoria"
                         : "Adicionar Subcategoria"}
                     </Button>

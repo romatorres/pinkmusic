@@ -19,6 +19,129 @@ import { SearchInput } from "@/components/ui/SearchInput";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { Category } from "@/lib/types";
 
+function DesktopCategoryMegaMenu({
+  categories,
+  onClose,
+}: {
+  categories: Category[];
+  onClose: () => void;
+}) {
+  const rootCategories = categories.filter((c) => !c.parentId);
+  const childCategories = categories.filter((c) => !!c.parentId);
+
+  const [activeCategoryId, setActiveCategoryId] = useState<string>(
+    rootCategories[0]?.id || ""
+  );
+
+  const activeCategory =
+    rootCategories.find((c) => c.id === activeCategoryId) || rootCategories[0];
+
+  const activeSubcategories = activeCategory
+    ? activeCategory.subcategories && activeCategory.subcategories.length > 0
+      ? activeCategory.subcategories
+      : childCategories.filter((c) => c.parentId === activeCategory.id)
+    : [];
+
+  return (
+    <div className="absolute right-0 top-full z-30 mt-3 w-[500px] md:w-[540px] rounded-2xl border border-border/60 bg-white p-3 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200">
+      <div className="grid grid-cols-12 gap-3 min-h-[300px]">
+        {/* Coluna da Esquerda: Categorias Principais */}
+        <div className="col-span-5 border-r border-border/40 pr-2 space-y-1 overflow-y-auto max-h-[380px] [scrollbar-width:none]">
+          <Link
+            href="/products-all"
+            onClick={onClose}
+            className="mb-2 block rounded-xl px-3 py-2 text-xs font-semibold text-primary bg-primary/5 hover:bg-primary/10 transition-colors"
+          >
+            Todas as categorias →
+          </Link>
+
+          {rootCategories.map((cat) => {
+            const isHovered = cat.id === (activeCategory?.id || activeCategoryId);
+            const subCount =
+              cat.subcategories && cat.subcategories.length > 0
+                ? cat.subcategories.length
+                : childCategories.filter((c) => c.parentId === cat.id).length;
+
+            return (
+              <div
+                key={cat.id}
+                onMouseEnter={() => setActiveCategoryId(cat.id)}
+                className={cn(
+                  "flex items-center justify-between rounded-xl px-3 py-2.5 text-xs font-medium cursor-pointer transition-all",
+                  isHovered
+                    ? "bg-primary text-primary-foreground font-semibold shadow-sm"
+                    : "text-foreground hover:bg-muted/70"
+                )}
+              >
+                <Link
+                  href={`/products-all?categoryIds=${cat.id}`}
+                  onClick={onClose}
+                  className="flex-1 truncate mr-1"
+                >
+                  {cat.name}
+                </Link>
+                {subCount > 0 && (
+                  <ChevronRight
+                    className={cn(
+                      "h-3.5 w-3.5 flex-shrink-0 transition-transform",
+                      isHovered ? "text-primary-foreground translate-x-0.5" : "text-muted-foreground/60"
+                    )}
+                  />
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Coluna da Direita: Subcategorias */}
+        <div className="col-span-7 pl-1 flex flex-col justify-between max-h-[380px]">
+          <div className="space-y-2 overflow-y-auto pr-1 max-h-[370px] [scrollbar-width:none]">
+            {activeCategory && (
+              <div className="border-b border-border/40 pb-2 mb-2 flex items-center justify-between">
+                <span className="text-xs font-bold text-primary tracking-wide uppercase truncate max-w-[180px]">
+                  {activeCategory.name}
+                </span>
+                <Link
+                  href={`/products-all?categoryIds=${activeCategory.id}`}
+                  onClick={onClose}
+                  className="text-[11px] font-medium text-primary/70 hover:text-primary underline flex-shrink-0"
+                >
+                  Ver todos
+                </Link>
+              </div>
+            )}
+
+            {activeSubcategories.length > 0 ? (
+              <div
+                className={cn(
+                  "grid gap-1",
+                  activeSubcategories.length > 6 ? "grid-cols-2" : "grid-cols-1"
+                )}
+              >
+                {activeSubcategories.map((sub) => (
+                  <Link
+                    key={sub.id}
+                    href={`/products-all?categoryIds=${sub.id}`}
+                    onClick={onClose}
+                    className="group flex items-center justify-between rounded-lg px-2.5 py-2 text-xs text-foreground transition-all hover:bg-primary/5 hover:text-primary font-normal"
+                  >
+                    <span className="truncate">{sub.name}</span>
+                    <ChevronRight className="h-3 w-3 flex-shrink-0 text-transparent group-hover:text-primary transition-colors" />
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <div className="py-8 text-center text-xs text-muted-foreground">
+                Nenhuma subcategoria para {activeCategory?.name || "esta categoria"}.
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function HeaderLayout({
   inputValue,
   setInputValue,
@@ -86,65 +209,15 @@ function HeaderLayout({
                     onClick={() => setCategoriesOpen((current) => !current)}
                     className="cursor-pointer flex items-center gap-1 transition-colors duration-200 ease-in-out hover:text-primary/70"
                   >
-                    <span>Categorias</span>
+                    <span className="font-semibold">Categorias</span>
                     <ChevronDown className={cn("h-4 w-4 transition-transform duration-200", categoriesOpen && "rotate-180")} />
                   </button>
 
                   {categoriesOpen && categories.length > 0 && (
-                    <div className="absolute left-0 top-full z-20 mt-3 w-64 rounded-xl border border-border/60 bg-white p-2 shadow-lg">
-                      <Link
-                        href="/products-all"
-                        onClick={() => setCategoriesOpen(false)}
-                        className="mb-1 block rounded-lg px-3 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary/5 hover:text-primary/80"
-                      >
-                        Todas as categorias
-                      </Link>
-
-                      {(() => {
-                        const rootCategories = categories.filter((c) => !c.parentId);
-                        const childCategories = categories.filter((c) => !!c.parentId);
-
-                        return rootCategories.map((category) => {
-                          const children =
-                            category.subcategories && category.subcategories.length > 0
-                              ? category.subcategories
-                              : childCategories.filter((c) => c.parentId === category.id);
-                          const hasChildren = children.length > 0;
-
-                          return (
-                            <div key={category.id} className="relative group">
-                              <Link
-                                href={`/products-all?categoryIds=${category.id}`}
-                                onClick={() => setCategoriesOpen(false)}
-                                className="flex items-center justify-between rounded-lg px-3 py-2 text-sm text-primary transition-colors hover:bg-primary/5 hover:text-primary/80"
-                              >
-                                <span>{category.name}</span>
-                                {hasChildren && (
-                                  <ChevronRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary" />
-                                )}
-                              </Link>
-
-                              {hasChildren && (
-                                <div className="absolute left-full top-0 ml-1.5 hidden group-hover:block w-56 rounded-xl border border-border/60 bg-white p-2 shadow-xl z-30">
-                                  <div className="max-h-72 overflow-y-auto space-y-1">
-                                    {children.map((sub) => (
-                                      <Link
-                                        key={sub.id}
-                                        href={`/products-all?categoryIds=${sub.id}`}
-                                        onClick={() => setCategoriesOpen(false)}
-                                        className="block rounded-lg px-3 py-1.5 text-xs text-primary transition-colors hover:bg-primary/5 hover:text-primary/80"
-                                      >
-                                        {sub.name}
-                                      </Link>
-                                    ))}
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          );
-                        });
-                      })()}
-                    </div>
+                    <DesktopCategoryMegaMenu
+                      categories={categories}
+                      onClose={() => setCategoriesOpen(false)}
+                    />
                   )}
                 </div>
 
