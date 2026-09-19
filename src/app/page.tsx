@@ -3,6 +3,7 @@ import Partners from "@/components/site/Partners";
 import Products from "@/components/site/Products/Products";
 import About from "@/components/site/About";
 import Newsletter from "@/components/site/Newsletter";
+import { CategoriesSection } from "@/components/site/Categories";
 
 
 export default function Home() {
@@ -11,6 +12,7 @@ export default function Home() {
       <div className="relative w-full">
         <Hero />
         <Partners />
+        <CategoriesSection />
         <Products
           limit={12}
           showSeeAllButton={true}

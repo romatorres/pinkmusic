@@ -8,6 +8,7 @@ import Pagination from "../../ui/Pagination";
 import { LoadingState } from "@/components/ui/loading-state";
 import { Carousel, CarouselContent, CarouselItem } from "../../ui/carousel";
 import type { Product } from "@/lib/types";
+import { PageContainer } from "@/components/ui/Page-container";
 
 interface ApiResponse {
   success: boolean;
@@ -202,54 +203,63 @@ const Products: React.FC<ProductsProps> = ({
   );
 
   return (
-    <div className="w-full px-2">
-      {loading && (
-        <LoadingState label="Carregando produtos..." className="min-h-[220px]" />
-      )}
-
-      {!loading && !hasProducts && (
-        <div className="text-center text-gray-500 py-16">
-          <h3 className="text-xl font-semibold">Nenhum produto encontrado</h3>
-          <p className="mt-2">
-            Tente ajustar seus filtros ou pesquisar por outro termo.
-          </p>
+    <div className="w-full px-2 py-12 md:py-20">
+      <PageContainer>
+        <div className="mb-8 flex items-center gap-4 sm:gap-6">
+          <span aria-hidden className="h-px flex-1 bg-foreground opacity-50" />
+          <h2 className="text-3xl text-primary font-tanker uppercase leading-none tracking-wide sm:text-4xl">
+            Mais Visitados
+          </h2>
+          <span aria-hidden className="h-px flex-1 bg-foreground opacity-50" />
         </div>
-      )}
+        {loading && (
+          <LoadingState label="Carregando produtos..." className="min-h-[220px]" />
+        )}
 
-      {error && !loading && (
-        <div className="text-center text-red-500 py-16">
-          <h3 className="text-xl font-semibold">Ocorreu um erro</h3>
-          <p className="mt-2">{error}</p>
-        </div>
-      )}
+        {!loading && !hasProducts && (
+          <div className="text-center text-gray-500 py-16">
+            <h3 className="text-xl font-semibold">Nenhum produto encontrado</h3>
+            <p className="mt-2">
+              Tente ajustar seus filtros ou pesquisar por outro termo.
+            </p>
+          </div>
+        )}
 
-      {hasProducts && (
-        <>
-          {forceGridOnMobile ? renderGrid() : renderHybrid()}
+        {error && !loading && (
+          <div className="text-center text-red-500 py-16">
+            <h3 className="text-xl font-semibold">Ocorreu um erro</h3>
+            <p className="mt-2">{error}</p>
+          </div>
+        )}
 
-          {showPagination && totalPages > 1 && !randomizeProducts && (
-            <div className="mt-12 flex justify-center">
-              <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={setCurrentPage}
-              />
-            </div>
-          )}
-        </>
-      )}
+        {hasProducts && (
+          <>
+            {forceGridOnMobile ? renderGrid() : renderHybrid()}
 
-      {showSeeAllButton && (
-        <div className="my-12 mx-2 flex justify-center">
-          <Link
-            href="/products-all"
-            className="w-full sm:w-auto border-[1px] border-primary/70 text-primary/70 py-3 px-6 rounded-full hover:bg-primary/10 flex items-center justify-center gap-2 font-semibold text-sm transition-colors"
-          >
-            <span>Todos os Produtos</span>
-            <ArrowRight size={20} />
-          </Link>
-        </div>
-      )}
+            {showPagination && totalPages > 1 && !randomizeProducts && (
+              <div className="mt-12 flex justify-center">
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={setCurrentPage}
+                />
+              </div>
+            )}
+          </>
+        )}
+
+        {showSeeAllButton && (
+          <div className="mt-12 mx-2 flex justify-center">
+            <Link
+              href="/products-all"
+              className="w-full sm:w-auto border-[1px] border-primary/70 text-primary/70 py-3 px-6 rounded-full hover:bg-primary/10 flex items-center justify-center gap-2 font-semibold text-sm transition-colors"
+            >
+              <span>Todos os Produtos</span>
+              <ArrowRight size={20} />
+            </Link>
+          </div>
+        )}
+      </PageContainer>
     </div>
   );
 };
