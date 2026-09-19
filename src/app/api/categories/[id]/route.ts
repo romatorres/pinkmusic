@@ -39,10 +39,13 @@ export async function PUT(
         subcategories: true,
       },
     });
-    return NextResponse.json(category);
+    return NextResponse.json({ success: true, data: category });
   } catch (error) {
-    console.error("Error editing categorie:", error);
-    return new NextResponse("Internal Server Error", { status: 500 });
+    console.error("Error updating category:", error);
+    return NextResponse.json(
+      { success: false, error: error instanceof Error ? error.message : "Erro interno do servidor" },
+      { status: 500 }
+    );
   }
 }
 

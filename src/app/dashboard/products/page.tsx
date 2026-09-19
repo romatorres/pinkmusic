@@ -7,7 +7,7 @@ import React, {
   useMemo,
   Suspense,
 } from "react";
-import { Eye, Trash2, Edit } from "lucide-react";
+import { Eye, Trash2, Edit, PackagePlus } from "lucide-react";
 import Link from "next/link";
 import {
   Table,
@@ -45,6 +45,7 @@ import { useSearchParams } from "next/navigation";
 import CategoryFilter from "@/components/site/_components/CategoryFilter";
 import BrandFilter from "@/components/site/_components/BrandFilter";
 import ProductForm from "./_components/ProductForm";
+import { ProductFormModal } from "./_components/ProductFormModal";
 import { Category, Brand } from "@/lib/types";
 
 interface Product {
@@ -65,6 +66,7 @@ function ProductsPageContent() {
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [selectedBrand, setSelectedBrand] = useState<string>("");
   const [productToDelete, setProductToDelete] = useState<string | null>(null);
+  const [productFormOpen, setProductFormOpen] = useState(false);
   const searchParams = useSearchParams();
   const [searchInput, setSearchInput] = useState(
     searchParams.get("search") || ""
@@ -217,15 +219,15 @@ function ProductsPageContent() {
 
   return (
     <div className="md:pt-8 pt-12">
-      <h1 className="md:text-3xl text-2xl font-bold mb-6">
-        Gerenciar Produtos
-      </h1>
-
-      <ProductForm
-        categories={categories}
-        brands={brands}
-        onProductAdded={handleProductAdded}
-      />
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="md:text-3xl text-2xl font-bold">
+          Gerenciar Produtos
+        </h1>
+        <Button onClick={() => setProductFormOpen(true)} className="flex items-center gap-2">
+          <PackagePlus className="h-4 w-4" />
+          Adicionar Produto
+        </Button>
+      </div>
 
       <Card>
         <CardHeader>
@@ -436,6 +438,15 @@ function ProductsPageContent() {
           )}
         </CardContent>
       </Card>
+
+      {/* Modal de adição de produto */}
+      <ProductFormModal
+        open={productFormOpen}
+        onOpenChange={setProductFormOpen}
+        categories={categories}
+        brands={brands}
+        onSuccess={handleProductAdded}
+      />
     </div>
   );
 }
