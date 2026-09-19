@@ -41,7 +41,7 @@ export default function Partners() {
     partners.length > 0 ? Array(5).fill(partners).flat() : [];
 
   return (
-    <div className="py-10">
+    <div className="md:py-8 py-4">
       <PageContainer>
         <section className="self-center my-14 w-full max-w-[1440px] rounded-[36px] bg-white py-4 px-8 lg:px-12 flex flex-col items-center justify-center">
           <div className="w-full overflow-hidden">

@@ -86,11 +86,12 @@ export async function GET(
       );
     }
 
+    // 1. Busca base de dados locais (fonte principal de verdade)
     const productFromDb = await prisma.product.findUnique({
       where: { id: id },
       include: {
         category: true,
-        brand: true, // NOVO: Incluir marca
+        brand: true,
         pictures: true,
       },
     });
@@ -102,29 +103,46 @@ export async function GET(
       );
     }
 
-    const productDetailsFromMl: MercadoLibreProductDetails =
-      await fetchProductDetailsFromMercadoLibre(id);
+    // 2. Tenta enriquecer com dados frescos do Mercado Livre (attributes, disponibilidade)
+    // Se falhar por qualquer motivo (token, rede, rate limit), usa apenas o banco.
+    let mlData: MercadoLibreProductDetails | null = null;
+    try {
+      mlData = await fetchProductDetailsFromMercadoLibre(id);
+    } catch (mlError) {
+      // Log para monitoramento, mas não propaga o erro ao cliente
+      console.warn(
+        `[products/${id}] Não foi possível buscar dados do ML — usando banco como fallback.`,
+        mlError instanceof Error ? mlError.message : mlError
+      );
+    }
 
-    const combinedProduct = {
-      ...productFromDb,
-      ...productDetailsFromMl,
-      permalink: productFromDb.permalink || productDetailsFromMl.permalink,
-      seller_nickname:
-        productDetailsFromMl.seller?.nickname || productFromDb.seller_nickname,
-    };
+    // 3. Mescla: dados do banco têm prioridade para campos críticos (preço, permalink)
+    //    Dados da ML enriquecem com attributes e disponibilidade em tempo real
+    const combinedProduct = mlData
+      ? {
+          ...productFromDb,
+          // Campos enriquecidos pela ML (mais frescos)
+          available_quantity: mlData.available_quantity ?? productFromDb.available_quantity,
+          attributes: mlData.attributes ?? [],
+          pictures: mlData.pictures?.length ? mlData.pictures : productFromDb.pictures,
+          // Campos críticos: banco tem prioridade
+          price: productFromDb.price,
+          permalink: productFromDb.permalink || mlData.permalink,
+          seller_nickname: mlData.seller?.nickname || productFromDb.seller_nickname,
+        }
+      : {
+          ...productFromDb,
+          attributes: [],
+        };
 
     return NextResponse.json({ success: true, data: combinedProduct });
   } catch (error) {
     console.error("Erro ao buscar produto por ID:", error);
-    
-    const isMLBuilderError = error instanceof Error && error.message.includes("MercadoLivre");
 
     return NextResponse.json(
       {
         success: false,
-        error: isMLBuilderError 
-          ? "Não foi possível sincronizar os detalhes do produto com o Mercado Livre. Tente novamente em alguns instantes." 
-          : "Erro ao processar a requisição do produto.",
+        error: "Erro ao processar a requisição do produto.",
       },
       { status: 500 }
     );

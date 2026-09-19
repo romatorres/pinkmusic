@@ -14,9 +14,13 @@ export interface Product {
   thumbnail: string;
   condition: string;
   brand: Brand;
+  brandId?: string;
+  category?: Category;
+  categoryId?: string;
   available_quantity: number;
   seller_nickname: string;
   permalink: string;
+  sales?: number;
   pictures: { id: string; url: string; secure_url: string }[];
   attributes?: { id: string; name: string; value_name: string }[];
 }

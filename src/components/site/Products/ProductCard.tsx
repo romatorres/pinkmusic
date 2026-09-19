@@ -35,10 +35,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   };
 
   return (
-    <div
-      key={product.id}
-      className="w-full max-w-xs sm:max-w-sm md:max-w-[300px]"
-    >
+    <div className="w-full max-w-xs sm:max-w-sm md:max-w-[300px]">
       <div
         onClick={handleCardClick}
         className="bg-card rounded-3xl shadow-sm overflow-hidden flex flex-col min-h-[460px] sm:min-h-[480px] transition-transform duration-300 ease-in-out hover:translate-y-[-5px] cursor-pointer"

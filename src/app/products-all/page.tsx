@@ -165,10 +165,11 @@ function ProductAllClientContent() {
     router.push("/products-all");
   };
 
+  // Limite máximo deve bater com o max={50000} do FilterSidebar
   const activeFilterCount =
     selectedCategories.length +
     selectedBrands.length +
-    (priceRange[0] > 0 || priceRange[1] < 10000 ? 1 : 0);
+    (priceRange[0] > 0 || priceRange[1] < 50000 ? 1 : 0);
   const hasActiveFilters = activeFilterCount > 0;
 
   return (
@@ -247,8 +248,10 @@ function ProductAllClientContent() {
               key={searchParams.toString()} // Force re-render on search param change
               limit={12}
               showPagination={true}
-              showSeeAllButton={false} // Exclude redundant "All Products" button
-              forceGridOnMobile={true} // Use grid on mobile for this page
+              showSeeAllButton={false}
+              title={null} // Oculta o título "Mais Visitados" nesta página
+              isSection={false} // Remove padding vertical excessivo e PageContainer duplicado
+              forceGridOnMobile={true}
               searchQuery={searchTerm}
               categoryIds={selectedCategories}
               brandIds={selectedBrands}

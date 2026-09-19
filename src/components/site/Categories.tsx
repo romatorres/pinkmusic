@@ -147,7 +147,8 @@ export function CategoriesSection() {
           {categories.map((category) => (
             <li key={category.slug} className="w-36 shrink-0 snap-start lg:w-auto">
               <Link
-                href={`/categorias/${category.slug}`}
+                // href={`/categorias/${category.slug}`}
+                href="#"
                 className="group flex flex-col items-center gap-3 focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-(color:--secondary)"
               >
                 <span className="flex aspect-[4/5] w-full items-center justify-center bg-[var(--primary)] p-[22%] text-[var(--background)] transition-colors duration-200 group-hover:bg-[var(--foreground)] group-hover:text-[var(--tertiary)] group-focus-visible:bg-[var(--foreground)] group-focus-visible:text-[var(--tertiary)]">

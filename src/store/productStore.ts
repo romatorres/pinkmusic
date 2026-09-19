@@ -6,6 +6,7 @@ interface ProductState {
   setProducts: (products: Product[]) => void;
   updateProduct: (updatedProduct: Product) => void;
   getProductById: (id: string) => Product | undefined;
+  resetProducts: () => void;
 }
 
 export const useProductStore = create<ProductState>((set, get) => ({

@@ -15,7 +15,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { Brand, Category } from "@prisma/client";
+import { Brand, Category } from "@/lib/types";
 
 interface FilterSidebarProps {
   categories: Category[];
