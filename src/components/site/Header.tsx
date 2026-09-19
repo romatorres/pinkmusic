@@ -8,7 +8,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { ChevronDown, MenuIcon, ShoppingCart, User } from "lucide-react";
+import { ChevronDown, ChevronRight, MenuIcon, ShoppingCart, User } from "lucide-react";
 import { PageContainer } from "../ui/Page-container";
 import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -100,16 +100,50 @@ function HeaderLayout({
                         Todas as categorias
                       </Link>
 
-                      {categories.map((category) => (
-                        <Link
-                          key={category.id}
-                          href={`/products-all?categoryIds=${category.id}`}
-                          onClick={() => setCategoriesOpen(false)}
-                          className="block rounded-lg px-3 py-2 text-sm text-primary transition-colors hover:bg-primary/5 hover:text-primary/80"
-                        >
-                          {category.name}
-                        </Link>
-                      ))}
+                      {(() => {
+                        const rootCategories = categories.filter((c) => !c.parentId);
+                        const childCategories = categories.filter((c) => !!c.parentId);
+
+                        return rootCategories.map((category) => {
+                          const children =
+                            category.subcategories && category.subcategories.length > 0
+                              ? category.subcategories
+                              : childCategories.filter((c) => c.parentId === category.id);
+                          const hasChildren = children.length > 0;
+
+                          return (
+                            <div key={category.id} className="relative group">
+                              <Link
+                                href={`/products-all?categoryIds=${category.id}`}
+                                onClick={() => setCategoriesOpen(false)}
+                                className="flex items-center justify-between rounded-lg px-3 py-2 text-sm text-primary transition-colors hover:bg-primary/5 hover:text-primary/80"
+                              >
+                                <span>{category.name}</span>
+                                {hasChildren && (
+                                  <ChevronRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary" />
+                                )}
+                              </Link>
+
+                              {hasChildren && (
+                                <div className="absolute left-full top-0 ml-1.5 hidden group-hover:block w-56 rounded-xl border border-border/60 bg-white p-2 shadow-xl z-30">
+                                  <div className="max-h-72 overflow-y-auto space-y-1">
+                                    {children.map((sub) => (
+                                      <Link
+                                        key={sub.id}
+                                        href={`/products-all?categoryIds=${sub.id}`}
+                                        onClick={() => setCategoriesOpen(false)}
+                                        className="block rounded-lg px-3 py-1.5 text-xs text-primary transition-colors hover:bg-primary/5 hover:text-primary/80"
+                                      >
+                                        {sub.name}
+                                      </Link>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        });
+                      })()}
                     </div>
                   )}
                 </div>
@@ -162,16 +196,56 @@ function HeaderLayout({
                         Categorias
                       </p>
                       {categories.length > 0 ? (
-                        categories.map((category) => (
-                          <SheetClose asChild key={category.id}>
-                            <Link
-                              href={`/products-all?categoryIds=${category.id}`}
-                              className="block py-1 text-sm hover:text-secondary"
-                            >
-                              {category.name}
-                            </Link>
-                          </SheetClose>
-                        ))
+                        (() => {
+                          const rootCategories = categories.filter((c) => !c.parentId);
+                          const childCategories = categories.filter((c) => !!c.parentId);
+
+                          return (
+                            <div className="space-y-2 max-h-[60vh] overflow-y-auto pr-2">
+                              <SheetClose asChild>
+                                <Link
+                                  href="/products-all"
+                                  className="block py-1 text-sm font-semibold text-primary hover:text-secondary"
+                                >
+                                  Ver todas as categorias
+                                </Link>
+                              </SheetClose>
+                              {rootCategories.map((category) => {
+                                const children =
+                                  category.subcategories && category.subcategories.length > 0
+                                    ? category.subcategories
+                                    : childCategories.filter((c) => c.parentId === category.id);
+
+                                return (
+                                  <div key={category.id} className="space-y-1">
+                                    <SheetClose asChild>
+                                      <Link
+                                        href={`/products-all?categoryIds=${category.id}`}
+                                        className="block py-1 text-sm font-medium text-foreground hover:text-secondary"
+                                      >
+                                        {category.name}
+                                      </Link>
+                                    </SheetClose>
+                                    {children.length > 0 && (
+                                      <div className="pl-3 space-y-1 border-l border-border/40 ml-1">
+                                        {children.map((sub) => (
+                                          <SheetClose asChild key={sub.id}>
+                                            <Link
+                                              href={`/products-all?categoryIds=${sub.id}`}
+                                              className="block py-0.5 text-xs text-muted-foreground hover:text-secondary"
+                                            >
+                                              {sub.name}
+                                            </Link>
+                                          </SheetClose>
+                                        ))}
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          );
+                        })()
                       ) : (
                         <SheetClose asChild>
                           <Link href="/products-all" className="block py-1 text-sm hover:text-secondary">

@@ -9,6 +9,18 @@ export async function GET() {
         name: "asc",
       },
       include: {
+        subcategories: {
+          orderBy: {
+            name: "asc",
+          },
+        },
+        parent: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          },
+        },
         products: {
           select: {
             brandId: true,
@@ -38,9 +50,28 @@ export async function POST(request: NextRequest) {
       return authResult.response;
     }
 
-    const { name } = await request.json();
+    const { name, parentId, slug } = await request.json();
+    
+    // Gerar slug caso não seja fornecido
+    const categorySlug =
+      slug ||
+      name
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+
     const category = await prisma.category.create({
-      data: { name },
+      data: {
+        name,
+        slug: categorySlug,
+        parentId: parentId && parentId.trim() !== "" ? parentId : null,
+      },
+      include: {
+        parent: true,
+        subcategories: true,
+      },
     });
     return NextResponse.json(category);
   } catch (error) {

@@ -33,11 +33,16 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({
       </SelectTrigger>
       <SelectContent>
         <SelectItem value="all">Buscar por Categorias</SelectItem>
-        {categories.map((category) => (
-          <SelectItem key={category.id} value={category.id}>
-            {category.name}
-          </SelectItem>
-        ))}
+        {categories.map((category) => {
+          const parent = category.parentId
+            ? categories.find((c) => c.id === category.parentId)
+            : null;
+          return (
+            <SelectItem key={category.id} value={category.id}>
+              {parent ? `${parent.name} → ${category.name}` : category.name}
+            </SelectItem>
+          );
+        })}
       </SelectContent>
     </Select>
   );

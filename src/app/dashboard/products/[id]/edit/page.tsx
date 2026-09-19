@@ -190,11 +190,16 @@ export default function EditProductPage() {
                 className="w-full p-2 border border-foreground rounded"
               >
                 <option value="">Selecione uma categoria</option>
-                {categories.map((category) => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
-                  </option>
-                ))}
+                {categories.map((category) => {
+                  const parent = category.parentId
+                    ? categories.find((c) => c.id === category.parentId)
+                    : null;
+                  return (
+                    <option key={category.id} value={category.id}>
+                      {parent ? `${parent.name} > ${category.name}` : category.name}
+                    </option>
+                  );
+                })}
               </select>
             </div>
             <div>

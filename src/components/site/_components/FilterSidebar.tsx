@@ -43,6 +43,15 @@ export default function FilterSidebar({
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [brandOpen, setBrandOpen] = useState(true);
   const [priceOpen, setPriceOpen] = useState(true);
+  const [expandedParents, setExpandedParents] = useState<Record<string, boolean>>({});
+
+  const toggleParentExpand = (parentId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setExpandedParents((prev) => ({
+      ...prev,
+      [parentId]: !prev[parentId],
+    }));
+  };
 
   const handleCategoryToggle = (categoryId: string) => {
     const newCategories = selectedCategories.includes(categoryId)
@@ -108,30 +117,96 @@ export default function FilterSidebar({
             </div>
           </button>
         </CollapsibleTrigger>
-        <CollapsibleContent className="pt-2 pl-3 space-y-1">
-          {categories.map((category) => (
-            <div
-              key={category.id}
-              className={`flex items-center space-x-3 p-2.5 rounded-lg cursor-pointer transition-all ${
-                selectedCategories.includes(category.id)
-                  ? "bg-primary/10"
-                  : "hover:bg-secondary/10"
-              }`}
-              onClick={() => handleCategoryToggle(category.id)}
-            >
-              <Checkbox
-                id={`category-${category.id}`}
-                checked={selectedCategories.includes(category.id)}
-                onCheckedChange={() => handleCategoryToggle(category.id)}
-              />
-              <Label
-                htmlFor={`category-${category.id}`}
-                className="text-sm font-medium cursor-pointer flex-1"
-              >
-                {category.name}
-              </Label>
-            </div>
-          ))}
+        <CollapsibleContent className="pt-2 pl-1 space-y-2">
+          {(() => {
+            // Separar categorias raiz (principais) e suas filhas
+            const rootCategories = categories.filter((c) => !c.parentId);
+            const childCategories = categories.filter((c) => !!c.parentId);
+
+            return rootCategories.map((category) => {
+              const children =
+                category.subcategories && category.subcategories.length > 0
+                  ? category.subcategories
+                  : childCategories.filter((c) => c.parentId === category.id);
+              const isSelected = selectedCategories.includes(category.id);
+              const hasChildren = children.length > 0;
+              const isExpanded = expandedParents[category.id] ?? false;
+
+              return (
+                <div key={category.id} className="space-y-1">
+                  <div
+                    className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-all ${
+                      isSelected
+                        ? "bg-primary/10"
+                        : "hover:bg-secondary/10"
+                    }`}
+                    onClick={() => handleCategoryToggle(category.id)}
+                  >
+                    <div className="flex items-center space-x-2.5 flex-1 min-w-0">
+                      <Checkbox
+                        id={`category-${category.id}`}
+                        checked={isSelected}
+                        onCheckedChange={() => handleCategoryToggle(category.id)}
+                      />
+                      <Label
+                        htmlFor={`category-${category.id}`}
+                        className="text-sm font-semibold cursor-pointer truncate"
+                      >
+                        {category.name}
+                      </Label>
+                    </div>
+
+                    {hasChildren && (
+                      <button
+                        type="button"
+                        onClick={(e) => toggleParentExpand(category.id, e)}
+                        className="p-1 text-muted-foreground hover:text-foreground rounded-md hover:bg-secondary/20 transition-colors"
+                        title={isExpanded ? "Recolher subcategorias" : "Ver subcategorias"}
+                      >
+                        {isExpanded ? (
+                          <ChevronUp className="h-4 w-4" />
+                        ) : (
+                          <ChevronDown className="h-4 w-4" />
+                        )}
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Subcategorias filhas identadas */}
+                  {hasChildren && isExpanded && (
+                    <div className="pl-6 space-y-1 border-l-2 border-border/40 ml-4 py-1">
+                      {children.map((sub) => {
+                        const isSubSelected = selectedCategories.includes(sub.id);
+                        return (
+                          <div
+                            key={sub.id}
+                            className={`flex items-center space-x-2.5 p-1.5 rounded-md cursor-pointer transition-all ${
+                              isSubSelected
+                                ? "bg-primary/10 text-primary font-medium"
+                                : "hover:bg-secondary/10 text-muted-foreground hover:text-foreground"
+                            }`}
+                            onClick={() => handleCategoryToggle(sub.id)}
+                          >
+                            <Checkbox
+                              id={`category-${sub.id}`}
+                              checked={isSubSelected}
+                              onCheckedChange={() => handleCategoryToggle(sub.id)}
+                            />
+                            <Label
+                              htmlFor={`category-${sub.id}`}
+                              className="text-xs cursor-pointer flex-1"
+                            >
+                              {sub.name}
+                            </Label>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            });
+          })()}
         </CollapsibleContent>
       </Collapsible>
 

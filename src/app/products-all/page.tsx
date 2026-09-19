@@ -73,14 +73,30 @@ function ProductAllClientContent() {
           brandsRes.json(),
           categoriesRes.json(),
         ]);
-        if (brandsData.success) setBrands(brandsData.data);
-        if (categoriesData.success) setCategories(categoriesData.data);
+        if (brandsData.success) {
+          setBrands(brandsData.data);
+        }
+        if (categoriesData.success) {
+          const catList: Category[] = categoriesData.data;
+          setCategories(catList);
+
+          const categorySlug = searchParams.get("categorySlug");
+          if (categorySlug && !searchParams.get("categoryIds")) {
+            const matched = catList.find((c) => c.slug === categorySlug);
+            if (matched) {
+              const params = new URLSearchParams(searchParams);
+              params.delete("categorySlug");
+              params.set("categoryIds", matched.id);
+              router.replace(`/products-all?${params.toString()}`);
+            }
+          }
+        }
       } catch (error) {
         console.error("Failed to fetch filter data:", error);
       }
     };
     fetchFilters();
-  }, []);
+  }, [router, searchParams]);
 
   const filteredBrands = useMemo(() => {
     if (selectedCategories.length === 0) {

@@ -14,6 +14,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Edit, Trash2 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -33,6 +40,7 @@ const categoriesSchema = z.object({
     .string()
     .min(1, { message: "O nome da categoria é obrigatório." })
     .min(3, { message: "A categoria deve ter pelo menos 3 caracteres" }),
+  parentId: z.string().optional(),
 });
 
 type CategoriesFormInputs = z.infer<typeof categoriesSchema>;
@@ -45,10 +53,11 @@ export default function CategoriesPage() {
     resolver: zodResolver(categoriesSchema),
     defaultValues: {
       name: "",
+      parentId: "none",
     },
   });
 
-  useEffect(() => {
+  const loadCategories = () => {
     fetch("/api/categories")
       .then((res) => res.json())
       .then((response: { success: boolean; data: Category[] }) => {
@@ -58,6 +67,10 @@ export default function CategoriesPage() {
           toast.error("Erro ao carregar categorias.");
         }
       });
+  };
+
+  useEffect(() => {
+    loadCategories();
   }, []);
 
   const sortCategories = (categoryList: Category[]) => {
@@ -70,26 +83,20 @@ export default function CategoriesPage() {
       ? `/api/categories/${editingCategory.id}`
       : "/api/categories";
 
+    const payload = {
+      name: data.name,
+      parentId: data.parentId === "none" ? null : data.parentId,
+    };
+
     const res = await fetch(url, {
       method,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
+      body: JSON.stringify(payload),
     });
 
     if (res.ok) {
-      const updatedCategory = await res.json();
-      if (editingCategory) {
-        setCategories(
-          sortCategories(
-            categories.map((c) =>
-              c.id === updatedCategory.id ? updatedCategory : c
-            )
-          )
-        );
-      } else {
-        setCategories(sortCategories([...categories, updatedCategory]));
-      }
-      form.reset();
+      loadCategories();
+      form.reset({ name: "", parentId: "none" });
       setEditingCategory(null);
       toast.success(
         `Categoria ${
@@ -103,11 +110,12 @@ export default function CategoriesPage() {
 
   const handleEdit = (category: Category) => {
     form.setValue("name", category.name);
+    form.setValue("parentId", category.parentId || "none");
     setEditingCategory(category);
   };
 
   const handleCancelEdit = () => {
-    form.reset();
+    form.reset({ name: "", parentId: "none" });
     setEditingCategory(null);
   };
 
@@ -124,6 +132,11 @@ export default function CategoriesPage() {
     }
   };
 
+  // Filtrar apenas categorias principais que podem ser pais (excluindo a categoria sendo editada para evitar ciclo)
+  const availableParents = categories.filter(
+    (c) => !c.parentId && (!editingCategory || c.id !== editingCategory.id)
+  );
+
   return (
     <div className="md:pt-8 pt-12">
       <h1 className="md:text-3xl text-2xl font-bold mb-6">Categorias</h1>
@@ -131,35 +144,70 @@ export default function CategoriesPage() {
         <CardContent className="pt-6">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <div className="flex md:flex-row flex-col gap-4 md:items-end items-start">
-                <div className="w-full">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+                <div>
                   <FormField
                     control={form.control}
                     name="name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Categoria</FormLabel>
+                        <FormLabel>Nome da Categoria</FormLabel>
                         <FormControl>
-                          <Input placeholder="Nova categoria" {...field} />
+                          <Input placeholder="Ex: Guitarras, Cordas, Teclados..." {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
                 </div>
-                <Button type="submit" className="md:w-auto w-full">
-                  {editingCategory ? "Atualizar" : "Adicionar Categoria"}
-                </Button>
+
+                <div>
+                  <FormField
+                    control={form.control}
+                    name="parentId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Categoria Pai (Hierarquia)</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value || "none"}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Selecione a categoria pai" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="none">
+                              Nenhuma (Categoria Principal)
+                            </SelectItem>
+                            {availableParents.map((parent) => (
+                              <SelectItem key={parent.id} value={parent.id}>
+                                {parent.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-3 justify-end pt-2">
                 {editingCategory && (
                   <Button
                     type="button"
                     variant="outline"
                     onClick={handleCancelEdit}
-                    className="md:w-auto w-full"
                   >
                     Cancelar
                   </Button>
                 )}
+                <Button type="submit">
+                  {editingCategory ? "Atualizar Categoria" : "Adicionar Categoria"}
+                </Button>
               </div>
             </form>
           </Form>
@@ -167,38 +215,63 @@ export default function CategoriesPage() {
       </Card>
 
       <Card>
-        <CardContent>
+        <CardContent className="pt-6">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Descrição</TableHead>
+                <TableHead>Nome</TableHead>
+                <TableHead>Tipo</TableHead>
+                <TableHead>Categoria Pai</TableHead>
                 <TableHead className="text-right">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {categories.map((category) => (
-                <TableRow key={category.id}>
-                  <TableCell>{category.name}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <Button
-                        onClick={() => handleEdit(category)}
-                        variant="ghost"
-                        size="icon"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        onClick={() => handleDelete(category.id)}
-                        variant="ghost"
-                        size="icon"
-                      >
-                        <Trash2 className="h-4 w-4 text-red-500" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {sortCategories(categories).map((category) => {
+                const parentCat = categories.find((c) => c.id === category.parentId);
+                const isRoot = !category.parentId;
+
+                return (
+                  <TableRow key={category.id}>
+                    <TableCell className="font-medium">
+                      {category.name}
+                    </TableCell>
+                    <TableCell>
+                      {isRoot ? (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary">
+                          Principal
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-normal bg-secondary/30 text-foreground">
+                          Subcategoria
+                        </span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {parentCat ? parentCat.name : "-"}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <Button
+                          onClick={() => handleEdit(category)}
+                          variant="ghost"
+                          size="icon"
+                          title="Editar"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          onClick={() => handleDelete(category.id)}
+                          variant="ghost"
+                          size="icon"
+                          title="Excluir"
+                        >
+                          <Trash2 className="h-4 w-4 text-red-500" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </CardContent>

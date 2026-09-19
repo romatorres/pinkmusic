@@ -19,7 +19,19 @@ export async function GET(req: Request) {
     const whereClause: Prisma.ProductWhereInput = {};
 
     if (categoryIds && categoryIds.length > 0) {
-      whereClause.categoryId = { in: categoryIds };
+      // Buscar subcategorias se alguma categoria pai foi selecionada
+      const subcategories = await prisma.category.findMany({
+        where: {
+          parentId: { in: categoryIds },
+        },
+        select: { id: true },
+      });
+      const subcategoryIds = subcategories.map((c) => c.id);
+      const allCategoryIds = Array.from(
+        new Set([...categoryIds, ...subcategoryIds])
+      );
+
+      whereClause.categoryId = { in: allCategoryIds };
     }
 
     if (brandIds && brandIds.length > 0) {

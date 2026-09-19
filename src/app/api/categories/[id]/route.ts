@@ -13,10 +13,31 @@ export async function PUT(
       return authResult.response;
     }
 
-    const { name } = await request.json();
+    const { name, parentId, slug } = await request.json();
+    const updateData: { name?: string; parentId?: string | null; slug?: string } = {};
+
+    if (name !== undefined) updateData.name = name;
+    if (parentId !== undefined) {
+      updateData.parentId = parentId && parentId.trim() !== "" ? parentId : null;
+    }
+    if (slug !== undefined) {
+      updateData.slug = slug;
+    } else if (name) {
+      updateData.slug = name
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+    }
+
     const category = await prisma.category.update({
       where: { id: (await params).id },
-      data: { name },
+      data: updateData,
+      include: {
+        parent: true,
+        subcategories: true,
+      },
     });
     return NextResponse.json(category);
   } catch (error) {
