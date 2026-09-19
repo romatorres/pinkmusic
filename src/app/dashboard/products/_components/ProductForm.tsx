@@ -27,9 +27,23 @@ export default function ProductForm({
   onProductAdded,
 }: AddProductFormProps) {
   const [productId, setProductId] = useState("");
-  const [formCategory, setFormCategory] = useState("");
+  const [formMainCategory, setFormMainCategory] = useState("");
+  const [formSubCategory, setFormSubCategory] = useState("");
   const [formBrand, setFormBrand] = useState("");
   const [isAdding, setIsAdding] = useState(false);
+
+  // Categorias Principais (parentId == null)
+  const mainCategories = categories.filter((c) => !c.parentId);
+
+  // Subcategorias filtradas pela Categoria Principal selecionada
+  const availableSubcategories = formMainCategory && formMainCategory !== "none"
+    ? categories.filter((c) => c.parentId === formMainCategory)
+    : [];
+
+  const handleMainCategoryChange = (val: string) => {
+    setFormMainCategory(val);
+    setFormSubCategory(""); // Limpa a subcategoria ao mudar a categoria principal
+  };
 
   const handleAddSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,6 +55,14 @@ export default function ProductForm({
       return;
     }
 
+    // Se houver subcategoria selecionada, usa seu ID; senão usa o da categoria principal
+    const finalCategoryId =
+      formSubCategory && formSubCategory !== "none"
+        ? formSubCategory
+        : formMainCategory && formMainCategory !== "none"
+        ? formMainCategory
+        : null;
+
     try {
       const response = await fetch("/api/products/add", {
         method: "POST",
@@ -49,8 +71,8 @@ export default function ProductForm({
         },
         body: JSON.stringify({
           productId,
-          categoryId: formCategory || null,
-          brandId: formBrand || null,
+          categoryId: finalCategoryId,
+          brandId: formBrand && formBrand !== "none" ? formBrand : null,
         }),
       });
 
@@ -60,7 +82,8 @@ export default function ProductForm({
         toast.success(result.message || "Produto adicionado com sucesso!");
         // Limpar o formulário
         setProductId("");
-        setFormCategory("");
+        setFormMainCategory("");
+        setFormSubCategory("");
         setFormBrand("");
         // Notificar o componente pai
         onProductAdded();
@@ -84,10 +107,10 @@ export default function ProductForm({
       </CardHeader>
       <CardContent>
         <form onSubmit={handleAddSubmit} className="space-y-4">
-          <div className="flex flex-col gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="w-full">
               <Label htmlFor="productId" className="mb-2">
-                ID do Produto do Mercado Livre
+                ID do Produto no Mercado Livre
               </Label>
               <Input
                 id="productId"
@@ -98,17 +121,18 @@ export default function ProductForm({
                 required
               />
             </div>
+
             <div className="w-full">
-              <Label htmlFor="formCategory" className="mb-2">
-                Categoria (Opcional)
+              <Label htmlFor="formMainCategory" className="mb-2">
+                Categoria Principal (Opcional)
               </Label>
-              <Select onValueChange={setFormCategory} value={formCategory}>
-                <SelectTrigger id="formCategory" className="w-full">
-                  <SelectValue placeholder="Selecione uma categoria" />
+              <Select onValueChange={handleMainCategoryChange} value={formMainCategory || "none"}>
+                <SelectTrigger id="formMainCategory" className="w-full">
+                  <SelectValue placeholder="Selecione a categoria principal" />
                 </SelectTrigger>
                 <SelectContent>
-
-                  {categories.map((category) => (
+                  <SelectItem value="none">Nenhuma</SelectItem>
+                  {mainCategories.map((category) => (
                     <SelectItem key={category.id} value={category.id}>
                       {category.name}
                     </SelectItem>
@@ -116,16 +140,48 @@ export default function ProductForm({
                 </SelectContent>
               </Select>
             </div>
+
+            <div className="w-full">
+              <Label htmlFor="formSubCategory" className="mb-2">
+                Subcategoria (Opcional)
+              </Label>
+              <Select
+                onValueChange={setFormSubCategory}
+                value={formSubCategory || "none"}
+                disabled={!formMainCategory || formMainCategory === "none" || availableSubcategories.length === 0}
+              >
+                <SelectTrigger id="formSubCategory" className="w-full">
+                  <SelectValue
+                    placeholder={
+                      !formMainCategory || formMainCategory === "none"
+                        ? "Selecione uma Categoria primeiro"
+                        : availableSubcategories.length === 0
+                        ? "Sem subcategorias cadastradas"
+                        : "Selecione uma subcategoria"
+                    }
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Nenhuma (Usar Categoria Principal)</SelectItem>
+                  {availableSubcategories.map((sub) => (
+                    <SelectItem key={sub.id} value={sub.id}>
+                      {sub.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             <div className="w-full">
               <Label htmlFor="formBrand" className="mb-2">
                 Marca (Opcional)
               </Label>
-              <Select onValueChange={setFormBrand} value={formBrand}>
+              <Select onValueChange={setFormBrand} value={formBrand || "none"}>
                 <SelectTrigger id="formBrand" className="w-full">
                   <SelectValue placeholder="Selecione uma marca" />
                 </SelectTrigger>
                 <SelectContent>
-
+                  <SelectItem value="none">Nenhuma</SelectItem>
                   {brands.map((brand) => (
                     <SelectItem key={brand.id} value={brand.id}>
                       {brand.name}
@@ -147,3 +203,4 @@ export default function ProductForm({
     </Card>
   );
 }
+

@@ -4,7 +4,7 @@ import "./globals.css";
 import { Toaster } from "sonner";
 import LayoutWrapper from "@/components/site/_components/LayoutWrapper";
 import ConditionalWhatsApp from "@/components/whatsapp/ConditionalWhatsApp";
-import { Analytics } from "@vercel/analytics/next";
+import { Analytics } from "@vercel/analytics/react";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 

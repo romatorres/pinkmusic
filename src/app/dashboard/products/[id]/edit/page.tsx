@@ -22,6 +22,8 @@ export default function EditProductPage() {
   const [product, setProduct] = useState<ProductData | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
+  const [selectedMainCategoryId, setSelectedMainCategoryId] = useState<string>("");
+  const [selectedSubcategoryId, setSelectedSubcategoryId] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const params = useParams();
@@ -42,17 +44,39 @@ export default function EditProductPage() {
           const categoriesResult = await categoriesResponse.json();
           const brandsResult = await brandsResponse.json();
 
+          let fetchedCategories: Category[] = [];
+          if (categoriesResult.success) {
+            fetchedCategories = categoriesResult.data;
+            setCategories(fetchedCategories);
+          } else {
+            toast.error("Erro ao buscar categorias.");
+          }
+
           if (productResult.success) {
-            setProduct(productResult.data);
+            const prodData: ProductData = productResult.data;
+            setProduct(prodData);
+
+            // Resolver Categoria Principal e Subcategoria com base nos dados carregados
+            if (prodData.categoryId && fetchedCategories.length > 0) {
+              const currentCategory = fetchedCategories.find(
+                (c) => c.id === prodData.categoryId
+              );
+
+              if (currentCategory) {
+                if (currentCategory.parentId) {
+                  // É uma subcategoria
+                  setSelectedMainCategoryId(currentCategory.parentId);
+                  setSelectedSubcategoryId(currentCategory.id);
+                } else {
+                  // É uma categoria principal
+                  setSelectedMainCategoryId(currentCategory.id);
+                  setSelectedSubcategoryId("");
+                }
+              }
+            }
           } else {
             toast.error(productResult.error || "Produto não encontrado.");
             router.push("/dashboard/products");
-          }
-
-          if (categoriesResult.success) {
-            setCategories(categoriesResult.data);
-          } else {
-            toast.error("Erro ao buscar categorias.");
           }
 
           if (brandsResult.success) {
@@ -87,9 +111,22 @@ export default function EditProductPage() {
     );
   };
 
+  const handleMainCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    setSelectedMainCategoryId(value);
+    setSelectedSubcategoryId(""); // Limpa subcategoria ao trocar de categoria principal
+  };
+
+  const handleSubcategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedSubcategoryId(e.target.value);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!product) return;
+
+    // Categoria final enviada ao backend: subcategoria se selecionada, senão a principal
+    const finalCategoryId = selectedSubcategoryId || selectedMainCategoryId || null;
 
     setLoading(true);
     try {
@@ -98,7 +135,10 @@ export default function EditProductPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(product),
+        body: JSON.stringify({
+          ...product,
+          categoryId: finalCategoryId,
+        }),
       });
 
       const result = await response.json();
@@ -128,6 +168,12 @@ export default function EditProductPage() {
     return <div className="p-8">Produto não encontrado.</div>;
   }
 
+  // Filtrar categorias principais e subcategorias aplicáveis
+  const mainCategories = categories.filter((c) => !c.parentId);
+  const availableSubcategories = selectedMainCategoryId
+    ? categories.filter((c) => c.parentId === selectedMainCategoryId)
+    : [];
+
   return (
     <div className="md:pt-8 pt-12">
       <h1 className="md:text-3xl text-2xl font-bold mb-6">Editar Produto</h1>
@@ -151,57 +197,85 @@ export default function EditProductPage() {
                 required
               />
             </div>
-            <div>
-              <Label htmlFor="price" className="mb-2">
-                Preço
-              </Label>
-              <Input
-                id="price"
-                name="price"
-                type="number"
-                step="0.01"
-                value={product.price}
-                onChange={handleChange}
-                required
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="price" className="mb-2">
+                  Preço
+                </Label>
+                <Input
+                  id="price"
+                  name="price"
+                  type="number"
+                  step="0.01"
+                  value={product.price}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="available_quantity" className="mb-2">
+                  Quantidade Disponível
+                </Label>
+                <Input
+                  id="available_quantity"
+                  name="available_quantity"
+                  type="number"
+                  value={product.available_quantity}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
             </div>
-            <div>
-              <Label htmlFor="available_quantity" className="mb-2">
-                Quantidade Disponível
-              </Label>
-              <Input
-                id="available_quantity"
-                name="available_quantity"
-                type="number"
-                value={product.available_quantity}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="categoryId" className="mb-2">
-                Categoria
-              </Label>
-              <select
-                id="categoryId"
-                name="categoryId"
-                value={product.categoryId || ""}
-                onChange={handleChange}
-                className="w-full p-2 border border-foreground rounded"
-              >
-                <option value="">Selecione uma categoria</option>
-                {categories.map((category) => {
-                  const parent = category.parentId
-                    ? categories.find((c) => c.id === category.parentId)
-                    : null;
-                  return (
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="mainCategoryId" className="mb-2">
+                  Categoria Principal
+                </Label>
+                <select
+                  id="mainCategoryId"
+                  name="mainCategoryId"
+                  value={selectedMainCategoryId}
+                  onChange={handleMainCategoryChange}
+                  className="w-full p-2 border border-input rounded-md bg-background"
+                >
+                  <option value="">Selecione uma categoria principal</option>
+                  {mainCategories.map((category) => (
                     <option key={category.id} value={category.id}>
-                      {parent ? `${parent.name} > ${category.name}` : category.name}
+                      {category.name}
                     </option>
-                  );
-                })}
-              </select>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <Label htmlFor="subcategoryId" className="mb-2">
+                  Subcategoria
+                </Label>
+                <select
+                  id="subcategoryId"
+                  name="subcategoryId"
+                  value={selectedSubcategoryId}
+                  onChange={handleSubcategoryChange}
+                  disabled={!selectedMainCategoryId || availableSubcategories.length === 0}
+                  className="w-full p-2 border border-input rounded-md bg-background disabled:opacity-50"
+                >
+                  <option value="">
+                    {!selectedMainCategoryId
+                      ? "Selecione a Categoria Principal primeiro"
+                      : availableSubcategories.length === 0
+                      ? "Sem subcategorias vinculadas"
+                      : "Nenhuma (Apenas Categoria Principal)"}
+                  </option>
+                  {availableSubcategories.map((sub) => (
+                    <option key={sub.id} value={sub.id}>
+                      {sub.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
+
             <div>
               <Label htmlFor="brandId" className="mb-2">
                 Marca
@@ -211,7 +285,7 @@ export default function EditProductPage() {
                 name="brandId"
                 value={product.brandId || ""}
                 onChange={handleChange}
-                className="w-full p-2 border border-foreground rounded"
+                className="w-full p-2 border border-input rounded-md bg-background"
               >
                 <option value="">Selecione uma marca</option>
                 {brands.map((brand) => (
@@ -221,6 +295,7 @@ export default function EditProductPage() {
                 ))}
               </select>
             </div>
+
             <div className="flex flex-col md:flex-row gap-4 pt-4">
               <Button
                 type="submit"
@@ -245,3 +320,4 @@ export default function EditProductPage() {
     </div>
   );
 }
+
