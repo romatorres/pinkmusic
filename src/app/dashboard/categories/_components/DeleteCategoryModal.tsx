@@ -13,6 +13,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+
 import { Button } from "@/components/ui/button";
 
 interface DeleteCategoryModalProps {
@@ -40,6 +41,7 @@ export function DeleteCategoryModal({
 
   const handleDelete = async () => {
     setIsDeleting(true);
+
     try {
       const res = await fetch(`/api/categories/${category.id}`, {
         method: "DELETE",
@@ -47,8 +49,9 @@ export function DeleteCategoryModal({
 
       if (res.ok) {
         toast.success(
-          `${isSub ? "Subcategoria" : "Categoria"} "${category.name}" excluída com sucesso!`
+          `${isSub ? "Subcategoria" : "Categoria"} "${category.name}" excluída com sucesso!`,
         );
+
         onSuccess();
         onOpenChange(false);
       } else {
@@ -61,34 +64,40 @@ export function DeleteCategoryModal({
 
   return (
     <Dialog open={open} onOpenChange={isDeleting ? undefined : onOpenChange}>
-      <DialogContent className="sm:max-w-md flex flex-col max-h-[90vh]">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <AlertTriangle className="h-5 w-5 text-red-500" />
-            Confirmar Exclusão
+          <DialogTitle className="flex min-w-0 items-center gap-2">
+            <AlertTriangle className="h-5 w-5 shrink-0 text-red-500" />
+
+            <span className="min-w-0">Confirmar Exclusão</span>
           </DialogTitle>
+
           <DialogDescription asChild>
-            <div className="space-y-3 pt-1">
-              <p>
+            <div className="min-w-0 space-y-3 pt-1">
+              <p className="break-words">
                 Você está prestes a excluir{" "}
-                <span className="font-semibold text-foreground">
+                <span className="font-semibold text-foreground break-words">
                   &ldquo;{category.name}&rdquo;
                 </span>
                 . Esta ação não pode ser desfeita.
               </p>
 
               {hasCascade && (
-                <div className="rounded-md border border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950/40 p-3">
+                <div className="min-w-0 rounded-md border border-red-200 bg-red-50 p-3 dark:border-red-900 dark:bg-red-950/40">
                   <p className="text-sm font-medium text-red-700 dark:text-red-400">
                     ⚠️ Atenção: exclusão em cascata
                   </p>
-                  <p className="text-sm text-red-600 dark:text-red-500 mt-1">
+
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-500">
                     Esta categoria possui{" "}
                     <strong>
                       {subcategoryCount}{" "}
-                      {subcategoryCount === 1 ? "subcategoria vinculada" : "subcategorias vinculadas"}
+                      {subcategoryCount === 1
+                        ? "subcategoria vinculada"
+                        : "subcategorias vinculadas"}
                     </strong>
-                    . Ao excluir, todas as subcategorias também serão removidas permanentemente.
+                    . Ao excluir, todas as subcategorias também serão removidas
+                    permanentemente.
                   </p>
                 </div>
               )}
@@ -102,16 +111,23 @@ export function DeleteCategoryModal({
             variant="outline"
             onClick={() => onOpenChange(false)}
             disabled={isDeleting}
+            className="w-full min-w-0"
           >
             Cancelar
           </Button>
+
           <Button
             type="button"
             variant="destructive"
             onClick={handleDelete}
             disabled={isDeleting}
+            className="w-full min-w-0"
           >
-            {isDeleting ? "Excluindo..." : hasCascade ? "Excluir tudo" : "Excluir"}
+            {isDeleting
+              ? "Excluindo..."
+              : hasCascade
+                ? "Excluir tudo"
+                : "Excluir"}
           </Button>
         </DialogFooter>
       </DialogContent>
