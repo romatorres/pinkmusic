@@ -18,6 +18,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
 import Image from "next/image";
+import { Loader2 } from "lucide-react";
 
 const loginSchema = z.object({
   email: z
@@ -42,6 +43,10 @@ export default function LoginPage() {
       password: "",
     },
   });
+
+  const {
+    formState: { isSubmitting },
+  } = form;
 
   const onSubmit = async (data: LoginFormInputs) => {
     try {
@@ -114,8 +119,19 @@ export default function LoginPage() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full mb-6">
-                Entrar
+              <Button
+                type="submit"
+                className="w-full mb-6"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="animate-spin" />
+                    Entrando...
+                  </>
+                ) : (
+                  "Entrar"
+                )}
               </Button>
             </form>
           </Form>

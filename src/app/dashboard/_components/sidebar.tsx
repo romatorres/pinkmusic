@@ -87,7 +87,7 @@ export function Sidebar() {
           // Mobile slide control
           isMobileMenuOpen ? "translate-x-0" : "-translate-x-full",
           // Desktop sempre visível
-          "md:translate-x-0"
+          "md:translate-x-0",
         )}
       >
         {/* Header do Sidebar */}
@@ -217,7 +217,9 @@ export function Sidebar() {
                       <Link
                         href="/dashboard/register"
                         className={`flex items-center space-x-2 p-2 rounded hover:bg-secondary/50 transition ${
-                          pathname === "/dashboard/settings" ? "bg-secondary" : ""
+                          pathname === "/dashboard/settings"
+                            ? "bg-secondary"
+                            : ""
                         }`}
                         onClick={() => isMobile && setIsMobileMenuOpen(false)}
                       >
@@ -247,7 +249,7 @@ export function Sidebar() {
         <div className="p-4 border-t border-foreground">
           <button
             onClick={handleLogout}
-            className="flex items-center space-x-2 text-white hover:text-emerald-200 w-full p-2 rounded hover:bg-secondary/50 transition-colors"
+            className="flex items-center space-x-2 cursor-pointer text-white hover:text-emerald-200 w-full p-2 rounded hover:bg-destructive/50 transition-colors"
           >
             <LogOut size={20} />
             <span>Sair</span>

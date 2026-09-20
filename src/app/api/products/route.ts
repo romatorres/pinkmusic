@@ -72,7 +72,11 @@ export async function GET(req: Request) {
         orderBy,
         include: {
           pictures: true,
-          category: true,
+          category: {
+            include: {
+              parent: true,
+            },
+          },
           brand: true,
         },
       }),

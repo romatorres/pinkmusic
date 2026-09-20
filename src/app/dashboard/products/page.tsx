@@ -44,7 +44,6 @@ import { useSearchParams } from "next/navigation";
 
 import CategoryFilter from "@/components/site/_components/CategoryFilter";
 import BrandFilter from "@/components/site/_components/BrandFilter";
-import ProductForm from "./_components/ProductForm";
 import { ProductFormModal } from "./_components/ProductFormModal";
 import { Category, Brand } from "@/lib/types";
 
@@ -69,10 +68,10 @@ function ProductsPageContent() {
   const [productFormOpen, setProductFormOpen] = useState(false);
   const searchParams = useSearchParams();
   const [searchInput, setSearchInput] = useState(
-    searchParams.get("search") || ""
+    searchParams.get("search") || "",
   );
   const [searchTerm, setSearchTerm] = useState(
-    searchParams.get("search") || ""
+    searchParams.get("search") || "",
   );
 
   // Estados para paginação
@@ -131,7 +130,7 @@ function ProductsPageContent() {
       ...new Set(brand.products.map((p) => p.categoryId).filter(Boolean)),
     ];
     return categories.filter((category) =>
-      categoryIdsForBrand.includes(category.id)
+      categoryIdsForBrand.includes(category.id),
     );
   }, [selectedBrand, brands, categories]);
 
@@ -140,7 +139,7 @@ function ProductsPageContent() {
       page: number,
       categoryId?: string,
       brandId?: string,
-      search?: string
+      search?: string,
     ) => {
       setLoading(true);
       try {
@@ -173,7 +172,7 @@ function ProductsPageContent() {
         setLoading(false);
       }
     },
-    [limit]
+    [limit],
   );
 
   // Efeito para buscar produtos quando a página, filtros, busca ou limite mudar
@@ -220,10 +219,11 @@ function ProductsPageContent() {
   return (
     <div className="md:pt-8 pt-12">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="md:text-3xl text-2xl font-bold">
-          Gerenciar Produtos
-        </h1>
-        <Button onClick={() => setProductFormOpen(true)} className="flex items-center gap-2">
+        <h1 className="md:text-3xl text-2xl font-bold">Gerenciar Produtos</h1>
+        <Button
+          onClick={() => setProductFormOpen(true)}
+          className="flex items-center gap-2"
+        >
           <PackagePlus className="h-4 w-4" />
           Adicionar Produto
         </Button>
@@ -296,7 +296,10 @@ function ProductsPageContent() {
         </CardHeader>
         <CardContent>
           {loading ? (
-            <LoadingState label="Carregando produtos..." className="min-h-[220px]" />
+            <LoadingState
+              label="Carregando produtos..."
+              className="min-h-[220px]"
+            />
           ) : (
             <>
               <div className="overflow-x-auto">
@@ -310,6 +313,9 @@ function ProductsPageContent() {
                         Quantidade
                       </TableHead>
                       <TableHead className="min-w-[150px]">Categoria</TableHead>
+                      <TableHead className="min-w-[150px]">
+                        Subcategoria
+                      </TableHead>
                       <TableHead className="min-w-[150px]">Marca</TableHead>
                       <TableHead className="min-w-[120px] text-right">
                         Ações
@@ -342,9 +348,29 @@ function ProductsPageContent() {
                         <TableCell>
                           <div
                             className="max-w-[150px] truncate"
-                            title={product.category?.name || "N/A"}
+                            title={
+                              product.category?.parent?.name ||
+                              product.category?.name ||
+                              "N/A"
+                            }
                           >
-                            {product.category ? product.category.name : "N/A"}
+                            {product.category?.parent?.name ||
+                              product.category?.name ||
+                              "N/A"}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div
+                            className="max-w-[150px] truncate"
+                            title={
+                              product.category?.parent
+                                ? product.category.name
+                                : "—"
+                            }
+                          >
+                            {product.category?.parent
+                              ? product.category.name
+                              : "—"}
                           </div>
                         </TableCell>
                         <TableCell>
