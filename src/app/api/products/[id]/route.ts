@@ -103,7 +103,18 @@ export async function GET(
       );
     }
 
-    // 2. Tenta enriquecer com dados frescos do Mercado Livre (attributes, disponibilidade)
+    // 2. Se for produto LOCAL, usa exclusivamente os dados locais do banco sem bater no Mercado Livre
+    if (productFromDb.origin === "LOCAL") {
+      return NextResponse.json({
+        success: true,
+        data: {
+          ...productFromDb,
+          attributes: [],
+        },
+      });
+    }
+
+    // 3. Para produtos do Mercado Livre, tenta enriquecer com dados frescos (attributes, disponibilidade)
     // Se falhar por qualquer motivo (token, rede, rate limit), usa apenas o banco.
     let mlData: MercadoLibreProductDetails | null = null;
     try {
@@ -116,7 +127,7 @@ export async function GET(
       );
     }
 
-    // 3. Mescla: dados do banco têm prioridade para campos críticos (preço, permalink)
+    // 4. Mescla: dados do banco têm prioridade para campos críticos (preço, permalink)
     //    Dados da ML enriquecem com attributes e disponibilidade em tempo real
     const combinedProduct = mlData
       ? {
@@ -174,6 +185,9 @@ export async function PUT(
       "permalink",
       "categoryId",
       "brandId", // NOVO: Permitir atualizar marca
+      "description",
+      "isLocalPickup",
+      "origin",
     ];
 
     const filteredData = Object.keys(rawData)

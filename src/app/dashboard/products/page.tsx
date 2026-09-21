@@ -7,7 +7,7 @@ import React, {
   useMemo,
   Suspense,
 } from "react";
-import { Eye, Trash2, Edit, PackagePlus } from "lucide-react";
+import { Eye, Trash2, Edit, PackagePlus, Store, ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import {
   Table,
@@ -45,7 +45,8 @@ import { useSearchParams } from "next/navigation";
 import CategoryFilter from "@/components/site/_components/CategoryFilter";
 import BrandFilter from "@/components/site/_components/BrandFilter";
 import { ProductFormModal } from "./_components/ProductFormModal";
-import { Category, Brand } from "@/lib/types";
+import { LocalProductModal } from "./_components/LocalProductModal";
+import { Category, Brand, ProductOrigin } from "@/lib/types";
 
 interface Product {
   id: string;
@@ -53,6 +54,7 @@ interface Product {
   price: number;
   available_quantity: number;
   condition: string;
+  origin?: ProductOrigin;
   categoryId?: string;
   category?: Category;
   brandId?: string;
@@ -64,8 +66,10 @@ function ProductsPageContent() {
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [selectedBrand, setSelectedBrand] = useState<string>("");
+  const [selectedOrigin, setSelectedOrigin] = useState<string>("all");
   const [productToDelete, setProductToDelete] = useState<string | null>(null);
   const [productFormOpen, setProductFormOpen] = useState(false);
+  const [localProductModalOpen, setLocalProductModalOpen] = useState(false);
   const searchParams = useSearchParams();
   const [searchInput, setSearchInput] = useState(
     searchParams.get("search") || "",
@@ -140,6 +144,7 @@ function ProductsPageContent() {
       categoryId?: string,
       brandId?: string,
       search?: string,
+      origin?: string,
     ) => {
       setLoading(true);
       try {
@@ -155,6 +160,9 @@ function ProductsPageContent() {
         }
         if (search) {
           params.append("search", search);
+        }
+        if (origin && origin !== "all") {
+          params.append("origin", origin);
         }
 
         const response = await fetch(`/api/products?${params.toString()}`);
@@ -175,13 +183,14 @@ function ProductsPageContent() {
     [limit],
   );
 
-  // Efeito para buscar produtos quando a página, filtros, busca ou limite mudar
+  // Efeito para buscar produtos quando a página, filtros, busca, origem ou limite mudar
   useEffect(() => {
-    fetchProducts(currentPage, selectedCategory, selectedBrand, searchTerm);
+    fetchProducts(currentPage, selectedCategory, selectedBrand, searchTerm, selectedOrigin);
   }, [
     currentPage,
     selectedCategory,
     selectedBrand,
+    selectedOrigin,
     limit,
     searchTerm,
     fetchProducts,
@@ -190,10 +199,10 @@ function ProductsPageContent() {
   // Efeito para resetar a página para 1 quando os filtros mudarem
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedCategory, selectedBrand, searchTerm]);
+  }, [selectedCategory, selectedBrand, selectedOrigin, searchTerm]);
 
   const handleProductAdded = () => {
-    fetchProducts(currentPage, selectedCategory, selectedBrand, searchTerm);
+    fetchProducts(currentPage, selectedCategory, selectedBrand, searchTerm, selectedOrigin);
   };
 
   const handleDeleteProduct = async (productId: string) => {
@@ -218,15 +227,25 @@ function ProductsPageContent() {
 
   return (
     <div className="md:pt-8 pt-12">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <h1 className="md:text-3xl text-2xl font-bold">Gerenciar Produtos</h1>
-        <Button
-          onClick={() => setProductFormOpen(true)}
-          className="flex items-center gap-2"
-        >
-          <PackagePlus className="h-4 w-4" />
-          Adicionar Produto
-        </Button>
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          <Button
+            onClick={() => setLocalProductModalOpen(true)}
+            className="flex-1 sm:flex-initial flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium"
+          >
+            <Store className="h-4 w-4" />
+            Novo Produto Local
+          </Button>
+          <Button
+            onClick={() => setProductFormOpen(true)}
+            variant="outline"
+            className="flex-1 sm:flex-initial flex items-center gap-2"
+          >
+            <ShoppingCart className="h-4 w-4 text-amber-500" />
+            Importar do ML
+          </Button>
+        </div>
       </div>
 
       <Card>
@@ -264,6 +283,32 @@ function ProductsPageContent() {
                   brands={brandsForFilter}
                   className="w-full"
                 />
+              </div>
+
+              {/* Filtro de Origem / Canal */}
+              <div className="flex flex-col lg:flex-row gap-2 w-full">
+                <Label
+                  htmlFor="origin-select"
+                  className="text-start whitespace-nowrap"
+                >
+                  Origem do Produto:
+                </Label>
+                <Select
+                  value={selectedOrigin}
+                  onValueChange={(newValue) => {
+                    setSelectedOrigin(newValue);
+                    setCurrentPage(1);
+                  }}
+                >
+                  <SelectTrigger id="origin-select">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos os produtos</SelectItem>
+                    <SelectItem value="LOCAL">🟢 Estoque Local / Balcão</SelectItem>
+                    <SelectItem value="MERCADO_LIVRE">🟡 Mercado Livre</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               {/* Itens por página */}
@@ -308,6 +353,7 @@ function ProductsPageContent() {
                     <TableRow>
                       <TableHead className="min-w-[120px]">ID</TableHead>
                       <TableHead className="min-w-[200px]">Título</TableHead>
+                      <TableHead className="min-w-[120px]">Origem</TableHead>
                       <TableHead className="min-w-[120px]">Preço</TableHead>
                       <TableHead className="min-w-[100px]">
                         Quantidade
@@ -335,6 +381,19 @@ function ProductsPageContent() {
                           >
                             {product.title}
                           </div>
+                        </TableCell>
+                        <TableCell>
+                          {product.origin === "LOCAL" ? (
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
+                              <Store className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />
+                              Local
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
+                              <ShoppingCart className="h-3 w-3 text-amber-600 dark:text-amber-400" />
+                              Mercado Livre
+                            </span>
+                          )}
                         </TableCell>
                         <TableCell className="font-semibold">
                           {new Intl.NumberFormat("pt-BR", {
@@ -465,10 +524,19 @@ function ProductsPageContent() {
         </CardContent>
       </Card>
 
-      {/* Modal de adição de produto */}
+      {/* Modal de adição de produto ML */}
       <ProductFormModal
         open={productFormOpen}
         onOpenChange={setProductFormOpen}
+        categories={categories}
+        brands={brands}
+        onSuccess={handleProductAdded}
+      />
+
+      {/* Modal de cadastro de produto local */}
+      <LocalProductModal
+        open={localProductModalOpen}
+        onOpenChange={setLocalProductModalOpen}
         categories={categories}
         brands={brands}
         onSuccess={handleProductAdded}

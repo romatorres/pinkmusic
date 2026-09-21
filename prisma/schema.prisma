@@ -28,16 +28,24 @@ model Partner {
   updatedAt DateTime @updatedAt
 }
 
+enum ProductOrigin {
+  MERCADO_LIVRE
+  LOCAL
+}
+
 model Product {
-  id                 String    @id @default(cuid())
+  id                 String        @id @default(cuid())
   title              String
   price              Float
-  currency_id        String
+  currency_id        String        @default("BRL")
   thumbnail          String
-  condition          String
-  available_quantity Int
-  seller_nickname    String
-  permalink          String    @unique
+  condition          String        @default("new")
+  available_quantity Int           @default(0)
+  seller_nickname    String        @default("Pink Music")
+  permalink          String?       @unique
+  origin             ProductOrigin @default(MERCADO_LIVRE)
+  description        String?
+  isLocalPickup      Boolean       @default(true)
   pictures           Picture[]
   
   // NOVO: Relação com Marca
@@ -57,6 +65,7 @@ model Product {
   updatedAt          DateTime  @updatedAt
   
   // NOVO: Índices para otimizar consultas
+  @@index([origin])
   @@index([brandId])
   @@index([categoryId])
   @@index([views])

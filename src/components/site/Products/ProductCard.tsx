@@ -31,14 +31,20 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   // Handler para o botão de compra
   const handleBuyClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation(); // Impede que o clique suba para o card
-    window.open(product.permalink, "_blank", "noopener,noreferrer");
+    if (product.origin === "LOCAL" || !product.permalink) {
+      router.push(`/products/${product.id}`);
+    } else {
+      window.open(product.permalink, "_blank", "noopener,noreferrer");
+    }
   };
+
+  const isLocal = product.origin === "LOCAL";
 
   return (
     <div className="w-full max-w-xs sm:max-w-sm md:max-w-[300px]">
       <div
         onClick={handleCardClick}
-        className="bg-card rounded-3xl shadow-sm overflow-hidden flex flex-col min-h-[460px] sm:min-h-[480px] transition-transform duration-300 ease-in-out hover:translate-y-[-5px] cursor-pointer"
+        className="bg-card rounded-3xl shadow-sm overflow-hidden flex flex-col min-h-[460px] sm:min-h-[480px] transition-transform duration-300 ease-in-out hover:translate-y-[-5px] cursor-pointer relative"
       >
         {/* Container da imagem com efeito de borda responsivo */}
         <div className="relative flex min-h-[220px] sm:min-h-[260px] w-full flex-col justify-center p-2">
@@ -57,6 +63,15 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               </div>
             </div>
           </div>
+
+          {/* Badge de Pronta Entrega Local */}
+          {isLocal && (
+            <div className="absolute top-4 left-4 z-10">
+              <span className="bg-emerald-600 text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-md flex items-center gap-1 uppercase tracking-wide">
+                Pronta Entrega
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Conteúdo do card */}
@@ -68,7 +83,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           <div className="flex items-center gap-2 text-sm sm:text-base font-semibold text-primary mb-2">
             <span className="flex items-center gap-1">
               <Package size={12} className="sm:w-4 sm:h-4" />
-              {product.brand.name}
+              {product.brand?.name || "Pink Music"}
             </span>
           </div>
 
@@ -83,16 +98,25 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             <span className="font-semibold text-base">
               {product.available_quantity}
             </span>
+            {isLocal && (
+              <span className="ml-1 text-emerald-600 font-medium text-xs">
+                (na loja física)
+              </span>
+            )}
           </p>
 
-          <div className="space-y-3">
+          <div className="space-y-3 mt-auto">
             <button
               type="button"
               onClick={handleBuyClick}
-              className="w-full bg-primary text-white py-3 px-6 rounded-full hover:bg-primary/85 flex items-center justify-center gap-2 font-semibold transition-colors cursor-pointer"
+              className={`w-full py-3 px-6 rounded-full flex items-center justify-center gap-2 font-semibold transition-colors cursor-pointer text-white ${
+                isLocal
+                  ? "bg-emerald-600 hover:bg-emerald-700"
+                  : "bg-primary hover:bg-primary/85"
+              }`}
             >
               <ShoppingCart size={20} />
-              Comprar
+              {isLocal ? "Comprar / Retirar" : "Comprar"}
             </button>
           </div>
         </div>

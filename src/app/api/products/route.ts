@@ -48,6 +48,12 @@ export async function GET(req: Request) {
       }
     }
 
+    const origin = searchParams.get("origin");
+
+    if (origin && (origin === "LOCAL" || origin === "MERCADO_LIVRE")) {
+      whereClause.origin = origin;
+    }
+
     if (searchQuery) {
       whereClause.title = {
         contains: searchQuery,

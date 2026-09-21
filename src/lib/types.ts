@@ -10,6 +10,8 @@ export interface Category {
   updatedAt: Date;
 }
 
+export type ProductOrigin = "MERCADO_LIVRE" | "LOCAL";
+
 export interface Product {
   id: string;
   title: string;
@@ -23,7 +25,10 @@ export interface Product {
   categoryId?: string;
   available_quantity: number;
   seller_nickname: string;
-  permalink: string;
+  permalink?: string | null;
+  origin?: ProductOrigin;
+  description?: string | null;
+  isLocalPickup?: boolean;
   sales?: number;
   pictures: { id: string; url: string; secure_url: string }[];
   attributes?: { id: string; name: string; value_name: string }[];
