@@ -53,10 +53,42 @@ export default function FilterSidebar({
     }));
   };
 
-  const handleCategoryToggle = (categoryId: string) => {
-    const newCategories = selectedCategories.includes(categoryId)
-      ? selectedCategories.filter((c) => c !== categoryId)
-      : [...selectedCategories, categoryId];
+  const handleCategoryToggle = (
+    categoryId: string,
+    isParent = false,
+    childIds: string[] = []
+  ) => {
+    let newCategories: string[];
+
+    if (isParent) {
+      if (selectedCategories.includes(categoryId)) {
+        // Desmarcou o pai: remove o pai e quaisquer filhas dele
+        newCategories = selectedCategories.filter(
+          (c) => c !== categoryId && !childIds.includes(c)
+        );
+      } else {
+        // Marcou o pai: adiciona o pai e remove filhas pontuais (o pai engloba tudo)
+        newCategories = [
+          ...selectedCategories.filter((c) => !childIds.includes(c)),
+          categoryId,
+        ];
+      }
+    } else {
+      // É uma subcategoria filha
+      if (selectedCategories.includes(categoryId)) {
+        // Desmarcou a filha
+        newCategories = selectedCategories.filter((c) => c !== categoryId);
+      } else {
+        // Marcou a filha: se o pai estiver selecionado, desmarca o pai para refinar para a subcategoria!
+        const currentCat = categories.find((c) => c.id === categoryId);
+        const parentId = currentCat?.parentId;
+        newCategories = [
+          ...selectedCategories.filter((c) => c !== parentId),
+          categoryId,
+        ];
+      }
+    }
+
     onCategoryChange(newCategories);
   };
 
@@ -131,6 +163,7 @@ export default function FilterSidebar({
               const isSelected = selectedCategories.includes(category.id);
               const hasChildren = children.length > 0;
               const isExpanded = expandedParents[category.id] ?? false;
+              const childIds = children.map((c) => c.id);
 
               return (
                 <div key={category.id} className="space-y-1">
@@ -140,17 +173,32 @@ export default function FilterSidebar({
                         ? "bg-primary/10"
                         : "hover:bg-secondary/10"
                     }`}
-                    onClick={() => handleCategoryToggle(category.id)}
+                    onClick={(e) => {
+                      if (hasChildren) {
+                        toggleParentExpand(category.id, e);
+                      } else {
+                        handleCategoryToggle(category.id, true, childIds);
+                      }
+                    }}
                   >
                     <div className="flex items-center space-x-2.5 flex-1 min-w-0">
                       <Checkbox
                         id={`category-${category.id}`}
                         checked={isSelected}
-                        onCheckedChange={() => handleCategoryToggle(category.id)}
+                        onClick={(e) => e.stopPropagation()}
+                        onCheckedChange={() =>
+                          handleCategoryToggle(category.id, true, childIds)
+                        }
                       />
                       <Label
                         htmlFor={`category-${category.id}`}
                         className="text-sm font-semibold cursor-pointer truncate"
+                        onClick={(e) => {
+                          if (hasChildren) {
+                            e.preventDefault();
+                            toggleParentExpand(category.id, e);
+                          }
+                        }}
                       >
                         {category.name}
                       </Label>
@@ -185,12 +233,13 @@ export default function FilterSidebar({
                                 ? "bg-primary/10 text-primary font-medium"
                                 : "hover:bg-secondary/10 text-muted-foreground hover:text-foreground"
                             }`}
-                            onClick={() => handleCategoryToggle(sub.id)}
+                            onClick={() => handleCategoryToggle(sub.id, false)}
                           >
                             <Checkbox
                               id={`category-${sub.id}`}
                               checked={isSubSelected}
-                              onCheckedChange={() => handleCategoryToggle(sub.id)}
+                              onClick={(e) => e.stopPropagation()}
+                              onCheckedChange={() => handleCategoryToggle(sub.id, false)}
                             />
                             <Label
                               htmlFor={`category-${sub.id}`}

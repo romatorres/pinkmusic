@@ -67,7 +67,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           {/* Badge de Pronta Entrega Local */}
           {isLocal && (
             <div className="absolute top-4 left-4 z-10">
-              <span className="bg-emerald-600 text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-md flex items-center gap-1 uppercase tracking-wide">
+              <span className="bg-primary/80 text-white text-[11px] font-semibold px-2.5 py-1 rounded-full shadow-md flex items-center gap-1 uppercase tracking-wide">
                 Pronta Entrega
               </span>
             </div>
@@ -99,7 +99,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               {product.available_quantity}
             </span>
             {isLocal && (
-              <span className="ml-1 text-emerald-600 font-medium text-xs">
+              <span className="ml-1 text-primary/80 font-medium text-xs">
                 (na loja física)
               </span>
             )}
@@ -109,14 +109,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             <button
               type="button"
               onClick={handleBuyClick}
-              className={`w-full py-3 px-6 rounded-full flex items-center justify-center gap-2 font-semibold transition-colors cursor-pointer text-white ${
-                isLocal
-                  ? "bg-emerald-600 hover:bg-emerald-700"
-                  : "bg-primary hover:bg-primary/85"
-              }`}
+              className={`w-full py-3 px-6 rounded-full flex items-center justify-center gap-2 font-semibold transition-colors cursor-pointer text-white bg-primary hover:bg-primary/85`}
             >
               <ShoppingCart size={20} />
-              {isLocal ? "Comprar / Retirar" : "Comprar"}
+              {isLocal ? "Compra Local" : "Comprar"}
             </button>
           </div>
         </div>

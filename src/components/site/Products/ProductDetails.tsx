@@ -69,18 +69,18 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
                 {(product.pictures?.[selectedImage]?.secure_url ||
                   product.pictures?.[selectedImage]?.url ||
                   product.thumbnail) && (
-                  <Image
-                    src={
-                      product.pictures?.[selectedImage]?.secure_url ||
-                      product.pictures?.[selectedImage]?.url ||
-                      product.thumbnail
-                    }
-                    alt={product.title}
-                    fill
-                    style={{ objectFit: "contain" }}
-                    className="rounded-lg"
-                  />
-                )}
+                    <Image
+                      src={
+                        product.pictures?.[selectedImage]?.secure_url ||
+                        product.pictures?.[selectedImage]?.url ||
+                        product.thumbnail
+                      }
+                      alt={product.title}
+                      fill
+                      style={{ objectFit: "contain" }}
+                      className="rounded-lg"
+                    />
+                  )}
               </div>
 
               {product.pictures && product.pictures.length > 1 && (
@@ -91,11 +91,10 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
                       <button
                         key={picture.id || index}
                         onClick={() => setSelectedImage(index)}
-                        className={`flex-shrink-0 w-20 h-20 rounded-md overflow-hidden border-2 ${
-                          selectedImage === index
-                            ? "border-primary"
-                            : "border-gray-200"
-                        }`}
+                        className={`flex-shrink-0 w-20 h-20 rounded-md overflow-hidden border-2 ${selectedImage === index
+                          ? "border-primary"
+                          : "border-gray-200"
+                          }`}
                       >
                         <div className="relative w-full h-full">
                           {picUrl && (
@@ -135,9 +134,8 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
                 <div className="flex items-center gap-3">
                   <p className="text-primary font-medium">
                     {product.available_quantity > 0
-                      ? `${product.available_quantity} disponível${
-                          product.available_quantity > 1 ? "s" : ""
-                        }`
+                      ? `${product.available_quantity} disponível${product.available_quantity > 1 ? "s" : ""
+                      }`
                       : "Produto esgotado"}
                   </p>
                   {isLocal && (
@@ -210,17 +208,17 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
                       type="button"
                       onClick={() => setPixModalOpen(true)}
                       disabled={product.available_quantity <= 0}
-                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3.5 px-6 rounded-full flex items-center justify-center gap-2 font-semibold shadow-md transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="cursor-pointer w-full bg-primary text-white py-3 px-6 rounded-full hover:bg-primary/85 flex items-center justify-center gap-2 font-semibold"
                     >
                       <Store size={20} />
-                      Comprar com PIX / Retirar na Loja
+                      Compra Local - via PIX
                     </button>
                     {product.permalink && (
                       <a
                         href={product.permalink}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="w-full border border-primary text-primary py-3 px-6 rounded-full hover:bg-primary/10 flex items-center justify-center gap-2 font-semibold transition-colors"
+                        className="cursor-pointer w-full border border-primary text-primary py-3 px-6 rounded-full hover:bg-primary/10 flex items-center justify-center gap-2 font-semibold transition-colors"
                       >
                         <ShoppingCart size={18} />
                         Comprar também pelo Mercado Livre
@@ -233,7 +231,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
                       href={product.permalink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-full bg-primary text-white py-3 px-6 rounded-full hover:bg-primary/85 flex items-center justify-center gap-2 font-semibold"
+                      className="cursor-pointer w-full bg-primary text-white py-3 px-6 rounded-full hover:bg-primary/85 flex items-center justify-center gap-2 font-semibold"
                     >
                       <ShoppingCart size={20} />
                       Comprar no MercadoLivre

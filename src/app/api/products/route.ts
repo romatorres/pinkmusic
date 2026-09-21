@@ -5,8 +5,16 @@ import { Prisma } from "@prisma/client";
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
-    const categoryIds = searchParams.get("categoryIds")?.split(",");
-    const brandIds = searchParams.get("brandIds")?.split(",");
+    const rawCategoryIds = searchParams.get("categoryIds") || searchParams.get("categoryId");
+    const categoryIds = rawCategoryIds
+      ? rawCategoryIds.split(",").map((c) => c.trim()).filter(Boolean)
+      : [];
+
+    const rawBrandIds = searchParams.get("brandIds") || searchParams.get("brandId");
+    const brandIds = rawBrandIds
+      ? rawBrandIds.split(",").map((b) => b.trim()).filter(Boolean)
+      : [];
+
     const minPrice = searchParams.get("minPrice");
     const maxPrice = searchParams.get("maxPrice");
     const page = parseInt(searchParams.get("page") || "1", 10);
@@ -19,16 +27,32 @@ export async function GET(req: Request) {
     const whereClause: Prisma.ProductWhereInput = {};
 
     if (categoryIds && categoryIds.length > 0) {
-      // Buscar subcategorias se alguma categoria pai foi selecionada
+      // 1. Identificar se alguma das categorias passadas é filha de outra que também foi passada
+      const passedCategories = await prisma.category.findMany({
+        where: { id: { in: categoryIds } },
+        select: { id: true, parentId: true },
+      });
+
+      const selectedParentIdsOfChildren = new Set(
+        passedCategories.map((c) => c.parentId).filter(Boolean)
+      );
+
+      // Se o usuário selecionou uma filha específica (ex: Encordoamentos),
+      // descarta o pai amplo (ex: Cordas) para refinar exclusivamente pela subcategoria escolhida
+      const effectiveCategoryIds = categoryIds.filter(
+        (id) => !selectedParentIdsOfChildren.has(id)
+      );
+
+      // 2. Para categorias pai que sobraram, busca as filhas para englobar a busca ampla
       const subcategories = await prisma.category.findMany({
         where: {
-          parentId: { in: categoryIds },
+          parentId: { in: effectiveCategoryIds },
         },
         select: { id: true },
       });
       const subcategoryIds = subcategories.map((c) => c.id);
       const allCategoryIds = Array.from(
-        new Set([...categoryIds, ...subcategoryIds])
+        new Set([...effectiveCategoryIds, ...subcategoryIds])
       );
 
       whereClause.categoryId = { in: allCategoryIds };
