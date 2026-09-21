@@ -130,7 +130,7 @@ export function CategoriesSection() {
   return (
     <section
       aria-labelledby="categories-title"
-      className="bg-popover px-4 md:py-24 py-12 text-foreground sm:px-6"
+      className="px-4 md:py-24 py-12 text-foreground sm:px-6"
     >
       <PageContainer>
         {/* Título com linhas laterais */}
