@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import Image from "next/image";
 import {
   Dialog,
   DialogContent,
@@ -11,7 +12,18 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Store, CheckCircle, Copy, Check, MessageCircle, Truck } from "lucide-react";
+import {
+  Store,
+  CheckCircle,
+  Copy,
+  Check,
+  MessageCircle,
+  Truck,
+  Loader2,
+  QrCode,
+  XCircle,
+  Clock,
+} from "lucide-react";
 import { toast } from "sonner";
 import type { Product } from "@/lib/types";
 
@@ -21,214 +33,482 @@ interface PixCheckoutModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
+type Step = "form" | "qrcode" | "confirmed" | "expired";
+
+interface OrderData {
+  orderId: string;
+  mpPaymentId: string;
+  qrCode: string;
+  qrCodeBase64: string;
+  totalAmount: number;
+  expiresAt: string;
+}
+
+const POLLING_INTERVAL_MS = 5000; // 5 segundos
+const PIX_DURATION_MS = 30 * 60 * 1000; // 30 minutos
+
+function formatPrice(value: number) {
+  return new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  }).format(value);
+}
+
+function useCountdown(expiresAt: string | null) {
+  const [remaining, setRemaining] = useState(PIX_DURATION_MS);
+
+  useEffect(() => {
+    if (!expiresAt) return;
+    const interval = setInterval(() => {
+      const diff = new Date(expiresAt).getTime() - Date.now();
+      setRemaining(Math.max(0, diff));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [expiresAt]);
+
+  const minutes = Math.floor(remaining / 60000);
+  const seconds = Math.floor((remaining % 60000) / 1000);
+  const expired = remaining === 0;
+  return { minutes, seconds, expired };
+}
+
 export default function PixCheckoutModal({
   product,
   open,
   onOpenChange,
 }: PixCheckoutModalProps) {
+  // Form state
   const [name, setName] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
   const [deliveryType, setDeliveryType] = useState<"pickup" | "delivery">("pickup");
   const [address, setAddress] = useState("");
+
+  // Flow state
+  const [step, setStep] = useState<Step>("form");
+  const [loading, setLoading] = useState(false);
+  const [orderData, setOrderData] = useState<OrderData | null>(null);
   const [copied, setCopied] = useState(false);
 
-  // Formatação de preço
-  const formattedPrice = new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  }).format(product.price);
+  const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const { minutes, seconds, expired } = useCountdown(
+    step === "qrcode" ? orderData?.expiresAt ?? null : null
+  );
 
-  // Chave PIX padrão (celular ou chave da loja)
-  const pixKey = "75991988685";
+  // Reset ao fechar
+  useEffect(() => {
+    if (!open) {
+      setTimeout(() => {
+        setStep("form");
+        setName("");
+        setWhatsapp("");
+        setDeliveryType("pickup");
+        setAddress("");
+        setOrderData(null);
+        setCopied(false);
+      }, 300);
+    }
+  }, [open]);
 
-  const handleCopyPix = () => {
-    navigator.clipboard.writeText(pixKey);
-    setCopied(true);
-    toast.success("Chave PIX copiada para a área de transferência!");
-    setTimeout(() => setCopied(false), 3000);
-  };
+  // Timer de expiração
+  useEffect(() => {
+    if (step === "qrcode" && expired) {
+      setStep("expired");
+      stopPolling();
+    }
+  }, [expired, step]);
 
-  const handleFinishWhatsApp = () => {
+  const stopPolling = useCallback(() => {
+    if (pollingRef.current) {
+      clearInterval(pollingRef.current);
+      pollingRef.current = null;
+    }
+  }, []);
+
+  // Polling de status do pedido
+  const startPolling = useCallback(
+    (orderId: string) => {
+      stopPolling();
+      pollingRef.current = setInterval(async () => {
+        try {
+          const res = await fetch(`/api/orders/${orderId}`);
+          const result = await res.json();
+          if (result.success && result.data?.status === "PAID") {
+            stopPolling();
+            setStep("confirmed");
+          }
+        } catch {
+          // silencioso — tenta de novo no próximo tick
+        }
+      }, POLLING_INTERVAL_MS);
+    },
+    [stopPolling]
+  );
+
+  // Limpeza ao desmontar
+  useEffect(() => () => stopPolling(), [stopPolling]);
+
+  const handleGeneratePix = async () => {
     if (!name.trim()) {
       toast.error("Por favor, informe seu nome.");
       return;
     }
+    if (!whatsapp.trim()) {
+      toast.error("Por favor, informe seu WhatsApp.");
+      return;
+    }
+    if (deliveryType === "delivery" && !address.trim()) {
+      toast.error("Por favor, informe o endereço de entrega.");
+      return;
+    }
 
+    setLoading(true);
+    try {
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          productId: product.id,
+          customerName: name.trim(),
+          customerPhone: whatsapp.trim(),
+          deliveryType,
+          deliveryAddress: address.trim() || null,
+          quantity: 1,
+        }),
+      });
+
+      const result = await res.json();
+
+      if (!result.success) {
+        toast.error(result.error || "Erro ao gerar o PIX. Tente novamente.");
+        return;
+      }
+
+      setOrderData(result.data);
+      setStep("qrcode");
+      startPolling(result.data.orderId);
+    } catch {
+      toast.error("Erro de conexão. Verifique sua internet e tente novamente.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCopyPix = () => {
+    if (!orderData?.qrCode) return;
+    navigator.clipboard.writeText(orderData.qrCode);
+    setCopied(true);
+    toast.success("Código PIX copiado!");
+    setTimeout(() => setCopied(false), 3000);
+  };
+
+  const handleWhatsApp = () => {
     const deliveryText =
       deliveryType === "pickup"
-        ? "🏬 *Retirada no balcão da loja física*"
-        : `🛵 *Entrega local via motoboy* (Endereço: ${address.trim() || "A combinar"})`;
+        ? "🏬 Retirada no balcão da loja física"
+        : `🛵 Entrega local (${address.trim()})`;
 
-    const message = encodeURIComponent(
+    const msg = encodeURIComponent(
       `Olá, Pink Music! 👋\n` +
-      `Gostaria de comprar via *PIX* o produto do estoque local:\n\n` +
-      `🎸 *Produto:* ${product.title}\n` +
-      `💰 *Valor:* ${formattedPrice}\n` +
-      `👤 *Cliente:* ${name.trim()}\n` +
-      `📱 *WhatsApp:* ${whatsapp.trim() || "Não informado"}\n` +
-      `📦 *Modalidade:* ${deliveryText}\n\n` +
-      `Já estou com a chave PIX salva para envio do comprovante!`
+        `Realizei um pagamento via *PIX* para o produto:\n\n` +
+        `🎸 *Produto:* ${product.title}\n` +
+        `💰 *Valor:* ${formatPrice(orderData?.totalAmount ?? product.price)}\n` +
+        `👤 *Nome:* ${name}\n` +
+        `📱 *WhatsApp:* ${whatsapp}\n` +
+        `📦 *Modalidade:* ${deliveryText}\n` +
+        `🔑 *Nº do Pedido:* ${orderData?.orderId ?? ""}\n\n` +
+        `Segue o comprovante!`
     );
-
-    const whatsappUrl = `https://wa.me/5575991988685?text=${message}`;
-    window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+    window.open(`https://wa.me/5575991988685?text=${msg}`, "_blank", "noopener,noreferrer");
     onOpenChange(false);
   };
 
+  // ─── RENDER ──────────────────────────────────────────────────────────────────
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg max-h-[92vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-xl text-emerald-700 dark:text-emerald-400">
-            <Store className="h-6 w-6" />
-            Comprar com PIX - Pronta Entrega
-          </DialogTitle>
-          <DialogDescription>
-            Produto disponível no estoque físico da Pink Music. Pague via PIX e retire no balcão ou combine entrega.
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className="sm:max-w-lg max-h-[95vh] overflow-y-auto">
+        {/* ── ETAPA 1: FORMULÁRIO ── */}
+        {step === "form" && (
+          <>
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-xl text-emerald-700 dark:text-emerald-400">
+                <Store className="h-6 w-6" />
+                Comprar com PIX — Pronta Entrega
+              </DialogTitle>
+              <DialogDescription>
+                Produto disponível no estoque físico da Pink Music.
+              </DialogDescription>
+            </DialogHeader>
 
-        {/* Resumo do Produto */}
-        <div className="bg-muted/40 p-4 rounded-xl border border-border flex items-center justify-between">
-          <div className="max-w-[70%]">
-            <h4 className="font-semibold text-sm line-clamp-1">{product.title}</h4>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              {product.brand?.name || "Pink Music"} • {product.available_quantity} disponível(is)
-            </p>
-          </div>
-          <div className="text-right">
-            <span className="text-xs text-muted-foreground block">Total:</span>
-            <span className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
-              {formattedPrice}
-            </span>
-          </div>
-        </div>
-
-        {/* Modalidade de Recebimento */}
-        <div className="space-y-2">
-          <Label className="text-sm font-semibold">Como deseja receber?</Label>
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              type="button"
-              onClick={() => setDeliveryType("pickup")}
-              className={`flex flex-col items-center justify-center p-3 rounded-lg border text-center transition-all cursor-pointer ${
-                deliveryType === "pickup"
-                  ? "border-emerald-600 bg-emerald-50/50 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200 font-semibold"
-                  : "border-border hover:border-muted-foreground/40"
-              }`}
-            >
-              <Store className="h-5 w-5 mb-1 text-emerald-600" />
-              <span className="text-xs">Retirar na Loja</span>
-              <span className="text-[10px] text-muted-foreground">Sem custo de frete</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setDeliveryType("delivery")}
-              className={`flex flex-col items-center justify-center p-3 rounded-lg border text-center transition-all cursor-pointer ${
-                deliveryType === "delivery"
-                  ? "border-emerald-600 bg-emerald-50/50 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200 font-semibold"
-                  : "border-border hover:border-muted-foreground/40"
-              }`}
-            >
-              <Truck className="h-5 w-5 mb-1 text-emerald-600" />
-              <span className="text-xs">Entrega Local</span>
-              <span className="text-[10px] text-muted-foreground">Motoboy a combinar</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Formulário do Comprador */}
-        <div className="space-y-3">
-          <div>
-            <Label htmlFor="checkout-name" className="text-xs">
-              Seu Nome <span className="text-red-500">*</span>
-            </Label>
-            <Input
-              id="checkout-name"
-              placeholder="Ex: João da Silva"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="mt-1"
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="checkout-phone" className="text-xs">
-              WhatsApp para Contato
-            </Label>
-            <Input
-              id="checkout-phone"
-              placeholder="(75) 99999-9999"
-              value={whatsapp}
-              onChange={(e) => setWhatsapp(e.target.value)}
-              className="mt-1"
-            />
-          </div>
-
-          {deliveryType === "delivery" && (
-            <div>
-              <Label htmlFor="checkout-address" className="text-xs">
-                Endereço de Entrega
-              </Label>
-              <Input
-                id="checkout-address"
-                placeholder="Rua, número, bairro..."
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                className="mt-1"
-              />
+            {/* Resumo do produto */}
+            <div className="bg-muted/40 p-4 rounded-xl border border-border flex items-center justify-between">
+              <div className="max-w-[70%]">
+                <h4 className="font-semibold text-sm line-clamp-1">{product.title}</h4>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {product.brand?.name || "Pink Music"} · {product.available_quantity}{" "}
+                  disponível(is)
+                </p>
+              </div>
+              <div className="text-right">
+                <span className="text-xs text-muted-foreground block">Total</span>
+                <span className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
+                  {formatPrice(product.price)}
+                </span>
+              </div>
             </div>
-          )}
-        </div>
 
-        {/* Chave PIX */}
-        <div className="bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/60 p-4 rounded-xl space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-emerald-900 dark:text-emerald-200 flex items-center gap-1.5">
-              <CheckCircle className="h-4 w-4 text-emerald-600" />
-              Chave PIX da Pink Music (Telefone)
-            </span>
+            {/* Modalidade */}
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold">Como deseja receber?</Label>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setDeliveryType("pickup")}
+                  className={`flex flex-col items-center justify-center p-3 rounded-lg border text-center transition-all cursor-pointer ${
+                    deliveryType === "pickup"
+                      ? "border-emerald-600 bg-emerald-50/50 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200 font-semibold"
+                      : "border-border hover:border-muted-foreground/40"
+                  }`}
+                >
+                  <Store className="h-5 w-5 mb-1 text-emerald-600" />
+                  <span className="text-xs">Retirar na Loja</span>
+                  <span className="text-[10px] text-muted-foreground">Sem custo de frete</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setDeliveryType("delivery")}
+                  className={`flex flex-col items-center justify-center p-3 rounded-lg border text-center transition-all cursor-pointer ${
+                    deliveryType === "delivery"
+                      ? "border-emerald-600 bg-emerald-50/50 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200 font-semibold"
+                      : "border-border hover:border-muted-foreground/40"
+                  }`}
+                >
+                  <Truck className="h-5 w-5 mb-1 text-emerald-600" />
+                  <span className="text-xs">Entrega Local</span>
+                  <span className="text-[10px] text-muted-foreground">Via Uber Direct</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Dados do comprador */}
+            <div className="space-y-3">
+              <div>
+                <Label htmlFor="checkout-name" className="text-xs">
+                  Seu Nome <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="checkout-name"
+                  placeholder="Ex: João da Silva"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label htmlFor="checkout-phone" className="text-xs">
+                  WhatsApp <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="checkout-phone"
+                  placeholder="(75) 99999-9999"
+                  value={whatsapp}
+                  onChange={(e) => setWhatsapp(e.target.value)}
+                  className="mt-1"
+                />
+              </div>
+              {deliveryType === "delivery" && (
+                <div>
+                  <Label htmlFor="checkout-address" className="text-xs">
+                    Endereço de Entrega <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    id="checkout-address"
+                    placeholder="Rua, número, bairro..."
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    className="mt-1"
+                  />
+                </div>
+              )}
+            </div>
+
             <Button
               type="button"
-              variant="outline"
-              size="sm"
-              onClick={handleCopyPix}
-              className="h-7 text-xs flex items-center gap-1"
+              onClick={handleGeneratePix}
+              disabled={loading}
+              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-full flex items-center justify-center gap-2 font-semibold shadow-md"
             >
-              {copied ? (
+              {loading ? (
                 <>
-                  <Check className="h-3 w-3 text-emerald-600" /> Copiado!
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  Gerando PIX...
                 </>
               ) : (
                 <>
-                  <Copy className="h-3 w-3" /> Copiar Chave
+                  <QrCode className="h-5 w-5" />
+                  Gerar QR Code PIX
                 </>
               )}
             </Button>
-          </div>
-          <div className="font-mono text-sm bg-background/80 p-2 rounded border text-center font-bold text-foreground select-all">
-            {pixKey}
-          </div>
-          <p className="text-[11px] text-muted-foreground text-center">
-            Favorecido: <strong>Pink Music Instrumentos</strong>
-          </p>
-        </div>
+          </>
+        )}
 
-        {/* Botão Finalizar */}
-        <div className="pt-2">
-          <Button
-            type="button"
-            onClick={handleFinishWhatsApp}
-            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-full flex items-center justify-center gap-2 font-semibold shadow-md"
-          >
-            <MessageCircle className="h-5 w-5" />
-            Confirmar e Enviar Pedido via WhatsApp
-          </Button>
-          <p className="text-[10px] text-center text-muted-foreground mt-2">
-            Ao confirmar, você será direcionado ao WhatsApp da loja para envio do comprovante e retirada.
-          </p>
-        </div>
+        {/* ── ETAPA 2: QR CODE ── */}
+        {step === "qrcode" && orderData && (
+          <>
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-xl text-emerald-700 dark:text-emerald-400">
+                <QrCode className="h-6 w-6" />
+                Pague com PIX
+              </DialogTitle>
+              <DialogDescription>
+                Escaneie o QR Code ou copie o código abaixo no seu banco.
+              </DialogDescription>
+            </DialogHeader>
+
+            {/* Countdown */}
+            <div className="flex items-center justify-center gap-2 text-sm font-semibold text-amber-600 dark:text-amber-400">
+              <Clock className="h-4 w-4" />
+              Expira em {String(minutes).padStart(2, "0")}:{String(seconds).padStart(2, "0")}
+            </div>
+
+            {/* QR Code */}
+            <div className="flex flex-col items-center gap-4">
+              <div className="bg-white p-3 rounded-xl border border-border shadow-sm">
+                <Image
+                  src={`data:image/png;base64,${orderData.qrCodeBase64}`}
+                  alt="QR Code PIX"
+                  width={220}
+                  height={220}
+                  className="rounded"
+                />
+              </div>
+
+              {/* Código copia-e-cola */}
+              <div className="w-full bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/60 p-3 rounded-xl space-y-2">
+                <p className="text-xs font-semibold text-emerald-800 dark:text-emerald-300 text-center">
+                  Código PIX (copia e cola)
+                </p>
+                <p className="font-mono text-[10px] break-all bg-background/80 p-2 rounded border text-center select-all leading-relaxed">
+                  {orderData.qrCode}
+                </p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleCopyPix}
+                  className="w-full h-8 text-xs flex items-center justify-center gap-1.5"
+                >
+                  {copied ? (
+                    <>
+                      <Check className="h-3.5 w-3.5 text-emerald-600" /> Copiado!
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="h-3.5 w-3.5" /> Copiar Código PIX
+                    </>
+                  )}
+                </Button>
+              </div>
+
+              {/* Status aguardando */}
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin text-emerald-500" />
+                Aguardando confirmação do pagamento...
+              </div>
+
+              <p className="text-[11px] text-center text-muted-foreground">
+                Nº do Pedido: <span className="font-mono font-semibold">{orderData.orderId}</span>
+              </p>
+            </div>
+          </>
+        )}
+
+        {/* ── ETAPA 3: CONFIRMADO ── */}
+        {step === "confirmed" && orderData && (
+          <>
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-xl text-emerald-700 dark:text-emerald-400">
+                <CheckCircle className="h-6 w-6" />
+                Pagamento Confirmado! 🎉
+              </DialogTitle>
+              <DialogDescription>
+                Seu pedido foi registrado e está sendo preparado.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 p-4 rounded-xl space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Produto</span>
+                <span className="font-semibold text-right max-w-[55%] line-clamp-1">
+                  {product.title}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Total Pago</span>
+                <span className="font-bold text-emerald-600">
+                  {formatPrice(orderData.totalAmount)}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Modalidade</span>
+                <span className="font-semibold capitalize">
+                  {deliveryType === "pickup" ? "Retirada na loja" : "Entrega local"}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Nº do Pedido</span>
+                <span className="font-mono text-xs font-semibold">{orderData.orderId}</span>
+              </div>
+            </div>
+
+            <p className="text-xs text-center text-muted-foreground">
+              Envie o comprovante do PIX via WhatsApp para agilizar a separação do seu produto.
+            </p>
+
+            <div className="space-y-2">
+              <Button
+                type="button"
+                onClick={handleWhatsApp}
+                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-full flex items-center justify-center gap-2 font-semibold shadow-md"
+              >
+                <MessageCircle className="h-5 w-5" />
+                Enviar Comprovante via WhatsApp
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                className="w-full rounded-full"
+              >
+                Fechar
+              </Button>
+            </div>
+          </>
+        )}
+
+        {/* ── EXPIRADO ── */}
+        {step === "expired" && (
+          <>
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-xl text-red-600 dark:text-red-400">
+                <XCircle className="h-6 w-6" />
+                PIX Expirado
+              </DialogTitle>
+              <DialogDescription>
+                O tempo para pagamento esgotou. Gere um novo QR Code para continuar.
+              </DialogDescription>
+            </DialogHeader>
+            <Button
+              type="button"
+              onClick={() => setStep("form")}
+              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-full font-semibold"
+            >
+              <QrCode className="h-5 w-5 mr-2" />
+              Gerar Novo PIX
+            </Button>
+          </>
+        )}
       </DialogContent>
     </Dialog>
   );

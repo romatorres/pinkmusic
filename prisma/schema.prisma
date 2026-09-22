@@ -38,6 +38,15 @@ enum DescriptionSource {
   ML
 }
 
+enum OrderStatus {
+  PENDING_PAYMENT
+  PAID
+  PREPARING
+  DISPATCHED
+  DELIVERED
+  CANCELLED
+}
+
 model Product {
   id                 String             @id @default(cuid())
   title              String
@@ -53,6 +62,7 @@ model Product {
   descriptionSource  DescriptionSource? @default(CUSTOM)
   isLocalPickup      Boolean            @default(true)
   pictures           Picture[]
+  orders             Order[]
 
   // NOVO: Relação com Marca
   brand   Brand?  @relation(fields: [brandId], references: [id])
@@ -77,6 +87,37 @@ model Product {
   @@index([views])
   @@index([sales])
   @@index([featured])
+}
+
+model Order {
+  id              String      @id @default(cuid())
+  customerName    String
+  customerPhone   String
+  productId       String
+  product         Product     @relation(fields: [productId], references: [id])
+  quantity        Int         @default(1)
+  totalAmount     Float
+  deliveryType    String      // "pickup" | "delivery"
+  deliveryAddress String?
+  status          OrderStatus @default(PENDING_PAYMENT)
+
+  // Mercado Pago
+  mpPaymentId    String?   @unique
+  mpQrCode       String?
+  mpQrCodeBase64 String?
+  paidAt         DateTime?
+
+  // Uber Direct
+  uberDeliveryId   String?
+  uberTrackingUrl  String?
+  uberDispatchedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([mpPaymentId])
+  @@index([productId])
 }
 
 model SystemSetting {

@@ -17,6 +17,7 @@ import {
   Menu,
   X,
   Bandage,
+  ClipboardList,
 } from "lucide-react";
 
 export function Sidebar() {
@@ -173,6 +174,19 @@ export function Sidebar() {
                     >
                       <Bandage size={20} />
                       <span>Marcas</span>
+                    </Link>
+                  </li>
+
+                  <li>
+                    <Link
+                      href="/dashboard/orders"
+                      className={`flex items-center space-x-2 p-2 rounded hover:bg-secondary/50 transition ${
+                        isActive("/dashboard/orders") ? "bg-secondary" : ""
+                      }`}
+                      onClick={() => isMobile && setIsMobileMenuOpen(false)}
+                    >
+                      <ClipboardList size={20} />
+                      <span>Pedidos PIX</span>
                     </Link>
                   </li>
                 </>
