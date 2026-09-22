@@ -28,6 +28,8 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
   const [pixModalOpen, setPixModalOpen] = useState(false);
 
   const isLocal = product.origin === "LOCAL";
+  const displayDescriptionSource =
+    product.descriptionSource ?? (isLocal ? "CUSTOM" : "ML");
 
   return (
     <section>
@@ -69,18 +71,18 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
                 {(product.pictures?.[selectedImage]?.secure_url ||
                   product.pictures?.[selectedImage]?.url ||
                   product.thumbnail) && (
-                    <Image
-                      src={
-                        product.pictures?.[selectedImage]?.secure_url ||
-                        product.pictures?.[selectedImage]?.url ||
-                        product.thumbnail
-                      }
-                      alt={product.title}
-                      fill
-                      style={{ objectFit: "contain" }}
-                      className="rounded-lg"
-                    />
-                  )}
+                  <Image
+                    src={
+                      product.pictures?.[selectedImage]?.secure_url ||
+                      product.pictures?.[selectedImage]?.url ||
+                      product.thumbnail
+                    }
+                    alt={product.title}
+                    fill
+                    style={{ objectFit: "contain" }}
+                    className="rounded-lg"
+                  />
+                )}
               </div>
 
               {product.pictures && product.pictures.length > 1 && (
@@ -91,10 +93,11 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
                       <button
                         key={picture.id || index}
                         onClick={() => setSelectedImage(index)}
-                        className={`flex-shrink-0 w-20 h-20 rounded-md overflow-hidden border-2 ${selectedImage === index
-                          ? "border-primary"
-                          : "border-gray-200"
-                          }`}
+                        className={`flex-shrink-0 w-20 h-20 rounded-md overflow-hidden border-2 ${
+                          selectedImage === index
+                            ? "border-primary"
+                            : "border-gray-200"
+                        }`}
                       >
                         <div className="relative w-full h-full">
                           {picUrl && (
@@ -134,8 +137,9 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
                 <div className="flex items-center gap-3">
                   <p className="text-primary font-medium">
                     {product.available_quantity > 0
-                      ? `${product.available_quantity} disponível${product.available_quantity > 1 ? "s" : ""
-                      }`
+                      ? `${product.available_quantity} disponível${
+                          product.available_quantity > 1 ? "s" : ""
+                        }`
                       : "Produto esgotado"}
                   </p>
                   {isLocal && (
@@ -151,7 +155,8 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
                 <div className="flex items-start md:items-center gap-2 bg-emerald-50/70 dark:bg-emerald-950/30 p-3 rounded-lg border border-emerald-200 dark:border-emerald-800">
                   <Store size={20} className="text-emerald-600 flex-shrink-0" />
                   <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-300">
-                    Produto disponível no balcão da Pink Music para retirada imediata ou entrega local combinada.
+                    Produto disponível no balcão da Pink Music para retirada
+                    imediata ou entrega local combinada.
                   </p>
                 </div>
               ) : (
@@ -160,23 +165,24 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
                     <TriangleAlert size={20} />
                   </span>
                   <p className="text-sm font-semibold text-primary">
-                    Descrições, características e imagens são de responsabilidade
-                    do Mercado Livre.
+                    Descrições, características e imagens são de
+                    responsabilidade do Mercado Livre.
                   </p>
                 </div>
               )}
 
-              {/* Descrição cadastrada (para produtos locais) */}
-              {product.description && (
-                <div className="border-t pt-6">
-                  <h3 className="text-xl font-semibold mb-3">
-                    Descrição do Produto
-                  </h3>
-                  <p className="text-foreground/80 whitespace-pre-line text-sm leading-relaxed">
-                    {product.description}
-                  </p>
-                </div>
-              )}
+              {/* Descrição cadastrada pela loja */}
+              {product.descriptionSource === "CUSTOM" &&
+                product.description && (
+                  <div className="border-t pt-6">
+                    <h3 className="text-xl font-semibold mb-3">
+                      Descrição do Produto
+                    </h3>
+                    <p className="text-foreground/80 whitespace-pre-line text-sm leading-relaxed">
+                      {product.description}
+                    </p>
+                  </div>
+                )}
 
               {/* Atributos (se houver) */}
               {product.attributes && product.attributes.length > 0 && (

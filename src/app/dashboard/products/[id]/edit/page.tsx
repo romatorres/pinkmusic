@@ -3,7 +3,13 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Image from "next/image";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -22,6 +28,7 @@ interface ProductData {
   brandId: string | null;
   origin?: "MERCADO_LIVRE" | "LOCAL";
   description?: string | null;
+  descriptionSource?: "CUSTOM" | "ML" | null;
   isLocalPickup?: boolean;
   thumbnail?: string;
   permalink?: string | null;
@@ -32,8 +39,10 @@ export default function EditProductPage() {
   const [product, setProduct] = useState<ProductData | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
-  const [selectedMainCategoryId, setSelectedMainCategoryId] = useState<string>("");
-  const [selectedSubcategoryId, setSelectedSubcategoryId] = useState<string>("");
+  const [selectedMainCategoryId, setSelectedMainCategoryId] =
+    useState<string>("");
+  const [selectedSubcategoryId, setSelectedSubcategoryId] =
+    useState<string>("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploadStatus, setUploadStatus] = useState<string>("");
@@ -71,15 +80,17 @@ export default function EditProductPage() {
 
           if (productResult.success) {
             const prodData: ProductData = productResult.data;
-            setProduct(prodData);
-            if (prodData.thumbnail) {
-              setImagePreview(prodData.thumbnail);
-            }
+            setProduct({
+              ...prodData,
+              descriptionSource:
+                prodData.descriptionSource ||
+                (prodData.origin === "LOCAL" ? "CUSTOM" : "ML"),
+            });
 
             // Resolver Categoria Principal e Subcategoria com base nos dados carregados
             if (prodData.categoryId && fetchedCategories.length > 0) {
               const currentCategory = fetchedCategories.find(
-                (c) => c.id === prodData.categoryId
+                (c) => c.id === prodData.categoryId,
               );
 
               if (currentCategory) {
@@ -115,7 +126,9 @@ export default function EditProductPage() {
   }, [id, router]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >,
   ) => {
     const { name, value } = e.target;
     setProduct((prev) =>
@@ -127,11 +140,13 @@ export default function EditProductPage() {
                 ? parseFloat(value) || 0
                 : value,
           }
-        : null
+        : null,
     );
   };
 
-  const handleMainCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleMainCategoryChange = (
+    e: React.ChangeEvent<HTMLSelectElement>,
+  ) => {
     const value = e.target.value;
     setSelectedMainCategoryId(value);
     setSelectedSubcategoryId("");
@@ -187,7 +202,9 @@ export default function EditProductPage() {
         const uploadData = await uploadRes.json();
 
         if (!uploadRes.ok || !uploadData.success) {
-          throw new Error(uploadData.error || "Falha no upload da imagem para o Cloudinary.");
+          throw new Error(
+            uploadData.error || "Falha no upload da imagem para o Cloudinary.",
+          );
         }
 
         finalThumbnail = uploadData.url;
@@ -195,7 +212,8 @@ export default function EditProductPage() {
 
       setUploadStatus("Salvando alterações do produto...");
 
-      const finalCategoryId = selectedSubcategoryId || selectedMainCategoryId || null;
+      const finalCategoryId =
+        selectedSubcategoryId || selectedMainCategoryId || null;
 
       const response = await fetch(`/api/products/${id}`, {
         method: "PUT",
@@ -210,6 +228,7 @@ export default function EditProductPage() {
           brandId: product.brandId || null,
           origin: product.origin || "MERCADO_LIVRE",
           description: product.description || null,
+          descriptionSource: product.descriptionSource || "CUSTOM",
           isLocalPickup: Boolean(product.isLocalPickup),
           permalink: product.permalink || null,
           thumbnail: finalThumbnail,
@@ -230,7 +249,7 @@ export default function EditProductPage() {
       toast.error(
         error instanceof Error
           ? error.message
-          : "Erro de conexão ao atualizar produto."
+          : "Erro de conexão ao atualizar produto.",
       );
     } finally {
       setSaving(false);
@@ -243,7 +262,9 @@ export default function EditProductPage() {
   };
 
   if (loading) {
-    return <LoadingState label="Carregando produto..." className="min-h-[50vh]" />;
+    return (
+      <LoadingState label="Carregando produto..." className="min-h-[50vh]" />
+    );
   }
 
   if (!product) {
@@ -287,7 +308,8 @@ export default function EditProductPage() {
         <CardHeader>
           <CardTitle>Informações do Produto</CardTitle>
           <CardDescription>
-            Campos atualizados refletirão imediatamente na vitrine e no cálculo de estoque.
+            Campos atualizados refletirão imediatamente na vitrine e no cálculo
+            de estoque.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -311,7 +333,8 @@ export default function EditProductPage() {
             {/* Imagem do Produto com Preview e Upload Cloudinary */}
             <div className="border rounded-xl p-4 bg-muted/20 space-y-3">
               <Label className="font-semibold flex items-center gap-2">
-                <ImageIcon className="h-4 w-4 text-primary" /> Imagem Principal do Produto
+                <ImageIcon className="h-4 w-4 text-primary" /> Imagem Principal
+                do Produto
               </Label>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
@@ -366,7 +389,7 @@ export default function EditProductPage() {
                       type="url"
                       name="thumbnail"
                       placeholder="https://..."
-                      value={selectedFile ? "" : (product.thumbnail || "")}
+                      value={selectedFile ? "" : product.thumbnail || ""}
                       onChange={(e) => {
                         setSelectedFile(null);
                         setImagePreview(e.target.value);
@@ -398,7 +421,10 @@ export default function EditProductPage() {
                 />
               </div>
               <div>
-                <Label htmlFor="available_quantity" className="mb-2 block font-semibold">
+                <Label
+                  htmlFor="available_quantity"
+                  className="mb-2 block font-semibold"
+                >
                   Quantidade em Estoque <span className="text-red-500">*</span>
                 </Label>
                 <Input
@@ -417,7 +443,10 @@ export default function EditProductPage() {
             {/* Categoria e Subcategoria */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="mainCategoryId" className="mb-2 block font-semibold">
+                <Label
+                  htmlFor="mainCategoryId"
+                  className="mb-2 block font-semibold"
+                >
                   Categoria Principal
                 </Label>
                 <select
@@ -438,7 +467,10 @@ export default function EditProductPage() {
               </div>
 
               <div>
-                <Label htmlFor="subcategoryId" className="mb-2 block font-semibold">
+                <Label
+                  htmlFor="subcategoryId"
+                  className="mb-2 block font-semibold"
+                >
                   Subcategoria
                 </Label>
                 <select
@@ -446,15 +478,19 @@ export default function EditProductPage() {
                   name="subcategoryId"
                   value={selectedSubcategoryId}
                   onChange={handleSubcategoryChange}
-                  disabled={!selectedMainCategoryId || availableSubcategories.length === 0 || saving}
+                  disabled={
+                    !selectedMainCategoryId ||
+                    availableSubcategories.length === 0 ||
+                    saving
+                  }
                   className="w-full p-2.5 border border-input rounded-md bg-background text-sm disabled:opacity-50"
                 >
                   <option value="">
                     {!selectedMainCategoryId
                       ? "Selecione a Categoria Principal primeiro"
                       : availableSubcategories.length === 0
-                      ? "Sem subcategorias vinculadas"
-                      : "Nenhuma (Apenas Categoria Principal)"}
+                        ? "Sem subcategorias vinculadas"
+                        : "Nenhuma (Apenas Categoria Principal)"}
                   </option>
                   {availableSubcategories.map((sub) => (
                     <option key={sub.id} value={sub.id}>
@@ -521,25 +557,73 @@ export default function EditProductPage() {
                 disabled={saving}
               />
               <span className="text-[11px] text-muted-foreground mt-1 block">
-                Se preenchido, os clientes poderão comprar também através do Mercado Livre.
+                Se preenchido, os clientes poderão comprar também através do
+                Mercado Livre.
               </span>
             </div>
 
             {/* Descrição do Produto */}
-            <div>
-              <Label htmlFor="description" className="mb-2 block font-semibold">
-                Descrição Detalhada do Produto
-              </Label>
-              <textarea
-                id="description"
-                name="description"
-                rows={4}
-                placeholder="Escreva as características, detalhes técnicos, medidas ou informações de garantia..."
-                value={product.description || ""}
-                onChange={handleChange}
-                className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                disabled={saving}
-              />
+            <div className="space-y-3">
+              <div>
+                <Label
+                  htmlFor="descriptionSource"
+                  className="mb-2 block font-semibold"
+                >
+                  Fonte da descrição exibida
+                </Label>
+                <select
+                  id="descriptionSource"
+                  name="descriptionSource"
+                  value={
+                    product.descriptionSource ||
+                    (product.origin === "LOCAL" ? "CUSTOM" : "ML")
+                  }
+                  onChange={(e) =>
+                    setProduct((prev) =>
+                      prev
+                        ? {
+                            ...prev,
+                            descriptionSource: e.target.value as
+                              | "CUSTOM"
+                              | "ML",
+                          }
+                        : null,
+                    )
+                  }
+                  className="w-full p-2.5 border border-input rounded-md bg-background text-sm"
+                  disabled={saving}
+                >
+                  <option value="CUSTOM">
+                    🟢 Descrição personalizada da loja
+                  </option>
+                  <option value="ML">
+                    🟡 Ocultar descrição da loja e usar o catálogo do Mercado
+                    Livre
+                  </option>
+                </select>
+              </div>
+
+              {(product.descriptionSource === "CUSTOM" ||
+                product.origin === "LOCAL") && (
+                <div>
+                  <Label
+                    htmlFor="description"
+                    className="mb-2 block font-semibold"
+                  >
+                    Descrição Detalhada do Produto
+                  </Label>
+                  <textarea
+                    id="description"
+                    name="description"
+                    rows={4}
+                    placeholder="Escreva as características, detalhes técnicos, medidas ou informações de garantia..."
+                    value={product.description || ""}
+                    onChange={handleChange}
+                    className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                    disabled={saving}
+                  />
+                </div>
+              )}
             </div>
 
             {/* Retirada na Loja */}
@@ -548,12 +632,18 @@ export default function EditProductPage() {
                 id="isLocalPickup"
                 checked={product.isLocalPickup ?? true}
                 onCheckedChange={(checked) =>
-                  setProduct((prev) => (prev ? { ...prev, isLocalPickup: Boolean(checked) } : null))
+                  setProduct((prev) =>
+                    prev ? { ...prev, isLocalPickup: Boolean(checked) } : null,
+                  )
                 }
                 disabled={saving}
               />
-              <Label htmlFor="isLocalPickup" className="text-sm cursor-pointer font-medium">
-                Disponível para retirada imediata no balcão da loja física (Pink Music)
+              <Label
+                htmlFor="isLocalPickup"
+                className="text-sm cursor-pointer font-medium"
+              >
+                Disponível para retirada imediata no balcão da loja física (Pink
+                Music)
               </Label>
             </div>
 
@@ -565,7 +655,7 @@ export default function EditProductPage() {
                 disabled={saving}
               >
                 {saving && <Loader2 className="h-4 w-4 animate-spin" />}
-                {saving ? (uploadStatus || "Salvando...") : "Salvar Alterações"}
+                {saving ? uploadStatus || "Salvando..." : "Salvar Alterações"}
               </Button>
               <Button
                 type="button"

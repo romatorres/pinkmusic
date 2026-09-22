@@ -131,6 +131,8 @@ export async function POST(req: NextRequest) {
         available_quantity: productDetails.available_quantity,
         seller_nickname: productDetails.seller?.nickname || "Não informado",
         permalink: productDetails.permalink,
+        description: null,
+        descriptionSource: "ML",
         pictures: {
           create: productDetails.pictures.map((p) => ({ url: p.url })),
         },

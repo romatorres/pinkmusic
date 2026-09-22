@@ -11,6 +11,7 @@ export interface Category {
 }
 
 export type ProductOrigin = "MERCADO_LIVRE" | "LOCAL";
+export type DescriptionSource = "CUSTOM" | "ML";
 
 export interface Product {
   id: string;
@@ -28,6 +29,7 @@ export interface Product {
   permalink?: string | null;
   origin?: ProductOrigin;
   description?: string | null;
+  descriptionSource?: DescriptionSource | null;
   isLocalPickup?: boolean;
   sales?: number;
   pictures: { id: string; url: string; secure_url: string }[];
