@@ -28,8 +28,20 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
   const [pixModalOpen, setPixModalOpen] = useState(false);
 
   const isLocal = product.origin === "LOCAL";
-  const displayDescriptionSource =
-    product.descriptionSource ?? (isLocal ? "CUSTOM" : "ML");
+  const hasCustomDesc = Boolean(
+    product.description && product.description.trim().length > 0
+  );
+  const hasMlAttrs = Boolean(
+    product.attributes && product.attributes.length > 0
+  );
+
+  // Garante que seja exibida apenas UMA descrição (nunca ambas simultaneamente):
+  // 1. Se configurado como 'ML', prefere atributos do Mercado Livre (se existirem).
+  // 2. Se configurado como 'CUSTOM' ou não definido, prioriza a descrição personalizada da loja.
+  // 3. Fallback inteligente: se a opção preferida estiver vazia, exibe a outra opção disponível.
+  const preferMl = product.descriptionSource === "ML";
+  const showMlAttributes = hasMlAttrs && (preferMl || !hasCustomDesc);
+  const showCustomDescription = !showMlAttributes && hasCustomDesc;
 
   return (
     <section>
@@ -165,33 +177,33 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
                     <TriangleAlert size={20} />
                   </span>
                   <p className="text-sm font-semibold text-primary">
-                    Descrições, características e imagens são de
-                    responsabilidade do Mercado Livre.
+                    {showCustomDescription
+                      ? "Imagens, estoque e disponibilidade são integrados ao Mercado Livre."
+                      : "Descrições, características e imagens são de responsabilidade do Mercado Livre."}
                   </p>
                 </div>
               )}
 
               {/* Descrição cadastrada pela loja */}
-              {product.descriptionSource === "CUSTOM" &&
-                product.description && (
-                  <div className="border-t pt-6">
-                    <h3 className="text-xl font-semibold mb-3">
-                      Descrição do Produto
-                    </h3>
-                    <p className="text-foreground/80 whitespace-pre-line text-sm leading-relaxed">
-                      {product.description}
-                    </p>
-                  </div>
-                )}
+              {showCustomDescription && (
+                <div className="border-t pt-6">
+                  <h3 className="text-xl font-semibold mb-3">
+                    Descrição do Produto
+                  </h3>
+                  <p className="text-foreground/80 whitespace-pre-line text-sm leading-relaxed">
+                    {product.description}
+                  </p>
+                </div>
+              )}
 
-              {/* Atributos (se houver) */}
-              {product.attributes && product.attributes.length > 0 && (
+              {/* Atributos do Mercado Livre / características */}
+              {showMlAttributes && (
                 <div className="border-t pt-6">
                   <h3 className="text-xl font-semibold mb-3">
                     Características
                   </h3>
                   <div className="space-y-2">
-                    {product.attributes.slice(0, 8).map((attr, index) => (
+                    {product.attributes!.slice(0, 8).map((attr, index) => (
                       <div
                         key={index}
                         className="flex justify-between py-1 border-b border-card"
