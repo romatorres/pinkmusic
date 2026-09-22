@@ -134,12 +134,12 @@ export default function EditProductPage() {
     setProduct((prev) =>
       prev
         ? {
-            ...prev,
-            [name]:
-              name === "price" || name === "available_quantity"
-                ? parseFloat(value) || 0
-                : value,
-          }
+          ...prev,
+          [name]:
+            name === "price" || name === "available_quantity"
+              ? parseFloat(value) || 0
+              : value,
+        }
         : null,
     );
   };
@@ -582,11 +582,11 @@ export default function EditProductPage() {
                     setProduct((prev) =>
                       prev
                         ? {
-                            ...prev,
-                            descriptionSource: e.target.value as
-                              | "CUSTOM"
-                              | "ML",
-                          }
+                          ...prev,
+                          descriptionSource: e.target.value as
+                            | "CUSTOM"
+                            | "ML",
+                        }
                         : null,
                     )
                   }
@@ -597,7 +597,7 @@ export default function EditProductPage() {
                     🟢 Descrição personalizada da loja
                   </option>
                   <option value="ML">
-                    🟡 Ocultar descrição da loja e usar o catálogo do Mercado
+                    🟡 Descrição do catálogo do Mercado
                     Livre
                   </option>
                 </select>
@@ -605,25 +605,25 @@ export default function EditProductPage() {
 
               {(product.descriptionSource === "CUSTOM" ||
                 product.origin === "LOCAL") && (
-                <div>
-                  <Label
-                    htmlFor="description"
-                    className="mb-2 block font-semibold"
-                  >
-                    Descrição Detalhada do Produto
-                  </Label>
-                  <textarea
-                    id="description"
-                    name="description"
-                    rows={4}
-                    placeholder="Escreva as características, detalhes técnicos, medidas ou informações de garantia..."
-                    value={product.description || ""}
-                    onChange={handleChange}
-                    className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                    disabled={saving}
-                  />
-                </div>
-              )}
+                  <div>
+                    <Label
+                      htmlFor="description"
+                      className="mb-2 block font-semibold"
+                    >
+                      Descrição Detalhada do Produto
+                    </Label>
+                    <textarea
+                      id="description"
+                      name="description"
+                      rows={4}
+                      placeholder="Escreva as características, detalhes técnicos, medidas ou informações de garantia..."
+                      value={product.description || ""}
+                      onChange={handleChange}
+                      className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                      disabled={saving}
+                    />
+                  </div>
+                )}
             </div>
 
             {/* Retirada na Loja */}
