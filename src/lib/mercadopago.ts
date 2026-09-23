@@ -62,7 +62,18 @@ export async function createPixPayment(
     external_reference: input.orderId,
     // PIX expira em 30 minutos
     date_of_expiration: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
-    notification_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/mercadopago`,
+    // Envia notification_url apenas se for uma URL pública válida (https:// e não localhost)
+    ...(() => {
+      const rawUrl =
+        process.env.NEXT_PUBLIC_APP_URL ||
+        process.env.APP_URL ||
+        "https://www.pinkmusic.com.br";
+      const cleanUrl = rawUrl.trim().replace(/\/+$/, "");
+      if (cleanUrl.startsWith("https://") && !cleanUrl.includes("localhost")) {
+        return { notification_url: `${cleanUrl}/api/webhooks/mercadopago` };
+      }
+      return {};
+    })(),
   };
 
   const response = await fetch(`${MP_BASE_URL}/v1/payments`, {
