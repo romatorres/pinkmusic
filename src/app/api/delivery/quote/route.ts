@@ -6,11 +6,17 @@ import { getDeliveryQuote } from "@/lib/uberdirect";
  *
  * Calcula a cotação de entrega em tempo real para o checkout do cliente.
  * Aplica margem de segurança de R$ 2,00 com arredondamento para cima.
+ *
+ * Body esperado:
+ *   { address: string, zipCode?: string }
+ *
+ * O address deve conter: rua, número e bairro (ex: "Rua das Flores, 100, Centro")
+ * O zipCode é opcional — se não fornecido, usa o CEP padrão da cidade de entrega.
  */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { address } = body;
+    const { address, zipCode } = body;
 
     if (!address || typeof address !== "string" || address.trim().length < 5) {
       return NextResponse.json(
@@ -26,9 +32,14 @@ export async function POST(request: NextRequest) {
       street_address: address.trim(),
       city: process.env.STORE_CITY || "Feira de Santana",
       state: process.env.STORE_STATE || "BA",
-      zip_code: process.env.STORE_ZIP || "44001-000",
+      // CEP do cliente (se informado) ou CEP genérico da cidade — sem traços
+      zip_code: zipCode
+        ? String(zipCode).replace(/\D/g, "")
+        : "44001000",
       country: "BR",
     };
+
+    console.log("[delivery/quote] Solicitando cotação para:", dropoff.street_address);
 
     const quote = await getDeliveryQuote(dropoff);
 
@@ -38,6 +49,8 @@ export async function POST(request: NextRequest) {
     // Regra da margem de segurança: + R$ 2,00 e arredondamento para o próximo real
     // Ex: R$ 12,40 + R$ 2,00 = R$ 14,40 -> R$ 15,00
     const customerFee = Math.ceil(rawFeeReais + 2.0);
+
+    console.log(`[delivery/quote] Cotação OK: raw=R$${rawFeeReais} → cliente=R$${customerFee}`);
 
     return NextResponse.json({
       success: true,

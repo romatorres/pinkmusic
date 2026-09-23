@@ -48,7 +48,7 @@ export async function GET(
       street_address: order.deliveryAddress,
       city: process.env.STORE_CITY || "Feira de Santana",
       state: process.env.STORE_STATE || "BA",
-      zip_code: process.env.STORE_ZIP || "44001-000",
+      zip_code: (process.env.STORE_ZIP || "44002000").replace(/\D/g, ""),
       country: "BR",
     };
 
@@ -104,7 +104,7 @@ export async function POST(
       street_address: order.deliveryAddress,
       city: process.env.STORE_CITY || "Feira de Santana",
       state: process.env.STORE_STATE || "BA",
-      zip_code: process.env.STORE_ZIP || "44001-000",
+      zip_code: (process.env.STORE_ZIP || "44002000").replace(/\D/g, ""),
       country: "BR",
     };
 

@@ -21,14 +21,18 @@ let cachedToken: { value: string; expiresAt: number } | null = null;
  * Reutiliza token em cache enquanto ainda for válido.
  */
 async function getUberAccessToken(): Promise<string> {
-  const clientId = process.env.UBER_CLIENT_ID;
-  const clientSecret = process.env.UBER_CLIENT_SECRET;
+  const rawClientId = process.env.UBER_CLIENT_ID;
+  const rawClientSecret = process.env.UBER_CLIENT_SECRET;
 
-  if (!clientId || !clientSecret) {
+  if (!rawClientId || !rawClientSecret) {
     throw new Error(
       "UBER_CLIENT_ID e UBER_CLIENT_SECRET não configurados nas variáveis de ambiente."
     );
   }
+
+  // Sanitiza contra espaços acidentais ou aspas coladas do painel da Vercel
+  const clientId = rawClientId.trim().replace(/^["']|["']$/g, "");
+  const clientSecret = rawClientSecret.trim().replace(/^["']|["']$/g, "");
 
   // Reutiliza token se ainda válido (com 60s de margem)
   if (cachedToken && Date.now() < cachedToken.expiresAt - 60_000) {
@@ -49,8 +53,15 @@ async function getUberAccessToken(): Promise<string> {
   const data = await response.json();
 
   if (!response.ok) {
+    console.error("[Uber Direct] OAuth falhou:", {
+      status: response.status,
+      error: data.error,
+      error_description: data.error_description,
+      clientIdLength: clientId.length,
+    });
     throw new Error(
-      data.error_description || "Falha ao autenticar com o Uber Direct."
+      data.error_description ||
+        `Falha OAuth Uber Direct (HTTP ${response.status}): ${data.error}`
     );
   }
 
@@ -88,17 +99,19 @@ export async function getDeliveryQuote(
   dropoff: DeliveryAddress
 ): Promise<DeliveryQuote> {
   const token = await getUberAccessToken();
-  const customerId = process.env.UBER_CUSTOMER_ID;
+  const rawCustomerId = process.env.UBER_CUSTOMER_ID;
 
-  if (!customerId) {
+  if (!rawCustomerId) {
     throw new Error("UBER_CUSTOMER_ID não configurado.");
   }
 
+  const customerId = rawCustomerId.trim().replace(/^["']|["']$/g, "");
+
   const pickup: DeliveryAddress = {
-    street_address: process.env.STORE_ADDRESS || "Rua Exemplo, 123, Centro",
+    street_address: process.env.STORE_ADDRESS || "Rua JJ Seabra 31 Centro",
     city: process.env.STORE_CITY || "Feira de Santana",
     state: process.env.STORE_STATE || "BA",
-    zip_code: process.env.STORE_ZIP || "44001-000",
+    zip_code: (process.env.STORE_ZIP || "44002000").replace(/\D/g, ""),
     country: "BR",
     latitude: parseFloat(process.env.STORE_LAT || "-12.2664"),
     longitude: parseFloat(process.env.STORE_LNG || "-38.9663"),
@@ -114,7 +127,10 @@ export async function getDeliveryQuote(
       },
       body: JSON.stringify({
         pickup_address: JSON.stringify(pickup),
-        dropoff_address: JSON.stringify(dropoff),
+        dropoff_address: JSON.stringify({
+          ...dropoff,
+          zip_code: dropoff.zip_code.replace(/\D/g, ""),
+        }),
       }),
     }
   );
@@ -160,17 +176,19 @@ export async function createDelivery(
   input: CreateDeliveryInput
 ): Promise<DeliveryResult> {
   const token = await getUberAccessToken();
-  const customerId = process.env.UBER_CUSTOMER_ID;
+  const rawCustomerId = process.env.UBER_CUSTOMER_ID;
 
-  if (!customerId) {
+  if (!rawCustomerId) {
     throw new Error("UBER_CUSTOMER_ID não configurado.");
   }
 
+  const customerId = rawCustomerId.trim().replace(/^["']|["']$/g, "");
+
   const pickupAddress: DeliveryAddress = {
-    street_address: process.env.STORE_ADDRESS || "Rua Exemplo, 123, Centro",
+    street_address: process.env.STORE_ADDRESS || "Rua JJ Seabra 31 Centro",
     city: process.env.STORE_CITY || "Feira de Santana",
     state: process.env.STORE_STATE || "BA",
-    zip_code: process.env.STORE_ZIP || "44001-000",
+    zip_code: (process.env.STORE_ZIP || "44002000").replace(/\D/g, ""),
     country: "BR",
     latitude: parseFloat(process.env.STORE_LAT || "-12.2664"),
     longitude: parseFloat(process.env.STORE_LNG || "-38.9663"),
@@ -234,7 +252,8 @@ export async function createDelivery(
  */
 export async function getDeliveryStatus(deliveryId: string) {
   const token = await getUberAccessToken();
-  const customerId = process.env.UBER_CUSTOMER_ID;
+  const rawCustomerId = process.env.UBER_CUSTOMER_ID;
+  const customerId = rawCustomerId ? rawCustomerId.trim().replace(/^["']|["']$/g, "") : "";
 
   const response = await fetch(
     `${UBER_BASE_URL}/customers/${customerId}/deliveries/${deliveryId}`,

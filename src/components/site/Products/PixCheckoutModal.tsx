@@ -84,6 +84,9 @@ export default function PixCheckoutModal({
   const [whatsapp, setWhatsapp] = useState("");
   const [deliveryType, setDeliveryType] = useState<"pickup" | "delivery">("pickup");
   const [address, setAddress] = useState("");
+  const [neighborhood, setNeighborhood] = useState("");
+  const [complement, setComplement] = useState("");
+  const [zipCode, setZipCode] = useState("");
 
   // Cotação de frete
   const [deliveryFee, setDeliveryFee] = useState<number>(0);
@@ -103,6 +106,24 @@ export default function PixCheckoutModal({
     step === "qrcode" ? orderData?.expiresAt ?? null : null
   );
 
+  // Helper para endereço completo e legível
+  const getFullAddress = useCallback(() => {
+    const parts = [address.trim()];
+    if (neighborhood.trim()) parts.push(`Bairro ${neighborhood.trim()}`);
+    if (complement.trim()) parts.push(complement.trim());
+    return parts.filter(Boolean).join(", ");
+  }, [address, neighborhood, complement]);
+
+  // Invalida cotação se endereço for alterado
+  const invalidateQuote = useCallback(() => {
+    if (quoteFetched) {
+      setQuoteFetched(false);
+      setDeliveryFee(0);
+      setEstimatedMinutes(null);
+      setQuoteError(null);
+    }
+  }, [quoteFetched]);
+
   // Reset ao fechar
   useEffect(() => {
     if (!open) {
@@ -112,6 +133,9 @@ export default function PixCheckoutModal({
         setWhatsapp("");
         setDeliveryType("pickup");
         setAddress("");
+        setNeighborhood("");
+        setComplement("");
+        setZipCode("");
         setOrderData(null);
         setCopied(false);
         setDeliveryFee(0);
@@ -134,31 +158,28 @@ export default function PixCheckoutModal({
     }
   };
 
-  // Quando muda endereço, invalida cotação atual
-  const handleAddressChange = (value: string) => {
-    setAddress(value);
-    if (quoteFetched) {
-      setQuoteFetched(false);
-      setDeliveryFee(0);
-      setEstimatedMinutes(null);
-      setQuoteError(null);
-    }
-  };
-
   // Consulta cotação de frete na Uber Direct
   const handleFetchQuote = async () => {
-    if (!address.trim() || address.trim().length < 5) {
-      setQuoteError("Informe o endereço completo com rua e número.");
+    if (!address.trim() || address.trim().length < 4) {
+      setQuoteError("Informe a rua e o número da entrega.");
+      return;
+    }
+    if (!neighborhood.trim()) {
+      setQuoteError("Informe o bairro da entrega.");
       return;
     }
     setQuoteLoading(true);
     setQuoteError(null);
     setQuoteFetched(false);
     try {
+      const fullAddr = getFullAddress();
       const res = await fetch("/api/delivery/quote", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ address: address.trim() }),
+        body: JSON.stringify({
+          address: fullAddr,
+          zipCode: zipCode.trim() || undefined,
+        }),
       });
       const result = await res.json();
       if (result.success && result.data) {
@@ -224,8 +245,8 @@ export default function PixCheckoutModal({
       toast.error("Por favor, informe seu WhatsApp.");
       return;
     }
-    if (deliveryType === "delivery" && !address.trim()) {
-      toast.error("Por favor, informe o endereço de entrega.");
+    if (deliveryType === "delivery" && (!address.trim() || !neighborhood.trim())) {
+      toast.error("Por favor, informe a rua, número e bairro.");
       return;
     }
     if (deliveryType === "delivery" && !quoteFetched) {
@@ -243,7 +264,7 @@ export default function PixCheckoutModal({
           customerName: name.trim(),
           customerPhone: whatsapp.trim(),
           deliveryType,
-          deliveryAddress: address.trim() || null,
+          deliveryAddress: deliveryType === "delivery" ? getFullAddress() : null,
           deliveryFee: deliveryType === "delivery" ? deliveryFee : 0,
           quantity: 1,
         }),
@@ -393,35 +414,91 @@ export default function PixCheckoutModal({
                 />
               </div>
               {deliveryType === "delivery" && (
-                <div className="space-y-2">
-                  <Label htmlFor="checkout-address" className="text-xs">
-                    Endereço de Entrega <span className="text-red-500">*</span>
-                  </Label>
-                  <div className="flex gap-2 mt-1">
+                <div className="space-y-3 p-3 bg-muted/20 border border-border/70 rounded-xl">
+                  <div>
+                    <Label htmlFor="checkout-street" className="text-xs">
+                      Rua e Número <span className="text-red-500">*</span>
+                    </Label>
                     <Input
-                      id="checkout-address"
-                      placeholder="Rua, número, bairro..."
+                      id="checkout-street"
+                      placeholder="Ex: Av. Getúlio Vargas, 100"
                       value={address}
-                      onChange={(e) => handleAddressChange(e.target.value)}
-                      onKeyDown={(e) => e.key === "Enter" && handleFetchQuote()}
-                      className="flex-1"
+                      onChange={(e) => {
+                        setAddress(e.target.value);
+                        invalidateQuote();
+                      }}
+                      className="mt-1"
                     />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={handleFetchQuote}
-                      disabled={quoteLoading || !address.trim()}
-                      className="shrink-0 h-10 px-3 text-xs font-medium"
-                    >
-                      {quoteLoading ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <MapPin className="h-4 w-4" />
-                      )}
-                      {quoteLoading ? "" : "Calcular"}
-                    </Button>
                   </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <Label htmlFor="checkout-neighborhood" className="text-xs">
+                        Bairro <span className="text-red-500">*</span>
+                      </Label>
+                      <Input
+                        id="checkout-neighborhood"
+                        placeholder="Ex: Centro"
+                        value={neighborhood}
+                        onChange={(e) => {
+                          setNeighborhood(e.target.value);
+                          invalidateQuote();
+                        }}
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="checkout-zip" className="text-xs text-muted-foreground">
+                        CEP (Opcional)
+                      </Label>
+                      <Input
+                        id="checkout-zip"
+                        placeholder="44000-000"
+                        value={zipCode}
+                        onChange={(e) => {
+                          setZipCode(e.target.value);
+                          invalidateQuote();
+                        }}
+                        className="mt-1"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="checkout-complement" className="text-xs text-muted-foreground">
+                      Complemento / Referência (Opcional)
+                    </Label>
+                    <Input
+                      id="checkout-complement"
+                      placeholder="Ex: Apto 101, próximo ao banco"
+                      value={complement}
+                      onChange={(e) => {
+                        setComplement(e.target.value);
+                        invalidateQuote();
+                      }}
+                      className="mt-1"
+                    />
+                  </div>
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleFetchQuote}
+                    disabled={quoteLoading || !address.trim() || !neighborhood.trim()}
+                    className="w-full h-9 text-xs font-semibold flex items-center justify-center gap-1.5 border-purple-300 dark:border-purple-800 text-purple-700 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-950/40"
+                  >
+                    {quoteLoading ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin text-purple-600" />
+                        Calculando frete no Uber Direct...
+                      </>
+                    ) : (
+                      <>
+                        <MapPin className="h-4 w-4" />
+                        {quoteFetched ? "Recalcular Frete" : "Calcular Frete com Uber Direct"}
+                      </>
+                    )}
+                  </Button>
 
                   {/* Loading da cotação */}
                   {quoteLoading && (
