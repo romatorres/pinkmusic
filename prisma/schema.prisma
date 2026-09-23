@@ -99,6 +99,7 @@ model Order {
   totalAmount     Float
   deliveryType    String      // "pickup" | "delivery"
   deliveryAddress String?
+  deliveryFee     Float       @default(0)
   status          OrderStatus @default(PENDING_PAYMENT)
 
   // Mercado Pago

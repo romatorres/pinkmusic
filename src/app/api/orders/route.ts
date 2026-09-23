@@ -13,6 +13,7 @@ export async function POST(request: NextRequest) {
       customerPhone,
       deliveryType,
       deliveryAddress,
+      deliveryFee,
       quantity = 1,
     } = body;
 
@@ -56,7 +57,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const totalAmount = product.price * quantity;
+    // Taxa de entrega (apenas se deliveryType === "delivery")
+    const validDeliveryFee =
+      deliveryType === "delivery" ? Math.max(0, Number(deliveryFee) || 0) : 0;
+    const totalAmount = product.price * quantity + validDeliveryFee;
 
     // Cria o pedido no banco (status PENDING_PAYMENT)
     const order = await prisma.order.create({
@@ -66,18 +70,24 @@ export async function POST(request: NextRequest) {
         productId,
         quantity,
         totalAmount,
+        deliveryFee: validDeliveryFee,
         deliveryType,
         deliveryAddress: deliveryAddress?.trim() || null,
         status: "PENDING_PAYMENT",
       },
     });
 
-    // Gera o QR Code PIX no Mercado Pago
+    // Gera o QR Code PIX no Mercado Pago com o valor total (produto + frete)
+    const pixDescription =
+      validDeliveryFee > 0
+        ? `Pink Music - ${product.title.slice(0, 75)} (+ Entrega Uber)`
+        : `Pink Music - ${product.title.slice(0, 100)}`;
+
     const pixResult = await createPixPayment({
       orderId: order.id,
       amount: totalAmount,
       customerName: customerName.trim(),
-      description: `Pink Music - ${product.title.slice(0, 100)}`,
+      description: pixDescription,
     });
 
     // Atualiza o pedido com os dados do pagamento MP

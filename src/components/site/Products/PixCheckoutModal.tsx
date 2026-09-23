@@ -23,6 +23,8 @@ import {
   QrCode,
   XCircle,
   Clock,
+  MapPin,
+  AlertCircle,
 } from "lucide-react";
 import { toast } from "sonner";
 import type { Product } from "@/lib/types";
@@ -83,6 +85,13 @@ export default function PixCheckoutModal({
   const [deliveryType, setDeliveryType] = useState<"pickup" | "delivery">("pickup");
   const [address, setAddress] = useState("");
 
+  // Cotação de frete
+  const [deliveryFee, setDeliveryFee] = useState<number>(0);
+  const [quoteLoading, setQuoteLoading] = useState(false);
+  const [quoteError, setQuoteError] = useState<string | null>(null);
+  const [quoteFetched, setQuoteFetched] = useState(false);
+  const [estimatedMinutes, setEstimatedMinutes] = useState<number | null>(null);
+
   // Flow state
   const [step, setStep] = useState<Step>("form");
   const [loading, setLoading] = useState(false);
@@ -105,9 +114,68 @@ export default function PixCheckoutModal({
         setAddress("");
         setOrderData(null);
         setCopied(false);
+        setDeliveryFee(0);
+        setQuoteLoading(false);
+        setQuoteError(null);
+        setQuoteFetched(false);
+        setEstimatedMinutes(null);
       }, 300);
     }
   }, [open]);
+
+  // Quando troca para retirada, limpa cotação
+  const handleDeliveryTypeChange = (type: "pickup" | "delivery") => {
+    setDeliveryType(type);
+    if (type === "pickup") {
+      setDeliveryFee(0);
+      setQuoteError(null);
+      setQuoteFetched(false);
+      setEstimatedMinutes(null);
+    }
+  };
+
+  // Quando muda endereço, invalida cotação atual
+  const handleAddressChange = (value: string) => {
+    setAddress(value);
+    if (quoteFetched) {
+      setQuoteFetched(false);
+      setDeliveryFee(0);
+      setEstimatedMinutes(null);
+      setQuoteError(null);
+    }
+  };
+
+  // Consulta cotação de frete na Uber Direct
+  const handleFetchQuote = async () => {
+    if (!address.trim() || address.trim().length < 5) {
+      setQuoteError("Informe o endereço completo com rua e número.");
+      return;
+    }
+    setQuoteLoading(true);
+    setQuoteError(null);
+    setQuoteFetched(false);
+    try {
+      const res = await fetch("/api/delivery/quote", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ address: address.trim() }),
+      });
+      const result = await res.json();
+      if (result.success && result.data) {
+        setDeliveryFee(result.data.customerFee);
+        setEstimatedMinutes(result.data.estimatedMinutes);
+        setQuoteFetched(true);
+      } else {
+        setQuoteError(
+          result.error || "Não foi possível calcular o frete para este endereço."
+        );
+      }
+    } catch {
+      setQuoteError("Erro de conexão ao calcular frete. Tente novamente.");
+    } finally {
+      setQuoteLoading(false);
+    }
+  };
 
   // Timer de expiração
   useEffect(() => {
@@ -160,6 +228,10 @@ export default function PixCheckoutModal({
       toast.error("Por favor, informe o endereço de entrega.");
       return;
     }
+    if (deliveryType === "delivery" && !quoteFetched) {
+      toast.error("Calcule o frete antes de gerar o PIX.");
+      return;
+    }
 
     setLoading(true);
     try {
@@ -172,6 +244,7 @@ export default function PixCheckoutModal({
           customerPhone: whatsapp.trim(),
           deliveryType,
           deliveryAddress: address.trim() || null,
+          deliveryFee: deliveryType === "delivery" ? deliveryFee : 0,
           quantity: 1,
         }),
       });
@@ -250,7 +323,9 @@ export default function PixCheckoutModal({
                 </p>
               </div>
               <div className="text-right">
-                <span className="text-xs text-muted-foreground block">Total</span>
+                <span className="text-xs text-muted-foreground block">
+                  {quoteFetched ? "Subtotal" : "Preço"}
+                </span>
                 <span className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
                   {formatPrice(product.price)}
                 </span>
@@ -263,7 +338,7 @@ export default function PixCheckoutModal({
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
-                  onClick={() => setDeliveryType("pickup")}
+                  onClick={() => handleDeliveryTypeChange("pickup")}
                   className={`flex flex-col items-center justify-center p-3 rounded-lg border text-center transition-all cursor-pointer ${
                     deliveryType === "pickup"
                       ? "border-emerald-600 bg-emerald-50/50 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200 font-semibold"
@@ -277,7 +352,7 @@ export default function PixCheckoutModal({
 
                 <button
                   type="button"
-                  onClick={() => setDeliveryType("delivery")}
+                  onClick={() => handleDeliveryTypeChange("delivery")}
                   className={`flex flex-col items-center justify-center p-3 rounded-lg border text-center transition-all cursor-pointer ${
                     deliveryType === "delivery"
                       ? "border-emerald-600 bg-emerald-50/50 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200 font-semibold"
@@ -318,17 +393,85 @@ export default function PixCheckoutModal({
                 />
               </div>
               {deliveryType === "delivery" && (
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="checkout-address" className="text-xs">
                     Endereço de Entrega <span className="text-red-500">*</span>
                   </Label>
-                  <Input
-                    id="checkout-address"
-                    placeholder="Rua, número, bairro..."
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    className="mt-1"
-                  />
+                  <div className="flex gap-2 mt-1">
+                    <Input
+                      id="checkout-address"
+                      placeholder="Rua, número, bairro..."
+                      value={address}
+                      onChange={(e) => handleAddressChange(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && handleFetchQuote()}
+                      className="flex-1"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleFetchQuote}
+                      disabled={quoteLoading || !address.trim()}
+                      className="shrink-0 h-10 px-3 text-xs font-medium"
+                    >
+                      {quoteLoading ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <MapPin className="h-4 w-4" />
+                      )}
+                      {quoteLoading ? "" : "Calcular"}
+                    </Button>
+                  </div>
+
+                  {/* Loading da cotação */}
+                  {quoteLoading && (
+                    <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                      <Loader2 className="h-3.5 w-3.5 animate-spin text-purple-500" />
+                      Consultando Uber Direct...
+                    </p>
+                  )}
+
+                  {/* Erro de cotação */}
+                  {quoteError && !quoteLoading && (
+                    <div className="flex items-start gap-2 text-xs text-destructive bg-destructive/10 border border-destructive/20 rounded-lg p-2.5">
+                      <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+                      <span>{quoteError}</span>
+                    </div>
+                  )}
+
+                  {/* Card de resultado da cotação */}
+                  {quoteFetched && !quoteLoading && (
+                    <div className="rounded-lg bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800 p-3 space-y-1.5">
+                      <div className="flex items-center gap-1.5 text-xs font-semibold text-purple-700 dark:text-purple-300">
+                        <Truck className="h-4 w-4" />
+                        Entrega Expressa via Uber Direct
+                      </div>
+                      <div className="flex justify-between text-xs text-muted-foreground">
+                        <span>Previsão de entrega:</span>
+                        <span className="font-medium text-foreground">
+                          ~{estimatedMinutes} minutos
+                        </span>
+                      </div>
+                      <div className="border-t border-purple-200/60 dark:border-purple-800/60 pt-1.5 space-y-1">
+                        <div className="flex justify-between text-xs">
+                          <span className="text-muted-foreground">Subtotal (produto):</span>
+                          <span>{formatPrice(product.price)}</span>
+                        </div>
+                        <div className="flex justify-between text-xs">
+                          <span className="text-muted-foreground">Frete Uber Direct:</span>
+                          <span className="text-purple-700 dark:text-purple-300 font-medium">
+                            + {formatPrice(deliveryFee)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between text-sm font-bold border-t border-purple-200/60 dark:border-purple-800/60 pt-1 mt-1">
+                          <span>Total no PIX:</span>
+                          <span className="text-emerald-600 dark:text-emerald-400">
+                            {formatPrice(product.price + deliveryFee)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -336,8 +479,8 @@ export default function PixCheckoutModal({
             <Button
               type="button"
               onClick={handleGeneratePix}
-              disabled={loading}
-              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-full flex items-center justify-center gap-2 font-semibold shadow-md"
+              disabled={loading || (deliveryType === "delivery" && !quoteFetched)}
+              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-full flex items-center justify-center gap-2 font-semibold shadow-md disabled:opacity-60"
             >
               {loading ? (
                 <>
@@ -347,7 +490,9 @@ export default function PixCheckoutModal({
               ) : (
                 <>
                   <QrCode className="h-5 w-5" />
-                  Gerar QR Code PIX
+                  {deliveryType === "delivery" && !quoteFetched
+                    ? "Calcule o frete para continuar"
+                    : "Gerar QR Code PIX"}
                 </>
               )}
             </Button>
