@@ -36,9 +36,9 @@
 ## ⏳ O que falta fazer (Configuração & Testes Práticos)
 
 ### 1. Preenchimento de Credenciais no `.env.local`
-- [ ] Inserir o `MP_ACCESS_TOKEN` (obtido no painel de desenvolvedor do Mercado Pago)
-- [ ] Inserir credenciais Uber Direct: `UBER_CLIENT_ID`, `UBER_CLIENT_SECRET` e `UBER_CUSTOMER_ID`
-- [ ] Confirmar os dados da loja física (`STORE_ADDRESS`, `STORE_CITY`, `STORE_PHONE`, etc.)
+- [x] Inserir o `MERCADOPAGO_ACCESS_TOKEN` (Validado e gerando PIX em produção com chave `contato@pinkmusic.com.br`)
+- [x] Inserir credenciais Uber Direct: `UBER_CLIENT_ID`, `UBER_CLIENT_SECRET` e `UBER_CUSTOMER_ID`
+- [x] Confirmar os dados da loja física (`STORE_ADDRESS`, `STORE_CITY`, `STORE_PHONE`, etc.)
 
 ### 2. Configuração de Webhooks (Quando publicar ou via túnel em dev)
 - [ ] Cadastrar webhook do Mercado Pago apontando para: `/api/webhooks/mercadopago`
