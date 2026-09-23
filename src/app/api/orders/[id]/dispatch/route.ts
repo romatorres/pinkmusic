@@ -48,7 +48,7 @@ export async function GET(
       street_address: order.deliveryAddress,
       city: process.env.STORE_CITY || "Feira de Santana",
       state: process.env.STORE_STATE || "BA",
-      zip_code: "00000-000", // será refinado em v2 com campo CEP no form
+      zip_code: process.env.STORE_ZIP || "44001-000",
       country: "BR",
     };
 
@@ -104,7 +104,7 @@ export async function POST(
       street_address: order.deliveryAddress,
       city: process.env.STORE_CITY || "Feira de Santana",
       state: process.env.STORE_STATE || "BA",
-      zip_code: "00000-000",
+      zip_code: process.env.STORE_ZIP || "44001-000",
       country: "BR",
     };
 

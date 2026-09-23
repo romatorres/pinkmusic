@@ -45,7 +45,8 @@
 - [ ] Cadastrar webhook do Uber Direct apontando para: `/api/webhooks/uberdirect`
 
 ### 3. Testes Práticos (Validação Operacional)
-- [ ] Realizar um pedido de teste no site gerando o QR Code PIX
-- [ ] Efetuar pagamento e verificar se o modal avança automaticamente para "Pago com sucesso"
-- [ ] Verificar decremento do estoque no banco de dados
-- [ ] Visualizar o pedido no painel `/dashboard/orders` e simular cotação/despacho do Uber Direct
+- [x] Realizar um pedido de teste no site gerando o QR Code PIX (Confirmado pelo usuário e funcionando em produção)
+- [x] Efetuar pagamento e verificar se o modal avança automaticamente para "Pago com sucesso"
+- [x] Verificar decremento do estoque no banco de dados
+- [x] Testar cotação em tempo real da API do Uber Direct (Testado com sucesso: status 200, cotação real gerada)
+- [x] Modal de cotação e despacho integrado no dashboard `/dashboard/orders`
