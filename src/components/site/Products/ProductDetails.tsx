@@ -15,7 +15,6 @@ import {
 import Link from "next/link";
 import { PageContainer } from "@/components/ui/Page-container";
 import Social from "../_components/Social";
-import PixCheckoutModal from "./PixCheckoutModal";
 import { CartCheckoutModal } from "./CartCheckoutModal";
 import type { ProductDetailsProps } from "@/lib/types";
 import { useCartStore } from "@/store/cartStore";

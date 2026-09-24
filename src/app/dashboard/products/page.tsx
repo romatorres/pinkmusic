@@ -7,7 +7,7 @@ import React, {
   useMemo,
   Suspense,
 } from "react";
-import { Eye, Trash2, Edit, PackagePlus, Store, ShoppingCart } from "lucide-react";
+import { Eye, Trash2, Edit, Store, ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import {
   Table,

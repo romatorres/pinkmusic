@@ -202,20 +202,20 @@ export default function PixCheckoutModal({
     }
   };
 
-  // Timer de expiração
-  useEffect(() => {
-    if (step === "qrcode" && expired) {
-      setStep("expired");
-      stopPolling();
-    }
-  }, [expired, step]);
-
   const stopPolling = useCallback(() => {
     if (pollingRef.current) {
       clearInterval(pollingRef.current);
       pollingRef.current = null;
     }
   }, []);
+
+  // Timer de expiração
+  useEffect(() => {
+    if (step === "qrcode" && expired) {
+      setStep("expired");
+      stopPolling();
+    }
+  }, [expired, step, stopPolling]);
 
   // Polling de status do pedido
   const startPolling = useCallback(

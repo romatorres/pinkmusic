@@ -33,13 +33,6 @@ function formatPrice(value: number) {
   }).format(value);
 }
 
-const PACKAGE_SIZE_LABEL: Record<string, string> = {
-  SMALL: "Pequeno",
-  MEDIUM: "Médio",
-  LARGE: "Grande",
-  XLARGE: "Muito Grande",
-};
-
 export function CartDrawer() {
   const {
     items,
