@@ -262,7 +262,7 @@ function HeaderLayout({
                 aria-label={isAuth ? `Olá, ${userName}` : "Entrar na conta"}
                 className="cursor-pointer transition-colors duration-200 ease-in-out text-primary hover:text-primary/80 flex items-center gap-1"
               >
-                <User className="h-5 w-5" />
+                <User className="h-6 w-6" />
                 {isAuth && userName && (
                   <span className="hidden lg:flex items-center gap-1 max-w-[90px] text-sm font-medium">
                     <span className="truncate">{userName.split(" ")[0]}</span>
@@ -315,7 +315,7 @@ function HeaderLayout({
               aria-label={`Carrinho${cartCount > 0 ? ` (${cartCount} itens)` : ""}`}
               className="cursor-pointer relative transition-colors duration-200 ease-in-out hover:text-primary/70"
             >
-              <ShoppingCart className="h-5 w-5" />
+              <ShoppingCart className="h-6 w-6" />
               {cartCount > 0 && (
                 <span className="absolute -top-1.5 -right-1.5 h-4 w-4 rounded-full bg-primary text-white text-[10px] font-bold flex items-center justify-center leading-none">
                   {cartCount > 9 ? "9+" : cartCount}
@@ -466,10 +466,15 @@ function HeaderContent() {
   }, []);
 
   const handleLogout = async () => {
-    await fetch("/api/auth/logout", { method: "POST" });
-    logout();
-    setUserMenuOpen(false);
-    router.refresh();
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } finally {
+      useCartStore.getState().clearCart();
+      logout();
+      setUserMenuOpen(false);
+      router.replace("/");
+      router.refresh();
+    }
   };
 
   useEffect(() => {

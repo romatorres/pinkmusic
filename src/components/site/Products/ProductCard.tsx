@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Package, ShoppingCart, Plus, Check } from "lucide-react";
+import { Package, ShoppingCart, Plus, Check, Eye } from "lucide-react";
 import type { Product } from "@/lib/types";
 import { useCartStore } from "@/store/cartStore";
 import { toast } from "sonner";
@@ -100,16 +100,15 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               type="button"
               onClick={handleAddToCart}
               aria-label="Adicionar ao carrinho"
-              className={`absolute bottom-4 right-4 z-10 h-9 w-9 rounded-full flex items-center justify-center shadow-md transition-all duration-300 ${
-                addedToCart
-                  ? "bg-emerald-500 text-white scale-110"
-                  : "bg-white text-primary hover:bg-primary hover:text-white hover:scale-110"
-              }`}
+              className={`absolute bottom-4 right-4 z-10 h-9 w-9 flex-shrink-0 overflow-hidden rounded-full flex items-center justify-center shadow-md transition-all duration-300 ${addedToCart
+                ? "bg-emerald-500 text-white scale-110"
+                : "bg-white text-primary hover:bg-primary hover:text-white hover:scale-110"
+                }`}
             >
               {addedToCart ? (
-                <Check className="h-4 w-4" />
+                <Check className="h-4 w-4 shrink-0" />
               ) : (
-                <Plus className="h-4 w-4" />
+                <Plus className="h-4 w-4 shrink-0" />
               )}
             </button>
           )}
@@ -153,16 +152,21 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                 type="button"
                 onClick={handleAddToCart}
                 disabled={product.available_quantity <= 0}
-                className={`w-full py-2.5 px-4 rounded-full flex items-center justify-center gap-2 font-semibold transition-all duration-300 text-sm ${
-                  addedToCart
-                    ? "bg-emerald-500 text-white"
-                    : "border border-primary text-primary hover:bg-primary/5"
-                } disabled:opacity-40`}
+                className={`w-full py-3 px-4 rounded-full flex items-center justify-center gap-2 transition-all duration-300 whitespace-nowrap overflow-hidden ${addedToCart
+                  ? "bg-emerald-500 text-white"
+                  : "border border-primary text-primary hover:bg-primary/5"
+                  } disabled:opacity-40`}
               >
                 {addedToCart ? (
-                  <><Check size={15} /> No carrinho!</>
+                  <>
+                    <Check size={15} className="shrink-0" />
+                    <span className="truncate">No carrinho!</span>
+                  </>
                 ) : (
-                  <><Plus size={15} /> Adicionar ao Carrinho</>
+                  <>
+                    <ShoppingCart size={15} className="shrink-0" />
+                    <span className="truncate">Adicionar ao Carrinho</span>
+                  </>
                 )}
               </button>
             )}
@@ -170,10 +174,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             <button
               type="button"
               onClick={handleBuyClick}
-              className="w-full py-3 px-6 rounded-full flex items-center justify-center gap-2 font-semibold transition-colors cursor-pointer text-white bg-primary hover:bg-primary/85"
+              className="w-full py-3 px-6 rounded-full flex items-center justify-center gap-2 transition-colors cursor-pointer text-white bg-primary hover:bg-primary/85 whitespace-nowrap overflow-hidden"
             >
-              <ShoppingCart size={20} />
-              {isLocal ? "Ver Produto" : "Comprar"}
+              <Eye size={20} className="shrink-0" />
+              <span className="truncate">{isLocal ? "Ver Produto" : "Comprar"}</span>
             </button>
           </div>
         </div>

@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, LogIn, UserPlus, Eye, EyeOff, Music2, Phone } from "lucide-react";
+import { Loader2, LogIn, UserPlus, Eye, EyeOff, Phone } from "lucide-react";
 import { toast } from "sonner";
 import { useAuthStore } from "@/store/authStore";
 
@@ -146,10 +146,6 @@ export function CustomerAuthModal({
       >
         {/* Header gradiente */}
         <div className="bg-gradient-to-br from-primary to-primary/80 px-6 pt-6 pb-5 text-white">
-          <div className="flex items-center gap-2 mb-1">
-            <Music2 className="h-5 w-5 opacity-80" />
-            <span className="text-sm font-medium opacity-80">Pink Music</span>
-          </div>
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-white">
               {tab === "login" ? "Acesse sua conta" : "Crie sua conta"}
@@ -167,11 +163,10 @@ export function CustomerAuthModal({
           <button
             type="button"
             onClick={() => setTab("login")}
-            className={`flex-1 py-3 text-sm font-medium transition-colors flex items-center justify-center gap-2 ${
-              tab === "login"
-                ? "text-primary border-b-2 border-primary bg-white"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
+            className={`flex-1 py-3 text-sm font-medium transition-colors flex items-center justify-center gap-2 ${tab === "login"
+              ? "text-primary border-b-2 border-primary bg-white"
+              : "text-muted-foreground hover:text-foreground"
+              }`}
           >
             <LogIn className="h-4 w-4" />
             Entrar
@@ -179,11 +174,10 @@ export function CustomerAuthModal({
           <button
             type="button"
             onClick={() => setTab("register")}
-            className={`flex-1 py-3 text-sm font-medium transition-colors flex items-center justify-center gap-2 ${
-              tab === "register"
-                ? "text-primary border-b-2 border-primary bg-white"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
+            className={`flex-1 py-3 text-sm font-medium transition-colors flex items-center justify-center gap-2 ${tab === "register"
+              ? "text-primary border-b-2 border-primary bg-white"
+              : "text-muted-foreground hover:text-foreground"
+              }`}
           >
             <UserPlus className="h-4 w-4" />
             Criar Conta
