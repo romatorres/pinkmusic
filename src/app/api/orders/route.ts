@@ -2,40 +2,165 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { createPixPayment } from "@/lib/mercadopago";
 import { requireAdmin } from "@/lib/auth";
+import * as jose from "jose";
 
-// POST /api/orders — cria pedido e gera QR Code PIX
+// Helper para extrair userId do cookie JWT (opcional - para clientes autenticados)
+async function extractUserId(request: NextRequest): Promise<string | null> {
+  try {
+    const token = request.cookies.get("auth_token")?.value;
+    if (!token || !process.env.JWT_SECRET) return null;
+
+    const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+    const { payload } = await jose.jwtVerify(token, secret);
+    return (payload.userId as string) || null;
+  } catch {
+    return null;
+  }
+}
+
+// POST /api/orders — cria pedido (produto único ou múltiplos itens) e gera QR Code PIX
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const {
+      // Fluxo novo: múltiplos itens do carrinho
+      items,
+      // Fluxo legado: produto único
       productId,
+      quantity = 1,
+      // Dados comuns
       customerName,
       customerPhone,
       deliveryType,
       deliveryAddress,
       deliveryFee,
-      quantity = 1,
     } = body;
 
-    // Validação dos campos obrigatórios
-    if (!productId || !customerName?.trim() || !customerPhone?.trim()) {
+    if (!customerName?.trim() || !customerPhone?.trim()) {
       return NextResponse.json(
-        { success: false, error: "Nome, WhatsApp e produto são obrigatórios." },
+        { success: false, error: "Nome e WhatsApp são obrigatórios." },
         { status: 400 }
       );
     }
 
     if (deliveryType === "delivery" && !deliveryAddress?.trim()) {
       return NextResponse.json(
-        {
-          success: false,
-          error: "Endereço de entrega é obrigatório para entrega local.",
-        },
+        { success: false, error: "Endereço de entrega é obrigatório para entrega local." },
         { status: 400 }
       );
     }
 
-    // Busca o produto e verifica estoque
+    const validDeliveryFee =
+      deliveryType === "delivery" ? Math.max(0, Number(deliveryFee) || 0) : 0;
+
+    // Extrai userId do cliente autenticado (opcional)
+    const userId = await extractUserId(request);
+
+    // ── FLUXO NOVO: múltiplos itens do carrinho ──────────────────────────────
+    if (items && Array.isArray(items) && items.length > 0) {
+      // Valida e busca todos os produtos
+      const productIds: string[] = items.map((i: { productId: string }) => i.productId);
+      const products = await prisma.product.findMany({
+        where: { id: { in: productIds } },
+        select: { id: true, title: true, price: true, thumbnail: true, code: true, available_quantity: true },
+      });
+
+      // Verificar se todos os produtos existem e têm estoque
+      for (const orderItem of items) {
+        const product = products.find((p) => p.id === orderItem.productId);
+        if (!product) {
+          return NextResponse.json(
+            { success: false, error: `Produto não encontrado: ${orderItem.productId}` },
+            { status: 404 }
+          );
+        }
+        if (product.available_quantity < orderItem.quantity) {
+          return NextResponse.json(
+            { success: false, error: `Estoque insuficiente para: ${product.title}` },
+            { status: 409 }
+          );
+        }
+      }
+
+      // Calcula subtotal dos itens
+      const subtotal = items.reduce((sum: number, orderItem: { productId: string; quantity: number }) => {
+        const product = products.find((p) => p.id === orderItem.productId)!;
+        return sum + product.price * orderItem.quantity;
+      }, 0);
+
+      const totalAmount = subtotal + validDeliveryFee;
+
+      // Cria o pedido com itens
+      const order = await prisma.order.create({
+        data: {
+          customerName: customerName.trim(),
+          customerPhone: customerPhone.trim(),
+          userId,
+          totalAmount,
+          deliveryFee: validDeliveryFee,
+          deliveryType,
+          deliveryAddress: deliveryAddress?.trim() || null,
+          status: "PENDING_PAYMENT",
+          items: {
+            create: items.map((orderItem: { productId: string; quantity: number }) => {
+              const product = products.find((p) => p.id === orderItem.productId)!;
+              return {
+                productId: orderItem.productId,
+                title: product.title,
+                price: product.price,
+                quantity: orderItem.quantity,
+                thumbnail: product.thumbnail,
+                productCode: product.code,
+              };
+            }),
+          },
+        },
+      });
+
+      // Gera o QR Code PIX
+      const titlesPreview = products.slice(0, 2).map((p) => p.title.slice(0, 25)).join(", ");
+      const pixDescription =
+        validDeliveryFee > 0
+          ? `Pink Music - Carrinho: ${titlesPreview}... (+ Frete)`
+          : `Pink Music - Carrinho: ${titlesPreview}...`;
+
+      const pixResult = await createPixPayment({
+        orderId: order.id,
+        amount: totalAmount,
+        customerName: customerName.trim(),
+        description: pixDescription,
+      });
+
+      const updatedOrder = await prisma.order.update({
+        where: { id: order.id },
+        data: {
+          mpPaymentId: String(pixResult.id),
+          mpQrCode: pixResult.qrCode,
+          mpQrCodeBase64: pixResult.qrCodeBase64,
+        },
+      });
+
+      return NextResponse.json({
+        success: true,
+        data: {
+          orderId: updatedOrder.id,
+          mpPaymentId: updatedOrder.mpPaymentId,
+          qrCode: updatedOrder.mpQrCode,
+          qrCodeBase64: updatedOrder.mpQrCodeBase64,
+          totalAmount,
+          expiresAt: pixResult.expiresAt,
+        },
+      });
+    }
+
+    // ── FLUXO LEGADO: produto único ──────────────────────────────────────────
+    if (!productId) {
+      return NextResponse.json(
+        { success: false, error: "Produto ou lista de itens é obrigatório." },
+        { status: 400 }
+      );
+    }
+
     const product = await prisma.product.findUnique({
       where: { id: productId },
     });
@@ -49,25 +174,19 @@ export async function POST(request: NextRequest) {
 
     if (product.available_quantity < quantity) {
       return NextResponse.json(
-        {
-          success: false,
-          error: `Estoque insuficiente. Disponível: ${product.available_quantity}`,
-        },
+        { success: false, error: `Estoque insuficiente. Disponível: ${product.available_quantity}` },
         { status: 409 }
       );
     }
 
-    // Taxa de entrega (apenas se deliveryType === "delivery")
-    const validDeliveryFee =
-      deliveryType === "delivery" ? Math.max(0, Number(deliveryFee) || 0) : 0;
     const totalAmount = product.price * quantity + validDeliveryFee;
 
-    // Cria o pedido no banco (status PENDING_PAYMENT)
     const order = await prisma.order.create({
       data: {
         customerName: customerName.trim(),
         customerPhone: customerPhone.trim(),
         productId,
+        userId,
         quantity,
         totalAmount,
         deliveryFee: validDeliveryFee,
@@ -77,7 +196,6 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Gera o QR Code PIX no Mercado Pago com o valor total (produto + frete)
     const pixDescription =
       validDeliveryFee > 0
         ? `Pink Music - ${product.title.slice(0, 75)} (+ Entrega Uber)`
@@ -90,7 +208,6 @@ export async function POST(request: NextRequest) {
       description: pixDescription,
     });
 
-    // Atualiza o pedido com os dados do pagamento MP
     const updatedOrder = await prisma.order.update({
       where: { id: order.id },
       data: {
@@ -144,6 +261,25 @@ export async function GET(request: NextRequest) {
               thumbnail: true,
               code: true,
               packageSize: true,
+            },
+          },
+          items: {
+            select: {
+              id: true,
+              productId: true,
+              title: true,
+              price: true,
+              quantity: true,
+              thumbnail: true,
+              productCode: true,
+            },
+          },
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              phone: true,
             },
           },
         },

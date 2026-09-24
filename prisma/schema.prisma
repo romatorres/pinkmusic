@@ -16,8 +16,11 @@ model User {
   email     String   @unique
   password  String
   role      String   @default("USER")
+  phone     String?  // WhatsApp do cliente
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  orders Order[]
 }
 
 model Partner {
@@ -103,9 +106,19 @@ model Order {
   id              String      @id @default(cuid())
   customerName    String
   customerPhone   String
-  productId       String
-  product         Product     @relation(fields: [productId], references: [id])
+
+  // Produto único legado (mantido opcional para compatibilidade)
+  productId       String?
+  product         Product?    @relation(fields: [productId], references: [id])
   quantity        Int         @default(1)
+
+  // Itens do carrinho (novo fluxo)
+  items           OrderItem[]
+
+  // Cliente autenticado (opcional)
+  userId          String?
+  user            User?       @relation(fields: [userId], references: [id])
+
   totalAmount     Float
   deliveryType    String      // "pickup" | "delivery"
   deliveryAddress String?
@@ -131,6 +144,22 @@ model Order {
 
   @@index([status])
   @@index([mpPaymentId])
+  @@index([productId])
+  @@index([userId])
+}
+
+model OrderItem {
+  id          String  @id @default(cuid())
+  orderId     String
+  order       Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId   String
+  title       String
+  price       Float
+  quantity    Int     @default(1)
+  thumbnail   String?
+  productCode String? // Código fiscal do produto na época do pedido
+
+  @@index([orderId])
   @@index([productId])
 }
 

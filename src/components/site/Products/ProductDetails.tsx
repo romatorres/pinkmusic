@@ -9,12 +9,17 @@ import {
   ChevronRight,
   TriangleAlert,
   Store,
+  Check,
+  Plus,
 } from "lucide-react";
 import Link from "next/link";
 import { PageContainer } from "@/components/ui/Page-container";
 import Social from "../_components/Social";
 import PixCheckoutModal from "./PixCheckoutModal";
+import { CartCheckoutModal } from "./CartCheckoutModal";
 import type { ProductDetailsProps } from "@/lib/types";
+import { useCartStore } from "@/store/cartStore";
+import { toast } from "sonner";
 
 const formatPrice = (price: number, currency: string) => {
   return new Intl.NumberFormat("pt-BR", {
@@ -26,6 +31,37 @@ const formatPrice = (price: number, currency: string) => {
 const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [pixModalOpen, setPixModalOpen] = useState(false);
+  const [addedToCart, setAddedToCart] = useState(false);
+
+  const { addItem } = useCartStore();
+
+  const handleAddToCart = () => {
+    addItem({
+      productId: product.id,
+      title: product.title,
+      price: product.price,
+      thumbnail: product.thumbnail,
+      code: product.code,
+      packageSize: product.packageSize || "SMALL",
+      availableQuantity: product.available_quantity,
+    });
+    setAddedToCart(true);
+    toast.success(`"${product.title.slice(0, 30)}..." adicionado ao carrinho!`);
+    setTimeout(() => setAddedToCart(false), 2500);
+  };
+
+  const handleBuyNow = () => {
+    addItem({
+      productId: product.id,
+      title: product.title,
+      price: product.price,
+      thumbnail: product.thumbnail,
+      code: product.code,
+      packageSize: product.packageSize || "SMALL",
+      availableQuantity: product.available_quantity,
+    });
+    setPixModalOpen(true);
+  };
 
   const isLocal = product.origin === "LOCAL";
   const hasCustomDesc = Boolean(
@@ -222,15 +258,35 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
               <div className="border-t pt-6 space-y-3">
                 {isLocal ? (
                   <>
+                    {/* Botão Adicionar ao Carrinho */}
                     <button
                       type="button"
-                      onClick={() => setPixModalOpen(true)}
+                      onClick={handleAddToCart}
+                      disabled={product.available_quantity <= 0}
+                      className={`cursor-pointer w-full py-3 px-6 rounded-full flex items-center justify-center gap-2 font-semibold transition-all duration-300 ${
+                        addedToCart
+                          ? "bg-emerald-500 text-white scale-[0.98]"
+                          : "border-2 border-primary text-primary hover:bg-primary/5"
+                      }`}
+                    >
+                      {addedToCart ? (
+                        <><Check size={18} /> Adicionado ao Carrinho!</>
+                      ) : (
+                        <><Plus size={18} /> Adicionar ao Carrinho</>
+                      )}
+                    </button>
+
+                    {/* Botão Comprar Agora (abre checkout direto) */}
+                    <button
+                      type="button"
+                      onClick={handleBuyNow}
                       disabled={product.available_quantity <= 0}
                       className="cursor-pointer w-full bg-primary text-white py-3 px-6 rounded-full hover:bg-primary/85 flex items-center justify-center gap-2 font-semibold"
                     >
                       <Store size={20} />
-                      Compra Local - via PIX
+                      Comprar Agora via PIX
                     </button>
+
                     {product.permalink && (
                       <a
                         href={product.permalink}
@@ -266,9 +322,8 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
         </div>
       </PageContainer>
 
-      {/* Modal de Checkout PIX */}
-      <PixCheckoutModal
-        product={product}
+      {/* Modal de Checkout - agora sempre usa o CartCheckoutModal */}
+      <CartCheckoutModal
         open={pixModalOpen}
         onOpenChange={setPixModalOpen}
       />

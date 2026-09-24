@@ -19,7 +19,19 @@ export async function GET(
 
     const order = await prisma.order.findUnique({
       where: { id },
-      include: { product: { select: { title: true, packageSize: true } } },
+      include: {
+        product: { select: { title: true, packageSize: true } },
+        items: {
+          select: {
+            id: true,
+            title: true,
+            quantity: true,
+            price: true,
+            productCode: true,
+            thumbnail: true,
+          },
+        },
+      },
     });
 
     if (!order) {
@@ -52,13 +64,17 @@ export async function GET(
       country: "BR",
     };
 
-    const quote = await getDeliveryQuote(dropoff, order.product.packageSize);
+    // packageSize: usa o do produto (legado) ou SMALL como fallback
+    const effectivePackageSize = order.product?.packageSize || "SMALL";
+
+    const quote = await getDeliveryQuote(dropoff, effectivePackageSize);
 
     return NextResponse.json({
       success: true,
       data: {
         ...quote,
-        packageSize: order.product.packageSize,
+        packageSize: effectivePackageSize,
+        items: order.items && order.items.length > 0 ? order.items : undefined,
       },
     });
   } catch (error) {
@@ -79,7 +95,16 @@ export async function POST(
 
     const order = await prisma.order.findUnique({
       where: { id },
-      include: { product: { select: { title: true, packageSize: true } } },
+      include: {
+        product: { select: { title: true, packageSize: true } },
+        items: {
+          select: {
+            title: true,
+            quantity: true,
+            productCode: true,
+          },
+        },
+      },
     });
 
     if (!order) {
@@ -114,14 +139,24 @@ export async function POST(
       country: "BR",
     };
 
+    // Monta título ou manifesto para o motorista Uber
+    let itemsDescription = "Pedido Pink Music";
+    if (order.items && order.items.length > 0) {
+      itemsDescription = order.items
+        .map((i) => `${i.quantity}x ${i.title}`)
+        .join(", ");
+    } else if (order.product?.title) {
+      itemsDescription = order.product.title;
+    }
+
     const delivery = await createDelivery({
       orderId: order.id,
       customerName: order.customerName,
       customerPhone: order.customerPhone,
       dropoff,
       quoteId,
-      productTitle: order.product.title,
-      packageSize: order.product.packageSize,
+      productTitle: itemsDescription,
+      packageSize: order.product?.packageSize || "SMALL",
     });
 
     // Atualiza pedido com dados da entrega Uber

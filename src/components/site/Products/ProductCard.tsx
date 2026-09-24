@@ -1,9 +1,11 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Package, ShoppingCart } from "lucide-react";
+import { Package, ShoppingCart, Plus, Check } from "lucide-react";
 import type { Product } from "@/lib/types";
+import { useCartStore } from "@/store/cartStore";
+import { toast } from "sonner";
 
 interface ProductCardProps {
   product: Product;
@@ -18,24 +20,44 @@ const formatPrice = (price: number, currency: string) => {
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const router = useRouter();
+  const [addedToCart, setAddedToCart] = useState(false);
+  const { addItem } = useCartStore();
+
   const imageUrl =
     product.pictures && product.pictures.length > 0
       ? product.pictures[0].url
       : product.thumbnail;
 
-  // Handler para navegar ao clicar no card
   const handleCardClick = () => {
     router.push(`/products/${product.id}`);
   };
 
-  // Handler para o botão de compra
   const handleBuyClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation(); // Impede que o clique suba para o card
+    e.stopPropagation();
     if (product.origin === "LOCAL" || !product.permalink) {
       router.push(`/products/${product.id}`);
     } else {
       window.open(product.permalink, "_blank", "noopener,noreferrer");
     }
+  };
+
+  const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    if (product.origin !== "LOCAL" || product.available_quantity <= 0) return;
+
+    addItem({
+      productId: product.id,
+      title: product.title,
+      price: product.price,
+      thumbnail: product.thumbnail,
+      code: product.code,
+      packageSize: product.packageSize || "SMALL",
+      availableQuantity: product.available_quantity,
+    });
+
+    setAddedToCart(true);
+    toast.success("Adicionado ao carrinho! 🛒");
+    setTimeout(() => setAddedToCart(false), 2000);
   };
 
   const isLocal = product.origin === "LOCAL";
@@ -46,9 +68,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         onClick={handleCardClick}
         className="bg-card rounded-3xl shadow-sm overflow-hidden flex flex-col min-h-[460px] sm:min-h-[480px] transition-transform duration-300 ease-in-out hover:translate-y-[-5px] cursor-pointer relative"
       >
-        {/* Container da imagem com efeito de borda responsivo */}
+        {/* Container da imagem */}
         <div className="relative flex min-h-[220px] sm:min-h-[260px] w-full flex-col justify-center p-2">
-          {/* Div absoluta com efeito de borda (8px de margem em todas as direções) */}
           <div className="absolute inset-2 rounded-2xl sm:rounded-3xl bg-white shadow-inner">
             <div className="relative w-full h-full flex items-center justify-center p-3 sm:p-4">
               <div className="relative w-full h-full max-w-[160px] max-h-[160px] sm:max-w-[200px] sm:max-h-[200px]">
@@ -71,6 +92,26 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                 Pronta Entrega
               </span>
             </div>
+          )}
+
+          {/* Botão rápido de carrinho (hover) — só para produtos locais */}
+          {isLocal && product.available_quantity > 0 && (
+            <button
+              type="button"
+              onClick={handleAddToCart}
+              aria-label="Adicionar ao carrinho"
+              className={`absolute bottom-4 right-4 z-10 h-9 w-9 rounded-full flex items-center justify-center shadow-md transition-all duration-300 ${
+                addedToCart
+                  ? "bg-emerald-500 text-white scale-110"
+                  : "bg-white text-primary hover:bg-primary hover:text-white hover:scale-110"
+              }`}
+            >
+              {addedToCart ? (
+                <Check className="h-4 w-4" />
+              ) : (
+                <Plus className="h-4 w-4" />
+              )}
+            </button>
           )}
         </div>
 
@@ -105,14 +146,34 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             )}
           </p>
 
-          <div className="space-y-3 mt-auto">
+          <div className="space-y-2 mt-auto">
+            {/* Botão adicionar ao carrinho (apenas local) */}
+            {isLocal && (
+              <button
+                type="button"
+                onClick={handleAddToCart}
+                disabled={product.available_quantity <= 0}
+                className={`w-full py-2.5 px-4 rounded-full flex items-center justify-center gap-2 font-semibold transition-all duration-300 text-sm ${
+                  addedToCart
+                    ? "bg-emerald-500 text-white"
+                    : "border border-primary text-primary hover:bg-primary/5"
+                } disabled:opacity-40`}
+              >
+                {addedToCart ? (
+                  <><Check size={15} /> No carrinho!</>
+                ) : (
+                  <><Plus size={15} /> Adicionar ao Carrinho</>
+                )}
+              </button>
+            )}
+
             <button
               type="button"
               onClick={handleBuyClick}
-              className={`w-full py-3 px-6 rounded-full flex items-center justify-center gap-2 font-semibold transition-colors cursor-pointer text-white bg-primary hover:bg-primary/85`}
+              className="w-full py-3 px-6 rounded-full flex items-center justify-center gap-2 font-semibold transition-colors cursor-pointer text-white bg-primary hover:bg-primary/85"
             >
               <ShoppingCart size={20} />
-              {isLocal ? "Compra Local" : "Comprar"}
+              {isLocal ? "Ver Produto" : "Comprar"}
             </button>
           </div>
         </div>

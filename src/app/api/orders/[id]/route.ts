@@ -20,6 +20,7 @@ export async function GET(
         paidAt: true,
         uberTrackingUrl: true,
         mpPaymentId: true,
+        productId: true,
         product: {
           select: { title: true, thumbnail: true },
         },
@@ -34,29 +35,43 @@ export async function GET(
     }
 
     // Se ainda está pendente e tem ID do MP, consulta status em tempo real
-    // como fallback caso o webhook ainda não tenha chegado
     if (order.status === "PENDING_PAYMENT" && order.mpPaymentId) {
       try {
         const mpStatus = await getPaymentStatus(order.mpPaymentId);
 
         if (mpStatus.status === "approved") {
-          // Confirma no banco (fallback do webhook)
-          await prisma.$transaction([
-            prisma.order.update({
+          if (order.productId) {
+            // Fluxo legado: produto único
+            await prisma.$transaction([
+              prisma.order.update({
+                where: { id },
+                data: { status: "PAID", paidAt: mpStatus.paidAt ? new Date(mpStatus.paidAt) : new Date() },
+              }),
+              prisma.product.updateMany({
+                where: { orders: { some: { id } }, available_quantity: { gt: 0 } },
+                data: { available_quantity: { decrement: 1 }, sales: { increment: 1 } },
+              }),
+            ]);
+          } else {
+            // Fluxo novo: múltiplos itens
+            const orderWithItems = await prisma.order.findUnique({
               where: { id },
-              data: {
-                status: "PAID",
-                paidAt: mpStatus.paidAt ? new Date(mpStatus.paidAt) : new Date(),
-              },
-            }),
-            prisma.product.updateMany({
-              where: {
-                orders: { some: { id } },
-                available_quantity: { gt: 0 },
-              },
-              data: { available_quantity: { decrement: 1 }, sales: { increment: 1 } },
-            }),
-          ]);
+              include: { items: true },
+            });
+            const stockUpdates = (orderWithItems?.items || []).map((item) =>
+              prisma.product.update({
+                where: { id: item.productId },
+                data: { available_quantity: { decrement: item.quantity }, sales: { increment: item.quantity } },
+              })
+            );
+            await prisma.$transaction([
+              prisma.order.update({
+                where: { id },
+                data: { status: "PAID", paidAt: mpStatus.paidAt ? new Date(mpStatus.paidAt) : new Date() },
+              }),
+              ...stockUpdates,
+            ]);
+          }
 
           return NextResponse.json({
             success: true,

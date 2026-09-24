@@ -16,7 +16,11 @@ import {
   Loader2,
   MapPin,
   AlertCircle,
+  ShoppingCart,
+  User as UserIcon,
+  Phone,
 } from "lucide-react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -36,12 +40,23 @@ type OrderStatus =
   | "DELIVERED"
   | "CANCELLED";
 
+export interface OrderItemData {
+  id: string;
+  productId: string;
+  title: string;
+  price: number;
+  quantity: number;
+  thumbnail?: string | null;
+  productCode?: string | null;
+}
+
 interface Order {
   id: string;
   customerName: string;
   customerPhone: string;
   deliveryType: string;
   deliveryAddress: string | null;
+  deliveryFee?: number;
   totalAmount: number;
   status: OrderStatus;
   paidAt: string | null;
@@ -51,13 +66,20 @@ interface Order {
   uberCourierPhone: string | null;
   uberVehicleType: string | null;
   createdAt: string;
-  product: {
+  product?: {
     id: string;
     title: string;
     thumbnail: string;
     code?: string | null;
     packageSize?: "SMALL" | "MEDIUM" | "LARGE" | "XLARGE";
-  };
+  } | null;
+  items?: OrderItemData[];
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+    phone?: string | null;
+  } | null;
 }
 
 interface OrdersMeta {
@@ -74,6 +96,7 @@ interface QuoteData {
   estimatedMinutes: number;
   expiresAt: string;
   packageSize?: string;
+  items?: OrderItemData[];
 }
 
 const STATUS_CONFIG: Record<
@@ -329,44 +352,164 @@ export default function OrdersPage() {
                   </span>
                 </div>
 
-                {/* Linha 2: produto + valor */}
-                <div className="flex items-start gap-3">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      <p className="font-semibold text-sm line-clamp-1">{order.product.title}</p>
-                      {order.product.code && (
-                        <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
-                          Cód: {order.product.code}
+                {/* Linha 2: produtos + dados + valor */}
+                <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+                  <div className="flex-1 min-w-0 space-y-3">
+                    {/* Itens do Pedido (Novo fluxo com carrinho) */}
+                    {order.items && order.items.length > 0 ? (
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary flex items-center gap-1.5">
+                            <ShoppingCart className="w-3.5 h-3.5" />
+                            {order.items.reduce((s, i) => s + i.quantity, 0)}{" "}
+                            {order.items.reduce((s, i) => s + i.quantity, 0) === 1
+                              ? "item"
+                              : "itens"}{" "}
+                            no pedido
+                          </span>
+                        </div>
+                        <div className="space-y-2 bg-muted/40 rounded-lg p-2.5 border border-border/60">
+                          {order.items.map((item) => (
+                            <div
+                              key={item.id}
+                              className="flex items-center justify-between gap-3 text-xs"
+                            >
+                              <div className="flex items-center gap-2.5 min-w-0">
+                                {item.thumbnail ? (
+                                  <div className="relative w-9 h-9 rounded-md overflow-hidden bg-muted border shrink-0">
+                                    <Image
+                                      src={item.thumbnail}
+                                      alt={item.title}
+                                      fill
+                                      sizes="36px"
+                                      className="object-cover"
+                                    />
+                                  </div>
+                                ) : (
+                                  <div className="w-9 h-9 rounded-md bg-muted border flex items-center justify-center shrink-0">
+                                    <Package className="w-4 h-4 text-muted-foreground" />
+                                  </div>
+                                )}
+                                <div className="min-w-0">
+                                  <p className="font-medium text-foreground line-clamp-1">
+                                    {item.title}
+                                  </p>
+                                  <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground flex-wrap">
+                                    {item.productCode && (
+                                      <span className="font-mono text-[10px] px-1 py-0.2 rounded bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                                        Cód: {item.productCode}
+                                      </span>
+                                    )}
+                                    <span>
+                                      Qtd:{" "}
+                                      <strong className="text-foreground">
+                                        {item.quantity}
+                                      </strong>
+                                    </span>
+                                    <span>·</span>
+                                    <span>{formatPrice(item.price)} un.</span>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="text-right shrink-0">
+                                <span className="font-semibold text-foreground">
+                                  {formatPrice(item.price * item.quantity)}
+                                </span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : order.product ? (
+                      /* Fluxo legado de produto único */
+                      <div className="flex items-center gap-2.5">
+                        {order.product.thumbnail ? (
+                          <div className="relative w-9 h-9 rounded-md overflow-hidden bg-muted border shrink-0">
+                            <Image
+                              src={order.product.thumbnail}
+                              alt={order.product.title}
+                              fill
+                              sizes="36px"
+                              className="object-cover"
+                            />
+                          </div>
+                        ) : (
+                          <div className="w-9 h-9 rounded-md bg-muted border flex items-center justify-center shrink-0">
+                            <Package className="w-4 h-4 text-muted-foreground" />
+                          </div>
+                        )}
+                        <div className="min-w-0">
+                          <p className="font-semibold text-sm line-clamp-1">
+                            {order.product.title}
+                          </p>
+                          <div className="flex items-center gap-1.5 flex-wrap mt-0.5">
+                            {order.product.code && (
+                              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                                Cód: {order.product.code}
+                              </span>
+                            )}
+                            {order.product.packageSize && (
+                              <span
+                                className="text-[10px] px-1.5 py-0.5 rounded bg-purple-50 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300 border border-purple-200 dark:border-purple-800 flex items-center gap-1"
+                                title="Porte de transporte no Uber Direct"
+                              >
+                                {order.product.packageSize === "SMALL"
+                                  ? "🛵 Moto"
+                                  : order.product.packageSize === "LARGE" ||
+                                    order.product.packageSize === "XLARGE"
+                                  ? "🚗 Carro"
+                                  : "📦 Médio"}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-sm font-medium text-muted-foreground">
+                        Produto não especificado
+                      </p>
+                    )}
+
+                    {/* Dados do Cliente e Tipo de Entrega */}
+                    <div className="space-y-1.5 pt-1 text-xs">
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-muted-foreground">
+                        <span className="flex items-center gap-1">
+                          Cliente:{" "}
+                          <strong className="text-foreground">
+                            {order.customerName}
+                          </strong>
                         </span>
-                      )}
-                      {order.product.packageSize && (
-                        <span
-                          className="text-[10px] px-1.5 py-0.5 rounded bg-purple-50 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300 border border-purple-200 dark:border-purple-800 flex items-center gap-1"
-                          title="Porte de transporte no Uber Direct"
+                        <a
+                          href={`https://wa.me/55${order.customerPhone.replace(/\D/g, "")}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 hover:underline font-medium"
+                          title="Conversar no WhatsApp"
                         >
-                          {order.product.packageSize === "SMALL"
-                            ? "🛵 Moto"
-                            : order.product.packageSize === "LARGE" || order.product.packageSize === "XLARGE"
-                            ? "🚗 Carro"
-                            : "📦 Médio"}
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      Cliente: <span className="font-medium">{order.customerName}</span> · {order.customerPhone}
-                    </p>
-                    <div className="flex items-center gap-1.5 mt-1 text-xs text-muted-foreground">
-                      {order.deliveryType === "pickup" ? (
-                        <>
-                          <Store className="h-3.5 w-3.5" />
-                          Retirada na loja
-                        </>
-                      ) : (
-                        <>
-                          <Truck className="h-3.5 w-3.5" />
-                          Entrega: {order.deliveryAddress || "Não informado"}
-                        </>
-                      )}
+                          <Phone className="w-3 h-3" />
+                          {order.customerPhone}
+                        </a>
+                        {order.user && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 text-[11px] border border-blue-200 dark:border-blue-800">
+                            <UserIcon className="w-3 h-3" />
+                            Cadastrado: {order.user.email}
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-1.5 text-muted-foreground">
+                        {order.deliveryType === "pickup" ? (
+                          <span className="inline-flex items-center gap-1.5 text-amber-700 dark:text-amber-400 font-medium">
+                            <Store className="h-3.5 w-3.5" />
+                            Retirada na loja
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5">
+                            <Truck className="h-3.5 w-3.5 text-purple-600" />
+                            Entrega Local: {order.deliveryAddress || "Não informado"}
+                          </span>
+                        )}
+                      </div>
                     </div>
 
                     {/* Dados do Entregador Uber Direct (quando despachado) */}
@@ -374,12 +517,15 @@ export default function OrdersPage() {
                       <div className="mt-2 p-2 rounded-lg bg-purple-50/70 dark:bg-purple-950/30 border border-purple-200/80 dark:border-purple-800/80 text-xs space-y-1">
                         <div className="flex items-center justify-between flex-wrap gap-1">
                           <span className="font-semibold text-purple-800 dark:text-purple-200 flex items-center gap-1">
-                            {order.uberVehicleType === "motorcycle" || order.uberVehicleType === "scooter" || order.uberVehicleType === "bicycle" ? (
+                            {order.uberVehicleType === "motorcycle" ||
+                            order.uberVehicleType === "scooter" ||
+                            order.uberVehicleType === "bicycle" ? (
                               <>
                                 <span>🛵</span>
                                 <span>Motoboy Alocado:</span>
                               </>
-                            ) : order.uberVehicleType === "car" || order.uberVehicleType === "van" ? (
+                            ) : order.uberVehicleType === "car" ||
+                              order.uberVehicleType === "van" ? (
                               <>
                                 <span>🚗</span>
                                 <span>Motorista Alocado:</span>
@@ -391,7 +537,8 @@ export default function OrdersPage() {
                               </>
                             )}
                             <span className="font-normal text-foreground">
-                              {order.uberCourierName || "Aguardando confirmação do motorista"}
+                              {order.uberCourierName ||
+                                "Aguardando confirmação do motorista"}
                             </span>
                           </span>
                           {order.uberVehicleType && (
@@ -406,14 +553,19 @@ export default function OrdersPage() {
                         </div>
                         {order.uberCourierPhone && (
                           <p className="text-[11px] text-muted-foreground">
-                            Contato do entregador: <span className="font-medium text-foreground">{order.uberCourierPhone}</span>
+                            Contato do entregador:{" "}
+                            <span className="font-medium text-foreground">
+                              {order.uberCourierPhone}
+                            </span>
                           </p>
                         )}
                       </div>
                     )}
                   </div>
-                  <div className="text-right shrink-0">
-                    <p className="font-bold text-emerald-600 dark:text-emerald-400">
+
+                  <div className="text-right shrink-0 pt-1 md:pt-0">
+                    <p className="text-xs text-muted-foreground font-medium">Total</p>
+                    <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
                       {formatPrice(order.totalAmount)}
                     </p>
                     {order.paidAt && (
@@ -535,7 +687,11 @@ export default function OrdersPage() {
             </DialogTitle>
             <DialogDescription className="text-xs">
               {quoteModalOrder &&
-                `Pedido #${quoteModalOrder.id.slice(-6)} · ${quoteModalOrder.product.title}`}
+                `Pedido #${quoteModalOrder.id.slice(-6)} · ${
+                  quoteModalOrder.items && quoteModalOrder.items.length > 0
+                    ? `${quoteModalOrder.items.length} produto(s) no carrinho`
+                    : quoteModalOrder.product?.title || "Item do pedido"
+                }`}
             </DialogDescription>
           </DialogHeader>
 
@@ -567,6 +723,34 @@ export default function OrdersPage() {
                   </div>
                 </div>
               </div>
+
+              {/* Manifesto de Itens a Coletar (quando múltiplos itens) */}
+              {((quoteData?.items || quoteModalOrder.items) || []).length > 0 && (
+                <div className="rounded-lg bg-muted/50 p-2.5 space-y-1.5 border border-border text-xs">
+                  <p className="font-semibold text-foreground flex items-center gap-1.5">
+                    <Package className="h-3.5 w-3.5 text-primary" />
+                    Manifesto do Pacote ({((quoteData?.items || quoteModalOrder.items)!).reduce((acc, i) => acc + i.quantity, 0)} itens):
+                  </p>
+                  <div className="space-y-1 max-h-28 overflow-y-auto pr-1">
+                    {(quoteData?.items || quoteModalOrder.items)!.map((item) => (
+                      <div
+                        key={item.id}
+                        className="flex items-center justify-between text-muted-foreground gap-2"
+                      >
+                        <span className="line-clamp-1">
+                          <strong className="text-foreground">{item.quantity}x</strong>{" "}
+                          {item.title}
+                        </span>
+                        {item.productCode && (
+                          <span className="font-mono text-[10px] shrink-0 px-1 py-0.2 rounded bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                            Cód: {item.productCode}
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Loading */}
               {quoteLoading && (
@@ -622,12 +806,12 @@ export default function OrdersPage() {
                   <div className="border-t border-purple-200/60 dark:border-purple-800/60 pt-2.5 space-y-1">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-semibold text-purple-900 dark:text-purple-200 flex items-center gap-1.5">
-                        {(quoteData.packageSize || quoteModalOrder.product.packageSize) === "SMALL" ? (
+                        {(quoteData.packageSize || quoteModalOrder.product?.packageSize) === "SMALL" ? (
                           <>
                             <span>🛵</span>
                             <span>Transporte Previsto: Moto</span>
                           </>
-                        ) : (quoteData.packageSize || quoteModalOrder.product.packageSize) === "LARGE" || (quoteData.packageSize || quoteModalOrder.product.packageSize) === "XLARGE" ? (
+                        ) : (quoteData.packageSize || quoteModalOrder.product?.packageSize) === "LARGE" || (quoteData.packageSize || quoteModalOrder.product?.packageSize) === "XLARGE" ? (
                           <>
                             <span>🚗</span>
                             <span>Transporte Previsto: Carro</span>
@@ -640,17 +824,17 @@ export default function OrdersPage() {
                         )}
                       </span>
                       <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-200/70 dark:bg-purple-900 text-purple-900 dark:text-purple-200 font-medium">
-                        {(quoteData.packageSize || quoteModalOrder.product.packageSize) === "SMALL"
+                        {(quoteData.packageSize || quoteModalOrder.product?.packageSize) === "SMALL"
                           ? "Porte Pequeno"
-                          : (quoteData.packageSize || quoteModalOrder.product.packageSize) === "LARGE" || (quoteData.packageSize || quoteModalOrder.product.packageSize) === "XLARGE"
+                          : (quoteData.packageSize || quoteModalOrder.product?.packageSize) === "LARGE" || (quoteData.packageSize || quoteModalOrder.product?.packageSize) === "XLARGE"
                           ? "Porte Grande"
                           : "Porte Médio"}
                       </span>
                     </div>
                     <p className="text-[11px] text-muted-foreground">
-                      {(quoteData.packageSize || quoteModalOrder.product.packageSize) === "SMALL"
+                      {(quoteData.packageSize || quoteModalOrder.product?.packageSize) === "SMALL"
                         ? "Produto cabe na bag/mochila. A Uber prioriza motoboys para retirada rápida."
-                        : (quoteData.packageSize || quoteModalOrder.product.packageSize) === "LARGE" || (quoteData.packageSize || quoteModalOrder.product.packageSize) === "XLARGE"
+                        : (quoteData.packageSize || quoteModalOrder.product?.packageSize) === "LARGE" || (quoteData.packageSize || quoteModalOrder.product?.packageSize) === "XLARGE"
                         ? "Instrumento volumoso. A Uber direcionará motorista com porta-malas para proteger o instrumento."
                         : "A Uber alocará o entregador parceiro mais próximo disponível."}
                     </p>
@@ -682,12 +866,12 @@ export default function OrdersPage() {
                 </>
               ) : (
                 <>
-                  {(quoteData?.packageSize || quoteModalOrder?.product.packageSize) === "SMALL" ? (
+                  {(quoteData?.packageSize || quoteModalOrder?.product?.packageSize) === "SMALL" ? (
                     <>
                       <span className="mr-1.5">🛵</span>
                       Confirmar e Chamar Motoboy
                     </>
-                  ) : (quoteData?.packageSize || quoteModalOrder?.product.packageSize) === "LARGE" || (quoteData?.packageSize || quoteModalOrder?.product.packageSize) === "XLARGE" ? (
+                  ) : (quoteData?.packageSize || quoteModalOrder?.product?.packageSize) === "LARGE" || (quoteData?.packageSize || quoteModalOrder?.product?.packageSize) === "XLARGE" ? (
                     <>
                       <span className="mr-1.5">🚗</span>
                       Confirmar e Chamar Carro

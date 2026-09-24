@@ -8,7 +8,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { ChevronDown, ChevronRight, MenuIcon, ShoppingCart, User } from "lucide-react";
+import { ChevronDown, ChevronRight, MenuIcon, ShoppingCart, User, LogOut, Package } from "lucide-react";
 import { PageContainer } from "../ui/Page-container";
 import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -18,6 +18,10 @@ import Social from "./_components/Social";
 import { SearchInput } from "@/components/ui/SearchInput";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { Category } from "@/lib/types";
+import { useCartStore } from "@/store/cartStore";
+import { useAuthStore } from "@/store/authStore";
+import { CartDrawer } from "./_components/CartDrawer";
+import { CustomerAuthModal } from "./_components/CustomerAuthModal";
 
 function DesktopCategoryMegaMenu({
   categories,
@@ -151,6 +155,14 @@ function HeaderLayout({
   categoriesOpen,
   setCategoriesOpen,
   categoryMenuRef,
+  cartCount = 0,
+  onCartClick,
+  isAuth = false,
+  userName = null,
+  onUserClick,
+  userMenuOpen = false,
+  userMenuRef,
+  onLogout,
 }: {
   inputValue: string;
   setInputValue: (value: string) => void;
@@ -160,6 +172,14 @@ function HeaderLayout({
   categoriesOpen: boolean;
   setCategoriesOpen: (value: boolean | ((current: boolean) => boolean)) => void;
   categoryMenuRef: React.RefObject<HTMLDivElement | null>;
+  cartCount?: number;
+  onCartClick?: () => void;
+  isAuth?: boolean;
+  userName?: string | null;
+  onUserClick?: () => void;
+  userMenuOpen?: boolean;
+  userMenuRef?: React.RefObject<HTMLDivElement | null>;
+  onLogout?: () => void;
 }) {
   return (
     <header
@@ -230,18 +250,64 @@ function HeaderLayout({
               </nav>
             </div>
 
-            <Link
-              href="/#"
-              className="transition-colors duration-200 ease-in-out hover:text-primary/70"
+            {/* Ícone de Usuário com menu dropdown */}
+            <div className="relative" ref={userMenuRef}>
+              <button
+                type="button"
+                onClick={onUserClick}
+                aria-label={isAuth ? `Olá, ${userName}` : "Entrar na conta"}
+                className="transition-colors duration-200 ease-in-out hover:text-primary/70 flex items-center gap-1.5"
+              >
+                <User className="h-5 w-5" />
+                {isAuth && userName && (
+                  <span className="hidden lg:block text-xs font-medium max-w-[80px] truncate">
+                    {userName.split(" ")[0]}
+                  </span>
+                )}
+              </button>
+
+              {/* Dropdown do usuário autenticado */}
+              {isAuth && userMenuOpen && (
+                <div className="absolute right-0 top-full z-50 mt-2 w-52 rounded-xl border border-border/60 bg-white shadow-xl animate-in fade-in slide-in-from-top-2 duration-150">
+                  <div className="px-4 py-3 border-b border-border/40">
+                    <p className="text-xs text-muted-foreground">Conectado como</p>
+                    <p className="text-sm font-semibold truncate">{userName}</p>
+                  </div>
+                  <div className="p-1.5 space-y-0.5">
+                    <Link
+                      href="/meus-pedidos"
+                      className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-muted/60 transition-colors"
+                    >
+                      <Package className="h-4 w-4 text-muted-foreground" />
+                      Meus Pedidos
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={onLogout}
+                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      Sair da conta
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Ícone de Carrinho com badge */}
+            <button
+              type="button"
+              onClick={onCartClick}
+              aria-label={`Carrinho${cartCount > 0 ? ` (${cartCount} itens)` : ""}`}
+              className="relative transition-colors duration-200 ease-in-out hover:text-primary/70"
             >
-              <User />
-            </Link>
-            <Link
-              href="/#"
-              className="transition-colors duration-200 ease-in-out hover:text-primary/70"
-            >
-              <ShoppingCart />
-            </Link>
+              <ShoppingCart className="h-5 w-5" />
+              {cartCount > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 h-4 w-4 rounded-full bg-primary text-white text-[10px] font-bold flex items-center justify-center leading-none">
+                  {cartCount > 9 ? "9+" : cartCount}
+                </span>
+              )}
+            </button>
             {/* Nav mobile */}
             <div className="lg:hidden">
               <Sheet>
@@ -368,6 +434,30 @@ function HeaderContent() {
   const categoryMenuRef = useRef<HTMLDivElement | null>(null);
   const isHomePage = pathname === "/";
 
+  // Carrinho e Autenticação
+  const { itemsCount, toggleCart } = useCartStore();
+  const { isAuth, user, logout } = useAuthStore();
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement | null>(null);
+  const count = itemsCount();
+
+  // Carrega o usuário logado ao iniciar
+  useEffect(() => {
+    const { setUser } = useAuthStore.getState();
+    fetch("/api/auth/me")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => setUser(data || null))
+      .catch(() => setUser(null));
+  }, []);
+
+  const handleLogout = async () => {
+    await fetch("/api/auth/logout", { method: "POST" });
+    logout();
+    setUserMenuOpen(false);
+    router.refresh();
+  };
+
   useEffect(() => {
     setInputValue(searchParams.get("search") || "");
   }, [searchParams]);
@@ -377,7 +467,6 @@ function HeaderContent() {
       try {
         const response = await fetch("/api/categories");
         const data = await response.json();
-
         if (data.success) {
           setCategories(data.data || []);
         }
@@ -385,7 +474,6 @@ function HeaderContent() {
         console.error("Failed to fetch categories:", error);
       }
     };
-
     fetchCategories();
   }, []);
 
@@ -397,8 +485,13 @@ function HeaderContent() {
       ) {
         setCategoriesOpen(false);
       }
+      if (
+        userMenuRef.current &&
+        !userMenuRef.current.contains(event.target as Node)
+      ) {
+        setUserMenuOpen(false);
+      }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
@@ -407,18 +500,13 @@ function HeaderContent() {
     (nextValue: string) => {
       const normalized = nextValue.trim();
       const current = searchParams.get("search") || "";
-
-      if (normalized === current) {
-        return;
-      }
-
+      if (normalized === current) return;
       const params = new URLSearchParams(searchParams);
       if (normalized) {
         params.set("search", normalized);
       } else {
         params.delete("search");
       }
-
       const queryString = params.toString();
       const targetPath = queryString ? `/products-all?${queryString}` : "/products-all";
       router.push(targetPath);
@@ -427,16 +515,39 @@ function HeaderContent() {
   );
 
   return (
-    <HeaderLayout
-      inputValue={inputValue}
-      setInputValue={setInputValue}
-      onSearch={handleSearchSubmit}
-      isHomePage={isHomePage}
-      categories={categories}
-      categoriesOpen={categoriesOpen}
-      setCategoriesOpen={setCategoriesOpen}
-      categoryMenuRef={categoryMenuRef}
-    />
+    <>
+      <HeaderLayout
+        inputValue={inputValue}
+        setInputValue={setInputValue}
+        onSearch={handleSearchSubmit}
+        isHomePage={isHomePage}
+        categories={categories}
+        categoriesOpen={categoriesOpen}
+        setCategoriesOpen={setCategoriesOpen}
+        categoryMenuRef={categoryMenuRef}
+        // Cart & Auth props
+        cartCount={count}
+        onCartClick={toggleCart}
+        isAuth={isAuth}
+        userName={user?.name || null}
+        onUserClick={() => {
+          if (isAuth) setUserMenuOpen((v) => !v);
+          else setShowAuthModal(true);
+        }}
+        userMenuOpen={userMenuOpen}
+        userMenuRef={userMenuRef}
+        onLogout={handleLogout}
+      />
+
+      {/* CartDrawer — renderizado uma vez aqui */}
+      <CartDrawer />
+
+      {/* Modal de autenticação do cliente */}
+      <CustomerAuthModal
+        open={showAuthModal}
+        onOpenChange={setShowAuthModal}
+      />
+    </>
   );
 }
 

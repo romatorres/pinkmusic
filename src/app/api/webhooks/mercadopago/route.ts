@@ -55,25 +55,52 @@ export async function POST(request: NextRequest) {
       }
 
       // Transação: atualiza pedido e decrementa estoque atomicamente
-      await prisma.$transaction([
-        prisma.order.update({
-          where: { id: orderId },
-          data: {
-            status: "PAID",
-            mpPaymentId: String(mpPayment.id),
-            paidAt: mpPayment.paidAt ? new Date(mpPayment.paidAt) : new Date(),
-          },
-        }),
-        prisma.product.update({
-          where: { id: order.productId },
-          data: {
-            available_quantity: {
-              decrement: order.quantity,
+      if (order.productId) {
+        // Fluxo legado: produto único
+        await prisma.$transaction([
+          prisma.order.update({
+            where: { id: orderId },
+            data: {
+              status: "PAID",
+              mpPaymentId: String(mpPayment.id),
+              paidAt: mpPayment.paidAt ? new Date(mpPayment.paidAt) : new Date(),
             },
-            sales: { increment: order.quantity },
-          },
-        }),
-      ]);
+          }),
+          prisma.product.update({
+            where: { id: order.productId },
+            data: {
+              available_quantity: { decrement: order.quantity },
+              sales: { increment: order.quantity },
+            },
+          }),
+        ]);
+      } else {
+        // Fluxo novo: múltiplos itens
+        const orderWithItems = await prisma.order.findUnique({
+          where: { id: orderId },
+          include: { items: true },
+        });
+        const stockUpdates = (orderWithItems?.items || []).map((item) =>
+          prisma.product.update({
+            where: { id: item.productId },
+            data: {
+              available_quantity: { decrement: item.quantity },
+              sales: { increment: item.quantity },
+            },
+          })
+        );
+        await prisma.$transaction([
+          prisma.order.update({
+            where: { id: orderId },
+            data: {
+              status: "PAID",
+              mpPaymentId: String(mpPayment.id),
+              paidAt: mpPayment.paidAt ? new Date(mpPayment.paidAt) : new Date(),
+            },
+          }),
+          ...stockUpdates,
+        ]);
+      }
 
       console.log(
         `[Webhook MP] ✅ Pagamento ${paymentId} confirmado — Pedido ${orderId} atualizado para PAID`
