@@ -15,8 +15,14 @@ export async function PUT(
     }
 
     const { id } = await params;
-    const { name, email, password } = await request.json();
-    const updateData: { name?: string; email?: string; password?: string } = {};
+    const body = await request.json();
+    const { name, email, password, role } = body;
+    const updateData: {
+      name?: string;
+      email?: string;
+      password?: string;
+      role?: string;
+    } = {};
 
     const isAdmin = authResult.user?.role === "ADMIN";
     const isOwner = authResult.user?.userId === id;
@@ -28,14 +34,24 @@ export async function PUT(
       );
     }
 
-    if (name) {
-      updateData.name = name;
+    if (name && typeof name === "string") {
+      updateData.name = name.trim();
     }
-    if (email) {
-      updateData.email = email;
+    if (email && typeof email === "string") {
+      updateData.email = email.trim().toLowerCase();
     }
-    if (password) {
+    if (password && typeof password === "string" && password.trim().length >= 6) {
       updateData.password = await bcrypt.hash(password, 10);
+    }
+
+    // Apenas Administrador pode alterar a role de um usuário
+    if (isAdmin && role && typeof role === "string") {
+      const upperRole = role.toUpperCase();
+      if (upperRole === "ADMIN" || upperRole === "EMPLOYEE") {
+        updateData.role = upperRole;
+      } else if (upperRole === "FUNCIONARIO") {
+        updateData.role = "EMPLOYEE";
+      }
     }
 
     const user = await prisma.user.update({
@@ -46,6 +62,7 @@ export async function PUT(
         name: true,
         email: true,
         role: true,
+        phone: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -54,7 +71,10 @@ export async function PUT(
     return NextResponse.json(user);
   } catch (error) {
     console.error("Error editing user:", error);
-    return new NextResponse("Internal Server Error", { status: 500 });
+    return NextResponse.json(
+      { message: "Erro interno do servidor ao atualizar usuário." },
+      { status: 500 }
+    );
   }
 }
 
@@ -71,12 +91,20 @@ export async function DELETE(
 
     const { id } = await params;
     const isAdmin = authResult.user?.role === "ADMIN";
-    const isOwner = authResult.user?.userId === id;
 
-    if (!isAdmin && !isOwner) {
+    // Somente administradores podem excluir usuários
+    if (!isAdmin) {
       return NextResponse.json(
-        { message: "Acesso negado." },
+        { message: "Acesso negado. Apenas administradores podem excluir usuários." },
         { status: 403 }
+      );
+    }
+
+    // Não permite auto-exclusão
+    if (authResult.user?.userId === id) {
+      return NextResponse.json(
+        { message: "Você não pode excluir sua própria conta de administrador." },
+        { status: 400 }
       );
     }
 
@@ -87,6 +115,9 @@ export async function DELETE(
     return new NextResponse(null, { status: 204 });
   } catch (error) {
     console.error("Error deleting user:", error);
-    return new NextResponse("Internal Server Error", { status: 500 });
+    return NextResponse.json(
+      { message: "Erro ao excluir usuário." },
+      { status: 500 }
+    );
   }
 }

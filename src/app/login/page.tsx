@@ -62,7 +62,11 @@ export default function LoginPage() {
 
       if (response.ok) {
         toast.success("Login realizado com sucesso!");
-        router.push("/dashboard");
+        if (responseData.user?.role === "USER") {
+          router.push("/meus-pedidos");
+        } else {
+          router.push("/dashboard");
+        }
       } else {
         toast.error(responseData.message || "Erro ao fazer login.");
       }

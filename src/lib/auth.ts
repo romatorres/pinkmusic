@@ -59,8 +59,20 @@ export async function getValidatedUserFromRequest(
   }
 }
 
+export const ROLE_ADMIN = "ADMIN";
+export const ROLE_EMPLOYEE = "EMPLOYEE";
+export const ROLE_USER = "USER";
+
 export function isAdminRole(role?: string | null): boolean {
-  return role === "ADMIN";
+  return role === ROLE_ADMIN;
+}
+
+export function isStaffRole(role?: string | null): boolean {
+  return role === ROLE_ADMIN || role === ROLE_EMPLOYEE || role === "FUNCIONARIO";
+}
+
+export function isCustomerRole(role?: string | null): boolean {
+  return role === ROLE_USER;
 }
 
 export async function requireAuth(
@@ -81,6 +93,28 @@ export async function requireAuth(
   return { user, response: null };
 }
 
+export async function requireStaff(
+  request: Request | NextRequest
+): Promise<{ user: AuthUser | null; response: NextResponse | null }> {
+  const auth = await requireAuth(request);
+
+  if (auth.response) {
+    return auth;
+  }
+
+  if (!isStaffRole(auth.user?.role)) {
+    return {
+      user: null,
+      response: NextResponse.json(
+        { message: "Acesso negado. Apenas equipe autorizada." },
+        { status: 403 }
+      ),
+    };
+  }
+
+  return auth;
+}
+
 export async function requireAdmin(
   request: Request | NextRequest
 ): Promise<{ user: AuthUser | null; response: NextResponse | null }> {
@@ -94,7 +128,7 @@ export async function requireAdmin(
     return {
       user: null,
       response: NextResponse.json(
-        { message: "Acesso negado." },
+        { message: "Acesso negado. Apenas administradores." },
         { status: 403 }
       ),
     };
@@ -102,3 +136,4 @@ export async function requireAdmin(
 
   return auth;
 }
+

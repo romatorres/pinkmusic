@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getPaymentStatus } from "@/lib/mercadopago";
+import { requireStaff } from "@/lib/auth";
 
 // GET /api/orders/[id] — polling de status do pedido (público, por ID)
 export async function GET(
@@ -93,12 +94,17 @@ export async function GET(
   }
 }
 
-// PATCH /api/orders/[id] — atualiza status manualmente (admin)
+// PATCH /api/orders/[id] — atualiza status manualmente (somente equipe: admin e funcionário)
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const authResult = await requireStaff(request);
+    if (authResult.response) {
+      return authResult.response;
+    }
+
     const { id } = await params;
     const body = await request.json();
     const { status } = body;

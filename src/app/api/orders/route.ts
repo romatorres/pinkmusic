@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { createPixPayment } from "@/lib/mercadopago";
-import { requireAdmin } from "@/lib/auth";
+import { requireStaff } from "@/lib/auth";
 import * as jose from "jose";
 
 // Helper para extrair userId do cookie JWT (opcional - para clientes autenticados)
@@ -236,10 +236,10 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// GET /api/orders — lista pedidos (somente admin autenticado)
+// GET /api/orders — lista pedidos (somente equipe autorizada: admin e funcionário)
 export async function GET(request: NextRequest) {
   try {
-    const authResult = await requireAdmin(request);
+    const authResult = await requireStaff(request);
     if (authResult.response) {
       return authResult.response;
     }

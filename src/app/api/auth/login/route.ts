@@ -82,7 +82,16 @@ export async function POST(request: Request) {
       .setExpirationTime("7d")
       .sign(secret);
 
-    const response = NextResponse.json({ message: "Login bem-sucedido." });
+    const response = NextResponse.json({
+      message: "Login bem-sucedido.",
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        phone: user.phone,
+      },
+    });
 
     response.cookies.set("auth_token", token, {
       httpOnly: true,

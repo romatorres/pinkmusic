@@ -22,7 +22,19 @@ export async function middleware(request: NextRequest) {
     const role = typeof payload.role === "string" ? payload.role : null;
     const pathname = request.nextUrl.pathname;
 
+    // 1. Cliente "USER" não pode de hipótese alguma ter acesso ao Dashboard.
+    // Redireciona imediatamente para sua área de pedidos.
+    if (role === "USER") {
+      return NextResponse.redirect(new URL("/meus-pedidos", request.url));
+    }
+
+    if (!role) {
+      return NextResponse.redirect(new URL("/login", request.url));
+    }
+
+    // 2. Rotas exclusivas de Administrador (Funcionário não pode acessar)
     const adminPrefixes = [
+      "/dashboard/users",
       "/dashboard/register",
       "/dashboard/products",
       "/dashboard/categories",
@@ -35,11 +47,7 @@ export async function middleware(request: NextRequest) {
     );
 
     if (isAdminRoute && role !== "ADMIN") {
-      return NextResponse.redirect(new URL("/dashboard", request.url));
-    }
-
-    if (!role) {
-      return NextResponse.redirect(new URL("/login", request.url));
+      return NextResponse.redirect(new URL("/dashboard/orders", request.url));
     }
 
     return NextResponse.next();

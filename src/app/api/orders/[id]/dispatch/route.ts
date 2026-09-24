@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getDeliveryQuote, createDelivery } from "@/lib/uberdirect";
+import { requireStaff } from "@/lib/auth";
 
 /**
  * GET /api/orders/[id]/dispatch
@@ -15,6 +16,11 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const authResult = await requireStaff(request);
+    if (authResult.response) {
+      return authResult.response;
+    }
+
     const { id } = await params;
 
     const order = await prisma.order.findUnique({
@@ -89,6 +95,11 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const authResult = await requireStaff(request);
+    if (authResult.response) {
+      return authResult.response;
+    }
+
     const { id } = await params;
     const body = await request.json();
     const { quoteId } = body;

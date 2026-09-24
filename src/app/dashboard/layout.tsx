@@ -21,6 +21,10 @@ export default function DashboardLayout({
         const response = await fetch("/api/auth/me");
         if (response.ok) {
           const userData = await response.json();
+          if (userData.role === "USER") {
+            router.replace("/meus-pedidos");
+            return;
+          }
           setUser(userData);
         } else {
           setUser(null);

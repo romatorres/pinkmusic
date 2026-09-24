@@ -9,22 +9,21 @@ import {
   ChartBarStacked,
   LayoutDashboard,
   LogOut,
-  Settings,
   ShoppingCart,
-  User,
   UserPen,
   Users,
   Menu,
   X,
   Bandage,
   ClipboardList,
+  ShieldCheck,
+  Building2,
 } from "lucide-react";
 
 export function Sidebar() {
   const { user, logout } = useAuthStore();
   const pathname = usePathname();
   const router = useRouter();
-  const [settingsOpen, setSettingsOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -50,23 +49,31 @@ export function Sidebar() {
     }
   };
 
-  const isActive = (path: string) => {
-    return pathname.startsWith(path) ? "bg-secondary" : "";
-  };
-
-  const isSettingsActive = () => {
-    return pathname.startsWith("/dashboard/settings") ? true : false;
+  const isActive = (path: string, exact = false) => {
+    if (exact) {
+      return pathname === path ? "bg-white/20 font-semibold shadow-sm" : "hover:bg-white/10";
+    }
+    return pathname.startsWith(path) ? "bg-white/20 font-semibold shadow-sm" : "hover:bg-white/10";
   };
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
+  const closeMobile = () => {
+    if (isMobile) {
+      setIsMobileMenuOpen(false);
+    }
+  };
+
+  const isAdmin = user?.role === "ADMIN";
+  const isEmployee = user?.role === "EMPLOYEE" || user?.role === "FUNCIONARIO";
+
   return (
     <>
       {/* Mobile Menu Button */}
       <button
-        className="fixed top-4 left-4 z-50 p-2 bg-primary rounded-md md:hidden"
+        className="fixed top-4 left-4 z-50 p-2 bg-primary rounded-md md:hidden shadow-lg border border-white/20"
         onClick={toggleMobileMenu}
         aria-label="Menu"
       >
@@ -80,7 +87,7 @@ export function Sidebar() {
       {/* Sidebar */}
       <div
         className={cn(
-          "bg-primary text-white w-64 flex flex-col z-40",
+          "bg-primary text-white w-64 flex flex-col z-40 shadow-xl",
           // Mobile: fixed com slide animation e transform
           "fixed top-0 left-0 h-full transform transition-transform duration-200 ease-in-out",
           // Desktop: static sem transform
@@ -88,184 +95,213 @@ export function Sidebar() {
           // Mobile slide control
           isMobileMenuOpen ? "translate-x-0" : "-translate-x-full",
           // Desktop sempre visível
-          "md:translate-x-0",
+          "md:translate-x-0"
         )}
       >
         {/* Header do Sidebar */}
-        <div className="p-4 border-b border-foreground">
-          <div className="flex flex-col md:items-start items-end">
-            <h2 className="text-xl font-bold">Pink Music</h2>
+        <div className="p-5 border-b border-white/15">
+          <div className="flex flex-col">
+            <div className="flex items-center gap-2">
+              <span className="text-xl font-extrabold tracking-tight">Pink Music</span>
+            </div>
             {user && (
-              <p className="text-xs text-emerald-200 flex flex-col md:items-start items-end">
-                <span>{user.name}</span>
-                <span>{user.role}</span>
-              </p>
+              <div className="mt-2 text-xs flex flex-col gap-0.5">
+                <span className="font-semibold text-white/95 truncate">{user.name}</span>
+                <div>
+                  {isAdmin ? (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/30 text-purple-200 border border-purple-400/40">
+                      <ShieldCheck className="w-3 h-3" />
+                      Administrador
+                    </span>
+                  ) : isEmployee ? (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/30 text-emerald-200 border border-emerald-400/40">
+                      <ClipboardList className="w-3 h-3" />
+                      Funcionário
+                    </span>
+                  ) : (
+                    <span className="text-white/70 text-[10px]">{user.role}</span>
+                  )}
+                </div>
+              </div>
             )}
           </div>
         </div>
 
-        {/* Navigation Menu - usando flex-1 para ocupar espaço disponível */}
-        <div className="flex-1 p-4">
-          <nav>
-            <ul className="space-y-2">
+        {/* Navigation Menu */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-6 scrollbar-thin">
+          {/* Seção 1: Operações & Vendas */}
+          <div>
+            <p className="px-2 pb-1.5 text-[11px] font-bold uppercase tracking-wider text-white/50">
+              Operações & Vendas
+            </p>
+            <ul className="space-y-1">
               <li>
                 <Link
                   href="/dashboard"
-                  className={`flex items-center space-x-2 p-2 rounded hover:bg-secondary/50 transition ${
-                    isActive("/dashboard") && pathname === "/dashboard"
-                      ? "bg-secondary"
-                      : ""
-                  }`}
-                  onClick={() => isMobile && setIsMobileMenuOpen(false)}
+                  className={cn(
+                    "flex items-center space-x-2.5 px-3 py-2 rounded-lg text-sm transition-colors",
+                    isActive("/dashboard", true)
+                  )}
+                  onClick={closeMobile}
                 >
-                  <LayoutDashboard size={20} />
+                  <LayoutDashboard size={18} />
                   <span>Dashboard</span>
                 </Link>
               </li>
 
-              {user?.role === "ADMIN" && (
-                <>
-                  <li>
-                    <Link
-                      href="/dashboard/partners"
-                      className={`flex items-center space-x-2 p-2 rounded hover:bg-secondary/50 transition ${
-                        isActive("/dashboard/partners") ? "bg-secondary" : ""
-                      }`}
-                      onClick={() => isMobile && setIsMobileMenuOpen(false)}
-                    >
-                      <Users size={20} />
-                      <span>Parceiros</span>
-                    </Link>
-                  </li>
-
-                  <li>
-                    <Link
-                      href="/dashboard/products"
-                      className={`flex items-center space-x-2 p-2 rounded hover:bg-secondary/50 transition ${
-                        isActive("/dashboard/products") ? "bg-secondary" : ""
-                      }`}
-                      onClick={() => isMobile && setIsMobileMenuOpen(false)}
-                    >
-                      <ShoppingCart size={20} />
-                      <span>Produtos</span>
-                    </Link>
-                  </li>
-
-                  <li>
-                    <Link
-                      href="/dashboard/categories"
-                      className={`flex items-center space-x-2 p-2 rounded hover:bg-secondary/50 transition ${
-                        isActive("/dashboard/categories") ? "bg-secondary" : ""
-                      }`}
-                      onClick={() => isMobile && setIsMobileMenuOpen(false)}
-                    >
-                      <ChartBarStacked size={20} />
-                      <span>Categorias</span>
-                    </Link>
-                  </li>
-
-                  <li>
-                    <Link
-                      href="/dashboard/brands"
-                      className={`flex items-center space-x-2 p-2 rounded hover:bg-secondary/50 transition ${
-                        isActive("/dashboard/brands") ? "bg-secondary" : ""
-                      }`}
-                      onClick={() => isMobile && setIsMobileMenuOpen(false)}
-                    >
-                      <Bandage size={20} />
-                      <span>Marcas</span>
-                    </Link>
-                  </li>
-
-                  <li>
-                    <Link
-                      href="/dashboard/orders"
-                      className={`flex items-center space-x-2 p-2 rounded hover:bg-secondary/50 transition ${
-                        isActive("/dashboard/orders") ? "bg-secondary" : ""
-                      }`}
-                      onClick={() => isMobile && setIsMobileMenuOpen(false)}
-                    >
-                      <ClipboardList size={20} />
-                      <span>Pedidos PIX</span>
-                    </Link>
-                  </li>
-                </>
-              )}
-
+              {/* Pedidos e Vendas: liberado para Admin e Funcionário */}
               <li>
-                <div className="space-y-1">
-                  <button
-                    onClick={() => setSettingsOpen(!settingsOpen)}
-                    className={`w-full flex items-center justify-between p-2 rounded hover:bg-secondary/50 transition ${
-                      isSettingsActive() ? "bg-secondary" : ""
-                    }`}
-                  >
-                    <span className="flex items-center space-x-2">
-                      <Settings size={20} />
-                      <span>Configurações</span>
-                    </span>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className={`h-4 w-4 transition-transform ${
-                        settingsOpen || isSettingsActive() ? "rotate-180" : ""
-                      }`}
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
-                  </button>
-
-                  <div
-                    className={`pl-4 space-y-1 ${
-                      settingsOpen || isSettingsActive() ? "block" : "hidden"
-                    }`}
-                  >
-                    {user?.role === "ADMIN" && (
-                      <Link
-                        href="/dashboard/register"
-                        className={`flex items-center space-x-2 p-2 rounded hover:bg-secondary/50 transition ${
-                          pathname === "/dashboard/settings"
-                            ? "bg-secondary"
-                            : ""
-                        }`}
-                        onClick={() => isMobile && setIsMobileMenuOpen(false)}
-                      >
-                        <User size={20} />
-                        <span>Novo Usuario</span>
-                      </Link>
-                    )}
-
-                    <Link
-                      href="/dashboard/profile"
-                      className={`flex items-center space-x-2 p-2 rounded hover:bg-secondary/50 transition ${
-                        pathname === "/dashboard/profile" ? "bg-secondary" : ""
-                      }`}
-                      onClick={() => isMobile && setIsMobileMenuOpen(false)}
-                    >
-                      <UserPen size={20} />
-                      <span>Meu Perfil</span>
-                    </Link>
-                  </div>
-                </div>
+                <Link
+                  href="/dashboard/orders"
+                  className={cn(
+                    "flex items-center space-x-2.5 px-3 py-2 rounded-lg text-sm transition-colors",
+                    isActive("/dashboard/orders")
+                  )}
+                  onClick={closeMobile}
+                >
+                  <ClipboardList size={18} />
+                  <span>Pedidos & Vendas</span>
+                </Link>
               </li>
             </ul>
-          </nav>
+          </div>
+
+          {/* Seção 2: Pessoas & Acessos (Separação Clientes vs Usuários do Sistema) */}
+          <div>
+            <p className="px-2 pb-1.5 text-[11px] font-bold uppercase tracking-wider text-white/50">
+              Gestão de Pessoas
+            </p>
+            <ul className="space-y-1">
+              {/* Clientes: liberado para Admin e Funcionário */}
+              <li>
+                <Link
+                  href="/dashboard/customers"
+                  className={cn(
+                    "flex items-center space-x-2.5 px-3 py-2 rounded-lg text-sm transition-colors",
+                    isActive("/dashboard/customers")
+                  )}
+                  onClick={closeMobile}
+                >
+                  <Users size={18} />
+                  <span>Clientes</span>
+                </Link>
+              </li>
+
+              {/* Usuários do Sistema (Equipe): exclusivo para Admin */}
+              {isAdmin && (
+                <li>
+                  <Link
+                    href="/dashboard/users"
+                    className={cn(
+                      "flex items-center space-x-2.5 px-3 py-2 rounded-lg text-sm transition-colors",
+                      isActive("/dashboard/users") || isActive("/dashboard/register")
+                    )}
+                    onClick={closeMobile}
+                  >
+                    <ShieldCheck size={18} />
+                    <span>Usuários do Sistema</span>
+                  </Link>
+                </li>
+              )}
+            </ul>
+          </div>
+
+          {/* Seção 3: Catálogo da Loja (Exclusivo Admin) */}
+          {isAdmin && (
+            <div>
+              <p className="px-2 pb-1.5 text-[11px] font-bold uppercase tracking-wider text-white/50">
+                Catálogo da Loja
+              </p>
+              <ul className="space-y-1">
+                <li>
+                  <Link
+                    href="/dashboard/products"
+                    className={cn(
+                      "flex items-center space-x-2.5 px-3 py-2 rounded-lg text-sm transition-colors",
+                      isActive("/dashboard/products")
+                    )}
+                    onClick={closeMobile}
+                  >
+                    <ShoppingCart size={18} />
+                    <span>Produtos</span>
+                  </Link>
+                </li>
+
+                <li>
+                  <Link
+                    href="/dashboard/categories"
+                    className={cn(
+                      "flex items-center space-x-2.5 px-3 py-2 rounded-lg text-sm transition-colors",
+                      isActive("/dashboard/categories")
+                    )}
+                    onClick={closeMobile}
+                  >
+                    <ChartBarStacked size={18} />
+                    <span>Categorias</span>
+                  </Link>
+                </li>
+
+                <li>
+                  <Link
+                    href="/dashboard/brands"
+                    className={cn(
+                      "flex items-center space-x-2.5 px-3 py-2 rounded-lg text-sm transition-colors",
+                      isActive("/dashboard/brands")
+                    )}
+                    onClick={closeMobile}
+                  >
+                    <Bandage size={18} />
+                    <span>Marcas</span>
+                  </Link>
+                </li>
+
+                <li>
+                  <Link
+                    href="/dashboard/partners"
+                    className={cn(
+                      "flex items-center space-x-2.5 px-3 py-2 rounded-lg text-sm transition-colors",
+                      isActive("/dashboard/partners")
+                    )}
+                    onClick={closeMobile}
+                  >
+                    <Building2 size={18} />
+                    <span>Parceiros</span>
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          )}
+
+          {/* Seção 4: Minha Conta */}
+          <div>
+            <p className="px-2 pb-1.5 text-[11px] font-bold uppercase tracking-wider text-white/50">
+              Minha Conta
+            </p>
+            <ul className="space-y-1">
+              <li>
+                <Link
+                  href="/dashboard/profile"
+                  className={cn(
+                    "flex items-center space-x-2.5 px-3 py-2 rounded-lg text-sm transition-colors",
+                    isActive("/dashboard/profile")
+                  )}
+                  onClick={closeMobile}
+                >
+                  <UserPen size={18} />
+                  <span>Meu Perfil</span>
+                </Link>
+              </li>
+            </ul>
+          </div>
         </div>
 
-        {/* Logout Button fixo no bottom - sempre visível */}
-        <div className="p-4 border-t border-foreground">
+        {/* Logout Button fixo no bottom */}
+        <div className="p-4 border-t border-white/15">
           <button
             onClick={handleLogout}
-            className="flex items-center space-x-2 cursor-pointer text-white hover:text-emerald-200 w-full p-2 rounded hover:bg-destructive/50 transition-colors"
+            className="flex items-center space-x-2.5 cursor-pointer text-white/90 hover:text-white w-full px-3 py-2 rounded-lg hover:bg-destructive/80 transition-colors text-sm font-medium"
           >
-            <LogOut size={20} />
+            <LogOut size={18} />
             <span>Sair</span>
           </button>
         </div>
@@ -274,7 +310,7 @@ export function Sidebar() {
       {/* Mobile Overlay */}
       {isMobile && isMobileMenuOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-30"
+          className="fixed inset-0 bg-black/60 z-30 backdrop-blur-xs"
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
