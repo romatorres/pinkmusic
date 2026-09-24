@@ -20,10 +20,12 @@ export default function NotFound() {
           </div>
 
           {/* Código 404 e Título */}
-          <div className="space-y-3">
-            <span className="text-xs sm:text-sm font-bold tracking-widest text-primary uppercase px-3 py-1 rounded-full bg-primary/10 border border-primary/20">
-              Erro 404 · Solo Desafinado
-            </span>
+          <div className="space-y-10">
+            <div>
+              <span className="text-xs sm:text-sm font-bold tracking-widest text-primary uppercase px-3 py-1 rounded-full bg-primary/10 border border-primary/20">
+                Erro 404 · Solo Desafinado
+              </span>
+            </div>
             <h1 className="text-3xl sm:text-5xl font-black text-foreground tracking-tight">
               Ops! Essa página saiu do repertório.
             </h1>
@@ -36,7 +38,7 @@ export default function NotFound() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
             <Button
               asChild
-              size="lg"
+              variant="default"
               className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-white font-semibold shadow-md gap-2"
             >
               <Link href="/">
@@ -47,8 +49,7 @@ export default function NotFound() {
             <Button
               asChild
               variant="outline"
-              size="lg"
-              className="w-full sm:w-auto border-border hover:bg-muted font-semibold gap-2"
+              className="w-full sm:w-auto hover:bg-muted font-semibold gap-2"
             >
               <Link href="/products-all">
                 <ShoppingBag className="w-4 h-4 text-primary" />

@@ -159,10 +159,12 @@ function HeaderLayout({
   onCartClick,
   isAuth = false,
   userName = null,
+  userEmail = null,
   onUserClick,
   userMenuOpen = false,
   userMenuRef,
   onLogout,
+  onMenuItemClick,
 }: {
   inputValue: string;
   setInputValue: (value: string) => void;
@@ -176,10 +178,12 @@ function HeaderLayout({
   onCartClick?: () => void;
   isAuth?: boolean;
   userName?: string | null;
+  userEmail?: string | null;
   onUserClick?: () => void;
   userMenuOpen?: boolean;
   userMenuRef?: React.RefObject<HTMLDivElement | null>;
   onLogout?: () => void;
+  onMenuItemClick?: () => void;
 }) {
   return (
     <header
@@ -256,12 +260,13 @@ function HeaderLayout({
                 type="button"
                 onClick={onUserClick}
                 aria-label={isAuth ? `Olá, ${userName}` : "Entrar na conta"}
-                className="transition-colors duration-200 ease-in-out hover:text-primary/70 flex items-center gap-1.5"
+                className="cursor-pointer transition-colors duration-200 ease-in-out text-primary hover:text-primary/80 flex items-center gap-1"
               >
                 <User className="h-5 w-5" />
                 {isAuth && userName && (
-                  <span className="hidden lg:block text-xs font-medium max-w-[80px] truncate">
-                    {userName.split(" ")[0]}
+                  <span className="hidden lg:flex items-center gap-1 max-w-[90px] text-sm font-medium">
+                    <span className="truncate">{userName.split(" ")[0]}</span>
+                    <ChevronDown className="h-4 w-4 shrink-0" />
                   </span>
                 )}
               </button>
@@ -269,13 +274,19 @@ function HeaderLayout({
               {/* Dropdown do usuário autenticado */}
               {isAuth && userMenuOpen && (
                 <div className="absolute right-0 top-full z-50 mt-2 w-52 rounded-xl border border-border/60 bg-white shadow-xl animate-in fade-in slide-in-from-top-2 duration-150">
-                  <div className="px-4 py-3 border-b border-border/40">
-                    <p className="text-xs text-muted-foreground">Conectado como</p>
-                    <p className="text-sm font-semibold truncate">{userName}</p>
+                  <div className="px-4 py-3">
+                    <p className="mt-1 text-sm font-semibold text-foreground truncate">
+                      {userName}
+                    </p>
+                    <p className="mt-0.5 text-xs text-foreground/70 truncate">
+                      {userEmail || "E-mail não disponível"}
+                    </p>
                   </div>
+                  <div className="mx-2 h-px bg-border/90" />
                   <div className="p-1.5 space-y-0.5">
                     <Link
                       href="/meus-pedidos"
+                      onClick={onMenuItemClick}
                       className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-muted/60 transition-colors"
                     >
                       <Package className="h-4 w-4 text-muted-foreground" />
@@ -283,8 +294,11 @@ function HeaderLayout({
                     </Link>
                     <button
                       type="button"
-                      onClick={onLogout}
-                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                      onClick={() => {
+                        onLogout?.();
+                        onMenuItemClick?.();
+                      }}
+                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
                     >
                       <LogOut className="h-4 w-4" />
                       Sair da conta
@@ -299,7 +313,7 @@ function HeaderLayout({
               type="button"
               onClick={onCartClick}
               aria-label={`Carrinho${cartCount > 0 ? ` (${cartCount} itens)` : ""}`}
-              className="relative transition-colors duration-200 ease-in-out hover:text-primary/70"
+              className="cursor-pointer relative transition-colors duration-200 ease-in-out hover:text-primary/70"
             >
               <ShoppingCart className="h-5 w-5" />
               {cartCount > 0 && (
@@ -530,6 +544,7 @@ function HeaderContent() {
         onCartClick={toggleCart}
         isAuth={isAuth}
         userName={user?.name || null}
+        userEmail={user?.email || null}
         onUserClick={() => {
           if (isAuth) setUserMenuOpen((v) => !v);
           else setShowAuthModal(true);
@@ -537,6 +552,7 @@ function HeaderContent() {
         userMenuOpen={userMenuOpen}
         userMenuRef={userMenuRef}
         onLogout={handleLogout}
+        onMenuItemClick={() => setUserMenuOpen(false)}
       />
 
       {/* CartDrawer — renderizado uma vez aqui */}
