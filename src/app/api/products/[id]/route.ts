@@ -175,6 +175,8 @@ export async function PUT(
     const rawData = await req.json();
 
     const allowedFields = [
+      "code",
+      "packageSize",
       "title",
       "price",
       "currency_id",
@@ -194,8 +196,13 @@ export async function PUT(
     const filteredData = Object.keys(rawData)
       .filter((key) => allowedFields.includes(key))
       .reduce((obj, key) => {
-        if (rawData[key] !== undefined && rawData[key] !== null) {
-          obj[key] = rawData[key];
+        if (rawData[key] !== undefined) {
+          if (key === "code") {
+            const val = typeof rawData[key] === "string" ? rawData[key].trim() : null;
+            obj[key] = val || null;
+          } else if (rawData[key] !== null) {
+            obj[key] = rawData[key];
+          }
         }
         return obj;
       }, {} as Record<string, unknown>);

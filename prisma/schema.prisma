@@ -38,6 +38,13 @@ enum DescriptionSource {
   ML
 }
 
+enum PackageSize {
+  SMALL   // Pequeno (Moto - mochila/bag: cordas, palhetas, afinadores, cabos, pedais)
+  MEDIUM  // Médio (Moto com baú ou Carro)
+  LARGE   // Grande (Carro - porta-malas: violões, guitarras, teclados, amplificadores)
+  XLARGE  // Muito Grande (Carro/Utilitário - baterias, caixas grandes)
+}
+
 enum OrderStatus {
   PENDING_PAYMENT
   PAID
@@ -49,6 +56,7 @@ enum OrderStatus {
 
 model Product {
   id                 String             @id @default(cuid())
+  code               String?            @unique // Código fiscal interno da loja / SKU
   title              String
   price              Float
   currency_id        String             @default("BRL")
@@ -61,6 +69,7 @@ model Product {
   description        String?
   descriptionSource  DescriptionSource? @default(CUSTOM)
   isLocalPickup      Boolean            @default(true)
+  packageSize        PackageSize        @default(SMALL)
   pictures           Picture[]
   orders             Order[]
 
@@ -87,6 +96,7 @@ model Product {
   @@index([views])
   @@index([sales])
   @@index([featured])
+  @@index([code])
 }
 
 model Order {
@@ -112,6 +122,9 @@ model Order {
   uberDeliveryId   String?
   uberTrackingUrl  String?
   uberDispatchedAt DateTime?
+  uberCourierName  String?
+  uberCourierPhone String?
+  uberVehicleType  String? // "motorcycle", "car", "bicycle", etc.
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

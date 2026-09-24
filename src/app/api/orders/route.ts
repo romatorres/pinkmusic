@@ -138,7 +138,13 @@ export async function GET(request: NextRequest) {
         where: status ? { status: status as never } : undefined,
         include: {
           product: {
-            select: { id: true, title: true, thumbnail: true },
+            select: {
+              id: true,
+              title: true,
+              thumbnail: true,
+              code: true,
+              packageSize: true,
+            },
           },
         },
         orderBy: { createdAt: "desc" },

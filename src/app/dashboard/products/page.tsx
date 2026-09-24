@@ -50,6 +50,8 @@ import { Category, Brand, ProductOrigin } from "@/lib/types";
 
 interface Product {
   id: string;
+  code?: string | null;
+  packageSize?: "SMALL" | "MEDIUM" | "LARGE" | "XLARGE";
   title: string;
   price: number;
   available_quantity: number;
@@ -263,7 +265,7 @@ function ProductsPageContent() {
                     setSearchTerm(value.trim());
                     setCurrentPage(1);
                   }}
-                  placeholder="Buscar por produtos..."
+                  placeholder="Buscar por título ou código fiscal..."
                 />
               </div>
               {/* Filtro de Categoria */}
@@ -375,11 +377,35 @@ function ProductsPageContent() {
                           {product.id}
                         </TableCell>
                         <TableCell className="font-medium">
-                          <div
-                            className="max-w-[490px] truncate"
-                            title={product.title}
-                          >
-                            {product.title}
+                          <div className="flex flex-col gap-1 max-w-[490px]">
+                            <span className="truncate font-semibold text-foreground" title={product.title}>
+                              {product.title}
+                            </span>
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              {product.code && (
+                                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                                  Cód: {product.code}
+                                </span>
+                              )}
+                              {product.packageSize && (
+                                <span
+                                  className="text-[10px] px-1.5 py-0.5 rounded bg-purple-50 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300 border border-purple-200 dark:border-purple-800 flex items-center gap-1"
+                                  title={
+                                    product.packageSize === "SMALL"
+                                      ? "Porte Pequeno (Prioriza Moto)"
+                                      : product.packageSize === "LARGE" || product.packageSize === "XLARGE"
+                                      ? "Porte Grande (Porta-malas de Carro)"
+                                      : "Porte Médio (Moto/Carro)"
+                                  }
+                                >
+                                  {product.packageSize === "SMALL"
+                                    ? "🛵 Moto"
+                                    : product.packageSize === "LARGE" || product.packageSize === "XLARGE"
+                                    ? "🚗 Carro"
+                                    : "📦 Médio"}
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </TableCell>
                         <TableCell>

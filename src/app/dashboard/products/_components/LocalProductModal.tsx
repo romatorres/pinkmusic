@@ -41,6 +41,8 @@ export function LocalProductModal({
   onSuccess,
 }: LocalProductModalProps) {
   const [title, setTitle] = useState("");
+  const [code, setCode] = useState("");
+  const [packageSize, setPackageSize] = useState<string>("SMALL");
   const [price, setPrice] = useState("");
   const [availableQuantity, setAvailableQuantity] = useState("1");
   const [formMainCategory, setFormMainCategory] = useState("");
@@ -93,6 +95,8 @@ export function LocalProductModal({
   const handleClose = () => {
     if (isSubmitting) return;
     setTitle("");
+    setCode("");
+    setPackageSize("SMALL");
     setPrice("");
     setAvailableQuantity("1");
     setFormMainCategory("");
@@ -166,6 +170,7 @@ export function LocalProductModal({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          code: code.trim() || null,
           title: title.trim(),
           price: parsedPrice,
           available_quantity: parsedQty,
@@ -175,6 +180,7 @@ export function LocalProductModal({
           thumbnail: finalImageUrl || "/images/placeholder-product.png",
           pictures: finalImageUrl ? [{ url: finalImageUrl }] : [],
           isLocalPickup,
+          packageSize,
         }),
       });
 
@@ -216,19 +222,72 @@ export function LocalProductModal({
         <form onSubmit={handleSubmit} className="flex flex-col gap-4 min-h-0">
           <div className="overflow-y-auto flex-1 pr-1 space-y-4 max-h-[60vh]">
             {/* Título */}
-            <div className="space-y-1.5">
-              <Label htmlFor="local-title">
-                Título do Produto <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="local-title"
-                type="text"
-                placeholder="Ex: Encordoamento D'Addario 0.10 EXL110"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                required
+            {/* Título e Código Fiscal */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="sm:col-span-2 space-y-1.5">
+                <Label htmlFor="local-title">
+                  Título do Produto <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="local-title"
+                  type="text"
+                  placeholder="Ex: Encordoamento D'Addario 0.10 EXL110"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  required
+                  disabled={isSubmitting}
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="local-code" className="flex items-center justify-between">
+                  <span>Código Fiscal / SKU</span>
+                  <span className="text-[10px] text-muted-foreground">Opcional</span>
+                </Label>
+                <Input
+                  id="local-code"
+                  type="text"
+                  placeholder="Ex: 10425"
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                  disabled={isSubmitting}
+                />
+              </div>
+            </div>
+
+            {/* Porte do Produto (Uber Direct) */}
+            <div className="space-y-1.5 border rounded-lg p-3 bg-purple-50/40 dark:bg-purple-950/20 border-purple-200 dark:border-purple-900/50">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="local-package-size" className="font-semibold text-xs flex items-center gap-1.5 text-purple-900 dark:text-purple-200">
+                  <span>🛵 / 🚗 Transporte Uber Direct (Tamanho do Pacote)</span>
+                </Label>
+              </div>
+              <Select
+                value={packageSize}
+                onValueChange={setPackageSize}
                 disabled={isSubmitting}
-              />
+              >
+                <SelectTrigger id="local-package-size" className="bg-background">
+                  <SelectValue placeholder="Selecione o porte do pacote" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="SMALL">
+                    🛵 Pequeno (Moto) — Cordas, palhetas, afinadores, cabos, pedais (cabe na mochila)
+                  </SelectItem>
+                  <SelectItem value="MEDIUM">
+                    📦 Médio (Moto/Carro) — Acessórios médios, caixas pequenas
+                  </SelectItem>
+                  <SelectItem value="LARGE">
+                    🚗 Grande (Carro) — Violões, guitarras, baixos, teclados, amplificadores (porta-malas)
+                  </SelectItem>
+                  <SelectItem value="XLARGE">
+                    🚚 Muito Grande (Carro/Utilitário) — Baterias, caixas acústicas grandes
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-[11px] text-muted-foreground mt-1">
+                Define se a Uber priorizará motoboys (mais ágeis para itens pequenos) ou motoristas de carro (para instrumentos que não cabem em motos).
+              </p>
             </div>
 
             {/* Preço e Estoque */}

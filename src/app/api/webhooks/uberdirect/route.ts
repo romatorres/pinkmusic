@@ -24,8 +24,9 @@ export async function POST(request: NextRequest) {
     const deliveryId: string = data?.id || data?.delivery_id;
     const uberStatus: string = data?.status;
     const externalId: string = data?.external_id; // nosso orderId
+    const courier = data?.courier;
 
-    if (!deliveryId || !uberStatus) {
+    if (!deliveryId && !externalId) {
       return NextResponse.json({ received: true });
     }
 
@@ -36,26 +37,40 @@ export async function POST(request: NextRequest) {
       returned: "CANCELLED",
     };
 
-    const newStatus = statusMap[uberStatus];
+    const newStatus = uberStatus ? statusMap[uberStatus] : undefined;
 
+    // Monta dados de atualização
+    const updateData: Record<string, unknown> = {};
     if (newStatus) {
-      // Atualiza pelo uberDeliveryId ou externalId (orderId)
+      updateData.status = newStatus;
+    }
+    if (courier?.name) {
+      updateData.uberCourierName = courier.name;
+    }
+    if (courier?.phone_number) {
+      updateData.uberCourierPhone = courier.phone_number;
+    }
+    if (courier?.vehicle_type) {
+      updateData.uberVehicleType = courier.vehicle_type;
+    }
+
+    if (Object.keys(updateData).length > 0) {
       await prisma.order.updateMany({
         where: {
           OR: [
-            { uberDeliveryId: deliveryId },
+            ...(deliveryId ? [{ uberDeliveryId: deliveryId }] : []),
             ...(externalId ? [{ id: externalId }] : []),
           ],
         },
-        data: { status: newStatus as never },
+        data: updateData,
       });
 
       console.log(
-        `[Webhook Uber] Entrega ${deliveryId} → status "${uberStatus}" → Order atualizado para "${newStatus}"`
+        `[Webhook Uber] Entrega ${deliveryId || externalId} atualizada:`,
+        updateData
       );
     } else {
-      // Status intermediário (em rota, etc.) — apenas loga
-      console.log(`[Webhook Uber] Evento "${uberStatus}" para entrega ${deliveryId} (sem atualização de Order).`);
+      console.log(`[Webhook Uber] Evento "${uberStatus}" para entrega ${deliveryId} (sem dados para atualizar).`);
     }
 
     return NextResponse.json({ received: true }, { status: 200 });

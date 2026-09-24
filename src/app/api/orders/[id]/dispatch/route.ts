@@ -19,7 +19,7 @@ export async function GET(
 
     const order = await prisma.order.findUnique({
       where: { id },
-      include: { product: { select: { title: true } } },
+      include: { product: { select: { title: true, packageSize: true } } },
     });
 
     if (!order) {
@@ -52,9 +52,15 @@ export async function GET(
       country: "BR",
     };
 
-    const quote = await getDeliveryQuote(dropoff);
+    const quote = await getDeliveryQuote(dropoff, order.product.packageSize);
 
-    return NextResponse.json({ success: true, data: quote });
+    return NextResponse.json({
+      success: true,
+      data: {
+        ...quote,
+        packageSize: order.product.packageSize,
+      },
+    });
   } catch (error) {
     console.error("[GET dispatch] Erro:", error);
     const msg = error instanceof Error ? error.message : "Erro ao obter cotação.";
@@ -73,7 +79,7 @@ export async function POST(
 
     const order = await prisma.order.findUnique({
       where: { id },
-      include: { product: { select: { title: true } } },
+      include: { product: { select: { title: true, packageSize: true } } },
     });
 
     if (!order) {
@@ -115,6 +121,7 @@ export async function POST(
       dropoff,
       quoteId,
       productTitle: order.product.title,
+      packageSize: order.product.packageSize,
     });
 
     // Atualiza pedido com dados da entrega Uber
@@ -125,6 +132,9 @@ export async function POST(
         uberDeliveryId: delivery.deliveryId,
         uberTrackingUrl: delivery.trackingUrl,
         uberDispatchedAt: new Date(),
+        uberCourierName: delivery.courierName || null,
+        uberCourierPhone: delivery.courierPhone || null,
+        uberVehicleType: delivery.vehicleType || null,
       },
     });
 
@@ -136,6 +146,8 @@ export async function POST(
         uberDeliveryId: delivery.deliveryId,
         trackingUrl: delivery.trackingUrl,
         courierName: delivery.courierName,
+        courierPhone: delivery.courierPhone,
+        vehicleType: delivery.vehicleType,
       },
     });
   } catch (error) {

@@ -11,6 +11,7 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json();
     const {
+      code,
       title,
       price,
       available_quantity = 0,
@@ -21,6 +22,7 @@ export async function POST(req: NextRequest) {
       thumbnail,
       pictures = [],
       isLocalPickup = true,
+      packageSize = "SMALL",
     } = body;
 
     if (!title || typeof title !== "string" || !title.trim()) {
@@ -39,6 +41,15 @@ export async function POST(req: NextRequest) {
     }
 
     const numericQuantity = Math.max(0, parseInt(available_quantity, 10) || 0);
+
+    const validPackageSize = ["SMALL", "MEDIUM", "LARGE", "XLARGE"].includes(
+      packageSize
+    )
+      ? packageSize
+      : "SMALL";
+
+    const formattedCode =
+      typeof code === "string" && code.trim() ? code.trim() : null;
 
     // Determina a thumbnail principal: fornecida explicitamente ou a 1ª imagem da galeria
     const mainThumbnail =
@@ -64,6 +75,7 @@ export async function POST(req: NextRequest) {
 
     const newProduct = await prisma.product.create({
       data: {
+        code: formattedCode,
         title: title.trim(),
         price: numericPrice,
         currency_id: "BRL",
@@ -75,6 +87,7 @@ export async function POST(req: NextRequest) {
         description: description?.trim() || null,
         descriptionSource: descriptionSource === "ML" ? "ML" : "CUSTOM",
         isLocalPickup: Boolean(isLocalPickup),
+        packageSize: validPackageSize,
         brandId: brandId || null,
         categoryId: categoryId || null,
         pictures: {

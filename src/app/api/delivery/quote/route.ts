@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
 import { getDeliveryQuote } from "@/lib/uberdirect";
 
 /**
@@ -8,15 +9,12 @@ import { getDeliveryQuote } from "@/lib/uberdirect";
  * Aplica margem de segurança de R$ 2,00 com arredondamento para cima.
  *
  * Body esperado:
- *   { address: string, zipCode?: string }
- *
- * O address deve conter: rua, número e bairro (ex: "Rua das Flores, 100, Centro")
- * O zipCode é opcional — se não fornecido, usa o CEP padrão da cidade de entrega.
+ *   { address: string, zipCode?: string, productId?: string, packageSize?: string }
  */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { address, zipCode } = body;
+    const { address, zipCode, productId, packageSize } = body;
 
     if (!address || typeof address !== "string" || address.trim().length < 5) {
       return NextResponse.json(
@@ -28,26 +26,38 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    let effectivePackageSize = packageSize || "SMALL";
+
+    if (productId && !packageSize) {
+      const product = await prisma.product.findUnique({
+        where: { id: productId },
+        select: { packageSize: true },
+      });
+      if (product?.packageSize) {
+        effectivePackageSize = product.packageSize;
+      }
+    }
+
     const dropoff = {
       street_address: address.trim(),
       city: process.env.STORE_CITY || "Feira de Santana",
       state: process.env.STORE_STATE || "BA",
-      // CEP do cliente (se informado) ou CEP genérico da cidade — sem traços
       zip_code: zipCode
         ? String(zipCode).replace(/\D/g, "")
         : "44001000",
       country: "BR",
     };
 
-    console.log("[delivery/quote] Solicitando cotação para:", dropoff.street_address);
+    console.log(
+      `[delivery/quote] Solicitando cotação para: ${dropoff.street_address} (porte: ${effectivePackageSize})`
+    );
 
-    const quote = await getDeliveryQuote(dropoff);
+    const quote = await getDeliveryQuote(dropoff, effectivePackageSize);
 
     // Custo real em reais (fee vem em centavos da Uber)
     const rawFeeReais = quote.fee / 100;
 
     // Regra da margem de segurança: + R$ 2,00 e arredondamento para o próximo real
-    // Ex: R$ 12,40 + R$ 2,00 = R$ 14,40 -> R$ 15,00
     const customerFee = Math.ceil(rawFeeReais + 2.0);
 
     console.log(`[delivery/quote] Cotação OK: raw=R$${rawFeeReais} → cliente=R$${customerFee}`);
@@ -60,6 +70,7 @@ export async function POST(request: NextRequest) {
         rawFee: rawFeeReais,
         estimatedMinutes: quote.estimatedMinutes,
         expiresAt: quote.expiresAt,
+        packageSize: effectivePackageSize,
       },
     });
   } catch (error) {

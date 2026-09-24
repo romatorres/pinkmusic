@@ -45,12 +45,18 @@ interface Order {
   totalAmount: number;
   status: OrderStatus;
   paidAt: string | null;
+  uberDeliveryId: string | null;
   uberTrackingUrl: string | null;
+  uberCourierName: string | null;
+  uberCourierPhone: string | null;
+  uberVehicleType: string | null;
   createdAt: string;
   product: {
     id: string;
     title: string;
     thumbnail: string;
+    code?: string | null;
+    packageSize?: "SMALL" | "MEDIUM" | "LARGE" | "XLARGE";
   };
 }
 
@@ -67,6 +73,7 @@ interface QuoteData {
   currency: string;
   estimatedMinutes: number;
   expiresAt: string;
+  packageSize?: string;
 }
 
 const STATUS_CONFIG: Record<
@@ -325,7 +332,26 @@ export default function OrdersPage() {
                 {/* Linha 2: produto + valor */}
                 <div className="flex items-start gap-3">
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-sm line-clamp-1">{order.product.title}</p>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <p className="font-semibold text-sm line-clamp-1">{order.product.title}</p>
+                      {order.product.code && (
+                        <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                          Cód: {order.product.code}
+                        </span>
+                      )}
+                      {order.product.packageSize && (
+                        <span
+                          className="text-[10px] px-1.5 py-0.5 rounded bg-purple-50 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300 border border-purple-200 dark:border-purple-800 flex items-center gap-1"
+                          title="Porte de transporte no Uber Direct"
+                        >
+                          {order.product.packageSize === "SMALL"
+                            ? "🛵 Moto"
+                            : order.product.packageSize === "LARGE" || order.product.packageSize === "XLARGE"
+                            ? "🚗 Carro"
+                            : "📦 Médio"}
+                        </span>
+                      )}
+                    </div>
                     <p className="text-xs text-muted-foreground mt-0.5">
                       Cliente: <span className="font-medium">{order.customerName}</span> · {order.customerPhone}
                     </p>
@@ -342,6 +368,49 @@ export default function OrdersPage() {
                         </>
                       )}
                     </div>
+
+                    {/* Dados do Entregador Uber Direct (quando despachado) */}
+                    {order.uberDeliveryId && (
+                      <div className="mt-2 p-2 rounded-lg bg-purple-50/70 dark:bg-purple-950/30 border border-purple-200/80 dark:border-purple-800/80 text-xs space-y-1">
+                        <div className="flex items-center justify-between flex-wrap gap-1">
+                          <span className="font-semibold text-purple-800 dark:text-purple-200 flex items-center gap-1">
+                            {order.uberVehicleType === "motorcycle" || order.uberVehicleType === "scooter" || order.uberVehicleType === "bicycle" ? (
+                              <>
+                                <span>🛵</span>
+                                <span>Motoboy Alocado:</span>
+                              </>
+                            ) : order.uberVehicleType === "car" || order.uberVehicleType === "van" ? (
+                              <>
+                                <span>🚗</span>
+                                <span>Motorista Alocado:</span>
+                              </>
+                            ) : (
+                              <>
+                                <Truck className="h-3.5 w-3.5 text-purple-600" />
+                                <span>Uber Direct:</span>
+                              </>
+                            )}
+                            <span className="font-normal text-foreground">
+                              {order.uberCourierName || "Aguardando confirmação do motorista"}
+                            </span>
+                          </span>
+                          {order.uberVehicleType && (
+                            <span className="text-[10px] px-1.5 py-0.2 rounded bg-purple-100 text-purple-700 dark:bg-purple-900/60 dark:text-purple-300 font-medium">
+                              {order.uberVehicleType === "motorcycle"
+                                ? "Moto"
+                                : order.uberVehicleType === "car"
+                                ? "Carro"
+                                : order.uberVehicleType}
+                            </span>
+                          )}
+                        </div>
+                        {order.uberCourierPhone && (
+                          <p className="text-[11px] text-muted-foreground">
+                            Contato do entregador: <span className="font-medium text-foreground">{order.uberCourierPhone}</span>
+                          </p>
+                        )}
+                      </div>
+                    )}
                   </div>
                   <div className="text-right shrink-0">
                     <p className="font-bold text-emerald-600 dark:text-emerald-400">
@@ -548,9 +617,44 @@ export default function OrdersPage() {
                       </p>
                     </div>
                   </div>
-                  <p className="text-[11px] text-muted-foreground border-t border-purple-200/50 dark:border-purple-800/50 pt-2">
-                    Ao confirmar, a Uber Direct alocará o motoboy mais próximo para retirar o produto na loja e levar até o cliente.
-                  </p>
+
+                  {/* Informação do Porte e Transporte */}
+                  <div className="border-t border-purple-200/60 dark:border-purple-800/60 pt-2.5 space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-purple-900 dark:text-purple-200 flex items-center gap-1.5">
+                        {(quoteData.packageSize || quoteModalOrder.product.packageSize) === "SMALL" ? (
+                          <>
+                            <span>🛵</span>
+                            <span>Transporte Previsto: Moto</span>
+                          </>
+                        ) : (quoteData.packageSize || quoteModalOrder.product.packageSize) === "LARGE" || (quoteData.packageSize || quoteModalOrder.product.packageSize) === "XLARGE" ? (
+                          <>
+                            <span>🚗</span>
+                            <span>Transporte Previsto: Carro</span>
+                          </>
+                        ) : (
+                          <>
+                            <span>📦</span>
+                            <span>Transporte: Moto ou Carro</span>
+                          </>
+                        )}
+                      </span>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-200/70 dark:bg-purple-900 text-purple-900 dark:text-purple-200 font-medium">
+                        {(quoteData.packageSize || quoteModalOrder.product.packageSize) === "SMALL"
+                          ? "Porte Pequeno"
+                          : (quoteData.packageSize || quoteModalOrder.product.packageSize) === "LARGE" || (quoteData.packageSize || quoteModalOrder.product.packageSize) === "XLARGE"
+                          ? "Porte Grande"
+                          : "Porte Médio"}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground">
+                      {(quoteData.packageSize || quoteModalOrder.product.packageSize) === "SMALL"
+                        ? "Produto cabe na bag/mochila. A Uber prioriza motoboys para retirada rápida."
+                        : (quoteData.packageSize || quoteModalOrder.product.packageSize) === "LARGE" || (quoteData.packageSize || quoteModalOrder.product.packageSize) === "XLARGE"
+                        ? "Instrumento volumoso. A Uber direcionará motorista com porta-malas para proteger o instrumento."
+                        : "A Uber alocará o entregador parceiro mais próximo disponível."}
+                    </p>
+                  </div>
                 </div>
               )}
             </div>
@@ -578,8 +682,22 @@ export default function OrdersPage() {
                 </>
               ) : (
                 <>
-                  <Truck className="h-3.5 w-3.5 mr-1.5" />
-                  Confirmar e Chamar Motoboy
+                  {(quoteData?.packageSize || quoteModalOrder?.product.packageSize) === "SMALL" ? (
+                    <>
+                      <span className="mr-1.5">🛵</span>
+                      Confirmar e Chamar Motoboy
+                    </>
+                  ) : (quoteData?.packageSize || quoteModalOrder?.product.packageSize) === "LARGE" || (quoteData?.packageSize || quoteModalOrder?.product.packageSize) === "XLARGE" ? (
+                    <>
+                      <span className="mr-1.5">🚗</span>
+                      Confirmar e Chamar Carro
+                    </>
+                  ) : (
+                    <>
+                      <Truck className="h-3.5 w-3.5 mr-1.5" />
+                      Confirmar e Chamar Entregador
+                    </>
+                  )}
                 </>
               )}
             </Button>

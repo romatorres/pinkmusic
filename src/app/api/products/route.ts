@@ -79,10 +79,20 @@ export async function GET(req: Request) {
     }
 
     if (searchQuery) {
-      whereClause.title = {
-        contains: searchQuery,
-        mode: "insensitive",
-      };
+      whereClause.OR = [
+        {
+          title: {
+            contains: searchQuery,
+            mode: "insensitive",
+          },
+        },
+        {
+          code: {
+            contains: searchQuery,
+            mode: "insensitive",
+          },
+        },
+      ];
     }
 
     let orderBy: Prisma.ProductOrderByWithRelationInput = {};

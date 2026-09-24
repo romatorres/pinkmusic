@@ -94,9 +94,11 @@ export interface DeliveryQuote {
 /**
  * Solicita cotação de entrega ao Uber Direct.
  * Retorna preço e tempo estimado antes de confirmar o despacho.
+ * Aceita opcionalmente packageSize (small, medium, large, xlarge).
  */
 export async function getDeliveryQuote(
-  dropoff: DeliveryAddress
+  dropoff: DeliveryAddress,
+  packageSize?: string
 ): Promise<DeliveryQuote> {
   const token = await getUberAccessToken();
   const rawCustomerId = process.env.UBER_CUSTOMER_ID;
@@ -117,6 +119,24 @@ export async function getDeliveryQuote(
     longitude: parseFloat(process.env.STORE_LNG || "-38.9663"),
   };
 
+  const quotePayload: Record<string, unknown> = {
+    pickup_address: JSON.stringify(pickup),
+    dropoff_address: JSON.stringify({
+      ...dropoff,
+      zip_code: dropoff.zip_code.replace(/\D/g, ""),
+    }),
+  };
+
+  if (packageSize) {
+    quotePayload.manifest_items = [
+      {
+        name: "Item",
+        quantity: 1,
+        size: packageSize.toLowerCase(),
+      },
+    ];
+  }
+
   const response = await fetch(
     `${UBER_BASE_URL}/customers/${customerId}/delivery_quotes`,
     {
@@ -125,13 +145,7 @@ export async function getDeliveryQuote(
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({
-        pickup_address: JSON.stringify(pickup),
-        dropoff_address: JSON.stringify({
-          ...dropoff,
-          zip_code: dropoff.zip_code.replace(/\D/g, ""),
-        }),
-      }),
+      body: JSON.stringify(quotePayload),
     }
   );
 
@@ -160,6 +174,7 @@ export interface CreateDeliveryInput {
   dropoff: DeliveryAddress;
   quoteId?: string;
   productTitle: string;
+  packageSize?: string;
 }
 
 export interface DeliveryResult {
@@ -167,6 +182,8 @@ export interface DeliveryResult {
   trackingUrl: string;
   status: string;
   courierName?: string;
+  courierPhone?: string;
+  vehicleType?: string;
 }
 
 /**
@@ -194,6 +211,8 @@ export async function createDelivery(
     longitude: parseFloat(process.env.STORE_LNG || "-38.9663"),
   };
 
+  const chosenSize = (input.packageSize || "small").toLowerCase();
+
   const payload = {
     quote_id: input.quoteId,
     external_id: input.orderId,
@@ -215,7 +234,7 @@ export async function createDelivery(
       {
         name: input.productTitle.slice(0, 100),
         quantity: 1,
-        size: "medium",
+        size: chosenSize,
       },
     ],
   };
@@ -244,6 +263,8 @@ export async function createDelivery(
     trackingUrl: data.tracking_url,
     status: data.status,
     courierName: data.courier?.name,
+    courierPhone: data.courier?.phone_number,
+    vehicleType: data.courier?.vehicle_type,
   };
 }
 
@@ -274,7 +295,11 @@ export async function getDeliveryStatus(deliveryId: string) {
     status: data.status,
     trackingUrl: data.tracking_url,
     courier: data.courier
-      ? { name: data.courier.name, phone: data.courier.phone_number }
+      ? {
+          name: data.courier.name,
+          phone: data.courier.phone_number,
+          vehicleType: data.courier.vehicle_type,
+        }
       : null,
   };
 }

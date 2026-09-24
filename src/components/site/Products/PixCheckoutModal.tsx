@@ -94,6 +94,7 @@ export default function PixCheckoutModal({
   const [quoteError, setQuoteError] = useState<string | null>(null);
   const [quoteFetched, setQuoteFetched] = useState(false);
   const [estimatedMinutes, setEstimatedMinutes] = useState<number | null>(null);
+  const [quotePackageSize, setQuotePackageSize] = useState<string | null>(null);
 
   // Flow state
   const [step, setStep] = useState<Step>("form");
@@ -179,12 +180,15 @@ export default function PixCheckoutModal({
         body: JSON.stringify({
           address: fullAddr,
           zipCode: zipCode.trim() || undefined,
+          productId: product.id,
+          packageSize: product.packageSize,
         }),
       });
       const result = await res.json();
       if (result.success && result.data) {
         setDeliveryFee(result.data.customerFee);
         setEstimatedMinutes(result.data.estimatedMinutes);
+        setQuotePackageSize(result.data.packageSize || product.packageSize || "SMALL");
         setQuoteFetched(true);
       } else {
         setQuoteError(
@@ -519,11 +523,41 @@ export default function PixCheckoutModal({
                   {/* Card de resultado da cotação */}
                   {quoteFetched && !quoteLoading && (
                     <div className="rounded-lg bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800 p-3 space-y-1.5">
-                      <div className="flex items-center gap-1.5 text-xs font-semibold text-purple-700 dark:text-purple-300">
-                        <Truck className="h-4 w-4" />
-                        Entrega Expressa via Uber Direct
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5 text-xs font-semibold text-purple-700 dark:text-purple-300">
+                          {quotePackageSize === "SMALL" ? (
+                            <>
+                              <span className="text-sm">🛵</span>
+                              <span>Entrega Rápida via Moto (Uber Direct)</span>
+                            </>
+                          ) : quotePackageSize === "LARGE" || quotePackageSize === "XLARGE" ? (
+                            <>
+                              <span className="text-sm">🚗</span>
+                              <span>Entrega Segura via Carro (Uber Direct)</span>
+                            </>
+                          ) : (
+                            <>
+                              <Truck className="h-4 w-4" />
+                              <span>Entrega Expressa via Uber Direct</span>
+                            </>
+                          )}
+                        </div>
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-100 dark:bg-purple-900/60 text-purple-800 dark:text-purple-200 font-medium">
+                          {quotePackageSize === "SMALL"
+                            ? "Pacote Pequeno"
+                            : quotePackageSize === "LARGE" || quotePackageSize === "XLARGE"
+                            ? "Porta-malas"
+                            : "Pacote Médio"}
+                        </span>
                       </div>
-                      <div className="flex justify-between text-xs text-muted-foreground">
+                      <p className="text-[11px] text-muted-foreground">
+                        {quotePackageSize === "SMALL"
+                          ? "Item pequeno: motoboy alocado com agilidade para entrega no mesmo dia."
+                          : quotePackageSize === "LARGE" || quotePackageSize === "XLARGE"
+                          ? "Instrumento volumoso: motorista de carro alocado para transporte seguro."
+                          : "Despacho sob demanda com entregador parceiro Uber."}
+                      </p>
+                      <div className="flex justify-between text-xs text-muted-foreground pt-1">
                         <span>Previsão de entrega:</span>
                         <span className="font-medium text-foreground">
                           ~{estimatedMinutes} minutos

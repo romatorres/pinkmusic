@@ -21,6 +21,8 @@ import { Upload, ImageIcon, Store, ShoppingCart, Loader2 } from "lucide-react";
 
 interface ProductData {
   id?: string;
+  code?: string | null;
+  packageSize?: "SMALL" | "MEDIUM" | "LARGE" | "XLARGE";
   title: string;
   price: number;
   available_quantity: number;
@@ -221,6 +223,8 @@ export default function EditProductPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          code: product.code ? product.code.trim() : null,
+          packageSize: product.packageSize || "SMALL",
           title: product.title,
           price: product.price,
           available_quantity: product.available_quantity,
@@ -314,20 +318,69 @@ export default function EditProductPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Título */}
-            <div>
-              <Label htmlFor="title" className="mb-2 block font-semibold">
-                Título do Produto <span className="text-red-500">*</span>
+            {/* Título e Código Fiscal */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="md:col-span-2">
+                <Label htmlFor="title" className="mb-2 block font-semibold">
+                  Título do Produto <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="title"
+                  name="title"
+                  type="text"
+                  value={product.title}
+                  onChange={handleChange}
+                  required
+                  disabled={saving}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="code" className="mb-2 flex items-center justify-between font-semibold">
+                  <span>Código Fiscal / SKU</span>
+                  <span className="text-xs font-normal text-muted-foreground">Sistema da Loja</span>
+                </Label>
+                <Input
+                  id="code"
+                  name="code"
+                  type="text"
+                  placeholder="Ex: 10425"
+                  value={product.code || ""}
+                  onChange={handleChange}
+                  disabled={saving}
+                />
+              </div>
+            </div>
+
+            {/* Porte do Produto (Uber Direct) */}
+            <div className="border rounded-xl p-4 bg-purple-50/40 dark:bg-purple-950/20 border-purple-200 dark:border-purple-900/50 space-y-2">
+              <Label htmlFor="packageSize" className="font-semibold text-sm flex items-center gap-2 text-purple-900 dark:text-purple-200">
+                <span>🛵 / 🚗 Transporte Uber Direct (Tamanho do Pacote)</span>
               </Label>
-              <Input
-                id="title"
-                name="title"
-                type="text"
-                value={product.title}
+              <select
+                id="packageSize"
+                name="packageSize"
+                value={product.packageSize || "SMALL"}
                 onChange={handleChange}
-                required
+                className="w-full p-2.5 border border-purple-200 dark:border-purple-800 rounded-md bg-background text-sm font-medium focus:ring-2 focus:ring-purple-500 outline-none"
                 disabled={saving}
-              />
+              >
+                <option value="SMALL">
+                  🛵 Pequeno (Moto) — Cordas, palhetas, afinadores, cabos, pedais (cabe na mochila do entregador)
+                </option>
+                <option value="MEDIUM">
+                  📦 Médio (Moto/Carro) — Acessórios médios, caixas pequenas
+                </option>
+                <option value="LARGE">
+                  🚗 Grande (Carro) — Violões, guitarras, baixos, teclados, amplificadores (porta-malas)
+                </option>
+                <option value="XLARGE">
+                  🚚 Muito Grande (Carro/Utilitário) — Baterias, caixas acústicas grandes
+                </option>
+              </select>
+              <p className="text-xs text-muted-foreground">
+                Orienta o algoritmo da Uber Direct a priorizar motoboys para itens pequenos ou exigir porta-malas de carro para instrumentos grandes.
+              </p>
             </div>
 
             {/* Imagem do Produto com Preview e Upload Cloudinary */}
