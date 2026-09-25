@@ -73,11 +73,11 @@ export function CartDrawer() {
         >
           {/* Header */}
           <SheetHeader className="px-5 py-4 border-b border-border/50 flex-shrink-0">
-            <SheetTitle className="flex items-center gap-2 text-base font-semibold">
+            <SheetTitle className="flex items-center gap-2 text-base font-semibold leading-none">
               <ShoppingCart className="h-5 w-5 text-primary" />
-              Meu Carrinho
+              <span>Meu Carrinho</span>
               {count > 0 && (
-                <span className="ml-auto bg-primary text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-white">
                   {count}
                 </span>
               )}
