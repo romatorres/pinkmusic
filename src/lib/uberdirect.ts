@@ -74,13 +74,24 @@ async function getUberAccessToken(): Promise<string> {
 }
 
 export interface DeliveryAddress {
-  street_address: string;
+  street_address: string | string[];
   city: string;
   state: string;
   zip_code: string;
   country: string;
   latitude?: number;
   longitude?: number;
+}
+
+/** Garante que street_address seja sempre um array, conforme exige a API Uber Direct */
+function normalizeStreetAddress(addr: DeliveryAddress): Record<string, unknown> {
+  return {
+    ...addr,
+    street_address: Array.isArray(addr.street_address)
+      ? addr.street_address
+      : [addr.street_address],
+    zip_code: String(addr.zip_code).replace(/\D/g, ""),
+  };
 }
 
 export interface DeliveryQuote {
@@ -119,12 +130,12 @@ export async function getDeliveryQuote(
     longitude: parseFloat(process.env.STORE_LNG || "-38.9663"),
   };
 
+  const pickupNormalized = normalizeStreetAddress(pickup);
+  const dropoffNormalized = normalizeStreetAddress(dropoff);
+
   const quotePayload: Record<string, unknown> = {
-    pickup_address: JSON.stringify(pickup),
-    dropoff_address: JSON.stringify({
-      ...dropoff,
-      zip_code: dropoff.zip_code.replace(/\D/g, ""),
-    }),
+    pickup_address: JSON.stringify(pickupNormalized),
+    dropoff_address: JSON.stringify(dropoffNormalized),
   };
 
   if (packageSize) {
@@ -136,6 +147,8 @@ export async function getDeliveryQuote(
       },
     ];
   }
+
+  console.log("[Uber Direct] Payload cotação:", JSON.stringify(quotePayload, null, 2));
 
   const response = await fetch(
     `${UBER_BASE_URL}/customers/${customerId}/delivery_quotes`,
@@ -152,11 +165,28 @@ export async function getDeliveryQuote(
   const data = await response.json();
 
   if (!response.ok) {
-    console.error("[Uber Direct] Erro na cotação:", data);
+    console.error("[Uber Direct] Erro na cotação:", {
+      status: response.status,
+      message: data.message,
+      metadata: data.metadata,
+      code: data.code,
+    });
+    // Extrai detalhes do parâmetro inválido se disponível
+    const paramDetails = data.metadata?.param_details
+      ? ` (${data.metadata.param_details})`
+      : "";
     throw new Error(
-      data.message || "Erro ao obter cotação do Uber Direct."
+      (data.message || "Erro ao obter cotação do Uber Direct.") + paramDetails
     );
   }
+
+  console.log("[Uber Direct] Cotação recebida:", {
+    id: data.id,
+    fee: data.fee,
+    currency: data.currency,
+    duration: data.duration,
+    expires: data.expires,
+  });
 
   return {
     quoteId: data.id,
@@ -219,7 +249,7 @@ export async function createDelivery(
     pickup: {
       name: "Pink Music Instrumentos",
       phone_number: process.env.STORE_PHONE || "+5575991988685",
-      address: JSON.stringify(pickupAddress),
+      address: JSON.stringify(normalizeStreetAddress(pickupAddress)),
       notes: `Pedido #${input.orderId}`,
     },
     dropoff: {
@@ -227,7 +257,7 @@ export async function createDelivery(
       phone_number: input.customerPhone.replace(/\D/g, "").startsWith("55")
         ? `+${input.customerPhone.replace(/\D/g, "")}`
         : `+55${input.customerPhone.replace(/\D/g, "")}`,
-      address: JSON.stringify(input.dropoff),
+      address: JSON.stringify(normalizeStreetAddress(input.dropoff)),
       notes: `Produto: ${input.productTitle}`,
     },
     manifest_items: [
@@ -238,6 +268,8 @@ export async function createDelivery(
       },
     ],
   };
+
+  console.log("[Uber Direct] Criando entrega:", JSON.stringify(payload, null, 2));
 
   const response = await fetch(
     `${UBER_BASE_URL}/customers/${customerId}/deliveries`,

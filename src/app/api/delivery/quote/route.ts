@@ -42,9 +42,7 @@ export async function POST(request: NextRequest) {
       street_address: address.trim(),
       city: process.env.STORE_CITY || "Feira de Santana",
       state: process.env.STORE_STATE || "BA",
-      zip_code: zipCode
-        ? String(zipCode).replace(/\D/g, "")
-        : "44001000",
+      zip_code: zipCode ? String(zipCode).replace(/\D/g, "") : "",
       country: "BR",
     };
 
@@ -57,8 +55,9 @@ export async function POST(request: NextRequest) {
     // Custo real em reais (fee vem em centavos da Uber)
     const rawFeeReais = quote.fee / 100;
 
-    // Regra da margem de segurança: + R$ 2,00 e arredondamento para o próximo real
-    const customerFee = Math.ceil(rawFeeReais + 2.0);
+    // Margem de segurança de R$ 2,00 para cobrir oscilações
+    // Arredonda para 2 casas decimais (não usa Math.ceil para não inflar o preço)
+    const customerFee = Math.round((rawFeeReais + 2.0) * 100) / 100;
 
     console.log(`[delivery/quote] Cotação OK: raw=R$${rawFeeReais} → cliente=R$${customerFee}`);
 
@@ -68,6 +67,7 @@ export async function POST(request: NextRequest) {
         quoteId: quote.quoteId,
         customerFee,
         rawFee: rawFeeReais,
+        currency: quote.currency,
         estimatedMinutes: quote.estimatedMinutes,
         expiresAt: quote.expiresAt,
         packageSize: effectivePackageSize,
