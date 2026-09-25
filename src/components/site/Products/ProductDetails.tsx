@@ -15,9 +15,11 @@ import {
 import Link from "next/link";
 import { PageContainer } from "@/components/ui/Page-container";
 import Social from "../_components/Social";
+import { CustomerAuthModal } from "../_components/CustomerAuthModal";
 import { CartCheckoutModal } from "./CartCheckoutModal";
 import type { ProductDetailsProps } from "@/lib/types";
 import { useCartStore } from "@/store/cartStore";
+import { useAuthStore } from "@/store/authStore";
 import { toast } from "sonner";
 
 const formatPrice = (price: number, currency: string) => {
@@ -30,8 +32,10 @@ const formatPrice = (price: number, currency: string) => {
 const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [pixModalOpen, setPixModalOpen] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
 
+  const { isAuth } = useAuthStore();
   const { addItem } = useCartStore();
 
   const handleAddToCart = () => {
@@ -59,6 +63,15 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
       packageSize: product.packageSize || "SMALL",
       availableQuantity: product.available_quantity,
     });
+    if (!isAuth) {
+      setShowAuthModal(true);
+    } else {
+      setPixModalOpen(true);
+    }
+  };
+
+  const handleAuthSuccess = () => {
+    setShowAuthModal(false);
     setPixModalOpen(true);
   };
 
@@ -320,6 +333,14 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
           </div>
         </div>
       </PageContainer>
+
+      {/* Modal de autenticação */}
+      <CustomerAuthModal
+        open={showAuthModal}
+        onOpenChange={setShowAuthModal}
+        onSuccess={handleAuthSuccess}
+        required
+      />
 
       {/* Modal de Checkout - agora sempre usa o CartCheckoutModal */}
       <CartCheckoutModal
