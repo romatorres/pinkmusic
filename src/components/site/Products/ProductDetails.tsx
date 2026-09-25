@@ -131,18 +131,18 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
                 {(product.pictures?.[selectedImage]?.secure_url ||
                   product.pictures?.[selectedImage]?.url ||
                   product.thumbnail) && (
-                  <Image
-                    src={
-                      product.pictures?.[selectedImage]?.secure_url ||
-                      product.pictures?.[selectedImage]?.url ||
-                      product.thumbnail
-                    }
-                    alt={product.title}
-                    fill
-                    style={{ objectFit: "contain" }}
-                    className="rounded-lg"
-                  />
-                )}
+                    <Image
+                      src={
+                        product.pictures?.[selectedImage]?.secure_url ||
+                        product.pictures?.[selectedImage]?.url ||
+                        product.thumbnail
+                      }
+                      alt={product.title}
+                      fill
+                      style={{ objectFit: "contain" }}
+                      className="rounded-lg"
+                    />
+                  )}
               </div>
 
               {product.pictures && product.pictures.length > 1 && (
@@ -153,11 +153,10 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
                       <button
                         key={picture.id || index}
                         onClick={() => setSelectedImage(index)}
-                        className={`flex-shrink-0 w-20 h-20 rounded-md overflow-hidden border-2 ${
-                          selectedImage === index
-                            ? "border-primary"
-                            : "border-gray-200"
-                        }`}
+                        className={`flex-shrink-0 w-20 h-20 rounded-md overflow-hidden border-2 ${selectedImage === index
+                          ? "border-primary"
+                          : "border-gray-200"
+                          }`}
                       >
                         <div className="relative w-full h-full">
                           {picUrl && (
@@ -197,16 +196,10 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
                 <div className="flex items-center gap-3">
                   <p className="text-primary font-medium">
                     {product.available_quantity > 0
-                      ? `${product.available_quantity} disponível${
-                          product.available_quantity > 1 ? "s" : ""
-                        }`
+                      ? `${product.available_quantity} disponível${product.available_quantity > 1 ? "s" : ""
+                      }`
                       : "Produto esgotado"}
                   </p>
-                  {isLocal && (
-                    <span className="text-xs bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 font-semibold px-2.5 py-1 rounded-full flex items-center gap-1">
-                      <Store size={12} /> Pronta Entrega na Loja Física
-                    </span>
-                  )}
                 </div>
               </div>
 
@@ -275,16 +268,21 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
                       type="button"
                       onClick={handleAddToCart}
                       disabled={product.available_quantity <= 0}
-                      className={`cursor-pointer w-full py-3 px-6 rounded-full flex items-center justify-center gap-2 font-semibold transition-all duration-300 ${
-                        addedToCart
-                          ? "bg-emerald-500 text-white scale-[0.98]"
-                          : "border-2 border-primary text-primary hover:bg-primary/5"
-                      }`}
+                      className={`w-full py-3 px-4 rounded-full flex items-center justify-center gap-2 transition-all duration-300 whitespace-nowrap overflow-hidden ${addedToCart
+                        ? "bg-emerald-500 text-white"
+                        : "border border-primary text-primary hover:bg-white/40 cursor-pointer"
+                        } disabled:opacity-50 disabled:cursor-not-allowed`}
                     >
                       {addedToCart ? (
-                        <><Check size={18} /> Adicionado ao Carrinho!</>
+                        <>
+                          <Check size={15} className="shrink-0" />
+                          <span className="truncate">No carrinho!</span>
+                        </>
                       ) : (
-                        <><Plus size={18} /> Adicionar ao Carrinho</>
+                        <>
+                          <ShoppingCart size={15} className="shrink-0" />
+                          <span className="truncate">Adicionar ao Carrinho</span>
+                        </>
                       )}
                     </button>
 
@@ -293,7 +291,9 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
                       type="button"
                       onClick={handleBuyNow}
                       disabled={product.available_quantity <= 0}
-                      className="cursor-pointer w-full bg-primary text-white py-3 px-6 rounded-full hover:bg-primary/85 flex items-center justify-center gap-2 font-semibold"
+                      className={`w-full  py-3 px-6 rounded-full flex items-center justify-center gap-2 font-semibold ${product.available_quantity <= 0
+                        ? "cursor-not-allowed bg-primary/80 text-white opacity-60"
+                        : "cursor-pointer bg-primary text-white hover:bg-primary/85"}`}
                     >
                       <Store size={20} />
                       Comprar Agora via PIX
@@ -347,7 +347,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
         open={pixModalOpen}
         onOpenChange={setPixModalOpen}
       />
-    </section>
+    </section >
   );
 };
 

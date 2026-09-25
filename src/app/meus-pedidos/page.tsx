@@ -10,7 +10,6 @@ import {
   Truck,
   Store,
   ExternalLink,
-  ChevronRight,
   RefreshCw,
   QrCode,
   Copy,
@@ -20,6 +19,7 @@ import {
   LogIn,
   ArrowLeft,
   XCircle,
+  ChevronsRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageContainer } from "@/components/ui/Page-container";
@@ -260,33 +260,30 @@ export default function CustomerOrdersPage() {
               <button
                 type="button"
                 onClick={() => setFilterTab("ALL")}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                  filterTab === "ALL"
-                    ? "bg-primary text-white"
-                    : "bg-card border border-border text-muted-foreground hover:text-foreground"
-                }`}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${filterTab === "ALL"
+                  ? "bg-primary text-white"
+                  : "bg-card border border-border text-muted-foreground hover:text-foreground"
+                  }`}
               >
                 Todos ({orders.length})
               </button>
               <button
                 type="button"
                 onClick={() => setFilterTab("PENDING")}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                  filterTab === "PENDING"
-                    ? "bg-amber-600 text-white"
-                    : "bg-card border border-border text-muted-foreground hover:text-foreground"
-                }`}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${filterTab === "PENDING"
+                  ? "bg-amber-600 text-white"
+                  : "bg-card border border-border text-muted-foreground hover:text-foreground"
+                  }`}
               >
                 Aguardando Pagamento ({orders.filter((o) => o.status === "PENDING_PAYMENT").length})
               </button>
               <button
                 type="button"
                 onClick={() => setFilterTab("DELIVERED")}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                  filterTab === "DELIVERED"
-                    ? "bg-emerald-600 text-white"
-                    : "bg-card border border-border text-muted-foreground hover:text-foreground"
-                }`}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${filterTab === "DELIVERED"
+                  ? "bg-emerald-600 text-white"
+                  : "bg-card border border-border text-muted-foreground hover:text-foreground"
+                  }`}
               >
                 Concluídos ({orders.filter((o) => o.status === "DELIVERED").length})
               </button>
@@ -332,10 +329,10 @@ export default function CustomerOrdersPage() {
             <p className="text-sm text-muted-foreground mt-2 mb-6">
               Você ainda não realizou compras com esta conta. Que tal conferir nossos instrumentos e novidades?
             </p>
-            <Button asChild className="bg-primary hover:bg-primary/90 text-white font-semibold">
+            <Button asChild variant="outline">
               <Link href="/products-all">
                 Explorar Produtos
-                <ChevronRight className="h-4 w-4 ml-1" />
+                <ChevronsRight className="h-4 w-4" />
               </Link>
             </Button>
           </div>

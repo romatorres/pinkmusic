@@ -155,7 +155,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                 className={`w-full py-3 px-4 rounded-full flex items-center justify-center gap-2 transition-all duration-300 whitespace-nowrap overflow-hidden ${addedToCart
                   ? "bg-emerald-500 text-white"
                   : "border border-primary text-primary hover:bg-primary/5"
-                  } disabled:opacity-40`}
+                  } disabled:opacity-40 disabled:cursor-not-allowed`}
               >
                 {addedToCart ? (
                   <>
