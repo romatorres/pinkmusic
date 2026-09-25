@@ -100,6 +100,33 @@ export interface DeliveryQuote {
   currency: string;
   estimatedMinutes: number;
   expiresAt: string;
+  pickup?: Record<string, unknown>;
+  dropoff?: Record<string, unknown>;
+}
+
+/**
+ * Retorna o endereço configurado da loja (origem/remetente)
+ */
+export function getStorePickupAddress(): DeliveryAddress {
+  return {
+    street_address: (process.env.STORE_ADDRESS || "Rua JJ Seabra 31 Centro")
+      .trim()
+      .replace(/^["']|["']$/g, ""),
+    city: (process.env.STORE_CITY || "Feira de Santana")
+      .trim()
+      .replace(/^["']|["']$/g, ""),
+    state: (process.env.STORE_STATE || "BA")
+      .trim()
+      .replace(/^["']|["']$/g, ""),
+    zip_code: (process.env.STORE_ZIP || "44002000").replace(/\D/g, ""),
+    country: "BR",
+    latitude: parseFloat(
+      String(process.env.STORE_LAT || "-12.2664").replace(/^["']|["']$/g, "")
+    ),
+    longitude: parseFloat(
+      String(process.env.STORE_LNG || "-38.9663").replace(/^["']|["']$/g, "")
+    ),
+  };
 }
 
 /**
@@ -120,16 +147,7 @@ export async function getDeliveryQuote(
 
   const customerId = rawCustomerId.trim().replace(/^["']|["']$/g, "");
 
-  const pickup: DeliveryAddress = {
-    street_address: process.env.STORE_ADDRESS || "Rua JJ Seabra 31 Centro",
-    city: process.env.STORE_CITY || "Feira de Santana",
-    state: process.env.STORE_STATE || "BA",
-    zip_code: (process.env.STORE_ZIP || "44002000").replace(/\D/g, ""),
-    country: "BR",
-    latitude: parseFloat(process.env.STORE_LAT || "-12.2664"),
-    longitude: parseFloat(process.env.STORE_LNG || "-38.9663"),
-  };
-
+  const pickup = getStorePickupAddress();
   const pickupNormalized = normalizeStreetAddress(pickup);
   const dropoffNormalized = normalizeStreetAddress(dropoff);
 
@@ -148,7 +166,11 @@ export async function getDeliveryQuote(
     ];
   }
 
-  console.log("[Uber Direct] Payload cotação:", JSON.stringify(quotePayload, null, 2));
+  console.log("\n[Uber Direct] === RASTREAMENTO DE COTAÇÃO DE ENTREGA ===");
+  console.log("  📍 Remetente (Pickup):", JSON.stringify(pickupNormalized));
+  console.log("  🏁 Destino (Dropoff):", JSON.stringify(dropoffNormalized));
+  console.log("  📦 Porte informado:", packageSize || "SMALL");
+  console.log("  📤 Payload enviado à Uber:", JSON.stringify(quotePayload, null, 2));
 
   const response = await fetch(
     `${UBER_BASE_URL}/customers/${customerId}/delivery_quotes`,
@@ -165,7 +187,7 @@ export async function getDeliveryQuote(
   const data = await response.json();
 
   if (!response.ok) {
-    console.error("[Uber Direct] Erro na cotação:", {
+    console.error("[Uber Direct] ❌ Erro na cotação:", {
       status: response.status,
       message: data.message,
       metadata: data.metadata,
@@ -180,13 +202,15 @@ export async function getDeliveryQuote(
     );
   }
 
-  console.log("[Uber Direct] Cotação recebida:", {
-    id: data.id,
-    fee: data.fee,
-    currency: data.currency,
-    duration: data.duration,
-    expires: data.expires,
+  console.log("[Uber Direct] ✅ Cotação recebida com sucesso:", {
+    quoteId: data.id,
+    valorCentavos: data.fee,
+    valorReais: `R$ ${(data.fee / 100).toFixed(2)}`,
+    moeda: data.currency,
+    tempoEstimadoMin: data.duration,
+    expiraEm: data.expires,
   });
+  console.log("[Uber Direct] ==========================================\n");
 
   return {
     quoteId: data.id,
@@ -194,6 +218,8 @@ export async function getDeliveryQuote(
     currency: data.currency,
     estimatedMinutes: data.duration,
     expiresAt: data.expires,
+    pickup: pickupNormalized,
+    dropoff: dropoffNormalized,
   };
 }
 
@@ -231,15 +257,7 @@ export async function createDelivery(
 
   const customerId = rawCustomerId.trim().replace(/^["']|["']$/g, "");
 
-  const pickupAddress: DeliveryAddress = {
-    street_address: process.env.STORE_ADDRESS || "Rua JJ Seabra 31 Centro",
-    city: process.env.STORE_CITY || "Feira de Santana",
-    state: process.env.STORE_STATE || "BA",
-    zip_code: (process.env.STORE_ZIP || "44002000").replace(/\D/g, ""),
-    country: "BR",
-    latitude: parseFloat(process.env.STORE_LAT || "-12.2664"),
-    longitude: parseFloat(process.env.STORE_LNG || "-38.9663"),
-  };
+  const pickupAddress = getStorePickupAddress();
 
   const chosenSize = (input.packageSize || "small").toLowerCase();
 

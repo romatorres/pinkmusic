@@ -55,11 +55,12 @@ export async function POST(request: NextRequest) {
     // Custo real em reais (fee vem em centavos da Uber)
     const rawFeeReais = quote.fee / 100;
 
-    // Margem de segurança de R$ 2,00 para cobrir oscilações
-    // Arredonda para 2 casas decimais (não usa Math.ceil para não inflar o preço)
-    const customerFee = Math.round((rawFeeReais + 2.0) * 100) / 100;
+    // Removida temporariamente a taxa de R$ 2,00 a pedido para testes/investigação
+    const customerFee = rawFeeReais;
 
-    console.log(`[delivery/quote] Cotação OK: raw=R$${rawFeeReais} → cliente=R$${customerFee}`);
+    console.log(
+      `[delivery/quote] Cotação OK: valor Uber = R$${rawFeeReais.toFixed(2)} | Cobrado do cliente = R$${customerFee.toFixed(2)} (taxa de R$2,00 desativada)`
+    );
 
     return NextResponse.json({
       success: true,
@@ -71,6 +72,8 @@ export async function POST(request: NextRequest) {
         estimatedMinutes: quote.estimatedMinutes,
         expiresAt: quote.expiresAt,
         packageSize: effectivePackageSize,
+        pickup: quote.pickup,
+        dropoff: quote.dropoff,
       },
     });
   } catch (error) {
