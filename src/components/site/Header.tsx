@@ -8,7 +8,15 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { ChevronDown, ChevronRight, MenuIcon, ShoppingCart, User, LogOut, Package } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronRight,
+  MenuIcon,
+  ShoppingCart,
+  User,
+  LogOut,
+  Package,
+} from "lucide-react";
 import { PageContainer } from "../ui/Page-container";
 import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -34,7 +42,7 @@ function DesktopCategoryMegaMenu({
   const childCategories = categories.filter((c) => !!c.parentId);
 
   const [activeCategoryId, setActiveCategoryId] = useState<string>(
-    rootCategories[0]?.id || ""
+    rootCategories[0]?.id || "",
   );
 
   const activeCategory =
@@ -60,7 +68,8 @@ function DesktopCategoryMegaMenu({
           </Link>
 
           {rootCategories.map((cat) => {
-            const isHovered = cat.id === (activeCategory?.id || activeCategoryId);
+            const isHovered =
+              cat.id === (activeCategory?.id || activeCategoryId);
             const subCount =
               cat.subcategories && cat.subcategories.length > 0
                 ? cat.subcategories.length
@@ -74,7 +83,7 @@ function DesktopCategoryMegaMenu({
                   "flex items-center justify-between rounded-xl px-3 py-2.5 text-xs font-medium cursor-pointer transition-all",
                   isHovered
                     ? "bg-primary text-primary-foreground font-semibold shadow-sm"
-                    : "text-foreground hover:bg-muted/70"
+                    : "text-foreground hover:bg-muted/70",
                 )}
               >
                 <Link
@@ -88,7 +97,9 @@ function DesktopCategoryMegaMenu({
                   <ChevronRight
                     className={cn(
                       "h-3.5 w-3.5 flex-shrink-0 transition-transform",
-                      isHovered ? "text-primary-foreground translate-x-0.5" : "text-muted-foreground/60"
+                      isHovered
+                        ? "text-primary-foreground translate-x-0.5"
+                        : "text-muted-foreground/60",
                     )}
                   />
                 )}
@@ -119,7 +130,9 @@ function DesktopCategoryMegaMenu({
               <div
                 className={cn(
                   "grid gap-1",
-                  activeSubcategories.length > 6 ? "grid-cols-2" : "grid-cols-1"
+                  activeSubcategories.length > 6
+                    ? "grid-cols-2"
+                    : "grid-cols-1",
                 )}
               >
                 {activeSubcategories.map((sub) => (
@@ -136,7 +149,8 @@ function DesktopCategoryMegaMenu({
               </div>
             ) : (
               <div className="py-8 text-center text-xs text-muted-foreground">
-                Nenhuma subcategoria para {activeCategory?.name || "esta categoria"}.
+                Nenhuma subcategoria para{" "}
+                {activeCategory?.name || "esta categoria"}.
               </div>
             )}
           </div>
@@ -160,6 +174,7 @@ function HeaderLayout({
   isAuth = false,
   userName = null,
   userEmail = null,
+  userInitials = "",
   onUserClick,
   userMenuOpen = false,
   userMenuRef,
@@ -179,6 +194,7 @@ function HeaderLayout({
   isAuth?: boolean;
   userName?: string | null;
   userEmail?: string | null;
+  userInitials?: string;
   onUserClick?: () => void;
   userMenuOpen?: boolean;
   userMenuRef?: React.RefObject<HTMLDivElement | null>;
@@ -189,12 +205,11 @@ function HeaderLayout({
     <header
       className={cn(
         "left-0 right-0 z-10 flex min-h-[100px] w-full items-center justify-center py-3 md:min-h-[124px]",
-        isHomePage ? "absolute top-6" : "relative top-0"
+        isHomePage ? "absolute top-6" : "relative top-0",
       )}
     >
       <PageContainer>
         <div className="flex h-[70px] w-full items-center justify-between">
-
           {/* Logo */}
           <div className="relative w-[170px] md:w-[200px] lg:w-[240px] aspect-[240/70.5]">
             <Link href="/">
@@ -221,7 +236,6 @@ function HeaderLayout({
           </div>
 
           <div className="flex items-center lg:gap-7 gap-4 text-base font-medium cursor-pointerb text-primary">
-
             {/* Nav desktop */}
             <div className="items-center gap-12">
               <nav className="flex items-center lg:gap-7 gap-4 text-base font-medium cursor-pointerb text-primary">
@@ -234,7 +248,12 @@ function HeaderLayout({
                     className="cursor-pointer flex items-center gap-1 transition-colors duration-200 ease-in-out hover:text-primary/70"
                   >
                     <span className="font-semibold">Categorias</span>
-                    <ChevronDown className={cn("h-4 w-4 transition-transform duration-200", categoriesOpen && "rotate-180")} />
+                    <ChevronDown
+                      className={cn(
+                        "h-4 w-4 transition-transform duration-200",
+                        categoriesOpen && "rotate-180",
+                      )}
+                    />
                   </button>
 
                   {categoriesOpen && categories.length > 0 && (
@@ -262,10 +281,19 @@ function HeaderLayout({
                 aria-label={isAuth ? `Olá, ${userName}` : "Entrar na conta"}
                 className="cursor-pointer transition-colors duration-200 ease-in-out text-primary hover:text-primary/80 flex items-center gap-1"
               >
-                <User className="h-6 w-6" />
+                <span className="relative flex h-9 w-9 items-center justify-center overflow-hidden  rounded-full">
+                  {isAuth && userName ? (
+                    <span className="flex h-full w-full items-center justify-center bg-primary text-xs font-bold text-white">
+                      {userInitials || "U"}
+                    </span>
+                  ) : (
+                    <User className="h-6 w-6" />
+                  )}
+                </span>
+
                 {isAuth && userName && (
-                  <span className="hidden lg:flex items-center gap-1 max-w-[90px] text-sm font-medium">
-                    <span className="truncate">{userName.split(" ")[0]}</span>
+                  <span className="flex items-center gap-1 max-w-[90px] text-sm font-medium">
+                    {/* <span className="truncate">{userName.split(" ")[0]}</span> */}
                     <ChevronDown className="h-4 w-4 shrink-0" />
                   </span>
                 )}
@@ -327,7 +355,11 @@ function HeaderLayout({
               <Sheet>
                 <SheetTrigger asChild>
                   <button
-                    className={cn(isHomePage ? "text-primary items-center flex" : "text-gray-800")}
+                    className={cn(
+                      isHomePage
+                        ? "text-primary items-center flex"
+                        : "text-gray-800",
+                    )}
                   >
                     <MenuIcon size={32} />
                   </button>
@@ -350,8 +382,12 @@ function HeaderLayout({
                       </p>
                       {categories.length > 0 ? (
                         (() => {
-                          const rootCategories = categories.filter((c) => !c.parentId);
-                          const childCategories = categories.filter((c) => !!c.parentId);
+                          const rootCategories = categories.filter(
+                            (c) => !c.parentId,
+                          );
+                          const childCategories = categories.filter(
+                            (c) => !!c.parentId,
+                          );
 
                           return (
                             <div className="space-y-2 max-h-[60vh] overflow-y-auto pr-2">
@@ -365,9 +401,12 @@ function HeaderLayout({
                               </SheetClose>
                               {rootCategories.map((category) => {
                                 const children =
-                                  category.subcategories && category.subcategories.length > 0
+                                  category.subcategories &&
+                                  category.subcategories.length > 0
                                     ? category.subcategories
-                                    : childCategories.filter((c) => c.parentId === category.id);
+                                    : childCategories.filter(
+                                        (c) => c.parentId === category.id,
+                                      );
 
                                 return (
                                   <div key={category.id} className="space-y-1">
@@ -401,7 +440,10 @@ function HeaderLayout({
                         })()
                       ) : (
                         <SheetClose asChild>
-                          <Link href="/products-all" className="block py-1 text-sm hover:text-secondary">
+                          <Link
+                            href="/products-all"
+                            className="block py-1 text-sm hover:text-secondary"
+                          >
                             Ver todas
                           </Link>
                         </SheetClose>
@@ -442,7 +484,9 @@ function HeaderContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
-  const [inputValue, setInputValue] = useState(searchParams.get("search") || "");
+  const [inputValue, setInputValue] = useState(
+    searchParams.get("search") || "",
+  );
   const [categories, setCategories] = useState<Category[]>([]);
   const [categoriesOpen, setCategoriesOpen] = useState(false);
   const categoryMenuRef = useRef<HTMLDivElement | null>(null);
@@ -527,11 +571,23 @@ function HeaderContent() {
         params.delete("search");
       }
       const queryString = params.toString();
-      const targetPath = queryString ? `/products-all?${queryString}` : "/products-all";
+      const targetPath = queryString
+        ? `/products-all?${queryString}`
+        : "/products-all";
       router.push(targetPath);
     },
-    [router, searchParams]
+    [router, searchParams],
   );
+
+  const userInitials = user?.name
+    ? user.name
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((part) => part[0]?.toUpperCase() || "")
+        .join("") || "U"
+    : "";
 
   return (
     <>
@@ -550,6 +606,7 @@ function HeaderContent() {
         isAuth={isAuth}
         userName={user?.name || null}
         userEmail={user?.email || null}
+        userInitials={userInitials}
         onUserClick={() => {
           if (isAuth) setUserMenuOpen((v) => !v);
           else setShowAuthModal(true);
@@ -564,10 +621,7 @@ function HeaderContent() {
       <CartDrawer />
 
       {/* Modal de autenticação do cliente */}
-      <CustomerAuthModal
-        open={showAuthModal}
-        onOpenChange={setShowAuthModal}
-      />
+      <CustomerAuthModal open={showAuthModal} onOpenChange={setShowAuthModal} />
     </>
   );
 }
@@ -581,12 +635,12 @@ export default function Header() {
       fallback={
         <HeaderLayout
           inputValue=""
-          setInputValue={() => { }}
-          onSearch={() => { }}
+          setInputValue={() => {}}
+          onSearch={() => {}}
           isHomePage={isHomePage}
           categories={[]}
           categoriesOpen={false}
-          setCategoriesOpen={() => { }}
+          setCategoriesOpen={() => {}}
           categoryMenuRef={{ current: null }}
         />
       }
