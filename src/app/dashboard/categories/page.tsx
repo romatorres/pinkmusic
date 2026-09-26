@@ -91,27 +91,26 @@ export default function CategoriesPage() {
           </p>
         </div>
 
-        {/* Tab Switcher */}
-        <div className="flex items-center gap-2 bg-muted/60 p-1 rounded-lg self-start md:self-auto">
+        <div className="grid grid-cols-2 gap-2 bg-muted/60 p-1 rounded-lg w-full md:w-auto md:flex md:self-auto">
           <Button
             type="button"
             variant={activeTab === "main" ? "default" : "ghost"}
             size="sm"
             onClick={() => setActiveTab("main")}
-            className="flex items-center gap-2"
+            className="flex items-center justify-center gap-2 min-w-0 px-2"
           >
-            <Tag className="h-4 w-4" />
-            Categorias Principais ({mainCategories.length})
+            <Tag className="h-4 w-4 shrink-0" />
+            <span className="truncate">Categorias ({mainCategories.length})</span>
           </Button>
           <Button
             type="button"
             variant={activeTab === "sub" ? "default" : "ghost"}
             size="sm"
             onClick={() => setActiveTab("sub")}
-            className="flex items-center gap-2"
+            className="flex items-center justify-center gap-2 min-w-0 px-2"
           >
-            <FolderTree className="h-4 w-4" />
-            Subcategorias ({subCategories.length})
+            <FolderTree className="h-4 w-4 shrink-0" />
+            <span className="truncate">Subcategorias ({subCategories.length})</span>
           </Button>
         </div>
       </div>
