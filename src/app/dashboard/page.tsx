@@ -5,6 +5,7 @@ import { useAuthStore } from "@/store/authStore";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { DashboardMetricCard } from "@/app/dashboard/_components/metric-card";
 import Link from "next/link";
 import {
   DollarSign,
@@ -107,83 +108,40 @@ export default function OverviewPage() {
       {loading ? (
         <LoadingState label="Carregando indicadores..." className="min-h-[180px]" />
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="bg-card border-border/80 shadow-xs hover:border-primary/40 transition-colors">
-            <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-              <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                Faturamento Vendas
-              </CardTitle>
-              <div className="h-9 w-9 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
-                <DollarSign className="h-5 w-5" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-black text-foreground">
-                {formatCurrency(stats?.totalRevenue || 0)}
-              </div>
-              <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-                <TrendingUp className="h-3.5 w-3.5 text-emerald-500" />
-                Vendas confirmadas e concluídas
-              </p>
-            </CardContent>
-          </Card>
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+          <DashboardMetricCard
+            label="Faturamento Vendas"
+            value={formatCurrency(stats?.totalRevenue || 0)}
+            helperText="Vendas confirmadas e concluídas"
+            icon={<DollarSign className="h-5 w-5" />}
+            iconClassName="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900"
+            valueClassName="text-emerald-600 dark:text-emerald-400"
+          />
 
-          <Card className="bg-card border-border/80 shadow-xs hover:border-primary/40 transition-colors">
-            <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-              <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                Total de Pedidos
-              </CardTitle>
-              <div className="h-9 w-9 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-600 dark:text-blue-400">
-                <ShoppingBag className="h-5 w-5" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-black text-foreground">
-                {stats?.totalOrders || 0}
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                {(stats?.paidOrdersCount || 0) + (stats?.deliveredOrdersCount || 0)} pedidos pagos
-              </p>
-            </CardContent>
-          </Card>
+          <DashboardMetricCard
+            label="Total de Pedidos"
+            value={stats?.totalOrders || 0}
+            helperText={`${(stats?.paidOrdersCount || 0) + (stats?.deliveredOrdersCount || 0)} pedidos pagos`}
+            icon={<ShoppingBag className="h-5 w-5" />}
+            iconClassName="bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-900"
+          />
 
-          <Card className="bg-card border-border/80 shadow-xs hover:border-primary/40 transition-colors">
-            <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-              <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                Para Enviar / Preparar
-              </CardTitle>
-              <div className="h-9 w-9 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-600 dark:text-amber-400">
-                <Clock className="h-5 w-5" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-black text-amber-600 dark:text-amber-400">
-                {(stats?.paidOrdersCount || 0) + (stats?.preparingOrdersCount || 0)}
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Aguardando despacho ou entrega
-              </p>
-            </CardContent>
-          </Card>
+          <DashboardMetricCard
+            label="Para Enviar / Preparar"
+            value={(stats?.paidOrdersCount || 0) + (stats?.preparingOrdersCount || 0)}
+            helperText="Aguardando despacho ou entrega"
+            icon={<Clock className="h-5 w-5" />}
+            iconClassName="bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-900"
+            valueClassName="text-amber-600 dark:text-amber-400"
+          />
 
-          <Card className="bg-card border-border/80 shadow-xs hover:border-primary/40 transition-colors">
-            <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-              <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                Clientes do Site
-              </CardTitle>
-              <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                <Users className="h-5 w-5" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-black text-foreground">
-                {stats?.totalCustomers || 0}
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Base de clientes cadastrados
-              </p>
-            </CardContent>
-          </Card>
+          <DashboardMetricCard
+            label="Clientes do Site"
+            value={stats?.totalCustomers || 0}
+            helperText="Base de clientes cadastrados"
+            icon={<Users className="h-5 w-5" />}
+            iconClassName="bg-primary/10 text-primary border-primary/20"
+          />
         </div>
       )}
 

@@ -228,13 +228,21 @@ function ProductsPageContent() {
   const totalPages = Math.ceil(totalProducts / limit);
 
   return (
-    <div className="md:pt-8 pt-12">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-        <h1 className="md:text-3xl text-2xl font-bold">Gerenciar Produtos</h1>
-        <div className="flex items-center gap-3 w-full sm:w-auto">
+    <div className="space-y-6 pt-2 md:pt-0">
+      <header className="flex flex-col gap-4 border-b border-border/60 pb-5 md:flex-row md:items-end md:justify-between">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground md:text-3xl">
+            Gerenciar Produtos
+          </h1>
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            Consulte, filtre e mantenha o catálogo atualizado com produtos locais e importados.
+          </p>
+        </div>
+
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
           <Button
             onClick={() => setLocalProductModalOpen(true)}
-            className="flex-1 sm:flex-initial flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium"
+            className="flex-1 sm:flex-initial"
           >
             <Store className="h-4 w-4" />
             Novo Produto Local
@@ -242,20 +250,23 @@ function ProductsPageContent() {
           <Button
             onClick={() => setProductFormOpen(true)}
             variant="outline"
-            className="flex-1 sm:flex-initial flex items-center gap-2"
+            className="flex-1 sm:flex-initial"
           >
-            <ShoppingCart className="h-4 w-4 text-amber-500" />
+            <ShoppingCart className="h-4 w-4" />
             Importar do ML
           </Button>
         </div>
-      </div>
+      </header>
 
       <Card>
-        <CardHeader>
+        <CardHeader className="pb-0">
           <div className="flex flex-col justify-between items-start gap-4">
-            <CardTitle>Todos os Produtos</CardTitle>
-            <div className="flex flex-col items-start gap-4 w-full border border-primary/40 rounded-md p-4">
-              <p>Filtros</p>
+            <div className="space-y-1">
+              <CardTitle>Todos os Produtos</CardTitle>
+              <p className="text-sm text-muted-foreground">Filtre e visualize o catálogo em um único painel.</p>
+            </div>
+            <div className="flex w-full flex-col items-start gap-4 rounded-xl border border-border/80 bg-muted/30 p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">Filtros</p>
               {/* Busca */}
               <div className="w-full">
                 <SearchInput
@@ -394,15 +405,15 @@ function ProductsPageContent() {
                                     product.packageSize === "SMALL"
                                       ? "Porte Pequeno (Prioriza Moto)"
                                       : product.packageSize === "LARGE" || product.packageSize === "XLARGE"
-                                      ? "Porte Grande (Porta-malas de Carro)"
-                                      : "Porte Médio (Moto/Carro)"
+                                        ? "Porte Grande (Porta-malas de Carro)"
+                                        : "Porte Médio (Moto/Carro)"
                                   }
                                 >
                                   {product.packageSize === "SMALL"
                                     ? "🛵 Moto"
                                     : product.packageSize === "LARGE" || product.packageSize === "XLARGE"
-                                    ? "🚗 Carro"
-                                    : "📦 Médio"}
+                                      ? "🚗 Carro"
+                                      : "📦 Médio"}
                                 </span>
                               )}
                             </div>
@@ -495,6 +506,7 @@ function ProductsPageContent() {
                                   type="button"
                                   variant="ghost"
                                   size="icon"
+                                  className="rounded-md"
                                   disabled={loading}
                                   onClick={() => setProductToDelete(product.id)}
                                 >
