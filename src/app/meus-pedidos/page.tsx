@@ -24,6 +24,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { PageContainer } from "@/components/ui/Page-container";
 import {
+  ScrollableBadgeGroup,
+  ScrollablePillGroup,
+} from "@/components/ui/scrollable-badges";
+import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -243,51 +247,58 @@ export default function CustomerOrdersPage() {
 
             {/* Badges de resumo se logado */}
             {isAuth && orders.length > 0 && (
-              <div className="flex items-center gap-2 text-xs">
-                <div className="px-3 py-1.5 rounded-lg bg-card border border-border text-foreground">
-                  Total: <strong>{orders.length}</strong>
-                </div>
-                <div className="px-3 py-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300">
-                  Pagos: <strong>{orders.filter((o) => o.status !== "PENDING_PAYMENT" && o.status !== "CANCELLED").length}</strong>
-                </div>
-              </div>
+              <ScrollableBadgeGroup
+                items={[
+                  {
+                    label: "Total",
+                    value: orders.length,
+                  },
+                  {
+                    label: "Pagos",
+                    value: orders.filter((o) => o.status !== "PENDING_PAYMENT" && o.status !== "CANCELLED").length,
+                    className:
+                      "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300",
+                    valueClassName: "text-emerald-700 dark:text-emerald-300",
+                  },
+                ]}
+                className="max-w-full md:max-w-[340px]"
+              />
             )}
           </div>
 
           {/* Abas de filtro quando logado */}
           {isAuth && orders.length > 0 && (
-            <div className="flex items-center gap-2 mt-4">
-              <button
-                type="button"
-                onClick={() => setFilterTab("ALL")}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${filterTab === "ALL"
-                  ? "bg-primary text-white"
-                  : "bg-card border border-border text-muted-foreground hover:text-foreground"
-                  }`}
-              >
-                Todos ({orders.length})
-              </button>
-              <button
-                type="button"
-                onClick={() => setFilterTab("PENDING")}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${filterTab === "PENDING"
-                  ? "bg-amber-600 text-white"
-                  : "bg-card border border-border text-muted-foreground hover:text-foreground"
-                  }`}
-              >
-                Aguardando Pagamento ({orders.filter((o) => o.status === "PENDING_PAYMENT").length})
-              </button>
-              <button
-                type="button"
-                onClick={() => setFilterTab("DELIVERED")}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${filterTab === "DELIVERED"
-                  ? "bg-emerald-600 text-white"
-                  : "bg-card border border-border text-muted-foreground hover:text-foreground"
-                  }`}
-              >
-                Concluídos ({orders.filter((o) => o.status === "DELIVERED").length})
-              </button>
-            </div>
+            <ScrollablePillGroup
+              className="mt-4"
+              items={[
+                {
+                  label: "Todos",
+                  count: orders.length,
+                  active: filterTab === "ALL",
+                  onClick: () => setFilterTab("ALL"),
+                },
+                {
+                  label: "Aguardando Pagamento",
+                  count: orders.filter((o) => o.status === "PENDING_PAYMENT").length,
+                  active: filterTab === "PENDING",
+                  onClick: () => setFilterTab("PENDING"),
+                  className:
+                    filterTab === "PENDING"
+                      ? "bg-amber-600 text-white border-amber-600"
+                      : "bg-card border-border text-muted-foreground hover:text-foreground",
+                },
+                {
+                  label: "Concluídos",
+                  count: orders.filter((o) => o.status === "DELIVERED").length,
+                  active: filterTab === "DELIVERED",
+                  onClick: () => setFilterTab("DELIVERED"),
+                  className:
+                    filterTab === "DELIVERED"
+                      ? "bg-emerald-600 text-white border-emerald-600"
+                      : "bg-card border-border text-muted-foreground hover:text-foreground",
+                },
+              ]}
+            />
           )}
         </div>
 

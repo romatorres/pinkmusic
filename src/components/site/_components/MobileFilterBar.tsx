@@ -27,17 +27,16 @@ export default function MobileFilterBar({
   filteredCount,
 }: MobileFilterBarProps) {
   return (
-    <div className="lg:hidden sticky top-10 z-10 bg-background backdrop-blur-sm p-4 border border-card mb-4">
+    <div className="lg:hidden sticky top-10 z-20 bg-background backdrop-blur-sm p-4 border border-card mb-4">
       <div className="flex items-center justify-between gap-3 w-full">
         {/* Botão Filtros - agora ocupa metade do espaço */}
         <button
           /* variant={hasActiveFilters ? "secondary" : "outline"} */
           onClick={onOpenFilters}
           className={`flex-1 min-w-0 rounded-full px-2 py-3 cursor-pointer items-center justify-center gap-2 text-primary text-sm
-            ${
-              hasActiveFilters
-                ? `flex bg-secondary`
-                : `flex border border-primary/40`
+            ${hasActiveFilters
+              ? `flex bg-secondary`
+              : `flex border border-primary/40`
             }
           `}
         >

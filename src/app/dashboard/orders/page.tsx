@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { ScrollablePillGroup } from "@/components/ui/scrollable-badges";
 import {
   Dialog,
   DialogContent,
@@ -294,31 +295,25 @@ export default function OrdersPage() {
       </div>
 
       {/* Filtros de Status */}
-      <div className="flex flex-wrap gap-2">
-        <button
-          onClick={() => { setFilterStatus(""); setPage(1); }}
-          className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
-            filterStatus === ""
-              ? "bg-primary text-white border-primary"
-              : "border-border hover:bg-muted"
-          }`}
-        >
-          Todos
-        </button>
-        {ALL_STATUSES.map((s) => (
-          <button
-            key={s}
-            onClick={() => { setFilterStatus(s); setPage(1); }}
-            className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
+      <ScrollablePillGroup
+        className="w-full"
+        items={[
+          {
+            label: "Todos",
+            active: filterStatus === "",
+            onClick: () => { setFilterStatus(""); setPage(1); },
+          },
+          ...ALL_STATUSES.map((s) => ({
+            label: STATUS_CONFIG[s].label,
+            active: filterStatus === s,
+            onClick: () => { setFilterStatus(s); setPage(1); },
+            className:
               filterStatus === s
                 ? "bg-primary text-white border-primary"
-                : "border-border hover:bg-muted"
-            }`}
-          >
-            {STATUS_CONFIG[s].label}
-          </button>
-        ))}
-      </div>
+                : "border-border bg-card text-muted-foreground hover:text-foreground",
+          })),
+        ]}
+      />
 
       {/* Tabela */}
       {loading ? (
@@ -457,8 +452,8 @@ export default function OrdersPage() {
                                   ? "🛵 Moto"
                                   : order.product.packageSize === "LARGE" ||
                                     order.product.packageSize === "XLARGE"
-                                  ? "🚗 Carro"
-                                  : "📦 Médio"}
+                                    ? "🚗 Carro"
+                                    : "📦 Médio"}
                               </span>
                             )}
                           </div>
@@ -518,8 +513,8 @@ export default function OrdersPage() {
                         <div className="flex items-center justify-between flex-wrap gap-1">
                           <span className="font-semibold text-purple-800 dark:text-purple-200 flex items-center gap-1">
                             {order.uberVehicleType === "motorcycle" ||
-                            order.uberVehicleType === "scooter" ||
-                            order.uberVehicleType === "bicycle" ? (
+                              order.uberVehicleType === "scooter" ||
+                              order.uberVehicleType === "bicycle" ? (
                               <>
                                 <span>🛵</span>
                                 <span>Motoboy Alocado:</span>
@@ -546,8 +541,8 @@ export default function OrdersPage() {
                               {order.uberVehicleType === "motorcycle"
                                 ? "Moto"
                                 : order.uberVehicleType === "car"
-                                ? "Carro"
-                                : order.uberVehicleType}
+                                  ? "Carro"
+                                  : order.uberVehicleType}
                             </span>
                           )}
                         </div>
@@ -687,10 +682,9 @@ export default function OrdersPage() {
             </DialogTitle>
             <DialogDescription className="text-xs">
               {quoteModalOrder &&
-                `Pedido #${quoteModalOrder.id.slice(-6)} · ${
-                  quoteModalOrder.items && quoteModalOrder.items.length > 0
-                    ? `${quoteModalOrder.items.length} produto(s) no carrinho`
-                    : quoteModalOrder.product?.title || "Item do pedido"
+                `Pedido #${quoteModalOrder.id.slice(-6)} · ${quoteModalOrder.items && quoteModalOrder.items.length > 0
+                  ? `${quoteModalOrder.items.length} produto(s) no carrinho`
+                  : quoteModalOrder.product?.title || "Item do pedido"
                 }`}
             </DialogDescription>
           </DialogHeader>
@@ -827,16 +821,16 @@ export default function OrdersPage() {
                         {(quoteData.packageSize || quoteModalOrder.product?.packageSize) === "SMALL"
                           ? "Porte Pequeno"
                           : (quoteData.packageSize || quoteModalOrder.product?.packageSize) === "LARGE" || (quoteData.packageSize || quoteModalOrder.product?.packageSize) === "XLARGE"
-                          ? "Porte Grande"
-                          : "Porte Médio"}
+                            ? "Porte Grande"
+                            : "Porte Médio"}
                       </span>
                     </div>
                     <p className="text-[11px] text-muted-foreground">
                       {(quoteData.packageSize || quoteModalOrder.product?.packageSize) === "SMALL"
                         ? "Produto cabe na bag/mochila. A Uber prioriza motoboys para retirada rápida."
                         : (quoteData.packageSize || quoteModalOrder.product?.packageSize) === "LARGE" || (quoteData.packageSize || quoteModalOrder.product?.packageSize) === "XLARGE"
-                        ? "Instrumento volumoso. A Uber direcionará motorista com porta-malas para proteger o instrumento."
-                        : "A Uber alocará o entregador parceiro mais próximo disponível."}
+                          ? "Instrumento volumoso. A Uber direcionará motorista com porta-malas para proteger o instrumento."
+                          : "A Uber alocará o entregador parceiro mais próximo disponível."}
                     </p>
                   </div>
                 </div>
