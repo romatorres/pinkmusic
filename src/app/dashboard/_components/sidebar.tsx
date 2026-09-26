@@ -26,6 +26,7 @@ export function Sidebar() {
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [menuButtonOpacity, setMenuButtonOpacity] = useState(1);
 
   useEffect(() => {
     const checkIfMobile = () => {
@@ -36,6 +37,19 @@ export function Sidebar() {
     window.addEventListener("resize", checkIfMobile);
     return () => window.removeEventListener("resize", checkIfMobile);
   }, []);
+
+  useEffect(() => {
+    if (!isMobile || isMobileMenuOpen) {
+      setMenuButtonOpacity(1);
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      setMenuButtonOpacity(0.6);
+    }, 2200);
+
+    return () => window.clearTimeout(timer);
+  }, [isMobile, isMobileMenuOpen]);
 
   const handleLogout = async () => {
     try {
@@ -57,6 +71,7 @@ export function Sidebar() {
   };
 
   const toggleMobileMenu = () => {
+    setMenuButtonOpacity(1);
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
@@ -73,7 +88,8 @@ export function Sidebar() {
     <>
       {/* Mobile Menu Button */}
       <button
-        className="fixed top-4 left-4 z-50 p-2 bg-primary rounded-md md:hidden shadow-lg border border-white/20"
+        className="fixed top-4 right-4 z-50 p-2 bg-primary/90 rounded-md md:hidden shadow-lg border border-white/20 transition-all duration-500 ease-out hover:opacity-100"
+        style={{ opacity: menuButtonOpacity }}
         onClick={toggleMobileMenu}
         aria-label="Menu"
       >
