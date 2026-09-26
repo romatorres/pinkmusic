@@ -19,6 +19,7 @@ import {
   ShoppingCart,
   User as UserIcon,
   Phone,
+  Mail,
 } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -364,55 +365,57 @@ export default function OrdersPage() {
                           </span>
                         </div>
                         <div className="space-y-2 bg-muted/40 rounded-lg p-2.5 border border-border/60">
-                          {order.items.map((item) => (
-                            <div
-                              key={item.id}
-                              className="flex items-center justify-between gap-3 text-xs"
-                            >
-                              <div className="flex items-center gap-2.5 min-w-0">
-                                {item.thumbnail ? (
-                                  <div className="relative w-9 h-9 rounded-md overflow-hidden bg-muted border shrink-0">
-                                    <Image
-                                      src={item.thumbnail}
-                                      alt={item.title}
-                                      fill
-                                      sizes="36px"
-                                      className="object-cover"
-                                    />
-                                  </div>
-                                ) : (
-                                  <div className="w-9 h-9 rounded-md bg-muted border flex items-center justify-center shrink-0">
-                                    <Package className="w-4 h-4 text-muted-foreground" />
-                                  </div>
-                                )}
-                                <div className="min-w-0">
-                                  <p className="font-medium text-foreground line-clamp-1">
-                                    {item.title}
-                                  </p>
-                                  <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground flex-wrap">
-                                    {item.productCode && (
-                                      <span className="font-mono text-[10px] px-1 py-0.2 rounded bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
-                                        Cód: {item.productCode}
+                          {order.items.map((item) => {
+                            const itemCode = item.productCode ?? order.product?.code ?? null;
+
+                            return (
+                              <div
+                                key={item.id}
+                                className="flex items-center justify-between gap-3 text-xs"
+                              >
+                                <div className="flex items-center gap-2.5 min-w-0">
+                                  {item.thumbnail ? (
+                                    <div className="relative w-9 h-9 rounded-md overflow-hidden bg-muted border shrink-0">
+                                      <Image
+                                        src={item.thumbnail}
+                                        alt={item.title}
+                                        fill
+                                        sizes="36px"
+                                        className="object-cover"
+                                      />
+                                    </div>
+                                  ) : (
+                                    <div className="w-9 h-9 rounded-md bg-muted border flex items-center justify-center shrink-0">
+                                      <Package className="w-4 h-4 text-muted-foreground" />
+                                    </div>
+                                  )}
+                                  <div className="min-w-0">
+                                    <p className="font-medium text-foreground line-clamp-1">
+                                      {item.title}
+                                    </p>
+                                    <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground flex-wrap">
+                                      {itemCode && (
+                                        <span className="font-mono text-[10px] px-1 py-0.2 rounded bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                                          Cód: {itemCode}
+                                        </span>
+                                      )}
+                                      <span>
+                                        Qtd:{" "}
+                                        <strong className="text-foreground">
+                                          {item.quantity}
+                                        </strong>
                                       </span>
-                                    )}
-                                    <span>
-                                      Qtd:{" "}
-                                      <strong className="text-foreground">
-                                        {item.quantity}
-                                      </strong>
-                                    </span>
-                                    <span>·</span>
-                                    <span>{formatPrice(item.price)} un.</span>
+                                    </div>
                                   </div>
                                 </div>
+                                <div className="text-right shrink-0">
+                                  <span className="font-semibold text-foreground">
+                                    {formatPrice(item.price * item.quantity)}
+                                  </span>
+                                </div>
                               </div>
-                              <div className="text-right shrink-0">
-                                <span className="font-semibold text-foreground">
-                                  {formatPrice(item.price * item.quantity)}
-                                </span>
-                              </div>
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
                       </div>
                     ) : order.product ? (
@@ -478,7 +481,7 @@ export default function OrdersPage() {
                           href={`https://wa.me/55${order.customerPhone.replace(/\D/g, "")}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 hover:underline font-medium"
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 text-[11px] border border-blue-200 dark:border-blue-800"
                           title="Conversar no WhatsApp"
                         >
                           <Phone className="w-3 h-3" />
@@ -486,8 +489,8 @@ export default function OrdersPage() {
                         </a>
                         {order.user && (
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 text-[11px] border border-blue-200 dark:border-blue-800">
-                            <UserIcon className="w-3 h-3" />
-                            Cadastrado: {order.user.email}
+                            <Mail className="w-3 h-3" />
+                            {order.user.email}
                           </span>
                         )}
                       </div>

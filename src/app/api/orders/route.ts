@@ -292,9 +292,25 @@ export async function GET(request: NextRequest) {
       }),
     ]);
 
+    const productIds = [...new Set(orders.flatMap((order) => order.items.map((item) => item.productId)))];
+    const productCodeMap = new Map(
+      (await prisma.product.findMany({
+        where: { id: { in: productIds } },
+        select: { id: true, code: true },
+      })).map((product) => [product.id, product.code])
+    );
+
+    const ordersWithProductCodes = orders.map((order) => ({
+      ...order,
+      items: order.items.map((item) => ({
+        ...item,
+        productCode: item.productCode ?? productCodeMap.get(item.productId) ?? null,
+      })),
+    }));
+
     return NextResponse.json({
       success: true,
-      data: orders,
+      data: ordersWithProductCodes,
       meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
     });
   } catch (error) {
