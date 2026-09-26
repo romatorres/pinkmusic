@@ -66,7 +66,7 @@ export default function OverviewPage() {
   const isEmployee = user?.role === "EMPLOYEE" || user?.role === "FUNCIONARIO";
 
   return (
-    <div className="md:pt-4 pt-10 space-y-6">
+    <div className="space-y-6 pt-2 md:pt-0">
       {/* Top Banner de Boas-vindas */}
       <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent p-6 rounded-2xl border border-primary/20 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>

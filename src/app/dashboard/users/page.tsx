@@ -149,7 +149,7 @@ export default function SystemUsersPage() {
       } else {
         toast.error(
           responseData.message ||
-            `Erro ao ${isEditing ? "atualizar" : "cadastrar"} usuário.`
+          `Erro ao ${isEditing ? "atualizar" : "cadastrar"} usuário.`
         );
       }
     } catch (err) {
@@ -222,7 +222,7 @@ export default function SystemUsersPage() {
   }, [users]);
 
   return (
-    <div className="md:pt-4 pt-10 space-y-6">
+    <div className="space-y-6 pt-2 md:pt-0">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>

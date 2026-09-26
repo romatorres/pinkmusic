@@ -81,9 +81,9 @@ export default function CategoriesPage() {
       : 0;
 
   return (
-    <div className="md:pt-8 pt-12">
+    <div className="space-y-6 pt-2 md:pt-0">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="md:text-3xl text-2xl font-bold">Categorias &amp; Subcategorias</h1>
           <p className="text-muted-foreground text-sm mt-1">

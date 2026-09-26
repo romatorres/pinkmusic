@@ -86,9 +86,12 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="md:pt-8 pt-12">
-      <h1 className="md:text-3xl text-2xl font-bold mb-6">Perfil do usuário</h1>
-      <div className="space-y-8">
+    <div className="space-y-6 pt-2 md:pt-0">
+      <div className="space-y-1">
+        <h1 className="text-2xl font-bold tracking-tight text-foreground md:text-3xl">Perfil do usuário</h1>
+        <p className="text-sm text-muted-foreground">Atualize seus dados pessoais e a senha da conta.</p>
+      </div>
+      <div className="space-y-6">
         <Card>
           <CardHeader>
             <CardTitle>Editar Perfil</CardTitle>

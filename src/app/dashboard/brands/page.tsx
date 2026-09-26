@@ -115,8 +115,13 @@ export default function BrandsPage() {
   };
 
   return (
-    <div className="md:pt-8 pt-12">
-      <h1 className="md:text-3xl text-2xl font-bold mb-6">Marcas</h1>
+    <div className="space-y-6 pt-2 md:pt-0">
+      <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground md:text-3xl">Marcas</h1>
+          <p className="text-sm text-muted-foreground mt-1">Gerencie as marcas disponíveis na loja.</p>
+        </div>
+      </div>
       <Card className="mb-8">
         <CardContent className="pt-6">
           <Form {...form}>

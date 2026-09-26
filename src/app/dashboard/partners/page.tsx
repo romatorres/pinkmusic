@@ -97,12 +97,15 @@ export default function PartnersPage() {
   };
 
   return (
-    <div className="md:pt-8 pt-12">
-      <h1 className="md:text-3xl text-2xl font-bold mb-6">
-        Gerenciar Parceiros
-      </h1>
+    <div className="space-y-6 pt-2 md:pt-0">
+      <div className="space-y-1">
+        <h1 className="text-2xl font-bold tracking-tight text-foreground md:text-3xl">
+          Gerenciar Parceiros
+        </h1>
+        <p className="text-sm text-muted-foreground">Controle os parceiros visíveis na vitrine do site.</p>
+      </div>
 
-      <Card className="mb-8 ">
+      <Card>
         <CardHeader>
           <CardTitle>Adicionar Novo Parceiro</CardTitle>
         </CardHeader>
