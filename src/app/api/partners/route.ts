@@ -5,7 +5,9 @@ import { uploadImageToCloudinary } from "@/lib/cloudinary";
 
 export async function GET() {
   try {
-    const partners = await prisma.partner.findMany();
+    const partners = await prisma.partner.findMany({
+      orderBy: { createdAt: "desc" },
+    });
     return NextResponse.json(partners);
   } catch {
     return new NextResponse("Internal Server Error", { status: 500 });
