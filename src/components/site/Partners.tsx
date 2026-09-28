@@ -27,12 +27,11 @@ export default function Partners() {
     fetchPartners();
   }, []);
 
-  // Função para determinar se a URL é base64 ou caminho de arquivo
+  // Função para determinar se a URL é remota (Cloudinary), base64 ou caminho relativo legado
   const getImageSrc = (imageUrl: string) => {
-    if (imageUrl.startsWith("data:")) {
-      return imageUrl; // É uma URL de dados base64
+    if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://") || imageUrl.startsWith("data:")) {
+      return imageUrl;
     }
-    // Se não for base64, assume que é um caminho de arquivo
     return `/partners/${imageUrl}`;
   };
 

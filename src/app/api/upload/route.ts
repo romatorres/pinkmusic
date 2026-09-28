@@ -12,13 +12,17 @@ export async function POST(req: NextRequest) {
     const contentType = req.headers.get("content-type") || "";
 
     let fileToUpload = "";
+    let folder = "pinkmusic/products";
 
     if (contentType.includes("application/json")) {
       const body = await req.json();
       fileToUpload = body.file || body.image || body.url || "";
+      if (body.folder) folder = body.folder;
     } else if (contentType.includes("multipart/form-data")) {
       const formData = await req.formData();
       const file = formData.get("file") as File | null;
+      const customFolder = formData.get("folder") as string | null;
+      if (customFolder) folder = customFolder;
 
       if (file) {
         const bytes = await file.arrayBuffer();
@@ -35,7 +39,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const result = await uploadImageToCloudinary(fileToUpload);
+    const result = await uploadImageToCloudinary(fileToUpload, folder);
 
     return NextResponse.json({
       success: true,

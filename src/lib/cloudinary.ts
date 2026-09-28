@@ -30,4 +30,25 @@ export async function uploadImageToCloudinary(
   };
 }
 
+export async function deleteImageFromCloudinary(publicIdOrUrl: string): Promise<boolean> {
+  if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+    return false;
+  }
+
+  try {
+    let publicId = publicIdOrUrl;
+    if (publicIdOrUrl.includes("res.cloudinary.com")) {
+      const match = publicIdOrUrl.match(/\/upload\/(?:v\d+\/)?(.+?)(?:\.[a-zA-Z0-9]+)?$/);
+      if (match && match[1]) {
+        publicId = match[1];
+      }
+    }
+    await cloudinary.uploader.destroy(publicId);
+    return true;
+  } catch (error) {
+    console.error("Erro ao deletar imagem do Cloudinary:", error);
+    return false;
+  }
+}
+
 export default cloudinary;

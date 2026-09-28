@@ -117,6 +117,15 @@ export default function Hero() {
                     className="h-auto w-full max-w-[85%] object-contain sm:max-w-[75%] md:max-w-[85%] lg:max-w-[90%] xl:max-w-[430px]"
                   />
                 </CarouselItem>
+                <CarouselItem className="flex w-full items-center justify-center">
+                  <Image
+                    src="/img/carousel/carousel-6.png"
+                    alt="Carousel image 6"
+                    width={430}
+                    height={300}
+                    className="h-auto w-full max-w-[85%] object-contain sm:max-w-[75%] md:max-w-[85%] lg:max-w-[90%] xl:max-w-[430px]"
+                  />
+                </CarouselItem>
               </CarouselContent>
               <CarouselPrevious />
               <CarouselNext />
