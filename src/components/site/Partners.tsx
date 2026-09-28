@@ -64,7 +64,7 @@ export default function Partners() {
   return (
     <div className="md:py-8 py-4">
       <PageContainer>
-        <section className="relative self-center my-8 md:my-14 w-full max-w-[1440px] rounded-[36px] bg-white py-6 px-4 md:px-8 flex flex-col items-center justify-center shadow-sm overflow-hidden border border-black/5">
+        <section className="relative self-center my-8 md:my-14 w-full max-w-[1440px] rounded-[36px] bg-white py-6 px-4 md:px-8 flex flex-col items-center justify-center overflow-hidden border border-black/5">
           {/* Gradientes de fade nas extremidades para entrada/saída suave */}
           <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-12 md:w-28 bg-gradient-to-r from-white via-white/80 to-transparent z-10" />
           <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-12 md:w-28 bg-gradient-to-l from-white via-white/80 to-transparent z-10" />
@@ -84,7 +84,7 @@ export default function Partners() {
                       alt={logo.name}
                       fill
                       sizes="(max-width: 768px) 112px, 144px"
-                      className="object-contain filter grayscale opacity-60 transition-all duration-300 ease-in-out hover:grayscale-0 hover:opacity-100 hover:scale-110"
+                      className="object-contain filter grayscale opacity-85 transition-all duration-300 ease-in-out hover:grayscale-0 hover:opacity-100 hover:scale-110"
                     />
                   </div>
                 ))}
