@@ -20,6 +20,7 @@ import {
   User as UserIcon,
   Phone,
   Mail,
+  MessageCircle,
 } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -343,7 +344,7 @@ export default function OrdersPage() {
                     {statusCfg.icon}
                     {statusCfg.label}
                   </span>
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-xs text-secondary-foreground/90">
                     {formatDate(order.createdAt)}
                   </span>
                 </div>
@@ -390,12 +391,12 @@ export default function OrdersPage() {
                                     </div>
                                   )}
                                   <div className="min-w-0">
-                                    <p className="font-medium text-foreground line-clamp-1">
+                                    <p className="font-medium text-foreground text-xs line-clamp-1">
                                       {item.title}
                                     </p>
-                                    <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground flex-wrap">
+                                    <div className="flex gap-1.5 text-[11px] text-secondary-foreground/90 flex-wrap">
                                       {itemCode && (
-                                        <span className="font-mono text-[10px] px-1 py-0.2 rounded bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                                        <span className="text-[11px] py-0.2 rounded text-secondary-foreground">
                                           Cód: {itemCode}
                                         </span>
                                       )}
@@ -470,32 +471,38 @@ export default function OrdersPage() {
 
                     {/* Dados do Cliente e Tipo de Entrega */}
                     <div className="space-y-1.5 pt-1 text-xs">
-                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-muted-foreground">
+                      <div className="flex flex-wrap flex-col gap-1 text-muted-foreground">
                         <span className="flex items-center gap-1">
-                          Cliente:{" "}
+                          <p className="text-secondary-foreground/80">Cliente:{" "}</p>
                           <strong className="text-foreground">
                             {order.customerName}
                           </strong>
                         </span>
-                        <a
-                          href={`https://wa.me/55${order.customerPhone.replace(/\D/g, "")}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 text-[11px] border border-blue-200 dark:border-blue-800"
-                          title="Conversar no WhatsApp"
-                        >
-                          <Phone className="w-3 h-3" />
-                          {order.customerPhone}
-                        </a>
-                        {order.user && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 text-[11px] border border-blue-200 dark:border-blue-800">
-                            <Mail className="w-3 h-3" />
-                            {order.user.email}
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-secondary-foreground/80">
+                            <a
+                              href={`https://wa.me/55${order.customerPhone.replace(/\D/g, "")}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 text-[11px]"
+                              title="Conversar no WhatsApp"
+                            >
+                              <MessageCircle className="w-3 h-3" />
+                              {order.customerPhone}
+                            </a>
                           </span>
-                        )}
+                          <div className="text-secondary-foreground/80">
+                            {order.user && (
+                              <span className="inline-flex items-center gap-1 text-[11px] ">
+                                <Mail className="w-3 h-3" />
+                                {order.user.email}
+                              </span>
+                            )}
+                          </div>
+                        </div>
                       </div>
 
-                      <div className="flex items-center gap-1.5 text-muted-foreground">
+                      <div className="flex items-center gap-1.5 text-secondary-foreground">
                         {order.deliveryType === "pickup" ? (
                           <span className="inline-flex items-center gap-1.5 text-amber-700 dark:text-amber-400 font-medium">
                             <Store className="h-3.5 w-3.5" />
@@ -531,7 +538,7 @@ export default function OrdersPage() {
                             ) : (
                               <>
                                 <Truck className="h-3.5 w-3.5 text-purple-600" />
-                                <span>Uber Direct:</span>
+                                <span>Uber:</span>
                               </>
                             )}
                             <span className="font-normal text-foreground">
@@ -559,6 +566,10 @@ export default function OrdersPage() {
                         )}
                       </div>
                     )}
+                    {/* ID do pedido */}
+                    <p className="text-[11px] text-secondary-foreground/90">
+                      <span className="font-semibold">Pedido:</span> {order.id}
+                    </p>
                   </div>
 
                   <div className="text-right shrink-0 pt-1 md:pt-0">
@@ -574,13 +585,10 @@ export default function OrdersPage() {
                   </div>
                 </div>
 
-                {/* ID do pedido */}
-                <p className="text-[10px] text-muted-foreground font-mono">
-                  Pedido: {order.id}
-                </p>
+
 
                 {/* Ações */}
-                <div className="flex flex-wrap gap-2 pt-1 border-t border-border">
+                <div className="flex flex-wrap gap-2 pt-1">
                   {order.status === "PAID" && (
                     <Button
                       size="sm"
@@ -645,32 +653,35 @@ export default function OrdersPage() {
             );
           })}
         </div>
-      )}
+      )
+      }
 
       {/* Paginação */}
-      {meta && meta.totalPages > 1 && (
-        <div className="flex items-center justify-center gap-3">
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={page === 1 || loading}
-            onClick={() => setPage((p) => p - 1)}
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <span className="text-sm text-muted-foreground">
-            Página {page} de {meta.totalPages}
-          </span>
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={page === meta.totalPages || loading}
-            onClick={() => setPage((p) => p + 1)}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
-      )}
+      {
+        meta && meta.totalPages > 1 && (
+          <div className="flex items-center justify-center gap-3">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page === 1 || loading}
+              onClick={() => setPage((p) => p - 1)}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <span className="text-sm text-muted-foreground">
+              Página {page} de {meta.totalPages}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page === meta.totalPages || loading}
+              onClick={() => setPage((p) => p + 1)}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        )
+      }
 
       {/* Modal de Cotação e Despacho Uber Direct */}
       <Dialog
@@ -885,6 +896,6 @@ export default function OrdersPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </div >
   );
 }

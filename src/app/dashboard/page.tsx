@@ -207,7 +207,7 @@ export default function OverviewPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              <div className="p-3 bg-muted/40 rounded-lg flex items-center justify-between">
+              <div className="p-3 bg-muted/40 rounded-lg flex sm:flex-row sm:items-center sm:justify-between flex-col gap-2">
                 <div>
                   <p className="font-medium text-sm">Clientes da Loja</p>
                   <p className="text-xs text-muted-foreground">
@@ -222,7 +222,7 @@ export default function OverviewPage() {
               </div>
 
               {isAdmin && (
-                <div className="p-3 bg-muted/40 rounded-lg flex items-center justify-between">
+                <div className="p-3 bg-muted/40 rounded-lg flex sm:flex-row sm:items-center sm:justify-between flex-col gap-2">
                   <div>
                     <p className="font-medium text-sm">Equipe do Sistema</p>
                     <p className="text-xs text-muted-foreground">
