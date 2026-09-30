@@ -16,7 +16,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { LoadingState } from "@/components/ui/loading-state";
 import { toast } from "sonner";
 import { Category, Brand } from "@/lib/types";
-import { Upload, ImageIcon, Store, ShoppingCart, Loader2 } from "lucide-react";
+import { Upload, ImageIcon, Store, ShoppingCart, Loader2, RefreshCw } from "lucide-react";
 
 interface ProductData {
   id?: string;
@@ -46,6 +46,7 @@ export default function EditProductPage() {
     useState<string>("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [reloadingML, setReloadingML] = useState(false);
   const [uploadStatus, setUploadStatus] = useState<string>("");
 
   // Estados de Imagem
@@ -264,6 +265,37 @@ export default function EditProductPage() {
     router.push("/dashboard/products");
   };
 
+  const handleReloadFromML = async () => {
+    if (!id) return;
+    try {
+      setReloadingML(true);
+      toast.info("Consultando dados frescos no Mercado Livre...");
+      const res = await fetch(`/api/products/${id}?forceRefresh=true`);
+      const result = await res.json();
+      if (res.ok && result.success && result.data) {
+        const prodData: ProductData = result.data;
+        setProduct((prev) =>
+          prev
+            ? {
+                ...prev,
+                price: prodData.price,
+                available_quantity: prodData.available_quantity,
+                title: prodData.title,
+                permalink: prodData.permalink,
+              }
+            : null
+        );
+        toast.success("Preço e estoque atualizados diretamente do Mercado Livre!");
+      } else {
+        toast.error(result.error || "Não foi possível obter dados do Mercado Livre.");
+      }
+    } catch {
+      toast.error("Erro de conexão ao buscar dados no Mercado Livre.");
+    } finally {
+      setReloadingML(false);
+    }
+  };
+
   if (loading) {
     return (
       <LoadingState label="Carregando produto..." className="min-h-[50vh]" />
@@ -291,8 +323,23 @@ export default function EditProductPage() {
           </p>
         </div>
 
-        {/* Badge da Origem */}
-        <div>
+        {/* Badge da Origem e Botão de Atualização Forçada do ML */}
+        <div className="flex items-center gap-2">
+          {!isLocal && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleReloadFromML}
+              disabled={reloadingML || saving}
+              className="text-xs flex items-center gap-1.5"
+              title="Forçar consulta na API do Mercado Livre e atualizar preço e estoque agora"
+            >
+              <RefreshCw className={`h-3.5 w-3.5 ${reloadingML ? "animate-spin" : ""}`} />
+              {reloadingML ? "Consultando ML..." : "Recarregar do ML"}
+            </Button>
+          )}
+
           {isLocal ? (
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
               <Store className="h-3.5 w-3.5 text-emerald-600" />

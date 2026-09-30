@@ -73,12 +73,15 @@ async function fetchProductDetailsFromMercadoLibre(itemId: string) {
   return response.json();
 }
 
+const CACHE_TTL_MS = 30 * 60 * 1000; // 30 minutos de tolerância para proteger Vercel e banco
+
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
+    const forceRefresh = req.nextUrl.searchParams.get("forceRefresh") === "true";
 
     if (!id) {
       return NextResponse.json(
@@ -115,20 +118,35 @@ export async function GET(
       });
     }
 
-    // 3. Para produtos do Mercado Livre, tenta enriquecer com dados frescos (preço, estoque, attributes)
-    // Se falhar por qualquer motivo (token, rede, rate limit), usa apenas o banco.
+    // 3. Verificação de Cache Inteligente (Plano A):
+    // Se a última sincronização do produto for recente (menos de 30 min) e não for forçada,
+    // retorna diretamente do banco em milissegundos, economizando tráfego, Vercel e chamadas de API.
+    const lastUpdate = new Date(productFromDb.updatedAt).getTime();
+    const isCacheValid = Date.now() - lastUpdate < CACHE_TTL_MS;
+
+    if (isCacheValid && !forceRefresh) {
+      return NextResponse.json({
+        success: true,
+        data: {
+          ...productFromDb,
+          attributes: [],
+        },
+      });
+    }
+
+    // 4. Se o cache expirou (ou forceRefresh=true), busca dados frescos no Mercado Livre
     let mlData: MercadoLibreProductDetails | null = null;
     try {
       mlData = await fetchProductDetailsFromMercadoLibre(id);
     } catch (mlError) {
-      // Log para monitoramento, mas não propaga o erro ao cliente
+      // Log para monitoramento, mas não quebra a resposta caso a API do ML falhe
       console.warn(
         `[products/${id}] Não foi possível buscar dados do ML — usando banco como fallback.`,
         mlError instanceof Error ? mlError.message : mlError
       );
     }
 
-    // 4. Sincronização e mesclagem:
+    // 5. Sincronização e persistência no banco para renovar a janela de 30 minutos
     let finalPrice = productFromDb.price;
     let finalQuantity = productFromDb.available_quantity;
 
@@ -142,30 +160,23 @@ export async function GET(
             : productFromDb.available_quantity)
         : 0;
 
-      // Se preço ou estoque tiverem mudado no ML, atualiza o banco de dados
-      if (
-        freshPrice !== productFromDb.price ||
-        freshQuantity !== productFromDb.available_quantity
-      ) {
-        try {
-          await prisma.product.update({
-            where: { id: id },
-            data: {
-              price: freshPrice,
-              available_quantity: freshQuantity,
-            },
-          });
-          finalPrice = freshPrice;
-          finalQuantity = freshQuantity;
-        } catch (dbUpdateError) {
-          console.error(
-            `[products/${id}] Erro ao persistir preço/estoque atualizados do ML no banco:`,
-            dbUpdateError
-          );
-          finalPrice = freshPrice;
-          finalQuantity = freshQuantity;
-        }
-      } else {
+      try {
+        // Atualiza preço, estoque e renova o updatedAt no banco
+        await prisma.product.update({
+          where: { id: id },
+          data: {
+            price: freshPrice,
+            available_quantity: freshQuantity,
+            updatedAt: new Date(),
+          },
+        });
+        finalPrice = freshPrice;
+        finalQuantity = freshQuantity;
+      } catch (dbUpdateError) {
+        console.error(
+          `[products/${id}] Erro ao persistir preço/estoque atualizados do ML no banco:`,
+          dbUpdateError
+        );
         finalPrice = freshPrice;
         finalQuantity = freshQuantity;
       }
