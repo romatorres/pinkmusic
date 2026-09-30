@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/auth";
 import {
   getMercadoLivreAccessToken,
   refreshMercadoLivreToken,
@@ -52,6 +53,11 @@ async function fetchProductFromMercadoLibre(
 
 export async function GET(req: NextRequest) {
   try {
+    const authResult = await requireAdmin(req);
+    if (authResult.response) {
+      return authResult.response;
+    }
+
     const item_id = req.nextUrl.searchParams.get("item_id") || "MLB3312824304";
 
     const accessToken = await getMercadoLivreAccessToken();

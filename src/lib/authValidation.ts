@@ -65,3 +65,44 @@ export function clearRateLimit(request: Request, identifier: string): void {
   const key = `${getClientKey(request)}:${identifier}`;
   loginAttempts.delete(key);
 }
+
+const genericAttempts = new Map<string, { count: number; firstAttemptAt: number }>();
+
+/**
+ * Limita requisições por IP para qualquer ação específica (ex: cotações Uber, cadastros, etc.)
+ */
+export function checkCustomRateLimit(
+  request: Request,
+  actionKey: string,
+  maxAttempts: number = 10,
+  windowMs: number = 60 * 1000
+): boolean {
+  const client = getClientKey(request);
+  const key = `${actionKey}:${client}`;
+  const now = Date.now();
+  const attempt = genericAttempts.get(key);
+
+  if (!attempt) {
+    genericAttempts.set(key, { count: 1, firstAttemptAt: now });
+    return true;
+  }
+
+  const elapsed = now - attempt.firstAttemptAt;
+
+  if (elapsed > windowMs) {
+    genericAttempts.set(key, { count: 1, firstAttemptAt: now });
+    return true;
+  }
+
+  if (attempt.count >= maxAttempts) {
+    return false;
+  }
+
+  genericAttempts.set(key, {
+    count: attempt.count + 1,
+    firstAttemptAt: attempt.firstAttemptAt,
+  });
+
+  return true;
+}
+

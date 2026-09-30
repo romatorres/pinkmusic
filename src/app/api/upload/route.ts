@@ -11,6 +11,9 @@ export async function POST(req: NextRequest) {
 
     const contentType = req.headers.get("content-type") || "";
 
+    const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"];
+    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
     let fileToUpload = "";
     let folder = "pinkmusic/products";
 
@@ -25,9 +28,23 @@ export async function POST(req: NextRequest) {
       if (customFolder) folder = customFolder;
 
       if (file) {
+        if (file.size > MAX_FILE_SIZE) {
+          return NextResponse.json(
+            { success: false, error: "Arquivo muito grande. O limite máximo permitido é 5MB." },
+            { status: 400 }
+          );
+        }
+
+        const mimeType = file.type || "image/jpeg";
+        if (!ALLOWED_MIME_TYPES.includes(mimeType.toLowerCase())) {
+          return NextResponse.json(
+            { success: false, error: "Formato de imagem inválido. Formatos permitidos: JPG, PNG ou WEBP." },
+            { status: 400 }
+          );
+        }
+
         const bytes = await file.arrayBuffer();
         const buffer = Buffer.from(bytes);
-        const mimeType = file.type || "image/jpeg";
         fileToUpload = `data:${mimeType};base64,${buffer.toString("base64")}`;
       }
     }

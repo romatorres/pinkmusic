@@ -5,6 +5,7 @@ import {
   getMercadoLivreAccessToken,
   refreshMercadoLivreToken,
 } from "@/lib/mercadolivre";
+import { extractProductId } from "@/lib/slug";
 
 interface MercadoLibreProductDetails {
   id: string;
@@ -80,7 +81,8 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
+    const { id: rawId } = await params;
+    const id = extractProductId(rawId);
     const forceRefresh = req.nextUrl.searchParams.get("forceRefresh") === "true";
 
     if (!id) {
@@ -224,7 +226,8 @@ export async function PUT(
       return authResult.response;
     }
 
-    const { id } = await params;
+    const { id: rawId } = await params;
+    const id = extractProductId(rawId);
     const rawData = await req.json();
 
     const allowedFields = [
@@ -330,7 +333,8 @@ export async function DELETE(
       return authResult.response;
     }
 
-    const { id } = await params;
+    const { id: rawId } = await params;
+    const id = extractProductId(rawId);
 
     if (!id) {
       return NextResponse.json(

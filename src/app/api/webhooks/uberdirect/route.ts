@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import crypto from "crypto";
 import prisma from "@/lib/prisma";
 
 /**
@@ -7,13 +8,42 @@ import prisma from "@/lib/prisma";
  * Recebe eventos do Uber Direct sobre o status da entrega.
  * Documentação: https://developer.uber.com/docs/deliveries/guides/webhooks
  *
- * Eventos relevantes:
- *   - status.changed (en_route_to_pickup, arrived_at_pickup, en_route_to_dropoff, delivered, cancelled)
+ * Validação de Assinatura:
+ *   A Uber assina o corpo da requisição usando HMAC-SHA256 no cabeçalho `x-uber-signature`.
  */
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const rawBody = await request.text();
+    const signature = request.headers.get("x-uber-signature");
+    const clientSecret = process.env.UBER_CLIENT_SECRET?.trim().replace(/^["']|["']$/g, "");
+    const webhookSecret = process.env.UBER_WEBHOOK_SECRET?.trim().replace(/^["']|["']$/g, "");
+    const secretToUse = webhookSecret || clientSecret;
 
+    // Se houver credencial configurada, valida a assinatura HMAC
+    if (secretToUse) {
+      if (!signature) {
+        console.warn("[Webhook Uber Direct] Requisição rejeitada: cabeçalho x-uber-signature ausente.");
+        return NextResponse.json({ error: "Assinatura ausente." }, { status: 401 });
+      }
+
+      const expectedSignature = crypto
+        .createHmac("sha256", secretToUse)
+        .update(rawBody)
+        .digest("hex");
+
+      const signatureBuffer = Buffer.from(signature, "hex");
+      const expectedBuffer = Buffer.from(expectedSignature, "hex");
+
+      if (
+        signatureBuffer.length !== expectedBuffer.length ||
+        !crypto.timingSafeEqual(signatureBuffer, expectedBuffer)
+      ) {
+        console.warn("[Webhook Uber Direct] Assinatura inválida detectada.");
+        return NextResponse.json({ error: "Assinatura inválida." }, { status: 401 });
+      }
+    }
+
+    const body = JSON.parse(rawBody);
     const { kind, data } = body;
 
     // Só processa eventos de mudança de status de entrega

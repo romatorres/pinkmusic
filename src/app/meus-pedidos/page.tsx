@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { createProductSlug } from "@/lib/slug";
 import {
   Package,
   Clock,
@@ -421,7 +422,7 @@ export default function CustomerOrdersPage() {
                                 )}
                                 <div className="min-w-0">
                                   <Link
-                                    href={`/products/${item.productId}`}
+                                    href={`/products/${createProductSlug(item.title, item.productId)}`}
                                     className="font-medium text-foreground hover:text-primary transition-colors line-clamp-1 text-sm"
                                   >
                                     {item.title}
@@ -469,7 +470,7 @@ export default function CustomerOrdersPage() {
                             )}
                             <div className="min-w-0">
                               <Link
-                                href={`/products/${order.product.id}`}
+                                href={`/products/${createProductSlug(order.product.title, order.product.id)}`}
                                 className="font-medium text-foreground hover:text-primary transition-colors line-clamp-1 text-sm"
                               >
                                 {order.product.title}

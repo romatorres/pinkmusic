@@ -7,6 +7,7 @@ import { LoadingState } from "@/components/ui/loading-state";
 import { ArrowLeft } from "lucide-react";
 import { useProductStore } from "@/store/productStore";
 import type { Product } from "@/lib/types";
+import { extractProductId, createProductSlug } from "@/lib/slug";
 
 interface ApiResponse<T> {
   success: boolean;
@@ -20,7 +21,8 @@ export default function ProductDetailsPage({
   params: Promise<{ id: string }>;
 }) {
   const router = useRouter();
-  const { id } = use(params);
+  const { id: rawParam } = use(params);
+  const id = extractProductId(rawParam);
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
@@ -47,6 +49,12 @@ export default function ProductDetailsPage({
           if (result.success && result.data) {
             setProduct(result.data);
             updateProduct(result.data);
+
+            // Se o usuário entrou pelo link antigo sem slug, atualiza a URL suavemente para a versão amigável
+            if (typeof window !== "undefined" && !rawParam.includes("--") && result.data.title) {
+              const friendlySlug = createProductSlug(result.data.title, result.data.id);
+              window.history.replaceState(null, "", `/products/${friendlySlug}`);
+            }
           } else {
             setError(result.error || "Erro ao carregar detalhes do produto");
           }
@@ -58,7 +66,7 @@ export default function ProductDetailsPage({
       };
       fetchProductDetails();
     }
-  }, [id, getProductById, updateProduct]);
+  }, [id, rawParam, getProductById, updateProduct]);
 
   if (loading) {
     return <LoadingState label="Carregando produto..." size="lg" fullHeight />;

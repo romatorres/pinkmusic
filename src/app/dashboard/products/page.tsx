@@ -9,6 +9,7 @@ import React, {
 } from "react";
 import { Eye, Trash2, Edit, Store, ShoppingCart, RefreshCw } from "lucide-react";
 import Link from "next/link";
+import { createProductSlug } from "@/lib/slug";
 import {
   Table,
   TableBody,
@@ -513,7 +514,7 @@ function ProductsPageContent() {
                         <TableCell className="text-right">
                           <div className="flex items-center justify-end gap-2">
                             <Link
-                              href={`/products/${product.id}`}
+                              href={`/products/${createProductSlug(product.title, product.id)}`}
                               target="_blank"
                             >
                               <Button variant="ghost" size="icon">

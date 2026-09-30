@@ -4,14 +4,18 @@
 Estabelecer uma estratégia e checklist rigoroso de correções para mitigar riscos de autenticação, autorização por papel (RBAC), validação de entrada, vazamento de credenciais e exposição de dados sensíveis.
 
 ## Status Geral
-- [x] Definir política de autenticação e autorização por papel (RBAC) com `requireAuth()` e `requireAdmin()`
+- [x] Definir política de autenticação e autorização por papel (RBAC) com `requireAuth()`, `requireStaff()` e `requireAdmin()`
 - [x] Proteger rotas sensíveis do backend (produtos, marcas, categorias, parceiros)
 - [x] Validar dados de entrada e regras de senha forte no cadastro
 - [x] Defender contra força bruta e abuso no login (Rate Limiting)
 - [x] Eliminar vazamentos de credenciais e hashes em respostas de API
 - [x] Proteger ou internalizar o fluxo de renovação de tokens do Mercado Livre
 - [x] Reforçar regras de navegação no middleware para áreas administrativas
-- [ ] Revisar cookies, cabeçalhos de segurança e proteção CSRF
+- [x] Configurar cabeçalhos HTTP de segurança (Security Headers: HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy)
+- [x] Proteger webhook do Uber Direct com validação de assinatura HMAC
+- [x] Adicionar Rate Limiting em rotas sensíveis públicas (cotação de frete e cadastros)
+- [x] Limitar e validar uploads de imagens (MIME types estritos e tamanho máx. 5MB)
+- [x] Fechar rota órfã `GET /api/getProducts` com `requireAdmin()`
 
 ---
 
@@ -22,9 +26,10 @@ Estabelecer uma estratégia e checklist rigoroso de correções para mitigar ris
 - [x] Verificar `role` e permissão em todas as APIs de usuários
 - [x] Bloquear listagem pública de usuários (`GET /api/auth/users` restrito a ADMIN sem expor senhas)
 - [x] Garantir que `DELETE` em usuários respeite admin ou dono do registro
-- [x] **[NOVO]** Corrigir vazamento de hash de senha no `PUT /api/auth/users/[id]` (remover o campo `password` da resposta JSON)
-- [x] **[NOVO]** Proteger o endpoint `POST /api/refreshToken` com `requireAdmin()` e nunca expor tokens de terceiros para usuários não autenticados
-- [x] **[NOVO]** Internalizar a função `refreshMercadoLivreToken` em módulo compartilhado (`src/lib/mercadolivre.ts`) para evitar chamadas HTTP internas desprotegidas
+- [x] Corrigir vazamento de hash de senha no `PUT /api/auth/users/[id]` (remover o campo `password` da resposta JSON)
+- [x] Proteger o endpoint `POST /api/refreshToken` com `requireAdmin()` e nunca expor tokens de terceiros para usuários não autenticados
+- [x] Internalizar a função `refreshMercadoLivreToken` em módulo compartilhado (`src/lib/mercadolivre.ts`) para evitar chamadas HTTP internas desprotegidas
+- [x] **[NOVO]** Validar assinatura criptográfica HMAC-SHA256 (`x-uber-signature`) no webhook do Uber Direct (`src/app/api/webhooks/uberdirect/route.ts`)
 
 ### P1 - Alto (Controle de Acesso e Validação)
 - [x] Adicionar rate limiting no login (`checkRateLimit` por IP e email)
@@ -33,63 +38,55 @@ Estabelecer uma estratégia e checklist rigoroso de correções para mitigar ris
 - [x] Garantir que `role: "USER"` seja fixado no cadastro público (evitando elevação de privilégio)
 - [x] Restringir acesso a telas administrativas no `src/middleware.ts` para usuários não ADMIN (`/dashboard/products`, `/dashboard/categories`, `/dashboard/brands`, `/dashboard/partners`)
 - [x] Ocultar opções administrativas na `Sidebar` para usuários com papel `USER`
-- [ ] Padronizar respostas de erro de banco de dados sem expor detalhes internos do Prisma/Postgres
+- [x] **[NOVO]** Configurar Security Headers no `next.config.ts` (`X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `Permissions-Policy`, `Strict-Transport-Security`)
+- [x] **[NOVO]** Proteger rota legada `GET /api/getProducts` com `requireAdmin()` para impedir proxy anônimo usando credenciais da loja
 
 ### P2 - Médio (Boas Práticas e Higiene de Segurança)
 - [x] Configurar cookies de autenticação com `httpOnly: true`, `secure: true` (em produção) e `sameSite: "lax"`
-- [ ] Adicionar validação de origem (`Origin` / `Referer`) nas rotas mutáveis (proteção anti-CSRF)
+- [x] **[NOVO]** Adicionar Rate Limiting por IP em `POST /api/delivery/quote` (máx. 15/min) para evitar esgotamento de cotas da Uber
+- [x] **[NOVO]** Adicionar Rate Limiting por IP em `POST /api/auth/register-customer` e `POST /api/auth/register` (máx. 5 a cada 15 min) contra criação automatizada de contas
+- [x] **[NOVO]** Validação estrita de tipo MIME (`image/jpeg`, `image/png`, `image/webp`) e limite de 5MB no upload (`src/app/api/upload/route.ts`)
+- [x] **[NOVO]** Padronizar Route Handler de usuários para `route.ts` (renomeado de `route.tsx`)
 - [x] Remover logs verbosos de `error.stack` em endpoints de produção (ex: `partners/route.ts`)
-- [ ] Centralizar lógica de permissão de usuário/admin com helper `requireUserOrAdmin(request, targetUserId)`
 
 ### P3 - Melhorias Futuras e Monitoramento
-- [ ] Migrar armazenamento do rate limiting em memória para Redis/Upstash (necessário para deploy serverless/multi-instância)
+- [ ] Migrar armazenamento do rate limiting em memória para Redis/Upstash (para deploy serverless/multi-instância)
 - [ ] Implementar auditoria de logs para tentativas de login suspeitas e ações de escrita
 - [ ] Criar testes automatizados de segurança (testar 401/403 em endpoints protegidos)
 - [ ] Implementar rotação automática periódica do segredo JWT
 
 ---
 
-## Riscos Mapeados e Diagnóstico Detalhado
+## Detalhamento das Novas Correções Aplicadas
 
-### 1. Vazamento do Hash de Senha em Edição de Usuário
-- **Arquivo**: `src/app/api/auth/users/[id]/route.tsx`
-- **Problema**: O endpoint executa `prisma.user.update` e retorna o objeto retornado diretamente no `NextResponse.json(user)`. Como o Prisma inclui todas as colunas por padrão, o hash Bcrypt da senha do usuário é devolvido no corpo da resposta HTTP.
-- **Ação**: Utilizar cláusula `select` na query de atualização para retornar estritamente `id`, `name`, `email`, `role`, `createdAt` e `updatedAt`.
+### 1. Proteção do Webhook Uber Direct
+- **Arquivo**: `src/app/api/webhooks/uberdirect/route.ts`
+- **Ação**: Implementada validação de assinatura `x-uber-signature` via `crypto.timingSafeEqual` com chave secreta `UBER_WEBHOOK_SECRET` ou `UBER_CLIENT_SECRET`. Requisições não assinadas ou adulteradas são rejeitadas com HTTP 401.
 
-### 2. Exposição Pública de Tokens do Mercado Livre
-- **Arquivo**: `src/app/api/refreshToken/route.ts`
-- **Problema**: O endpoint `POST /api/refreshToken` não possui verificação de sessão (`requireAdmin`). Qualquer requisitante anônimo pode acioná-lo e obter o `accessToken` e `refreshToken` do Mercado Livre na resposta JSON.
-- **Ação**: Exigir `requireAdmin(request)` na rota e extrair a lógica para uma função de biblioteca (`src/lib/mercadolivre.ts`), consumida diretamente pelos serviços de produtos sem necessidade de tráfego HTTP exposto.
+### 2. Fechamento da Rota `GET /api/getProducts`
+- **Arquivo**: `src/app/api/getProducts/route.ts`
+- **Ação**: Adicionada validação `await requireAdmin(req)`. A rota agora não pode ser acessada anonimamente pela internet.
 
-### 3. Falta de Restrição de Telas Administrativas no Middleware
-- **Arquivo**: `src/middleware.ts`
-- **Problema**: O middleware protege apenas `/dashboard/register` contra usuários não ADMIN. Usuários cadastrados com papel comum (`USER`) conseguem acessar e visualizar as páginas administrativas (`/dashboard/products`, `/dashboard/partners`, etc.) na interface, gerando frustração ou vazamento de metadados da UI.
-- **Ação**: Atualizar o matcher e a checagem no middleware para redirecionar usuários comuns caso tentem acessar páginas exclusivas de administração.
+### 3. Cabeçalhos HTTP de Segurança
+- **Arquivo**: `next.config.ts`
+- **Ação**: Injetados cabeçalhos globais de segurança:
+  - `X-Frame-Options: DENY` (anti-Clickjacking no checkout/login)
+  - `X-Content-Type-Options: nosniff` (anti-MIME Sniffing)
+  - `Referrer-Policy: strict-origin-when-cross-origin`
+  - `Permissions-Policy: camera=(), microphone=(), geolocation=()`
+  - `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload` (HSTS)
 
-### 4. Chamadas HTTP Internas Redundantes para Renovação de Token
-- **Arquivos**: `src/app/api/getProducts/route.ts`, `src/app/api/products/add/route.ts`, `src/app/api/products/[id]/route.ts`
-- **Problema**: Cada rota faz `fetch(`${baseUrl}/api/refreshToken`)` disparando uma nova requisição HTTP para a própria aplicação.
-- **Ação**: Chamar a função utilitária diretamente no mesmo processo Node.js.
+### 4. Rate Limiting em Endpoints Públicos
+- **Arquivo**: `src/lib/authValidation.ts`
+- **Ação**: Criada a função `checkCustomRateLimit(request, actionKey, maxAttempts, windowMs)` e aplicada em:
+  - `src/app/api/delivery/quote/route.ts`: 15 cotações/minuto por IP.
+  - `src/app/api/auth/register-customer/route.ts`: 5 cadastros/15 min por IP.
+  - `src/app/api/auth/register/route.ts`: 5 cadastros/15 min por IP.
 
-### 5. Sanitização de Erros e Stack Traces
-- **Arquivos**: `src/app/api/partners/route.ts`, `src/app/api/products/[id]/route.ts`
-- **Problema**: Logs contendo `error.stack` e retornos de erro expondo mensagens internas do Prisma.
-- **Ação**: Padronizar respostas amigáveis no formato `{ success: false, error: "..." }` sem expor a stack de execução.
+### 5. Validação Estrita de Upload de Arquivos
+- **Arquivo**: `src/app/api/upload/route.ts`
+- **Ação**: Adicionada verificação de tamanho máximo de 5MB e restrição de MIME types permitidos estritamente a `image/jpeg`, `image/png` e `image/webp`.
 
----
-
-## Plano de Execução Imediato
-
-### Etapa 1 - Fechamento de Brechas Críticas (P0)
-- [x] Corrigir `PUT /api/auth/users/[id]` para nunca expor `password`.
-- [x] Criar `src/lib/mercadolivre.ts` com a função `refreshMercadoLivreToken()`.
-- [x] Refatorar `/api/refreshToken` para exigir `requireAdmin(req)`.
-- [x] Atualizar as rotas de produtos para usar o utilitário compartilhado diretamente.
-
-### Etapa 2 - Reforço de RBAC no Middleware e Sidebar (P1)
-- [x] Atualizar `src/middleware.ts` para proteger rotas administrativas além de `/dashboard/register`.
-- [x] Ajustar `Sidebar` para exibir links administrativos apenas se `user.role === "ADMIN"`.
-
-### Etapa 3 - Limpeza de Logs e Sanitização de Erros (P2)
-- [x] Tratar `console.error` em rotas públicas para não logar stacks em produção.
-- [ ] Validar cabeçalho `Origin` em mutações para proteção complementar contra requisições cruzadas.
+### 6. Padronização de Route Handler
+- **Arquivo**: `src/app/api/auth/users/[id]/route.ts`
+- **Ação**: Renomeado de `.tsx` para `.ts` conforme as diretrizes do Next.js App Router.

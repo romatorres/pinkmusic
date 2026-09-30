@@ -6,6 +6,7 @@ import { Package, ShoppingCart, Plus, Check, Eye } from "lucide-react";
 import type { Product } from "@/lib/types";
 import { useCartStore } from "@/store/cartStore";
 import { toast } from "sonner";
+import { createProductSlug } from "@/lib/slug";
 
 interface ProductCardProps {
   product: Product;
@@ -28,14 +29,16 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       ? product.pictures[0].url
       : product.thumbnail;
 
+  const productUrl = `/products/${createProductSlug(product.title, product.id)}`;
+
   const handleCardClick = () => {
-    router.push(`/products/${product.id}`);
+    router.push(productUrl);
   };
 
   const handleBuyClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     if (product.origin === "LOCAL" || !product.permalink) {
-      router.push(`/products/${product.id}`);
+      router.push(productUrl);
     } else {
       window.open(product.permalink, "_blank", "noopener,noreferrer");
     }

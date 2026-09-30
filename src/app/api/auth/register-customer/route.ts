@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import * as jose from "jose";
-import { isValidEmail, normalizeEmail } from "@/lib/authValidation";
+import { isValidEmail, normalizeEmail, checkCustomRateLimit } from "@/lib/authValidation";
 
 // Validação simples de senha para clientes (menos restrito que admins)
 function isValidCustomerPassword(password: string): boolean {
@@ -11,6 +11,14 @@ function isValidCustomerPassword(password: string): boolean {
 
 export async function POST(request: Request) {
   try {
+    const isAllowed = checkCustomRateLimit(request, "register_customer", 5, 15 * 60 * 1000);
+    if (!isAllowed) {
+      return NextResponse.json(
+        { message: "Muitas tentativas de cadastro. Por favor, aguarde alguns minutos e tente novamente." },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
     const email = typeof body.email === "string" ? body.email : "";
     const password = typeof body.password === "string" ? body.password : "";

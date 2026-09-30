@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getDeliveryQuote } from "@/lib/uberdirect";
+import { checkCustomRateLimit } from "@/lib/authValidation";
 
 /**
  * POST /api/delivery/quote
@@ -13,6 +14,17 @@ import { getDeliveryQuote } from "@/lib/uberdirect";
  */
 export async function POST(request: NextRequest) {
   try {
+    const isAllowed = checkCustomRateLimit(request, "delivery_quote", 15, 60 * 1000);
+    if (!isAllowed) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Muitas solicitações de cotação. Por favor, aguarde um minuto e tente novamente.",
+        },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
     const { address, zipCode, productId, packageSize } = body;
 

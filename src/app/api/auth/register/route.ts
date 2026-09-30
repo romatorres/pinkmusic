@@ -5,10 +5,19 @@ import {
   isStrongPassword,
   isValidEmail,
   normalizeEmail,
+  checkCustomRateLimit,
 } from "@/lib/authValidation";
 
 export async function POST(request: Request) {
   try {
+    const isAllowed = checkCustomRateLimit(request, "register_user", 5, 15 * 60 * 1000);
+    if (!isAllowed) {
+      return NextResponse.json(
+        { message: "Muitas tentativas de cadastro. Por favor, aguarde alguns minutos e tente novamente." },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
     const email = typeof body.email === "string" ? body.email : "";
     const password = typeof body.password === "string" ? body.password : "";
