@@ -7,7 +7,7 @@ import React, {
   useMemo,
   Suspense,
 } from "react";
-import { Eye, Trash2, Edit, Store, ShoppingCart } from "lucide-react";
+import { Eye, Trash2, Edit, Store, ShoppingCart, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import {
   Table,
@@ -72,6 +72,7 @@ function ProductsPageContent() {
   const [productToDelete, setProductToDelete] = useState<string | null>(null);
   const [productFormOpen, setProductFormOpen] = useState(false);
   const [localProductModalOpen, setLocalProductModalOpen] = useState(false);
+  const [syncingML, setSyncingML] = useState(false);
   const searchParams = useSearchParams();
   const [searchInput, setSearchInput] = useState(
     searchParams.get("search") || "",
@@ -225,6 +226,28 @@ function ProductsPageContent() {
     }
   };
 
+  const handleSyncML = async () => {
+    try {
+      setSyncingML(true);
+      toast.info("Iniciando sincronização de preços e estoques com o Mercado Livre...");
+      const response = await fetch("/api/products/sync-ml", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      const data = await response.json();
+      if (response.ok && data.success) {
+        toast.success(data.message || "Produtos sincronizados com sucesso!");
+        fetchProducts(currentPage, selectedCategory, selectedBrand, searchTerm, selectedOrigin);
+      } else {
+        toast.error(data.error || "Falha ao sincronizar produtos com o Mercado Livre.");
+      }
+    } catch {
+      toast.error("Erro de conexão ao sincronizar com o Mercado Livre.");
+    } finally {
+      setSyncingML(false);
+    }
+  };
+
   const totalPages = Math.ceil(totalProducts / limit);
 
   return (
@@ -240,6 +263,16 @@ function ProductsPageContent() {
         </div>
 
         <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+          <Button
+            onClick={handleSyncML}
+            variant="outline"
+            disabled={syncingML}
+            className="flex-1 sm:flex-initial"
+            title="Atualizar preços e disponibilidade de todos os produtos do Mercado Livre"
+          >
+            <RefreshCw className={`h-4 w-4 ${syncingML ? "animate-spin" : ""}`} />
+            {syncingML ? "Sincronizando ML..." : "Sincronizar ML"}
+          </Button>
           <Button
             onClick={() => setLocalProductModalOpen(true)}
             className="flex-1 sm:flex-initial"

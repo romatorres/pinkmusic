@@ -12,6 +12,7 @@ interface MercadoLibreProductDetails {
   price: number;
   currency_id: string;
   thumbnail: string;
+  status?: string;
   pictures: Array<{
     id: string;
     url: string;
@@ -114,7 +115,7 @@ export async function GET(
       });
     }
 
-    // 3. Para produtos do Mercado Livre, tenta enriquecer com dados frescos (attributes, disponibilidade)
+    // 3. Para produtos do Mercado Livre, tenta enriquecer com dados frescos (preço, estoque, attributes)
     // Se falhar por qualquer motivo (token, rede, rate limit), usa apenas o banco.
     let mlData: MercadoLibreProductDetails | null = null;
     try {
@@ -127,19 +128,60 @@ export async function GET(
       );
     }
 
-    // 4. Mescla: dados do banco têm prioridade para campos críticos (preço, permalink)
-    //    Dados da ML enriquecem com attributes e disponibilidade em tempo real
+    // 4. Sincronização e mesclagem:
+    let finalPrice = productFromDb.price;
+    let finalQuantity = productFromDb.available_quantity;
+
+    if (mlData) {
+      const freshPrice =
+        typeof mlData.price === "number" ? mlData.price : productFromDb.price;
+      const isMlActive = !mlData.status || mlData.status === "active";
+      const freshQuantity = isMlActive
+        ? (typeof mlData.available_quantity === "number"
+            ? mlData.available_quantity
+            : productFromDb.available_quantity)
+        : 0;
+
+      // Se preço ou estoque tiverem mudado no ML, atualiza o banco de dados
+      if (
+        freshPrice !== productFromDb.price ||
+        freshQuantity !== productFromDb.available_quantity
+      ) {
+        try {
+          await prisma.product.update({
+            where: { id: id },
+            data: {
+              price: freshPrice,
+              available_quantity: freshQuantity,
+            },
+          });
+          finalPrice = freshPrice;
+          finalQuantity = freshQuantity;
+        } catch (dbUpdateError) {
+          console.error(
+            `[products/${id}] Erro ao persistir preço/estoque atualizados do ML no banco:`,
+            dbUpdateError
+          );
+          finalPrice = freshPrice;
+          finalQuantity = freshQuantity;
+        }
+      } else {
+        finalPrice = freshPrice;
+        finalQuantity = freshQuantity;
+      }
+    }
+
     const combinedProduct = mlData
       ? {
           ...productFromDb,
-          // Campos enriquecidos pela ML (mais frescos)
-          available_quantity: mlData.available_quantity ?? productFromDb.available_quantity,
+          price: finalPrice,
+          available_quantity: finalQuantity,
           attributes: mlData.attributes ?? [],
-          pictures: mlData.pictures?.length ? mlData.pictures : productFromDb.pictures,
-          // Campos críticos: banco tem prioridade
-          price: productFromDb.price,
+          pictures:
+            mlData.pictures?.length ? mlData.pictures : productFromDb.pictures,
           permalink: productFromDb.permalink || mlData.permalink,
-          seller_nickname: mlData.seller?.nickname || productFromDb.seller_nickname,
+          seller_nickname:
+            mlData.seller?.nickname || productFromDb.seller_nickname,
         }
       : {
           ...productFromDb,
