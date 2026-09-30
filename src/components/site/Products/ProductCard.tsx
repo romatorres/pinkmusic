@@ -66,7 +66,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const isLocal = product.origin === "LOCAL";
 
   return (
-    <div className="w-full max-w-xs sm:max-w-sm md:max-w-[300px]">
+    <div className="w-full max-w-xs sm:max-w-sm md:max-w-[300px] isolate">
       <div
         onClick={handleCardClick}
         className="bg-card rounded-3xl shadow-sm overflow-hidden flex flex-col min-h-[460px] sm:min-h-[480px] transition-transform duration-300 ease-in-out hover:translate-y-[-5px] cursor-pointer relative"
@@ -91,8 +91,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           {/* Badge de Pronta Entrega Local */}
           {isLocal && (
             <div className="absolute top-4 left-4 z-10">
-              <span className="bg-primary/80 text-white text-[11px] font-semibold px-2.5 py-1 rounded-full shadow-md flex items-center gap-1 uppercase tracking-wide">
-                Pronta Entrega
+              <span className="bg-primary/60 text-white text-[10px] px-2 py-0.5 rounded-full shadow-xs flex items-center gap-1 uppercase tracking-wide">
+                Venda Local
               </span>
             </div>
           )}

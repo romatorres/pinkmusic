@@ -34,7 +34,7 @@ export default function Footer() {
               alt="Logo Parceiro"
               width={28}
               height={28}
-              className="md:w-7 w-6.5"
+              className="md:w-7 w-6.5 h-auto"
             />
           </a>
         </div>

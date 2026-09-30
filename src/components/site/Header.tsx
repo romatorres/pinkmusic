@@ -55,10 +55,10 @@ function DesktopCategoryMegaMenu({
     : [];
 
   return (
-    <div className="absolute right-0 top-full z-30 mt-3 w-[500px] md:w-[540px] rounded-2xl border border-border/60 bg-white p-3 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200">
+    <div className="absolute right-0 top-full z-30 mt-3 w-[580px] xl:w-[640px] rounded-2xl border border-border/60 bg-white p-3 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-200">
       <div className="grid grid-cols-12 gap-3 min-h-[300px]">
         {/* Coluna da Esquerda: Categorias Principais */}
-        <div className="col-span-5 border-r border-border/40 pr-2 space-y-1 overflow-y-auto max-h-[380px] [scrollbar-width:none]">
+        <div className="col-span-4 border-r border-border/40 pr-2 space-y-1 overflow-y-auto max-h-[380px] [scrollbar-width:none]">
           <Link
             href="/products-all"
             onClick={onClose}
@@ -109,11 +109,11 @@ function DesktopCategoryMegaMenu({
         </div>
 
         {/* Coluna da Direita: Subcategorias */}
-        <div className="col-span-7 pl-1 flex flex-col justify-between max-h-[380px]">
+        <div className="col-span-8 pl-2 flex flex-col justify-between max-h-[380px]">
           <div className="space-y-2 overflow-y-auto pr-1 max-h-[370px] [scrollbar-width:none]">
             {activeCategory && (
-              <div className="border-b border-border/40 pb-2 mb-2 flex items-center justify-between">
-                <span className="text-xs font-bold text-primary tracking-wide uppercase truncate max-w-[180px]">
+              <div className="border-b border-border/40 pb-2 mb-2 flex items-center justify-between gap-2">
+                <span className="text-xs font-bold text-primary tracking-wide uppercase">
                   {activeCategory.name}
                 </span>
                 <Link
@@ -129,8 +129,8 @@ function DesktopCategoryMegaMenu({
             {activeSubcategories.length > 0 ? (
               <div
                 className={cn(
-                  "grid gap-1",
-                  activeSubcategories.length > 6
+                  "grid gap-0.5",
+                  activeSubcategories.length > 8
                     ? "grid-cols-2"
                     : "grid-cols-1",
                 )}
@@ -140,10 +140,10 @@ function DesktopCategoryMegaMenu({
                     key={sub.id}
                     href={`/products-all?categoryIds=${sub.id}`}
                     onClick={onClose}
-                    className="group flex items-center justify-between rounded-lg px-2.5 py-2 text-xs text-foreground transition-all hover:bg-primary/5 hover:text-primary font-normal"
+                    className="group flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs text-foreground transition-all hover:bg-primary/5 hover:text-primary font-normal"
                   >
-                    <span className="truncate">{sub.name}</span>
-                    <ChevronRight className="h-3 w-3 flex-shrink-0 text-transparent group-hover:text-primary transition-colors" />
+                    <ChevronRight className="h-2.5 w-2.5 flex-shrink-0 text-muted-foreground/40 group-hover:text-primary transition-colors" />
+                    <span className="leading-snug">{sub.name}</span>
                   </Link>
                 ))}
               </div>
@@ -211,8 +211,8 @@ function HeaderLayout({
       <PageContainer>
         <div className="flex h-[70px] w-full items-center justify-between">
           {/* Logo */}
-          <div className="relative w-[170px] md:w-[200px] lg:w-[240px] aspect-[240/70.5]">
-            <Link href="/">
+          <div className="w-[170px] md:w-[200px] lg:w-[240px] aspect-[240/70.5]">
+            <Link href="/" className="relative block w-full h-full">
               <Image
                 src="/img/logo-pink.svg"
                 alt="Logo da empresa"
@@ -355,11 +355,7 @@ function HeaderLayout({
               <Sheet>
                 <SheetTrigger asChild>
                   <button
-                    className={cn(
-                      isHomePage
-                        ? "text-primary items-center flex"
-                        : "text-gray-800",
-                    )}
+                    className="text-primary items-center flex"
                   >
                     <MenuIcon size={32} />
                   </button>
@@ -402,11 +398,11 @@ function HeaderLayout({
                               {rootCategories.map((category) => {
                                 const children =
                                   category.subcategories &&
-                                  category.subcategories.length > 0
+                                    category.subcategories.length > 0
                                     ? category.subcategories
                                     : childCategories.filter(
-                                        (c) => c.parentId === category.id,
-                                      );
+                                      (c) => c.parentId === category.id,
+                                    );
 
                                 return (
                                   <div key={category.id} className="space-y-1">
@@ -581,12 +577,12 @@ function HeaderContent() {
 
   const userInitials = user?.name
     ? user.name
-        .trim()
-        .split(/\s+/)
-        .filter(Boolean)
-        .slice(0, 2)
-        .map((part) => part[0]?.toUpperCase() || "")
-        .join("") || "U"
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase() || "")
+      .join("") || "U"
     : "";
 
   return (
@@ -635,12 +631,12 @@ export default function Header() {
       fallback={
         <HeaderLayout
           inputValue=""
-          setInputValue={() => {}}
-          onSearch={() => {}}
+          setInputValue={() => { }}
+          onSearch={() => { }}
           isHomePage={isHomePage}
           categories={[]}
           categoriesOpen={false}
-          setCategoriesOpen={() => {}}
+          setCategoriesOpen={() => { }}
           categoryMenuRef={{ current: null }}
         />
       }

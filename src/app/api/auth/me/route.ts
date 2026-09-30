@@ -20,6 +20,7 @@ export async function GET(request: NextRequest) {
     const token = request.cookies.get("auth_token")?.value;
 
     if (!token) {
+      // 401 esperado: usuário não autenticado (sem cookie)
       return NextResponse.json({ message: "Não autorizado." }, { status: 401 });
     }
 
