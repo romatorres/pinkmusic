@@ -54,7 +54,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       price: product.price,
       thumbnail: product.thumbnail,
       code: product.code,
-      packageSize: product.packageSize || "SMALL",
       availableQuantity: product.available_quantity,
     });
 

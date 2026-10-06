@@ -44,7 +44,6 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
       price: product.price,
       thumbnail: product.thumbnail,
       code: product.code,
-      packageSize: product.packageSize || "SMALL",
       availableQuantity: product.available_quantity,
     });
     setAddedToCart(true);
@@ -59,7 +58,6 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
       price: product.price,
       thumbnail: product.thumbnail,
       code: product.code,
-      packageSize: product.packageSize || "SMALL",
       availableQuantity: product.available_quantity,
     });
     if (!isAuth) {

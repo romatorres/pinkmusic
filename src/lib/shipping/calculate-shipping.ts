@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma";
 import { normalizeZipCode } from "./normalize-zipcode";
 import { calculateDistance } from "./calculate-distance";
+import { resolveZipCoordinates } from "./geocode-zip";
 import { STORE_SHIPPING_CONFIG } from "./config";
 import { ensureDefaultShippingZonesAndZipCodes } from "./seed";
 
@@ -79,61 +80,37 @@ export async function calculateShipping(
     let latitude = zipRecord?.latitude ?? null;
     let longitude = zipRecord?.longitude ?? null;
 
-    // 2. Se não existir no banco local, tenta enriquecer via ViaCEP
-    if (!zipRecord) {
+    // 2. Se não existir no banco OU se não tiver coordenadas salvas, geocodifica
+    if (!zipRecord || zipRecord.latitude === null || zipRecord.longitude === null) {
       try {
-        const response = await fetch(`https://viacep.com.br/ws/${cleanZip}/json/`, {
-          next: { revalidate: 86400 }, // cache Next.js 24h
-        });
+        const geocoded = await resolveZipCoordinates(cleanZip, district);
 
-        if (response.ok) {
-          const viaCepData = await response.json();
+        if (geocoded.city) city = geocoded.city;
+        if (geocoded.state) state = geocoded.state;
+        if (geocoded.district) district = geocoded.district;
 
-          if (viaCepData && !viaCepData.erro) {
-            city = viaCepData.localidade || city;
-            state = viaCepData.uf || state;
-            district = viaCepData.bairro || "Centro";
+        if (geocoded.latitude !== null && geocoded.longitude !== null) {
+          latitude = geocoded.latitude;
+          longitude = geocoded.longitude;
+        }
 
-            // Se for de outra cidade/estado, está definitivamente fora da área de entrega local
-            const isLocalCity =
-              city.toLowerCase().trim() === STORE_SHIPPING_CONFIG.storeCity.toLowerCase().trim() &&
-              state.toUpperCase().trim() === STORE_SHIPPING_CONFIG.storeState.toUpperCase().trim();
+        // Se for de outra cidade/estado, está fora da área de entrega local
+        const isLocalCity =
+          city.toLowerCase().trim() === STORE_SHIPPING_CONFIG.storeCity.toLowerCase().trim() &&
+          state.toUpperCase().trim() === STORE_SHIPPING_CONFIG.storeState.toUpperCase().trim();
 
-            if (!isLocalCity) {
-              return {
-                available: false,
-                reason: "OUT_OF_DELIVERY_AREA",
-                message: `Entregas locais disponíveis apenas para ${STORE_SHIPPING_CONFIG.storeCity} - ${STORE_SHIPPING_CONFIG.storeState}.`,
-                zipCode: cleanZip,
-                city,
-                state,
-              };
-            }
-
-            // Tenta encontrar outro CEP cadastrado no mesmo bairro para herdar coordenadas aproximadas
-            const neighborhoodPeer = await prisma.shippingZipCode.findFirst({
-              where: {
-                district: { equals: district, mode: "insensitive" },
-                latitude: { not: null },
-                longitude: { not: null },
-              },
-            });
-
-            if (neighborhoodPeer?.latitude && neighborhoodPeer?.longitude) {
-              latitude = neighborhoodPeer.latitude;
-              longitude = neighborhoodPeer.longitude;
-            }
-          } else {
-            return {
-              available: false,
-              reason: "INVALID_ZIP_CODE",
-              message: "CEP não encontrado na base dos Correios.",
-              zipCode: cleanZip,
-            };
-          }
+        if (!isLocalCity) {
+          return {
+            available: false,
+            reason: "OUT_OF_DELIVERY_AREA",
+            message: `Entregas locais disponíveis apenas para ${STORE_SHIPPING_CONFIG.storeCity} - ${STORE_SHIPPING_CONFIG.storeState}.`,
+            zipCode: cleanZip,
+            city,
+            state,
+          };
         }
       } catch (err) {
-        console.warn("[calculateShipping] Falha ao consultar ViaCEP:", err);
+        console.warn("[calculateShipping] Falha ao geocodificar CEP:", err);
       }
     }
 
@@ -164,7 +141,7 @@ export async function calculateShipping(
       };
     }
 
-    // 4. Determina distância geográfica
+    // 4. Determina distância geográfica prioritariamente via OSRM (estrada real)
     let distanceKm: number;
 
     if (latitude !== null && longitude !== null) {
@@ -174,7 +151,7 @@ export async function calculateShipping(
       );
       distanceKm = distanceResult.distanceKm;
     } else if (zipRecord?.zone && zipRecord.zone.active) {
-      // Se não temos coordenadas, mas o CEP tem uma zona associada diretamente
+      // Se não conseguimos coordenadas mesmo após geocodificar, mas já tinha zona
       const zone = zipRecord.zone;
       const zonePrice = Number(zone.price);
       return {
@@ -193,8 +170,7 @@ export async function calculateShipping(
         price: zonePrice,
       };
     } else {
-      // Fallback para CEP de Feira de Santana sem coordenadas cadastradas:
-      // Atribui à Zona 1 ou 2 como padrão urbano caso esteja no centro ou sem geolocalização exata
+      // Fallback urbano central caso nenhuma API de geocodificação tenha retornado lat/lng
       distanceKm = 2.5;
     }
 
@@ -229,9 +205,9 @@ export async function calculateShipping(
       };
     }
 
-    // 6. Se o CEP ainda não estava salvo no banco, podemos salvá-lo para consultas futuras ultrarrápidas
-    if (!zipRecord) {
-      try {
+    // 6. Salva ou atualiza no banco com as coordenadas encontradas para consultas futuras instantâneas
+    try {
+      if (!zipRecord) {
         await prisma.shippingZipCode.create({
           data: {
             zipCode: cleanZip,
@@ -243,9 +219,19 @@ export async function calculateShipping(
             zoneId: matchedZone.id,
           },
         });
-      } catch {
-        // Silencioso se já tiver sido criado por requisição concorrente
+      } else if (latitude !== null && longitude !== null && (zipRecord.latitude === null || zipRecord.longitude === null || zipRecord.zoneId !== matchedZone.id)) {
+        await prisma.shippingZipCode.update({
+          where: { zipCode: cleanZip },
+          data: {
+            district: district || zipRecord.district,
+            latitude,
+            longitude,
+            zoneId: matchedZone.id,
+          },
+        });
       }
+    } catch {
+      // Silencioso para concorrência
     }
 
     const price = Number(matchedZone.price);

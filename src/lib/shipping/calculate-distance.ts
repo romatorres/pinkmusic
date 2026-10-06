@@ -92,24 +92,33 @@ async function fetchOsrmDistance(
 
     const response = await fetch(url, {
       signal: controller.signal,
-      headers: { Accept: "application/json" },
+      headers: {
+        Accept: "application/json",
+        "User-Agent": "PinkMusicShipping/1.0",
+      },
       // Next.js: sem cache para não armazenar rotas fixas no edge
       cache: "no-store",
     });
 
     clearTimeout(timeoutId);
 
-    if (!response.ok) return null;
+    if (!response.ok) {
+      console.warn(`[shipping/distance] OSRM respondeu status HTTP ${response.status}`);
+      return null;
+    }
 
     const data: OsrmResponse = await response.json();
 
-    if (data.code !== "Ok" || !data.routes?.length) return null;
+    if (data.code !== "Ok" || !data.routes?.length) {
+      console.warn(`[shipping/distance] OSRM retornou resposta sem rota: code=${data.code}`);
+      return null;
+    }
 
     // OSRM retorna distância em metros
     const distanceKm = data.routes[0].distance / 1000;
     return Math.round(distanceKm * 100) / 100;
-  } catch {
-    // AbortError (timeout), NetworkError ou qualquer falha de parse
+  } catch (err) {
+    console.warn(`[shipping/distance] Exceção ou timeout na chamada OSRM:`, err);
     return null;
   }
 }

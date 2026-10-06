@@ -12,7 +12,6 @@ export interface Category {
 
 export type ProductOrigin = "MERCADO_LIVRE" | "LOCAL";
 export type DescriptionSource = "CUSTOM" | "ML";
-export type PackageSize = "SMALL" | "MEDIUM" | "LARGE" | "XLARGE";
 
 export interface Product {
   id: string;
@@ -33,7 +32,6 @@ export interface Product {
   description?: string | null;
   descriptionSource?: DescriptionSource | null;
   isLocalPickup?: boolean;
-  packageSize?: PackageSize;
   sales?: number;
   pictures: { id: string; url: string; secure_url: string }[];
   attributes?: { id: string; name: string; value_name: string }[];

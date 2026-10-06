@@ -42,7 +42,6 @@ export function LocalProductModal({
 }: LocalProductModalProps) {
   const [title, setTitle] = useState("");
   const [code, setCode] = useState("");
-  const [packageSize, setPackageSize] = useState<string>("SMALL");
   const [price, setPrice] = useState("");
   const [availableQuantity, setAvailableQuantity] = useState("1");
   const [formMainCategory, setFormMainCategory] = useState("");
@@ -96,7 +95,6 @@ export function LocalProductModal({
     if (isSubmitting) return;
     setTitle("");
     setCode("");
-    setPackageSize("SMALL");
     setPrice("");
     setAvailableQuantity("1");
     setFormMainCategory("");
@@ -180,7 +178,6 @@ export function LocalProductModal({
           thumbnail: finalImageUrl || "/images/placeholder-product.png",
           pictures: finalImageUrl ? [{ url: finalImageUrl }] : [],
           isLocalPickup,
-          packageSize,
         }),
       });
 
@@ -253,41 +250,6 @@ export function LocalProductModal({
                   disabled={isSubmitting}
                 />
               </div>
-            </div>
-
-            {/* Porte do Produto (Entrega Local) */}
-            <div className="space-y-1.5 border rounded-lg p-3 bg-purple-50/40 dark:bg-purple-950/20 border-purple-200 dark:border-purple-900/50">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="local-package-size" className="font-semibold text-xs flex items-center gap-1.5 text-purple-900 dark:text-purple-200">
-                  <span>🛵 / 🚗 Porte do Produto (Entrega Local)</span>
-                </Label>
-              </div>
-              <Select
-                value={packageSize}
-                onValueChange={setPackageSize}
-                disabled={isSubmitting}
-              >
-                <SelectTrigger id="local-package-size" className="bg-background">
-                  <SelectValue placeholder="Selecione o porte do pacote" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="SMALL">
-                    🛵 Pequeno (Moto) — Cordas, palhetas, afinadores, cabos, pedais (cabe na mochila)
-                  </SelectItem>
-                  <SelectItem value="MEDIUM">
-                    📦 Médio (Moto/Carro) — Acessórios médios, caixas pequenas
-                  </SelectItem>
-                  <SelectItem value="LARGE">
-                    🚗 Grande (Carro) — Violões, guitarras, baixos, teclados, amplificadores (porta-malas)
-                  </SelectItem>
-                  <SelectItem value="XLARGE">
-                    🚚 Muito Grande (Carro/Utilitário) — Baterias, caixas acústicas grandes
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-              <p className="text-[11px] text-muted-foreground mt-1">
-                Orienta a separação e logística da loja entre motoboys e transporte por carro.
-              </p>
             </div>
 
             {/* Preço e Estoque */}

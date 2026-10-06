@@ -22,7 +22,6 @@ export async function POST(req: NextRequest) {
       thumbnail,
       pictures = [],
       isLocalPickup = true,
-      packageSize = "SMALL",
     } = body;
 
     if (!title || typeof title !== "string" || !title.trim()) {
@@ -41,12 +40,6 @@ export async function POST(req: NextRequest) {
     }
 
     const numericQuantity = Math.max(0, parseInt(available_quantity, 10) || 0);
-
-    const validPackageSize = ["SMALL", "MEDIUM", "LARGE", "XLARGE"].includes(
-      packageSize
-    )
-      ? packageSize
-      : "SMALL";
 
     const formattedCode =
       typeof code === "string" && code.trim() ? code.trim() : null;
@@ -87,7 +80,6 @@ export async function POST(req: NextRequest) {
         description: description?.trim() || null,
         descriptionSource: descriptionSource === "ML" ? "ML" : "CUSTOM",
         isLocalPickup: Boolean(isLocalPickup),
-        packageSize: validPackageSize,
         brandId: brandId || null,
         categoryId: categoryId || null,
         pictures: {

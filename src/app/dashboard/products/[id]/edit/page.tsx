@@ -21,7 +21,6 @@ import { Upload, ImageIcon, Store, ShoppingCart, Loader2, RefreshCw } from "luci
 interface ProductData {
   id?: string;
   code?: string | null;
-  packageSize?: "SMALL" | "MEDIUM" | "LARGE" | "XLARGE";
   title: string;
   price: number;
   available_quantity: number;
@@ -224,7 +223,6 @@ export default function EditProductPage() {
         },
         body: JSON.stringify({
           code: product.code ? product.code.trim() : null,
-          packageSize: product.packageSize || "SMALL",
           title: product.title,
           price: product.price,
           available_quantity: product.available_quantity,
@@ -396,37 +394,6 @@ export default function EditProductPage() {
                   disabled={saving}
                 />
               </div>
-            </div>
-
-            {/* Porte do Produto (Entrega Local) */}
-            <div className="border rounded-xl p-4 bg-purple-50/40 dark:bg-purple-950/20 border-purple-200 dark:border-purple-900/50 space-y-2">
-              <Label htmlFor="packageSize" className="font-semibold text-sm flex items-center gap-2 text-purple-900 dark:text-purple-200">
-                <span>🛵 / 🚗 Porte do Produto (Entrega Local)</span>
-              </Label>
-              <select
-                id="packageSize"
-                name="packageSize"
-                value={product.packageSize || "SMALL"}
-                onChange={handleChange}
-                className="w-full p-2.5 border border-purple-200 dark:border-purple-800 rounded-md bg-background text-sm font-medium focus:ring-2 focus:ring-purple-500 outline-none"
-                disabled={saving}
-              >
-                <option value="SMALL">
-                  🛵 Pequeno (Moto) — Cordas, palhetas, afinadores, cabos, pedais (cabe na mochila/baú)
-                </option>
-                <option value="MEDIUM">
-                  📦 Médio (Moto/Carro) — Acessórios médios, caixas pequenas
-                </option>
-                <option value="LARGE">
-                  🚗 Grande (Carro) — Violões, guitarras, baixos, teclados, amplificadores (porta-malas)
-                </option>
-                <option value="XLARGE">
-                  🚚 Muito Grande (Carro/Utilitário) — Baterias, caixas acústicas grandes
-                </option>
-              </select>
-              <p className="text-xs text-muted-foreground">
-                Informa a equipe e os entregadores parceiros sobre o veículo adequado para a entrega local.
-              </p>
             </div>
 
             {/* Imagem do Produto com Preview e Upload Cloudinary */}

@@ -232,7 +232,6 @@ export async function PUT(
 
     const allowedFields = [
       "code",
-      "packageSize",
       "title",
       "price",
       "currency_id",

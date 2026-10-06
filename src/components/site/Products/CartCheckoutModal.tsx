@@ -80,7 +80,7 @@ function useCountdown(expiresAt: string | null) {
 }
 
 export function CartCheckoutModal({ open, onOpenChange }: CartCheckoutModalProps) {
-  const { items, subtotal, consolidatedPackageSize, clearCart } = useCartStore();
+  const { items, subtotal, clearCart } = useCartStore();
   const { user } = useAuthStore();
 
   // Pré-preenche com dados do usuário autenticado
@@ -112,7 +112,6 @@ export function CartCheckoutModal({ open, onOpenChange }: CartCheckoutModalProps
   );
 
   const total = subtotal();
-  consolidatedPackageSize();
 
   // Preenche dados do usuário ao abrir
   useEffect(() => {

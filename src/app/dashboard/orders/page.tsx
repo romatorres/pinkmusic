@@ -78,7 +78,6 @@ interface Order {
     title: string;
     thumbnail: string;
     code?: string | null;
-    packageSize?: "SMALL" | "MEDIUM" | "LARGE" | "XLARGE";
   } | null;
   items?: OrderItemData[];
   user?: {
@@ -418,26 +417,13 @@ export default function OrdersPage() {
                           <p className="font-semibold text-sm line-clamp-1">
                             {order.product.title}
                           </p>
-                          <div className="flex items-center gap-1.5 flex-wrap mt-0.5">
-                            {order.product.code && (
+                          {order.product.code && (
+                            <div className="flex items-center gap-1.5 flex-wrap mt-0.5">
                               <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
                                 Cód: {order.product.code}
                               </span>
-                            )}
-                            {order.product.packageSize && (
-                              <span
-                                className="text-[10px] px-1.5 py-0.5 rounded bg-purple-50 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300 border border-purple-200 dark:border-purple-800 flex items-center gap-1"
-                                title="Porte de transporte no Uber Direct"
-                              >
-                                {order.product.packageSize === "SMALL"
-                                  ? "🛵 Moto"
-                                  : order.product.packageSize === "LARGE" ||
-                                    order.product.packageSize === "XLARGE"
-                                    ? "🚗 Carro"
-                                    : "📦 Médio"}
-                              </span>
-                            )}
-                          </div>
+                            </div>
+                          )}
                         </div>
                       </div>
                     ) : (

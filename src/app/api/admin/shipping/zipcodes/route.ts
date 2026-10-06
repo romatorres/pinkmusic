@@ -3,7 +3,8 @@ import prisma from "@/lib/prisma";
 import { requireStaff } from "@/lib/auth";
 import { normalizeZipCode } from "@/lib/shipping/normalize-zipcode";
 import { STORE_SHIPPING_CONFIG } from "@/lib/shipping/config";
-import { calculateHaversineDistance } from "@/lib/shipping/calculate-distance";
+import { calculateDistance } from "@/lib/shipping/calculate-distance";
+import { resolveZipCoordinates } from "@/lib/shipping/geocode-zip";
 
 // GET /api/admin/shipping/zipcodes - Lista CEPs com paginação e busca
 export async function GET(request: NextRequest) {
@@ -112,13 +113,14 @@ export async function POST(request: NextRequest) {
 
         let zoneId = item.zoneId || null;
 
-        // Se não forneceu zoneId, mas tem coordenadas, calcula zona automaticamente
+        // Se não forneceu zoneId, mas tem coordenadas, calcula zona automaticamente via OSRM
         if (!zoneId && latitude !== null && longitude !== null && activeZones.length > 0) {
-          const dist = calculateHaversineDistance(
+          const distResult = await calculateDistance(
             STORE_SHIPPING_CONFIG.originCoordinates,
             { latitude, longitude }
-          ).distanceKm;
-          const matched = activeZones.find((z) => dist >= z.minDistance && dist <= z.maxDistance);
+          );
+          const dist = distResult.distanceKm;
+          const matched = activeZones.find((z) => dist >= z.minDistance && dist < z.maxDistance);
           if (matched) {
             zoneId = matched.id;
           }
@@ -183,22 +185,38 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const lat = latitude !== undefined && latitude !== null && latitude !== "" ? Number(latitude) : null;
-    const lng = longitude !== undefined && longitude !== null && longitude !== "" ? Number(longitude) : null;
+    let lat = latitude !== undefined && latitude !== null && latitude !== "" ? Number(latitude) : null;
+    let lng = longitude !== undefined && longitude !== null && longitude !== "" ? Number(longitude) : null;
+    let finalDistrict = district.trim();
+    let finalCity = city?.trim() || STORE_SHIPPING_CONFIG.storeCity;
+    let finalState = state?.trim().toUpperCase() || STORE_SHIPPING_CONFIG.storeState;
+
+    // Se coordenadas não foram passadas, tenta buscar automaticamente
+    if (lat === null || lng === null) {
+      const geocoded = await resolveZipCoordinates(cleanZip, finalDistrict);
+      if (geocoded.latitude !== null && geocoded.longitude !== null) {
+        lat = geocoded.latitude;
+        lng = geocoded.longitude;
+      }
+      if (geocoded.district) finalDistrict = geocoded.district;
+      if (geocoded.city) finalCity = geocoded.city;
+      if (geocoded.state) finalState = geocoded.state;
+    }
 
     let targetZoneId = zoneId || null;
 
-    // Se latitude e longitude foram dadas e zoneId não, calcula zona pelo Haversine
+    // Se latitude e longitude foram obtidas e zoneId não, calcula zona prioritariamente via OSRM
     if (!targetZoneId && lat !== null && lng !== null) {
       const activeZones = await prisma.shippingZone.findMany({
         where: { active: true },
         orderBy: { minDistance: "asc" },
       });
-      const dist = calculateHaversineDistance(
+      const distResult = await calculateDistance(
         STORE_SHIPPING_CONFIG.originCoordinates,
         { latitude: lat, longitude: lng }
-      ).distanceKm;
-      const matched = activeZones.find((z) => dist >= z.minDistance && dist <= z.maxDistance);
+      );
+      const dist = distResult.distanceKm;
+      const matched = activeZones.find((z) => dist >= z.minDistance && dist < z.maxDistance);
       if (matched) {
         targetZoneId = matched.id;
       }
@@ -208,17 +226,17 @@ export async function POST(request: NextRequest) {
       where: { zipCode: cleanZip },
       create: {
         zipCode: cleanZip,
-        district: district.trim(),
-        city: city?.trim() || STORE_SHIPPING_CONFIG.storeCity,
-        state: state?.trim().toUpperCase() || STORE_SHIPPING_CONFIG.storeState,
+        district: finalDistrict,
+        city: finalCity,
+        state: finalState,
         latitude: lat,
         longitude: lng,
         zoneId: targetZoneId,
       },
       update: {
-        district: district.trim(),
-        city: city?.trim() || STORE_SHIPPING_CONFIG.storeCity,
-        state: state?.trim().toUpperCase() || STORE_SHIPPING_CONFIG.storeState,
+        district: finalDistrict,
+        city: finalCity,
+        state: finalState,
         latitude: lat,
         longitude: lng,
         zoneId: targetZoneId,

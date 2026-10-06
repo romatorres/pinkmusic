@@ -305,7 +305,6 @@ export async function GET(request: NextRequest) {
               title: true,
               thumbnail: true,
               code: true,
-              packageSize: true,
             },
           },
           items: {

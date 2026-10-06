@@ -25,7 +25,7 @@ export async function GET(
     const order = await prisma.order.findUnique({
       where: { id },
       include: {
-        product: { select: { title: true, packageSize: true } },
+        product: { select: { title: true } },
         items: {
           select: {
             id: true,
@@ -72,7 +72,6 @@ export async function GET(
         shippingZone: order.shippingZone,
         shippingDistance: order.shippingDistance,
         shippingMethod: order.shippingMethod || "LOCAL_DELIVERY",
-        packageSize: order.product?.packageSize || "SMALL",
         items: order.items && order.items.length > 0 ? order.items : undefined,
       },
     });
