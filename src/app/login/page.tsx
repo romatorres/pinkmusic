@@ -117,7 +117,11 @@ export default function LoginPage() {
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input type="password" placeholder="******" {...field} />
+                      <Input
+                        type="password"
+                        placeholder="********"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -131,7 +135,7 @@ export default function LoginPage() {
                 {isSubmitting ? (
                   <>
                     <Loader2 className="animate-spin" />
-                    Entrando...
+                    Entrando....
                   </>
                 ) : (
                   "Entrar"
