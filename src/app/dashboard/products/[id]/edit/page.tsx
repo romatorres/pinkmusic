@@ -204,7 +204,7 @@ export default function EditProductPage() {
 
         if (!uploadRes.ok || !uploadData.success) {
           throw new Error(
-            uploadData.error || "Falha no upload da imagem para o Cloudinary.",
+            uploadData.error || uploadData.message || "Falha no upload da imagem para o Cloudinary.",
           );
         }
 

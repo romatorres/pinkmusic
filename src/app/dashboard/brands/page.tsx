@@ -151,7 +151,7 @@ export default function BrandsPage() {
         const uploadData = await uploadRes.json();
 
         if (!uploadRes.ok || !uploadData.success) {
-          throw new Error(uploadData.error || "Falha ao enviar logo para o Cloudinary.");
+          throw new Error(uploadData.error || uploadData.message || "Falha ao enviar logo para o Cloudinary.");
         }
 
         finalLogoUrl = uploadData.url;

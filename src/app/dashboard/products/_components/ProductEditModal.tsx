@@ -208,7 +208,7 @@ export function ProductEditModal({
                 const uploadResult = await uploadResponse.json();
 
                 if (!uploadResponse.ok || !uploadResult.success) {
-                    throw new Error(uploadResult.error || "Falha ao enviar a imagem.");
+                    throw new Error(uploadResult.error || uploadResult.message || "Falha ao enviar a imagem.");
                 }
 
                 finalThumbnail = uploadResult.url;

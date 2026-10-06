@@ -148,7 +148,7 @@ export function LocalProductModal({
         const uploadData = await uploadRes.json();
 
         if (!uploadRes.ok || !uploadData.success) {
-          throw new Error(uploadData.error || "Falha no upload da imagem para o Cloudinary.");
+          throw new Error(uploadData.error || uploadData.message || "Falha no upload da imagem para o Cloudinary.");
         }
 
         finalImageUrl = uploadData.url;
