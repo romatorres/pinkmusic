@@ -87,16 +87,18 @@ export function CartCheckoutModal({ open, onOpenChange }: CartCheckoutModalProps
   const [name, setName] = useState(user?.name || "");
   const [whatsapp, setWhatsapp] = useState(user?.phone || "");
   const [deliveryType, setDeliveryType] = useState<"pickup" | "delivery">("pickup");
+  const [zipCode, setZipCode] = useState("");
   const [address, setAddress] = useState("");
   const [neighborhood, setNeighborhood] = useState("");
   const [complement, setComplement] = useState("");
 
-  // Cotação de frete
+  // Cotação de frete local fixo por zona
   const [deliveryFee, setDeliveryFee] = useState<number>(0);
+  const [shippingZoneName, setShippingZoneName] = useState<string | null>(null);
+  const [shippingDistanceKm, setShippingDistanceKm] = useState<number | null>(null);
   const [quoteLoading, setQuoteLoading] = useState(false);
   const [quoteError, setQuoteError] = useState<string | null>(null);
   const [quoteFetched, setQuoteFetched] = useState(false);
-  const [estimatedMinutes, setEstimatedMinutes] = useState<number | null>(null);
 
   // Flow state
   const [step, setStep] = useState<Step>("form");
@@ -110,7 +112,7 @@ export function CartCheckoutModal({ open, onOpenChange }: CartCheckoutModalProps
   );
 
   const total = subtotal();
-  const pkgSize = consolidatedPackageSize();
+  consolidatedPackageSize();
 
   // Preenche dados do usuário ao abrir
   useEffect(() => {
@@ -124,14 +126,16 @@ export function CartCheckoutModal({ open, onOpenChange }: CartCheckoutModalProps
     const parts = [address.trim()];
     if (neighborhood.trim()) parts.push(`Bairro ${neighborhood.trim()}`);
     if (complement.trim()) parts.push(complement.trim());
+    if (zipCode.trim()) parts.push(`CEP: ${zipCode.trim()}`);
     return parts.filter(Boolean).join(", ");
-  }, [address, neighborhood, complement]);
+  }, [address, neighborhood, complement, zipCode]);
 
   const invalidateQuote = useCallback(() => {
     if (quoteFetched) {
       setQuoteFetched(false);
       setDeliveryFee(0);
-      setEstimatedMinutes(null);
+      setShippingZoneName(null);
+      setShippingDistanceKm(null);
       setQuoteError(null);
     }
   }, [quoteFetched]);
@@ -142,16 +146,18 @@ export function CartCheckoutModal({ open, onOpenChange }: CartCheckoutModalProps
       setTimeout(() => {
         setStep("form");
         setDeliveryType("pickup");
+        setZipCode("");
         setAddress("");
         setNeighborhood("");
         setComplement("");
         setOrderData(null);
         setCopied(false);
         setDeliveryFee(0);
+        setShippingZoneName(null);
+        setShippingDistanceKm(null);
         setQuoteLoading(false);
         setQuoteError(null);
         setQuoteFetched(false);
-        setEstimatedMinutes(null);
       }, 300);
     }
   }, [open]);
@@ -160,43 +166,47 @@ export function CartCheckoutModal({ open, onOpenChange }: CartCheckoutModalProps
     setDeliveryType(type);
     if (type === "pickup") {
       setDeliveryFee(0);
+      setShippingZoneName(null);
+      setShippingDistanceKm(null);
       setQuoteError(null);
       setQuoteFetched(false);
-      setEstimatedMinutes(null);
     }
   };
 
-  // Cotação Uber Direct
+  // Cálculo de Frete Local por CEP e Regras do Banco
   const handleFetchQuote = async () => {
-    if (!address.trim() || address.trim().length < 4) {
-      setQuoteError("Informe a rua e o número da entrega.");
+    const cleanCep = zipCode.replace(/\D/g, "");
+    if (!cleanCep || cleanCep.length !== 8) {
+      setQuoteError("Informe um CEP válido com 8 dígitos.");
       return;
     }
-    if (!neighborhood.trim()) {
-      setQuoteError("Informe o bairro da entrega.");
-      return;
-    }
+
     setQuoteLoading(true);
     setQuoteError(null);
     setQuoteFetched(false);
+
     try {
-      const fullAddr = getFullAddress();
-      const res = await fetch("/api/delivery/quote", {
+      const res = await fetch("/api/shipping/calculate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          address: fullAddr,
-          packageSize: pkgSize,
-        }),
+        body: JSON.stringify({ zipCode: cleanCep }),
       });
+
       const result = await res.json();
-      if (result.success && result.data) {
-        setDeliveryFee(result.data.customerFee);
-        setEstimatedMinutes(result.data.estimatedMinutes);
+
+      if (result.available && result.price !== undefined) {
+        setDeliveryFee(result.price);
+        setShippingZoneName(result.zone?.name || "Zona Local");
+        setShippingDistanceKm(result.distanceKm);
         setQuoteFetched(true);
+
+        // Preenche bairro automaticamente se estiver vazio e vier na resposta
+        if (!neighborhood.trim() && result.district) {
+          setNeighborhood(result.district);
+        }
       } else {
         setQuoteError(
-          result.error || "Não foi possível calcular o frete para este endereço."
+          result.message || "Desculpe, ainda não realizamos entregas nesta região."
         );
       }
     } catch {
@@ -252,12 +262,16 @@ export function CartCheckoutModal({ open, onOpenChange }: CartCheckoutModalProps
       toast.error("Por favor, informe seu WhatsApp.");
       return;
     }
+    if (deliveryType === "delivery" && zipCode.replace(/\D/g, "").length !== 8) {
+      toast.error("Por favor, informe um CEP válido com 8 dígitos.");
+      return;
+    }
     if (deliveryType === "delivery" && (!address.trim() || !neighborhood.trim())) {
       toast.error("Por favor, informe a rua, número e bairro.");
       return;
     }
     if (deliveryType === "delivery" && !quoteFetched) {
-      toast.error("Calcule o frete antes de gerar o PIX.");
+      toast.error("Calcule o frete para seu CEP antes de gerar o PIX.");
       return;
     }
 
@@ -275,6 +289,8 @@ export function CartCheckoutModal({ open, onOpenChange }: CartCheckoutModalProps
           customerPhone: whatsapp.trim(),
           deliveryType,
           deliveryAddress: deliveryType === "delivery" ? getFullAddress() : null,
+          zipCode: deliveryType === "delivery" ? zipCode.replace(/\D/g, "") : null,
+          shippingCep: deliveryType === "delivery" ? zipCode.replace(/\D/g, "") : null,
           deliveryFee: deliveryType === "delivery" ? deliveryFee : 0,
         }),
       });
@@ -316,14 +332,14 @@ export function CartCheckoutModal({ open, onOpenChange }: CartCheckoutModalProps
 
     const msg = encodeURIComponent(
       `Olá, Pink Music! 👋\n` +
-        `Realizei um pagamento via *PIX* para os produtos:\n\n` +
-        `${itemsSummary}\n\n` +
-        `💰 *Total:* ${formatPrice(orderData?.totalAmount ?? total)}\n` +
-        `👤 *Nome:* ${name}\n` +
-        `📱 *WhatsApp:* ${whatsapp}\n` +
-        `📦 *Modalidade:* ${deliveryText}\n` +
-        `🔑 *Nº do Pedido:* ${orderData?.orderId ?? ""}\n\n` +
-        `Segue o comprovante!`
+      `Realizei um pagamento via *PIX* para os produtos:\n\n` +
+      `${itemsSummary}\n\n` +
+      `💰 *Total:* ${formatPrice(orderData?.totalAmount ?? total)}\n` +
+      `👤 *Nome:* ${name}\n` +
+      `📱 *WhatsApp:* ${whatsapp}\n` +
+      `📦 *Modalidade:* ${deliveryText}\n` +
+      `🔑 *Nº do Pedido:* ${orderData?.orderId ?? ""}\n\n` +
+      `Segue o comprovante!`
     );
     window.open(`https://wa.me/5575991988685?text=${msg}`, "_blank", "noopener,noreferrer");
 
@@ -414,11 +430,10 @@ export function CartCheckoutModal({ open, onOpenChange }: CartCheckoutModalProps
                 <button
                   type="button"
                   onClick={() => handleDeliveryTypeChange("pickup")}
-                  className={`flex flex-col items-center justify-center p-3 rounded-lg border text-center transition-all cursor-pointer ${
-                    deliveryType === "pickup"
+                  className={`flex flex-col items-center justify-center p-3 rounded-lg border text-center transition-all cursor-pointer ${deliveryType === "pickup"
                       ? "border-emerald-600 bg-emerald-50/50 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200 font-semibold"
                       : "border-border hover:border-muted-foreground/40"
-                  }`}
+                    }`}
                 >
                   <Store className="h-5 w-5 mb-1 text-emerald-600" />
                   <span className="text-xs">Retirar na Loja</span>
@@ -428,15 +443,14 @@ export function CartCheckoutModal({ open, onOpenChange }: CartCheckoutModalProps
                 <button
                   type="button"
                   onClick={() => handleDeliveryTypeChange("delivery")}
-                  className={`flex flex-col items-center justify-center p-3 rounded-lg border text-center transition-all cursor-pointer ${
-                    deliveryType === "delivery"
+                  className={`flex flex-col items-center justify-center p-3 rounded-lg border text-center transition-all cursor-pointer ${deliveryType === "delivery"
                       ? "border-emerald-600 bg-emerald-50/50 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200 font-semibold"
                       : "border-border hover:border-muted-foreground/40"
-                  }`}
+                    }`}
                 >
                   <Truck className="h-5 w-5 mb-1 text-emerald-600" />
                   <span className="text-xs">Entrega Local</span>
-                  <span className="text-[10px] text-muted-foreground">Via Uber Direct</span>
+                  <span className="text-[10px] text-muted-foreground">Motoboy / Loja</span>
                 </button>
               </div>
             </div>
@@ -476,8 +490,78 @@ export function CartCheckoutModal({ open, onOpenChange }: CartCheckoutModalProps
               <div className="space-y-3 pt-1">
                 <Label className="text-sm font-semibold flex items-center gap-1.5">
                   <MapPin className="h-4 w-4 text-emerald-600" />
-                  Endereço de Entrega
+                  Entrega Local em Feira de Santana
                 </Label>
+
+                {/* Input de CEP com cálculo imediato */}
+                <div>
+                  <Label htmlFor="cart-zip" className="text-xs font-medium">
+                    CEP de Entrega <span className="text-red-500">*</span>
+                  </Label>
+                  <div className="flex gap-2 mt-1">
+                    <Input
+                      id="cart-zip"
+                      placeholder="44000-000"
+                      maxLength={9}
+                      value={zipCode}
+                      onChange={(e) => {
+                        const digits = e.target.value.replace(/\D/g, "").slice(0, 8);
+                        const formatted = digits.length > 5 ? `${digits.slice(0, 5)}-${digits.slice(5)}` : digits;
+                        setZipCode(formatted);
+                        invalidateQuote();
+                      }}
+                      className="font-mono tracking-wider text-sm"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleFetchQuote}
+                      disabled={quoteLoading || zipCode.replace(/\D/g, "").length !== 8}
+                      className="shrink-0 border-emerald-600/50 text-emerald-700 hover:bg-emerald-50/50 font-semibold"
+                    >
+                      {quoteLoading ? (
+                        <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
+                      ) : (
+                        <Truck className="h-4 w-4 mr-1.5 text-emerald-600" />
+                      )}
+                      {quoteLoading ? "Calculando..." : quoteFetched ? "Recalcular" : "Calcular Frete"}
+                    </Button>
+                  </div>
+                </div>
+
+                {quoteError && (
+                  <div className="flex items-start gap-2 text-xs text-red-600 bg-red-50 dark:bg-red-950/30 p-3 rounded-lg border border-red-200 dark:border-red-800">
+                    <AlertCircle className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                    <span>{quoteError}</span>
+                  </div>
+                )}
+
+                {quoteFetched && (
+                  <div className="bg-emerald-50/90 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 rounded-xl p-3.5 space-y-1.5 shadow-xs">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5">
+                        <CheckCircle className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                        <span className="text-xs font-bold text-emerald-900 dark:text-emerald-200">
+                          Entrega local disponível
+                        </span>
+                      </div>
+                      <span className="text-sm font-extrabold text-emerald-700 dark:text-emerald-400">
+                        + {formatPrice(deliveryFee)}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 text-[11px] text-emerald-800/80 dark:text-emerald-300/80">
+                      {shippingZoneName && (
+                        <span className="bg-emerald-200/60 dark:bg-emerald-900/60 px-2 py-0.5 rounded-md font-semibold">
+                          {shippingZoneName}
+                        </span>
+                      )}
+                      {shippingDistanceKm !== null && (
+                        <span>• Distância aprox: ~{shippingDistanceKm.toFixed(1)} km</span>
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 <div>
                   <Label htmlFor="cart-address" className="text-xs">
                     Rua e Número <span className="text-red-500">*</span>
@@ -486,86 +570,37 @@ export function CartCheckoutModal({ open, onOpenChange }: CartCheckoutModalProps
                     id="cart-address"
                     placeholder="Ex: Rua das Flores, 123"
                     value={address}
-                    onChange={(e) => { setAddress(e.target.value); invalidateQuote(); }}
-                    className="mt-1"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="cart-neighborhood" className="text-xs">
-                    Bairro <span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    id="cart-neighborhood"
-                    placeholder="Ex: Centro"
-                    value={neighborhood}
-                    onChange={(e) => { setNeighborhood(e.target.value); invalidateQuote(); }}
-                    className="mt-1"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="cart-complement" className="text-xs">
-                    Complemento (opcional)
-                  </Label>
-                  <Input
-                    id="cart-complement"
-                    placeholder="Apto, bloco..."
-                    value={complement}
-                    onChange={(e) => setComplement(e.target.value)}
+                    onChange={(e) => { setAddress(e.target.value); }}
                     className="mt-1"
                   />
                 </div>
 
-                {/* Badge do porte consolidado */}
-                <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/40 rounded-lg px-3 py-2">
-                  <Package className="h-3.5 w-3.5 text-primary/70" />
-                  <span>
-                    Porte do envio: <span className="font-semibold text-foreground">{pkgSize}</span>
-                    {pkgSize === "LARGE" || pkgSize === "XLARGE" ? " 🚗 (requer carro)" : " 🛵 (moto)"}
-                  </span>
-                </div>
-
-                {/* Botão de cotação */}
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={handleFetchQuote}
-                  disabled={quoteLoading || !address.trim() || !neighborhood.trim()}
-                  className="w-full border-emerald-600/50 text-emerald-700 hover:bg-emerald-50/50"
-                >
-                  {quoteLoading ? (
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  ) : (
-                    <Truck className="h-4 w-4 mr-2" />
-                  )}
-                  {quoteLoading ? "Calculando frete..." : "Calcular Frete Uber Direct"}
-                </Button>
-
-                {quoteError && (
-                  <div className="flex items-start gap-2 text-xs text-red-600 bg-red-50 dark:bg-red-950/30 p-3 rounded-lg border border-red-200 dark:border-red-800">
-                    <AlertCircle className="h-4 w-4 flex-shrink-0 mt-0.5" />
-                    {quoteError}
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <Label htmlFor="cart-neighborhood" className="text-xs">
+                      Bairro <span className="text-red-500">*</span>
+                    </Label>
+                    <Input
+                      id="cart-neighborhood"
+                      placeholder="Ex: Centro"
+                      value={neighborhood}
+                      onChange={(e) => { setNeighborhood(e.target.value); }}
+                      className="mt-1"
+                    />
                   </div>
-                )}
-
-                {quoteFetched && (
-                  <div className="bg-emerald-50/80 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 rounded-xl p-3 space-y-1">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-semibold text-emerald-800 dark:text-emerald-300">
-                        ✅ Frete calculado
-                      </span>
-                      <span className="text-sm font-bold text-emerald-700 dark:text-emerald-400">
-                        + {formatPrice(deliveryFee)}
-                      </span>
-                    </div>
-                    {estimatedMinutes && (
-                      <p className="text-xs text-emerald-600 dark:text-emerald-500">
-                        <Clock className="inline h-3 w-3 mr-1" />
-                        Estimativa: {estimatedMinutes} min
-                      </p>
-                    )}
+                  <div>
+                    <Label htmlFor="cart-complement" className="text-xs">
+                      Complemento
+                    </Label>
+                    <Input
+                      id="cart-complement"
+                      placeholder="Apto, bloco..."
+                      value={complement}
+                      onChange={(e) => setComplement(e.target.value)}
+                      className="mt-1"
+                    />
                   </div>
-                )}
+                </div>
               </div>
             )}
 

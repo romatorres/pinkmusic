@@ -1,6 +1,12 @@
-# Plano de Implementação — Frete Uber Direct no Checkout com Margem de Segurança
+# ~~Plano de Implementação — Frete Uber Direct no Checkout com Margem de Segurança~~
 
-## Visão Geral
+> [!CAUTION]
+> **DOCUMENTO ARQUIVADO — Outubro/2026**
+> A integração com a Uber Direct foi descontinuada por limitação de raio (5 km) e valores acima do mercado local.
+> O sistema de frete foi substituído por **cálculo próprio com zonas fixas**. Consulte [`implementation_plan-frete-proprio.md`](./implementation_plan-frete-proprio.md).
+
+---
+
 Implementar o cálculo dinâmico de frete Uber Direct diretamente no modal de compra do cliente (`PixCheckoutModal`), aplicando uma margem de segurança (+ R$ 2,00 com arredondamento para cima), somando o valor do frete ao valor do produto e gerando o QR Code PIX com o total unificado.
 
 ---

@@ -398,10 +398,10 @@ export default function EditProductPage() {
               </div>
             </div>
 
-            {/* Porte do Produto (Uber Direct) */}
+            {/* Porte do Produto (Entrega Local) */}
             <div className="border rounded-xl p-4 bg-purple-50/40 dark:bg-purple-950/20 border-purple-200 dark:border-purple-900/50 space-y-2">
               <Label htmlFor="packageSize" className="font-semibold text-sm flex items-center gap-2 text-purple-900 dark:text-purple-200">
-                <span>🛵 / 🚗 Transporte Uber Direct (Tamanho do Pacote)</span>
+                <span>🛵 / 🚗 Porte do Produto (Entrega Local)</span>
               </Label>
               <select
                 id="packageSize"
@@ -412,7 +412,7 @@ export default function EditProductPage() {
                 disabled={saving}
               >
                 <option value="SMALL">
-                  🛵 Pequeno (Moto) — Cordas, palhetas, afinadores, cabos, pedais (cabe na mochila do entregador)
+                  🛵 Pequeno (Moto) — Cordas, palhetas, afinadores, cabos, pedais (cabe na mochila/baú)
                 </option>
                 <option value="MEDIUM">
                   📦 Médio (Moto/Carro) — Acessórios médios, caixas pequenas
@@ -425,7 +425,7 @@ export default function EditProductPage() {
                 </option>
               </select>
               <p className="text-xs text-muted-foreground">
-                Orienta o algoritmo da Uber Direct a priorizar motoboys para itens pequenos ou exigir porta-malas de carro para instrumentos grandes.
+                Informa a equipe e os entregadores parceiros sobre o veículo adequado para a entrega local.
               </p>
             </div>
 

@@ -18,6 +18,7 @@ import {
   ClipboardList,
   ShieldCheck,
   Building2,
+  Truck,
 } from "lucide-react";
 
 export function Sidebar() {
@@ -177,6 +178,21 @@ export function Sidebar() {
                 >
                   <ClipboardList size={18} />
                   <span>Pedidos & Vendas</span>
+                </Link>
+              </li>
+
+              {/* Entregas & Frete (Zonas Locais) */}
+              <li>
+                <Link
+                  href="/dashboard/settings/shipping"
+                  className={cn(
+                    "flex items-center space-x-2.5 px-3 py-2 rounded-lg text-sm transition-colors",
+                    isActive("/dashboard/settings/shipping")
+                  )}
+                  onClick={closeMobile}
+                >
+                  <Truck size={18} />
+                  <span>Entregas & Frete</span>
                 </Link>
               </li>
             </ul>

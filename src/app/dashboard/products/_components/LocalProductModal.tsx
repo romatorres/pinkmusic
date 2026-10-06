@@ -255,11 +255,11 @@ export function LocalProductModal({
               </div>
             </div>
 
-            {/* Porte do Produto (Uber Direct) */}
+            {/* Porte do Produto (Entrega Local) */}
             <div className="space-y-1.5 border rounded-lg p-3 bg-purple-50/40 dark:bg-purple-950/20 border-purple-200 dark:border-purple-900/50">
               <div className="flex items-center justify-between">
                 <Label htmlFor="local-package-size" className="font-semibold text-xs flex items-center gap-1.5 text-purple-900 dark:text-purple-200">
-                  <span>🛵 / 🚗 Transporte Uber Direct (Tamanho do Pacote)</span>
+                  <span>🛵 / 🚗 Porte do Produto (Entrega Local)</span>
                 </Label>
               </div>
               <Select
@@ -286,7 +286,7 @@ export function LocalProductModal({
                 </SelectContent>
               </Select>
               <p className="text-[11px] text-muted-foreground mt-1">
-                Define se a Uber priorizará motoboys (mais ágeis para itens pequenos) ou motoristas de carro (para instrumentos que não cabem em motos).
+                Orienta a separação e logística da loja entre motoboys e transporte por carro.
               </p>
             </div>
 

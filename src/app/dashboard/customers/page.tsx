@@ -466,8 +466,8 @@ export default function CustomersPage() {
                             <div className="mt-2 pt-2 border-t text-[11px] text-muted-foreground flex items-center gap-1.5">
                               {order.deliveryType === "delivery" ? (
                                 <>
-                                  <Truck className="h-3.5 w-3.5 text-blue-500" />
-                                  <span>Entrega Local Uber Direct</span>
+                                  <Truck className="h-3.5 w-3.5 text-purple-600" />
+                                  <span>Entrega Local</span>
                                   {order.deliveryAddress && <span>— {order.deliveryAddress}</span>}
                                 </>
                               ) : (

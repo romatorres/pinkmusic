@@ -15,15 +15,14 @@ import {
   ExternalLink,
   Loader2,
   MapPin,
-  AlertCircle,
   ShoppingCart,
-  User as UserIcon,
-  Phone,
   Mail,
   MessageCircle,
 } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { ScrollablePillGroup } from "@/components/ui/scrollable-badges";
 import {
   Dialog,
@@ -68,6 +67,11 @@ interface Order {
   uberCourierName: string | null;
   uberCourierPhone: string | null;
   uberVehicleType: string | null;
+  shippingPrice?: number | null;
+  shippingCep?: string | null;
+  shippingZone?: string | null;
+  shippingDistance?: number | null;
+  shippingMethod?: string | null;
   createdAt: string;
   product?: {
     id: string;
@@ -90,16 +94,6 @@ interface OrdersMeta {
   page: number;
   limit: number;
   totalPages: number;
-}
-
-interface QuoteData {
-  quoteId: string;
-  fee: number; // em centavos
-  currency: string;
-  estimatedMinutes: number;
-  expiresAt: string;
-  packageSize?: string;
-  items?: OrderItemData[];
 }
 
 const STATUS_CONFIG: Record<
@@ -172,11 +166,10 @@ export default function OrdersPage() {
   const [page, setPage] = useState(1);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
 
-  // Estados do Modal de Cotação e Despacho Uber Direct
+  // Estados do Modal de Despacho de Entrega Local
   const [quoteModalOrder, setQuoteModalOrder] = useState<Order | null>(null);
-  const [quoteLoading, setQuoteLoading] = useState(false);
-  const [quoteError, setQuoteError] = useState<string | null>(null);
-  const [quoteData, setQuoteData] = useState<QuoteData | null>(null);
+  const [dispatchCourierName, setDispatchCourierName] = useState("Entregador da Loja");
+  const [dispatchCourierPhone, setDispatchCourierPhone] = useState("");
   const [dispatching, setDispatching] = useState(false);
 
   const fetchOrders = useCallback(async () => {
@@ -223,27 +216,10 @@ export default function OrdersPage() {
     }
   };
 
-  const handleOpenQuoteModal = async (order: Order) => {
+  const handleOpenDispatchModal = (order: Order) => {
     setQuoteModalOrder(order);
-    setQuoteLoading(true);
-    setQuoteError(null);
-    setQuoteData(null);
-
-    try {
-      const res = await fetch(`/api/orders/${order.id}/dispatch`);
-      const result = await res.json();
-      if (result.success && result.data) {
-        setQuoteData(result.data);
-      } else {
-        setQuoteError(
-          result.error || "Não foi possível calcular o frete com o Uber Direct."
-        );
-      }
-    } catch {
-      setQuoteError("Erro de conexão ao buscar cotação da Uber.");
-    } finally {
-      setQuoteLoading(false);
-    }
+    setDispatchCourierName("Entregador da Loja");
+    setDispatchCourierPhone("");
   };
 
   const handleConfirmDispatch = async () => {
@@ -253,20 +229,21 @@ export default function OrdersPage() {
       const res = await fetch(`/api/orders/${quoteModalOrder.id}/dispatch`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ quoteId: quoteData?.quoteId }),
+        body: JSON.stringify({
+          courierName: dispatchCourierName,
+          courierPhone: dispatchCourierPhone,
+        }),
       });
       const result = await res.json();
       if (result.success) {
-        toast.success(
-          "Entrega Uber Direct solicitada com sucesso! O motoboy está a caminho."
-        );
+        toast.success("Pedido despachado para entrega local com sucesso!");
         setQuoteModalOrder(null);
         fetchOrders();
       } else {
-        toast.error(result.error || "Erro ao acionar entregador Uber Direct.");
+        toast.error(result.error || "Erro ao despachar entrega.");
       }
     } catch {
-      toast.error("Erro de conexão ao despachar com a Uber.");
+      toast.error("Erro de conexão ao despachar pedido.");
     } finally {
       setDispatching(false);
     }
@@ -508,62 +485,41 @@ export default function OrdersPage() {
                             <Store className="h-3.5 w-3.5" />
                             Retirada na loja
                           </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1.5">
-                            <Truck className="h-3.5 w-3.5 text-purple-600" />
-                            Entrega Local: {order.deliveryAddress || "Não informado"}
-                          </span>
-                        )}
+                        ) : order.deliveryType === "delivery" ? (
+                          <div className="space-y-0.5">
+                            <span className="inline-flex items-center gap-1.5 font-medium text-purple-700 dark:text-purple-300">
+                              <Truck className="h-3.5 w-3.5" />
+                              Entrega Local: {order.deliveryAddress || "Não informado"}
+                            </span>
+                            {(order.shippingZone || order.shippingDistance) && (
+                              <p className="text-[11px] text-muted-foreground pl-5">
+                                {order.shippingZone ? `[${order.shippingZone}] ` : ""}
+                                {order.shippingDistance ? `Distância: ~${order.shippingDistance.toFixed(1)} km · ` : ""}
+                                Frete cobrado: {formatPrice(order.deliveryFee || 0)}
+                              </p>
+                            )}
+                          </div>
+                        ) : null}
                       </div>
                     </div>
 
-                    {/* Dados do Entregador Uber Direct (quando despachado) */}
-                    {order.uberDeliveryId && (
+                    {/* Dados do Entregador / Despacho Local */}
+                    {order.status === "DISPATCHED" && (
                       <div className="mt-2 p-2 rounded-lg bg-purple-50/70 dark:bg-purple-950/30 border border-purple-200/80 dark:border-purple-800/80 text-xs space-y-1">
                         <div className="flex items-center justify-between flex-wrap gap-1">
-                          <span className="font-semibold text-purple-800 dark:text-purple-200 flex items-center gap-1">
-                            {order.uberVehicleType === "motorcycle" ||
-                              order.uberVehicleType === "scooter" ||
-                              order.uberVehicleType === "bicycle" ? (
-                              <>
-                                <span>🛵</span>
-                                <span>Motoboy Alocado:</span>
-                              </>
-                            ) : order.uberVehicleType === "car" ||
-                              order.uberVehicleType === "van" ? (
-                              <>
-                                <span>🚗</span>
-                                <span>Motorista Alocado:</span>
-                              </>
-                            ) : (
-                              <>
-                                <Truck className="h-3.5 w-3.5 text-purple-600" />
-                                <span>Uber:</span>
-                              </>
-                            )}
+                          <span className="font-semibold text-purple-800 dark:text-purple-200 flex items-center gap-1.5">
+                            <Truck className="h-3.5 w-3.5 text-purple-600" />
+                            <span>Entregador / Rota:</span>
                             <span className="font-normal text-foreground">
-                              {order.uberCourierName ||
-                                "Aguardando confirmação do motorista"}
+                              {order.uberCourierName || "Entregador da Loja"}
                             </span>
                           </span>
-                          {order.uberVehicleType && (
-                            <span className="text-[10px] px-1.5 py-0.2 rounded bg-purple-100 text-purple-700 dark:bg-purple-900/60 dark:text-purple-300 font-medium">
-                              {order.uberVehicleType === "motorcycle"
-                                ? "Moto"
-                                : order.uberVehicleType === "car"
-                                  ? "Carro"
-                                  : order.uberVehicleType}
+                          {order.uberCourierPhone && (
+                            <span className="text-[11px] text-muted-foreground">
+                              Tel: <strong className="text-foreground">{order.uberCourierPhone}</strong>
                             </span>
                           )}
                         </div>
-                        {order.uberCourierPhone && (
-                          <p className="text-[11px] text-muted-foreground">
-                            Contato do entregador:{" "}
-                            <span className="font-medium text-foreground">
-                              {order.uberCourierPhone}
-                            </span>
-                          </p>
-                        )}
                       </div>
                     )}
                     {/* ID do pedido */}
@@ -585,8 +541,6 @@ export default function OrdersPage() {
                   </div>
                 </div>
 
-
-
                 {/* Ações */}
                 <div className="flex flex-wrap gap-2 pt-1">
                   {order.status === "PAID" && (
@@ -601,17 +555,17 @@ export default function OrdersPage() {
                       Marcar Em Preparação
                     </Button>
                   )}
-                  {/* Botão de cotação e despacho Uber Direct */}
+                  {/* Botão de despacho Entrega Local */}
                   {(order.status === "PAID" || order.status === "PREPARING") &&
                     order.deliveryType === "delivery" && (
                       <Button
                         size="sm"
                         className="h-7 text-xs bg-purple-600 hover:bg-purple-700 text-white font-medium"
                         disabled={updatingId === order.id || dispatching}
-                        onClick={() => handleOpenQuoteModal(order)}
+                        onClick={() => handleOpenDispatchModal(order)}
                       >
                         <Truck className="h-3.5 w-3.5 mr-1" />
-                        Cotar Uber Direct
+                        Despachar Entrega Local
                       </Button>
                     )}
                   {order.status === "PREPARING" && order.deliveryType === "pickup" && (
@@ -683,7 +637,7 @@ export default function OrdersPage() {
         )
       }
 
-      {/* Modal de Cotação e Despacho Uber Direct */}
+      {/* Modal de Despacho Entrega Local */}
       <Dialog
         open={!!quoteModalOrder}
         onOpenChange={(open) => !open && !dispatching && setQuoteModalOrder(null)}
@@ -692,14 +646,11 @@ export default function OrdersPage() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-base font-semibold">
               <Truck className="h-5 w-5 text-purple-600" />
-              Cotação Uber Direct
+              Despachar Entrega Local
             </DialogTitle>
             <DialogDescription className="text-xs">
               {quoteModalOrder &&
-                `Pedido #${quoteModalOrder.id.slice(-6)} · ${quoteModalOrder.items && quoteModalOrder.items.length > 0
-                  ? `${quoteModalOrder.items.length} produto(s) no carrinho`
-                  : quoteModalOrder.product?.title || "Item do pedido"
-                }`}
+                `Pedido #${quoteModalOrder.id.slice(-6)} · ${quoteModalOrder.customerName}`}
             </DialogDescription>
           </DialogHeader>
 
@@ -712,7 +663,7 @@ export default function OrdersPage() {
                   <div>
                     <p className="font-semibold text-foreground">Coleta: Pink Music</p>
                     <p className="text-muted-foreground">
-                      Rua JJ Seabra, 31 - Centro, Feira de Santana, BA
+                      Kalilândia / Centro - Feira de Santana, BA
                     </p>
                   </div>
                 </div>
@@ -720,7 +671,7 @@ export default function OrdersPage() {
                   <MapPin className="h-4 w-4 text-purple-600 shrink-0 mt-0.5" />
                   <div>
                     <p className="font-semibold text-foreground">
-                      Entrega para {quoteModalOrder.customerName}
+                      Destino: {quoteModalOrder.customerName}
                     </p>
                     <p className="text-muted-foreground">
                       {quoteModalOrder.deliveryAddress || "Endereço não informado"}
@@ -732,15 +683,39 @@ export default function OrdersPage() {
                 </div>
               </div>
 
+              {/* Informações da Zona e Frete Gravadas no Pedido */}
+              <div className="rounded-xl bg-purple-50/80 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800 p-3.5 space-y-2 text-xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground font-medium">Zona de Entrega:</span>
+                  <span className="font-bold text-purple-800 dark:text-purple-200">
+                    {quoteModalOrder.shippingZone || "Zona Local"}
+                  </span>
+                </div>
+                {quoteModalOrder.shippingDistance && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground font-medium">Distância aproximada:</span>
+                    <span className="font-semibold text-foreground">
+                      ~{quoteModalOrder.shippingDistance.toFixed(1)} km
+                    </span>
+                  </div>
+                )}
+                <div className="flex items-center justify-between border-t border-purple-200/60 dark:border-purple-800/60 pt-2">
+                  <span className="text-muted-foreground font-medium">Frete Cobrado no Pedido:</span>
+                  <span className="text-base font-extrabold text-emerald-600 dark:text-emerald-400">
+                    {formatPrice(quoteModalOrder.deliveryFee || 0)}
+                  </span>
+                </div>
+              </div>
+
               {/* Manifesto de Itens a Coletar (quando múltiplos itens) */}
-              {((quoteData?.items || quoteModalOrder.items) || []).length > 0 && (
+              {((quoteModalOrder.items) || []).length > 0 && (
                 <div className="rounded-lg bg-muted/50 p-2.5 space-y-1.5 border border-border text-xs">
                   <p className="font-semibold text-foreground flex items-center gap-1.5">
                     <Package className="h-3.5 w-3.5 text-primary" />
-                    Manifesto do Pacote ({((quoteData?.items || quoteModalOrder.items)!).reduce((acc, i) => acc + i.quantity, 0)} itens):
+                    Itens a entregar ({quoteModalOrder.items!.reduce((acc, i) => acc + i.quantity, 0)}):
                   </p>
                   <div className="space-y-1 max-h-28 overflow-y-auto pr-1">
-                    {(quoteData?.items || quoteModalOrder.items)!.map((item) => (
+                    {quoteModalOrder.items!.map((item) => (
                       <div
                         key={item.id}
                         className="flex items-center justify-between text-muted-foreground gap-2"
@@ -760,95 +735,33 @@ export default function OrdersPage() {
                 </div>
               )}
 
-              {/* Loading */}
-              {quoteLoading && (
-                <div className="flex flex-col items-center justify-center py-6 gap-2 text-muted-foreground">
-                  <Loader2 className="h-6 w-6 animate-spin text-purple-600" />
-                  <p className="text-xs">Calculando melhor rota e valor com a Uber...</p>
+              {/* Dados do Entregador */}
+              <div className="space-y-2 pt-1 border-t">
+                <div>
+                  <Label htmlFor="courier-name" className="text-xs">
+                    Nome do Entregador / Motoboy
+                  </Label>
+                  <Input
+                    id="courier-name"
+                    placeholder="Ex: Carlos (Motoboy da Loja)"
+                    value={dispatchCourierName}
+                    onChange={(e) => setDispatchCourierName(e.target.value)}
+                    className="mt-1 text-xs"
+                  />
                 </div>
-              )}
-
-              {/* Erro */}
-              {quoteError && !quoteLoading && (
-                <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-3 flex items-start gap-2 text-xs text-destructive">
-                  <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
-                  <div className="flex-1">
-                    <p className="font-medium">Falha na cotação</p>
-                    <p className="mt-0.5 text-muted-foreground">{quoteError}</p>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="mt-2 h-6 text-xs"
-                      onClick={() => handleOpenQuoteModal(quoteModalOrder)}
-                    >
-                      Tentar Novamente
-                    </Button>
-                  </div>
+                <div>
+                  <Label htmlFor="courier-phone" className="text-xs">
+                    Telefone / WhatsApp do Entregador (Opcional)
+                  </Label>
+                  <Input
+                    id="courier-phone"
+                    placeholder="Ex: (75) 98888-7777"
+                    value={dispatchCourierPhone}
+                    onChange={(e) => setDispatchCourierPhone(e.target.value)}
+                    className="mt-1 text-xs"
+                  />
                 </div>
-              )}
-
-              {/* Resultado da Cotação */}
-              {quoteData && !quoteLoading && (
-                <div className="rounded-xl bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800 p-4 space-y-3">
-                  <div className="flex items-baseline justify-between">
-                    <div>
-                      <span className="text-xs text-muted-foreground font-medium">
-                        Preço da Corrida Uber
-                      </span>
-                      <p className="text-2xl font-bold text-purple-700 dark:text-purple-300">
-                        {formatPrice(quoteData.fee / 100)}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-xs text-muted-foreground font-medium">
-                        Previsão
-                      </span>
-                      <p className="text-base font-semibold text-foreground flex items-center gap-1 justify-end">
-                        <Clock className="h-4 w-4 text-purple-600" />
-                        ~{quoteData.estimatedMinutes} min
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Informação do Porte e Transporte */}
-                  <div className="border-t border-purple-200/60 dark:border-purple-800/60 pt-2.5 space-y-1">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-semibold text-purple-900 dark:text-purple-200 flex items-center gap-1.5">
-                        {(quoteData.packageSize || quoteModalOrder.product?.packageSize) === "SMALL" ? (
-                          <>
-                            <span>🛵</span>
-                            <span>Transporte Previsto: Moto</span>
-                          </>
-                        ) : (quoteData.packageSize || quoteModalOrder.product?.packageSize) === "LARGE" || (quoteData.packageSize || quoteModalOrder.product?.packageSize) === "XLARGE" ? (
-                          <>
-                            <span>🚗</span>
-                            <span>Transporte Previsto: Carro</span>
-                          </>
-                        ) : (
-                          <>
-                            <span>📦</span>
-                            <span>Transporte: Moto ou Carro</span>
-                          </>
-                        )}
-                      </span>
-                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-200/70 dark:bg-purple-900 text-purple-900 dark:text-purple-200 font-medium">
-                        {(quoteData.packageSize || quoteModalOrder.product?.packageSize) === "SMALL"
-                          ? "Porte Pequeno"
-                          : (quoteData.packageSize || quoteModalOrder.product?.packageSize) === "LARGE" || (quoteData.packageSize || quoteModalOrder.product?.packageSize) === "XLARGE"
-                            ? "Porte Grande"
-                            : "Porte Médio"}
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-muted-foreground">
-                      {(quoteData.packageSize || quoteModalOrder.product?.packageSize) === "SMALL"
-                        ? "Produto cabe na bag/mochila. A Uber prioriza motoboys para retirada rápida."
-                        : (quoteData.packageSize || quoteModalOrder.product?.packageSize) === "LARGE" || (quoteData.packageSize || quoteModalOrder.product?.packageSize) === "XLARGE"
-                          ? "Instrumento volumoso. A Uber direcionará motorista com porta-malas para proteger o instrumento."
-                          : "A Uber alocará o entregador parceiro mais próximo disponível."}
-                    </p>
-                  </div>
-                </div>
-              )}
+              </div>
             </div>
           )}
 
@@ -864,38 +777,25 @@ export default function OrdersPage() {
             <Button
               size="sm"
               className="bg-purple-600 hover:bg-purple-700 text-white font-medium"
-              disabled={!quoteData || quoteLoading || dispatching}
+              disabled={dispatching}
               onClick={handleConfirmDispatch}
             >
               {dispatching ? (
                 <>
                   <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />
-                  Acionando Entregador...
+                  Despachando...
                 </>
               ) : (
                 <>
-                  {(quoteData?.packageSize || quoteModalOrder?.product?.packageSize) === "SMALL" ? (
-                    <>
-                      <span className="mr-1.5">🛵</span>
-                      Confirmar e Chamar Motoboy
-                    </>
-                  ) : (quoteData?.packageSize || quoteModalOrder?.product?.packageSize) === "LARGE" || (quoteData?.packageSize || quoteModalOrder?.product?.packageSize) === "XLARGE" ? (
-                    <>
-                      <span className="mr-1.5">🚗</span>
-                      Confirmar e Chamar Carro
-                    </>
-                  ) : (
-                    <>
-                      <Truck className="h-3.5 w-3.5 mr-1.5" />
-                      Confirmar e Chamar Entregador
-                    </>
-                  )}
+                  <Truck className="h-3.5 w-3.5 mr-1.5" />
+                  Confirmar Despacho
                 </>
               )}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div >
+    </div>
   );
 }
+

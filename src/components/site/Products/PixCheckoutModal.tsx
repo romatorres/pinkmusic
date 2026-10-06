@@ -23,7 +23,6 @@ import {
   QrCode,
   XCircle,
   Clock,
-  MapPin,
   AlertCircle,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -88,13 +87,13 @@ export default function PixCheckoutModal({
   const [complement, setComplement] = useState("");
   const [zipCode, setZipCode] = useState("");
 
-  // Cotação de frete
+  // Cotação de frete local fixo por zona
   const [deliveryFee, setDeliveryFee] = useState<number>(0);
+  const [shippingZoneName, setShippingZoneName] = useState<string | null>(null);
+  const [shippingDistanceKm, setShippingDistanceKm] = useState<number | null>(null);
   const [quoteLoading, setQuoteLoading] = useState(false);
   const [quoteError, setQuoteError] = useState<string | null>(null);
   const [quoteFetched, setQuoteFetched] = useState(false);
-  const [estimatedMinutes, setEstimatedMinutes] = useState<number | null>(null);
-  const [quotePackageSize, setQuotePackageSize] = useState<string | null>(null);
 
   // Flow state
   const [step, setStep] = useState<Step>("form");
@@ -112,15 +111,17 @@ export default function PixCheckoutModal({
     const parts = [address.trim()];
     if (neighborhood.trim()) parts.push(`Bairro ${neighborhood.trim()}`);
     if (complement.trim()) parts.push(complement.trim());
+    if (zipCode.trim()) parts.push(`CEP: ${zipCode.trim()}`);
     return parts.filter(Boolean).join(", ");
-  }, [address, neighborhood, complement]);
+  }, [address, neighborhood, complement, zipCode]);
 
   // Invalida cotação se endereço for alterado
   const invalidateQuote = useCallback(() => {
     if (quoteFetched) {
       setQuoteFetched(false);
       setDeliveryFee(0);
-      setEstimatedMinutes(null);
+      setShippingZoneName(null);
+      setShippingDistanceKm(null);
       setQuoteError(null);
     }
   }, [quoteFetched]);
@@ -140,10 +141,11 @@ export default function PixCheckoutModal({
         setOrderData(null);
         setCopied(false);
         setDeliveryFee(0);
+        setShippingZoneName(null);
+        setShippingDistanceKm(null);
         setQuoteLoading(false);
         setQuoteError(null);
         setQuoteFetched(false);
-        setEstimatedMinutes(null);
       }, 300);
     }
   }, [open]);
@@ -153,46 +155,46 @@ export default function PixCheckoutModal({
     setDeliveryType(type);
     if (type === "pickup") {
       setDeliveryFee(0);
+      setShippingZoneName(null);
+      setShippingDistanceKm(null);
       setQuoteError(null);
       setQuoteFetched(false);
-      setEstimatedMinutes(null);
     }
   };
 
-  // Consulta cotação de frete na Uber Direct
+  // Consulta frete local por regras fixas no banco
   const handleFetchQuote = async () => {
-    if (!address.trim() || address.trim().length < 4) {
-      setQuoteError("Informe a rua e o número da entrega.");
+    const cleanCep = zipCode.replace(/\D/g, "");
+    if (!cleanCep || cleanCep.length !== 8) {
+      setQuoteError("Informe um CEP válido com 8 dígitos.");
       return;
     }
-    if (!neighborhood.trim()) {
-      setQuoteError("Informe o bairro da entrega.");
-      return;
-    }
+
     setQuoteLoading(true);
     setQuoteError(null);
     setQuoteFetched(false);
+
     try {
-      const fullAddr = getFullAddress();
-      const res = await fetch("/api/delivery/quote", {
+      const res = await fetch("/api/shipping/calculate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          address: fullAddr,
-          zipCode: zipCode.trim() || undefined,
-          productId: product.id,
-          packageSize: product.packageSize,
-        }),
+        body: JSON.stringify({ zipCode: cleanCep }),
       });
+
       const result = await res.json();
-      if (result.success && result.data) {
-        setDeliveryFee(result.data.customerFee);
-        setEstimatedMinutes(result.data.estimatedMinutes);
-        setQuotePackageSize(result.data.packageSize || product.packageSize || "SMALL");
+
+      if (result.available && result.price !== undefined) {
+        setDeliveryFee(result.price);
+        setShippingZoneName(result.zone?.name || "Zona Local");
+        setShippingDistanceKm(result.distanceKm);
         setQuoteFetched(true);
+
+        if (!neighborhood.trim() && result.district) {
+          setNeighborhood(result.district);
+        }
       } else {
         setQuoteError(
-          result.error || "Não foi possível calcular o frete para este endereço."
+          result.message || "Desculpe, ainda não realizamos entregas nesta região."
         );
       }
     } catch {
@@ -249,12 +251,16 @@ export default function PixCheckoutModal({
       toast.error("Por favor, informe seu WhatsApp.");
       return;
     }
+    if (deliveryType === "delivery" && zipCode.replace(/\D/g, "").length !== 8) {
+      toast.error("Por favor, informe um CEP válido com 8 dígitos.");
+      return;
+    }
     if (deliveryType === "delivery" && (!address.trim() || !neighborhood.trim())) {
       toast.error("Por favor, informe a rua, número e bairro.");
       return;
     }
     if (deliveryType === "delivery" && !quoteFetched) {
-      toast.error("Calcule o frete antes de gerar o PIX.");
+      toast.error("Calcule o frete para seu CEP antes de gerar o PIX.");
       return;
     }
 
@@ -269,6 +275,8 @@ export default function PixCheckoutModal({
           customerPhone: whatsapp.trim(),
           deliveryType,
           deliveryAddress: deliveryType === "delivery" ? getFullAddress() : null,
+          zipCode: deliveryType === "delivery" ? zipCode.replace(/\D/g, "") : null,
+          shippingCep: deliveryType === "delivery" ? zipCode.replace(/\D/g, "") : null,
           deliveryFee: deliveryType === "delivery" ? deliveryFee : 0,
           quantity: 1,
         }),
@@ -307,14 +315,14 @@ export default function PixCheckoutModal({
 
     const msg = encodeURIComponent(
       `Olá, Pink Music! 👋\n` +
-        `Realizei um pagamento via *PIX* para o produto:\n\n` +
-        `🎸 *Produto:* ${product.title}\n` +
-        `💰 *Valor:* ${formatPrice(orderData?.totalAmount ?? product.price)}\n` +
-        `👤 *Nome:* ${name}\n` +
-        `📱 *WhatsApp:* ${whatsapp}\n` +
-        `📦 *Modalidade:* ${deliveryText}\n` +
-        `🔑 *Nº do Pedido:* ${orderData?.orderId ?? ""}\n\n` +
-        `Segue o comprovante!`
+      `Realizei um pagamento via *PIX* para o produto:\n\n` +
+      `🎸 *Produto:* ${product.title}\n` +
+      `💰 *Valor:* ${formatPrice(orderData?.totalAmount ?? product.price)}\n` +
+      `👤 *Nome:* ${name}\n` +
+      `📱 *WhatsApp:* ${whatsapp}\n` +
+      `📦 *Modalidade:* ${deliveryText}\n` +
+      `🔑 *Nº do Pedido:* ${orderData?.orderId ?? ""}\n\n` +
+      `Segue o comprovante!`
     );
     window.open(`https://wa.me/5575991988685?text=${msg}`, "_blank", "noopener,noreferrer");
     onOpenChange(false);
@@ -364,11 +372,10 @@ export default function PixCheckoutModal({
                 <button
                   type="button"
                   onClick={() => handleDeliveryTypeChange("pickup")}
-                  className={`flex flex-col items-center justify-center p-3 rounded-lg border text-center transition-all cursor-pointer ${
-                    deliveryType === "pickup"
+                  className={`flex flex-col items-center justify-center p-3 rounded-lg border text-center transition-all cursor-pointer ${deliveryType === "pickup"
                       ? "border-emerald-600 bg-emerald-50/50 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200 font-semibold"
                       : "border-border hover:border-muted-foreground/40"
-                  }`}
+                    }`}
                 >
                   <Store className="h-5 w-5 mb-1 text-emerald-600" />
                   <span className="text-xs">Retirar na Loja</span>
@@ -378,15 +385,14 @@ export default function PixCheckoutModal({
                 <button
                   type="button"
                   onClick={() => handleDeliveryTypeChange("delivery")}
-                  className={`flex flex-col items-center justify-center p-3 rounded-lg border text-center transition-all cursor-pointer ${
-                    deliveryType === "delivery"
+                  className={`flex flex-col items-center justify-center p-3 rounded-lg border text-center transition-all cursor-pointer ${deliveryType === "delivery"
                       ? "border-emerald-600 bg-emerald-50/50 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200 font-semibold"
                       : "border-border hover:border-muted-foreground/40"
-                  }`}
+                    }`}
                 >
                   <Truck className="h-5 w-5 mb-1 text-emerald-600" />
                   <span className="text-xs">Entrega Local</span>
-                  <span className="text-[10px] text-muted-foreground">Via Uber Direct</span>
+                  <span className="text-[10px] text-muted-foreground">Motoboy / Loja</span>
                 </button>
               </div>
             </div>
@@ -419,6 +425,75 @@ export default function PixCheckoutModal({
               </div>
               {deliveryType === "delivery" && (
                 <div className="space-y-3 p-3 bg-muted/20 border border-border/70 rounded-xl">
+                  {/* CEP com cálculo de frete local */}
+                  <div>
+                    <Label htmlFor="checkout-zip" className="text-xs font-medium">
+                      CEP de Entrega <span className="text-red-500">*</span>
+                    </Label>
+                    <div className="flex gap-2 mt-1">
+                      <Input
+                        id="checkout-zip"
+                        placeholder="44000-000"
+                        maxLength={9}
+                        value={zipCode}
+                        onChange={(e) => {
+                          const digits = e.target.value.replace(/\D/g, "").slice(0, 8);
+                          const formatted = digits.length > 5 ? `${digits.slice(0, 5)}-${digits.slice(5)}` : digits;
+                          setZipCode(formatted);
+                          invalidateQuote();
+                        }}
+                        className="font-mono tracking-wider text-sm"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleFetchQuote}
+                        disabled={quoteLoading || zipCode.replace(/\D/g, "").length !== 8}
+                        className="shrink-0 border-emerald-600/50 text-emerald-700 hover:bg-emerald-50/50 font-semibold"
+                      >
+                        {quoteLoading ? (
+                          <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
+                        ) : (
+                          <Truck className="h-4 w-4 mr-1.5 text-emerald-600" />
+                        )}
+                        {quoteLoading ? "Calculando..." : quoteFetched ? "Recalcular" : "Calcular Frete"}
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Erro de cotação */}
+                  {quoteError && !quoteLoading && (
+                    <div className="flex items-start gap-2 text-xs text-destructive bg-destructive/10 border border-destructive/20 rounded-lg p-2.5">
+                      <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+                      <span>{quoteError}</span>
+                    </div>
+                  )}
+
+                  {/* Card de resultado da cotação */}
+                  {quoteFetched && !quoteLoading && (
+                    <div className="rounded-lg bg-emerald-50/90 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 p-3.5 space-y-1.5 shadow-xs">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-900 dark:text-emerald-200">
+                          <CheckCircle className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                          <span>Entrega local disponível</span>
+                        </div>
+                        <span className="text-sm font-extrabold text-emerald-700 dark:text-emerald-400">
+                          + {formatPrice(deliveryFee)}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-[11px] text-emerald-800/80 dark:text-emerald-300/80">
+                        {shippingZoneName && (
+                          <span className="bg-emerald-200/60 dark:bg-emerald-900/60 px-2 py-0.5 rounded-md font-semibold">
+                            {shippingZoneName}
+                          </span>
+                        )}
+                        {shippingDistanceKm !== null && (
+                          <span>• Distância aprox: ~{shippingDistanceKm.toFixed(1)} km</span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
                   <div>
                     <Label htmlFor="checkout-street" className="text-xs">
                       Rua e Número <span className="text-red-500">*</span>
@@ -429,7 +504,6 @@ export default function PixCheckoutModal({
                       value={address}
                       onChange={(e) => {
                         setAddress(e.target.value);
-                        invalidateQuote();
                       }}
                       className="mt-1"
                     />
@@ -446,143 +520,25 @@ export default function PixCheckoutModal({
                         value={neighborhood}
                         onChange={(e) => {
                           setNeighborhood(e.target.value);
-                          invalidateQuote();
                         }}
                         className="mt-1"
                       />
                     </div>
                     <div>
-                      <Label htmlFor="checkout-zip" className="text-xs text-muted-foreground">
-                        CEP (Opcional)
+                      <Label htmlFor="checkout-complement" className="text-xs text-muted-foreground">
+                        Complemento
                       </Label>
                       <Input
-                        id="checkout-zip"
-                        placeholder="44000-000"
-                        value={zipCode}
+                        id="checkout-complement"
+                        placeholder="Ex: Apto 101"
+                        value={complement}
                         onChange={(e) => {
-                          setZipCode(e.target.value);
-                          invalidateQuote();
+                          setComplement(e.target.value);
                         }}
                         className="mt-1"
                       />
                     </div>
                   </div>
-
-                  <div>
-                    <Label htmlFor="checkout-complement" className="text-xs text-muted-foreground">
-                      Complemento / Referência (Opcional)
-                    </Label>
-                    <Input
-                      id="checkout-complement"
-                      placeholder="Ex: Apto 101, próximo ao banco"
-                      value={complement}
-                      onChange={(e) => {
-                        setComplement(e.target.value);
-                        invalidateQuote();
-                      }}
-                      className="mt-1"
-                    />
-                  </div>
-
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleFetchQuote}
-                    disabled={quoteLoading || !address.trim() || !neighborhood.trim()}
-                    className="w-full h-9 text-xs font-semibold flex items-center justify-center gap-1.5 border-purple-300 dark:border-purple-800 text-purple-700 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-950/40"
-                  >
-                    {quoteLoading ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin text-purple-600" />
-                        Calculando frete no Uber Direct...
-                      </>
-                    ) : (
-                      <>
-                        <MapPin className="h-4 w-4" />
-                        {quoteFetched ? "Recalcular Frete" : "Calcular Frete com Uber Direct"}
-                      </>
-                    )}
-                  </Button>
-
-                  {/* Loading da cotação */}
-                  {quoteLoading && (
-                    <p className="text-xs text-muted-foreground flex items-center gap-1.5">
-                      <Loader2 className="h-3.5 w-3.5 animate-spin text-purple-500" />
-                      Consultando Uber Direct...
-                    </p>
-                  )}
-
-                  {/* Erro de cotação */}
-                  {quoteError && !quoteLoading && (
-                    <div className="flex items-start gap-2 text-xs text-destructive bg-destructive/10 border border-destructive/20 rounded-lg p-2.5">
-                      <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
-                      <span>{quoteError}</span>
-                    </div>
-                  )}
-
-                  {/* Card de resultado da cotação */}
-                  {quoteFetched && !quoteLoading && (
-                    <div className="rounded-lg bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800 p-3 space-y-1.5">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1.5 text-xs font-semibold text-purple-700 dark:text-purple-300">
-                          {quotePackageSize === "SMALL" ? (
-                            <>
-                              <span className="text-sm">🛵</span>
-                              <span>Entrega Rápida via Moto (Uber Direct)</span>
-                            </>
-                          ) : quotePackageSize === "LARGE" || quotePackageSize === "XLARGE" ? (
-                            <>
-                              <span className="text-sm">🚗</span>
-                              <span>Entrega Segura via Carro (Uber Direct)</span>
-                            </>
-                          ) : (
-                            <>
-                              <Truck className="h-4 w-4" />
-                              <span>Entrega Expressa via Uber Direct</span>
-                            </>
-                          )}
-                        </div>
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-100 dark:bg-purple-900/60 text-purple-800 dark:text-purple-200 font-medium">
-                          {quotePackageSize === "SMALL"
-                            ? "Pacote Pequeno"
-                            : quotePackageSize === "LARGE" || quotePackageSize === "XLARGE"
-                            ? "Porta-malas"
-                            : "Pacote Médio"}
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-muted-foreground">
-                        {quotePackageSize === "SMALL"
-                          ? "Item pequeno: motoboy alocado com agilidade para entrega no mesmo dia."
-                          : quotePackageSize === "LARGE" || quotePackageSize === "XLARGE"
-                          ? "Instrumento volumoso: motorista de carro alocado para transporte seguro."
-                          : "Despacho sob demanda com entregador parceiro Uber."}
-                      </p>
-                      <div className="flex justify-between text-xs text-muted-foreground pt-1">
-                        <span>Previsão de entrega:</span>
-                        <span className="font-medium text-foreground">
-                          ~{estimatedMinutes} minutos
-                        </span>
-                      </div>
-                      <div className="border-t border-purple-200/60 dark:border-purple-800/60 pt-1.5 space-y-1">
-                        <div className="flex justify-between text-xs">
-                          <span className="text-muted-foreground">Subtotal (produto):</span>
-                          <span>{formatPrice(product.price)}</span>
-                        </div>
-                        <div className="flex justify-between text-xs">
-                          <span className="text-muted-foreground">Frete Uber Direct:</span>
-                          <span className="text-purple-700 dark:text-purple-300 font-medium">
-                            + {formatPrice(deliveryFee)}
-                          </span>
-                        </div>
-                        <div className="flex justify-between text-sm font-bold border-t border-purple-200/60 dark:border-purple-800/60 pt-1 mt-1">
-                          <span>Total no PIX:</span>
-                          <span className="text-emerald-600 dark:text-emerald-400">
-                            {formatPrice(product.price + deliveryFee)}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
                 </div>
               )}
             </div>

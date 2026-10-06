@@ -1,10 +1,18 @@
-# Plano de Implementação FINAL — PIX + Uber Direct
+# ~~Plano de Implementação FINAL — PIX + Uber Direct~~
+
+> [!CAUTION]
+> **DOCUMENTO PARCIALMENTE ARQUIVADO — Outubro/2026**
+> A **Fase 1 (PIX via Mercado Pago)** foi implementada e está em produção.
+> A **Fase 2 (Uber Direct)** foi descontinuada — substituída por frete próprio com zonas fixas e cálculo por distância real (OSRM).
+> Consulte [`implementation_plan-frete-proprio.md`](./implementation_plan-frete-proprio.md) para a documentação atual do sistema de entregas.
+
+---
 
 ## Visão Geral
 
-**Stack:** Next.js 15 · TypeScript · Prisma · PostgreSQL (Prisma.io)  
-**Pagamento:** Mercado Pago (PIX) — mesma conta do Mercado Livre  
-**Entrega:** Uber Direct — credenciais já disponíveis  
+**Stack:** Next.js 15 · TypeScript · Prisma · PostgreSQL (Prisma.io)
+**Pagamento:** Mercado Pago (PIX) — mesma conta do Mercado Livre
+**Entrega:** ~~Uber Direct~~ → **Sistema próprio de frete por zonas** (ver doc atualizado)
 
 ---
 

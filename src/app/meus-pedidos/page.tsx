@@ -114,7 +114,7 @@ const STATUS_CONFIG: Record<
     badgeClass:
       "bg-purple-100 text-purple-800 dark:bg-purple-950/60 dark:text-purple-300 border-purple-300 dark:border-purple-800",
     icon: <Truck className="h-3.5 w-3.5" />,
-    description: "O entregador Uber Direct já retirou seu pacote e está a caminho!",
+    description: "Seu pacote já saiu para entrega e está a caminho!",
   },
   DELIVERED: {
     label: "Entregue / Retirado",
@@ -311,7 +311,7 @@ export default function CustomerOrdersPage() {
             </div>
             <h2 className="text-xl font-bold text-foreground">Identifique-se para ver seus pedidos</h2>
             <p className="text-sm text-muted-foreground mt-2 mb-6">
-              Entre com sua conta da Pink Music para ver o histórico das suas compras, códigos PIX e links de rastreamento Uber Direct.
+              Entre com sua conta da Pink Music para ver o histórico das suas compras, códigos PIX e status das suas entregas.
             </p>
             <Button
               onClick={() => setAuthModalOpen(true)}
@@ -509,7 +509,7 @@ export default function CustomerOrdersPage() {
                           <div className="flex items-start gap-2 p-2.5 rounded-lg bg-purple-50/70 dark:bg-purple-950/30 border border-purple-200/70 dark:border-purple-800/70 text-purple-900 dark:text-purple-200">
                             <Truck className="h-4 w-4 shrink-0 mt-0.5 text-purple-600 dark:text-purple-400" />
                             <div>
-                              <p className="font-semibold">Entrega Local (Uber Direct)</p>
+                              <p className="font-semibold">Entrega Local</p>
                               <p className="text-[11px] text-muted-foreground mt-0.5">
                                 {order.deliveryAddress || "Endereço registrado no pedido"}
                               </p>

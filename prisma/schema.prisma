@@ -131,13 +131,20 @@ model Order {
   mpQrCodeBase64 String?
   paidAt         DateTime?
 
-  // Uber Direct
+  // Uber Direct (legado mantido para histórico)
   uberDeliveryId   String?
   uberTrackingUrl  String?
   uberDispatchedAt DateTime?
   uberCourierName  String?
   uberCourierPhone String?
   uberVehicleType  String? // "motorcycle", "car", "bicycle", etc.
+
+  // Snapshot do Frete Local Próprio
+  shippingPrice    Float?
+  shippingCep      String?
+  shippingZone     String?
+  shippingDistance Float?
+  shippingMethod   String? // "LOCAL_DELIVERY" | "PICKUP"
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -200,3 +207,38 @@ model Picture {
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId String
 }
+
+// Modelos para Sistema Próprio de Entrega Local por Zona e Distância
+model ShippingZone {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  minDistance Float
+  maxDistance Float
+  price       Decimal  @db.Decimal(10, 2)
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  zipCodes    ShippingZipCode[]
+
+  @@index([active])
+}
+
+model ShippingZipCode {
+  id        String        @id @default(cuid())
+  zipCode   String        @unique // 8 dígitos normalizados (ex: "44002000")
+  district  String        // Bairro
+  city      String        @default("Feira de Santana")
+  state     String        @default("BA")
+  latitude  Float?
+  longitude Float?
+  zoneId    String?
+  zone      ShippingZone? @relation(fields: [zoneId], references: [id], onDelete: SetNull)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@index([zipCode])
+  @@index([zoneId])
+}
+

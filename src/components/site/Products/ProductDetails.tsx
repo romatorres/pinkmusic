@@ -10,7 +10,6 @@ import {
   TriangleAlert,
   Store,
   Check,
-  Plus,
 } from "lucide-react";
 import Link from "next/link";
 import { PageContainer } from "@/components/ui/Page-container";

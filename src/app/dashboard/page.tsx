@@ -17,7 +17,6 @@ import {
   ShieldCheck,
   Briefcase,
   ArrowRight,
-  TrendingUp,
 } from "lucide-react";
 import { LoadingState } from "@/components/ui/loading-state";
 
@@ -155,7 +154,7 @@ export default function OverviewPage() {
               Pedidos & Vendas
             </CardTitle>
             <CardDescription>
-              Visualize os pedidos PIX em tempo real, atualize status de separação e acione entregas locais Uber Direct.
+              Visualize os pedidos PIX em tempo real, atualize status de separação e gerencie as entregas locais.
             </CardDescription>
           </CardHeader>
           <CardContent>

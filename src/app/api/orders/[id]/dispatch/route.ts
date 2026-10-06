@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { getDeliveryQuote, createDelivery } from "@/lib/uberdirect";
 import { requireStaff } from "@/lib/auth";
 
 /**
  * GET /api/orders/[id]/dispatch
- * Retorna uma cotação de entrega Uber Direct para o pedido.
+ * Retorna as informações de entrega local do pedido para a equipe.
  *
  * POST /api/orders/[id]/dispatch
- * Confirma o despacho e aciona o entregador Uber Direct.
+ * Confirma o despacho e marca o pedido como DISPATCHED (Entrega Local Própria).
  */
 
 export async function GET(
@@ -61,31 +60,25 @@ export async function GET(
       );
     }
 
-    // Monta endereço de entrega (simplificado — endereço livre)
-    const dropoff = {
-      street_address: order.deliveryAddress,
-      city: process.env.STORE_CITY || "Feira de Santana",
-      state: process.env.STORE_STATE || "BA",
-      zip_code: (process.env.STORE_ZIP || "44002000").replace(/\D/g, ""),
-      country: "BR",
-    };
-
-    // packageSize: usa o do produto (legado) ou SMALL como fallback
-    const effectivePackageSize = order.product?.packageSize || "SMALL";
-
-    const quote = await getDeliveryQuote(dropoff, effectivePackageSize);
-
     return NextResponse.json({
       success: true,
       data: {
-        ...quote,
-        packageSize: effectivePackageSize,
+        orderId: order.id,
+        customerName: order.customerName,
+        customerPhone: order.customerPhone,
+        deliveryAddress: order.deliveryAddress,
+        deliveryFee: order.deliveryFee,
+        shippingCep: order.shippingCep,
+        shippingZone: order.shippingZone,
+        shippingDistance: order.shippingDistance,
+        shippingMethod: order.shippingMethod || "LOCAL_DELIVERY",
+        packageSize: order.product?.packageSize || "SMALL",
         items: order.items && order.items.length > 0 ? order.items : undefined,
       },
     });
   } catch (error) {
     console.error("[GET dispatch] Erro:", error);
-    const msg = error instanceof Error ? error.message : "Erro ao obter cotação.";
+    const msg = error instanceof Error ? error.message : "Erro ao obter dados de entrega.";
     return NextResponse.json({ success: false, error: msg }, { status: 500 });
   }
 }
@@ -101,21 +94,11 @@ export async function POST(
     }
 
     const { id } = await params;
-    const body = await request.json();
-    const { quoteId } = body;
+    const body = await request.json().catch(() => ({}));
+    const { courierName, courierPhone } = body;
 
     const order = await prisma.order.findUnique({
       where: { id },
-      include: {
-        product: { select: { title: true, packageSize: true } },
-        items: {
-          select: {
-            title: true,
-            quantity: true,
-            productCode: true,
-          },
-        },
-      },
     });
 
     if (!order) {
@@ -135,52 +118,14 @@ export async function POST(
       );
     }
 
-    if (!order.deliveryAddress) {
-      return NextResponse.json(
-        { success: false, error: "Endereço de entrega não informado." },
-        { status: 400 }
-      );
-    }
-
-    const dropoff = {
-      street_address: order.deliveryAddress,
-      city: process.env.STORE_CITY || "Feira de Santana",
-      state: process.env.STORE_STATE || "BA",
-      zip_code: (process.env.STORE_ZIP || "44002000").replace(/\D/g, ""),
-      country: "BR",
-    };
-
-    // Monta título ou manifesto para o motorista Uber
-    let itemsDescription = "Pedido Pink Music";
-    if (order.items && order.items.length > 0) {
-      itemsDescription = order.items
-        .map((i) => `${i.quantity}x ${i.title}`)
-        .join(", ");
-    } else if (order.product?.title) {
-      itemsDescription = order.product.title;
-    }
-
-    const delivery = await createDelivery({
-      orderId: order.id,
-      customerName: order.customerName,
-      customerPhone: order.customerPhone,
-      dropoff,
-      quoteId,
-      productTitle: itemsDescription,
-      packageSize: order.product?.packageSize || "SMALL",
-    });
-
-    // Atualiza pedido com dados da entrega Uber
+    // Atualiza pedido para DISPATCHED com entregador local próprio
     const updatedOrder = await prisma.order.update({
       where: { id },
       data: {
         status: "DISPATCHED",
-        uberDeliveryId: delivery.deliveryId,
-        uberTrackingUrl: delivery.trackingUrl,
         uberDispatchedAt: new Date(),
-        uberCourierName: delivery.courierName || null,
-        uberCourierPhone: delivery.courierPhone || null,
-        uberVehicleType: delivery.vehicleType || null,
+        uberCourierName: courierName?.trim() || "Entregador da Loja",
+        uberCourierPhone: courierPhone?.trim() || null,
       },
     });
 
@@ -189,16 +134,14 @@ export async function POST(
       data: {
         orderId: updatedOrder.id,
         status: updatedOrder.status,
-        uberDeliveryId: delivery.deliveryId,
-        trackingUrl: delivery.trackingUrl,
-        courierName: delivery.courierName,
-        courierPhone: delivery.courierPhone,
-        vehicleType: delivery.vehicleType,
+        courierName: updatedOrder.uberCourierName,
+        courierPhone: updatedOrder.uberCourierPhone,
+        dispatchedAt: updatedOrder.uberDispatchedAt,
       },
     });
   } catch (error) {
     console.error("[POST dispatch] Erro:", error);
-    const msg = error instanceof Error ? error.message : "Erro ao criar entrega.";
+    const msg = error instanceof Error ? error.message : "Erro ao despachar pedido.";
     return NextResponse.json({ success: false, error: msg }, { status: 500 });
   }
 }
