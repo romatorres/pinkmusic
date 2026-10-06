@@ -275,12 +275,12 @@ export default function EditProductPage() {
         setProduct((prev) =>
           prev
             ? {
-                ...prev,
-                price: prodData.price,
-                available_quantity: prodData.available_quantity,
-                title: prodData.title,
-                permalink: prodData.permalink,
-              }
+              ...prev,
+              price: prodData.price,
+              available_quantity: prodData.available_quantity,
+              title: prodData.title,
+              permalink: prodData.permalink,
+            }
             : null
         );
         toast.success("Preço e estoque atualizados diretamente do Mercado Livre!");
@@ -406,11 +406,11 @@ export default function EditProductPage() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
                 {/* Preview Atual */}
                 <div className="flex flex-col items-center justify-center p-2 border rounded-lg bg-background min-h-[140px]">
-                  {imagePreview ? (
+                  {product.thumbnail ? (
                     <div className="relative w-28 h-28">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
-                        src={imagePreview}
+                        src={product.thumbnail}
                         alt="Preview da imagem"
                         className="w-full h-full object-contain rounded"
                       />

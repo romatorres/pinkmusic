@@ -397,7 +397,7 @@ function ProductsPageContent() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="min-w-[120px]">ID</TableHead>
+                      <TableHead className="min-w-[120px]">Código</TableHead>
                       <TableHead className="min-w-[200px]">Título</TableHead>
                       <TableHead className="min-w-[120px]">Origem</TableHead>
                       <TableHead className="min-w-[120px]">Preço</TableHead>
@@ -418,20 +418,20 @@ function ProductsPageContent() {
                     {products.map((product) => (
                       <TableRow key={product.id}>
                         <TableCell className="font-mono text-sm truncate max-w-[100px]">
-                          {product.id}
+                          {product.code}
                         </TableCell>
                         <TableCell className="font-medium">
                           <div className="flex flex-col gap-1 max-w-[490px]">
                             <span className="truncate font-semibold text-foreground" title={product.title}>
                               {product.title}
                             </span>
-                            {product.code && (
+                            {/* {product.code && (
                               <div className="flex items-center gap-1.5 flex-wrap">
                                 <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
                                   Cód: {product.code}
                                 </span>
                               </div>
-                            )}
+                            )} */}
                           </div>
                         </TableCell>
                         <TableCell>
