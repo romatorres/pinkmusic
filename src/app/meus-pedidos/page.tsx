@@ -584,7 +584,7 @@ export default function CustomerOrdersPage() {
 
                       {/* Botão de ajuda via WhatsApp da loja */}
                       <a
-                        href={`https://wa.me/5575991988685?text=${encodeURIComponent(
+                        href={`https://wa.me/5575999661614?text=${encodeURIComponent(
                           `Olá! Gostaria de informações sobre o meu pedido #${order.id.slice(-8).toUpperCase()} na Pink Music.`
                         )}`}
                         target="_blank"

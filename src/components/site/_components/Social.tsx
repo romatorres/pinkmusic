@@ -28,7 +28,7 @@ export default function Social() {
             className="object-contain transition-transform duration-300 ease-in-out hover:scale-110 hover:cursor-pointer"
           />
         </a>
-        <a href="https://wa.me/5575991988685" target="_blank">
+        <a href="https://wa.me/5575999661614" target="_blank">
           <Image
             src="/img/icon-whatsapp.svg"
             alt="Icon Social Twitter"

@@ -83,7 +83,7 @@ export function Sidebar() {
   };
 
   const isAdmin = user?.role === "ADMIN";
-  const isEmployee = user?.role === "EMPLOYEE" || user?.role === "FUNCIONARIO";
+  const isEmployee = user?.role === "EMPLOYEE";
 
   return (
     <>
@@ -238,8 +238,8 @@ export function Sidebar() {
             </ul>
           </div>
 
-          {/* Seção 3: Catálogo da Loja (Exclusivo Admin) */}
-          {isAdmin && (
+          {/* Seção 3: Catálogo da Loja (Admin e Funcionário) */}
+          {(isAdmin || isEmployee) && (
             <div>
               <p className="px-2 pb-1.5 text-[11px] font-bold uppercase tracking-wider text-white/50">
                 Catálogo da Loja
@@ -286,7 +286,16 @@ export function Sidebar() {
                     <span>Marcas</span>
                   </Link>
                 </li>
-
+              </ul>
+            </div>
+          )}
+          {/* Seção 4: Administração (Exclusivo Admin) */}
+          {isAdmin && (
+            <div>
+              <p className="px-2 pb-1.5 text-[11px] font-bold uppercase tracking-wider text-white/50">
+                Administração
+              </p>
+              <ul className="space-y-1">
                 <li>
                   <Link
                     href="/dashboard/partners"

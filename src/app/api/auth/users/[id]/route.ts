@@ -49,8 +49,6 @@ export async function PUT(
       const upperRole = role.toUpperCase();
       if (upperRole === "ADMIN" || upperRole === "EMPLOYEE") {
         updateData.role = upperRole;
-      } else if (upperRole === "FUNCIONARIO") {
-        updateData.role = "EMPLOYEE";
       }
     }
 

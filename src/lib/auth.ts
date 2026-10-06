@@ -68,7 +68,7 @@ export function isAdminRole(role?: string | null): boolean {
 }
 
 export function isStaffRole(role?: string | null): boolean {
-  return role === ROLE_ADMIN || role === ROLE_EMPLOYEE || role === "FUNCIONARIO";
+  return role === ROLE_ADMIN || role === ROLE_EMPLOYEE;
 }
 
 export function isCustomerRole(role?: string | null): boolean {

@@ -340,7 +340,7 @@ export function CartCheckoutModal({ open, onOpenChange }: CartCheckoutModalProps
       `🔑 *Nº do Pedido:* ${orderData?.orderId ?? ""}\n\n` +
       `Segue o comprovante!`
     );
-    window.open(`https://wa.me/5575991988685?text=${msg}`, "_blank", "noopener,noreferrer");
+    window.open(`https://wa.me/5575999661614?text=${msg}`, "_blank", "noopener,noreferrer");
 
     // Limpa o carrinho após confirmar via WhatsApp
     clearCart();
@@ -441,8 +441,8 @@ export function CartCheckoutModal({ open, onOpenChange }: CartCheckoutModalProps
                   type="button"
                   onClick={() => handleDeliveryTypeChange("pickup")}
                   className={`flex flex-col items-center justify-center p-3 rounded-lg border text-center transition-all cursor-pointer ${deliveryType === "pickup"
-                      ? "border-emerald-600 bg-emerald-50/50 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200 font-semibold"
-                      : "border-border hover:border-muted-foreground/40"
+                    ? "border-emerald-600 bg-emerald-50/50 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200 font-semibold"
+                    : "border-border hover:border-muted-foreground/40"
                     }`}
                 >
                   <Store className="h-5 w-5 mb-1 text-emerald-600" />
@@ -454,8 +454,8 @@ export function CartCheckoutModal({ open, onOpenChange }: CartCheckoutModalProps
                   type="button"
                   onClick={() => handleDeliveryTypeChange("delivery")}
                   className={`flex flex-col items-center justify-center p-3 rounded-lg border text-center transition-all cursor-pointer ${deliveryType === "delivery"
-                      ? "border-emerald-600 bg-emerald-50/50 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200 font-semibold"
-                      : "border-border hover:border-muted-foreground/40"
+                    ? "border-emerald-600 bg-emerald-50/50 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200 font-semibold"
+                    : "border-border hover:border-muted-foreground/40"
                     }`}
                 >
                   <Truck className="h-5 w-5 mb-1 text-emerald-600" />
@@ -673,8 +673,8 @@ export function CartCheckoutModal({ open, onOpenChange }: CartCheckoutModalProps
               {loading
                 ? "Gerando PIX..."
                 : !isFormReady && deliveryType === "delivery" && !quoteFetched
-                ? "Calcule o frete para continuar"
-                : `Gerar QR Code PIX — ${formatPrice(totalWithDelivery)}`}
+                  ? "Calcule o frete para continuar"
+                  : `Gerar QR Code PIX — ${formatPrice(totalWithDelivery)}`}
             </Button>
           </>
         )}

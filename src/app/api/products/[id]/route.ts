@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { requireAdmin } from "@/lib/auth";
+import { requireStaff } from "@/lib/auth";
 import {
   getMercadoLivreAccessToken,
   refreshMercadoLivreToken,
@@ -220,7 +220,7 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const authResult = await requireAdmin(req);
+    const authResult = await requireStaff(req);
 
     if (authResult.response) {
       return authResult.response;
@@ -326,7 +326,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const authResult = await requireAdmin(req);
+    const authResult = await requireStaff(req);
 
     if (authResult.response) {
       return authResult.response;

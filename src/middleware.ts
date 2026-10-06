@@ -32,21 +32,35 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL("/login", request.url));
     }
 
-    // 2. Rotas exclusivas de Administrador (Funcionário não pode acessar)
-    const adminPrefixes = [
-      "/dashboard/users",
-      "/dashboard/register",
+    // 2. Rotas acessíveis por Funcionário e Admin (Catálogo da Loja)
+    const staffPrefixes = [
       "/dashboard/products",
       "/dashboard/categories",
       "/dashboard/brands",
-      "/dashboard/partners",
     ];
 
-    const isAdminRoute = adminPrefixes.some(
+    const isStaffOnlyRoute = staffPrefixes.some(
       (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
     );
 
-    if (isAdminRoute && role !== "ADMIN") {
+    const isStaff = role === "ADMIN" || role === "EMPLOYEE";
+
+    if (isStaffOnlyRoute && !isStaff) {
+      return NextResponse.redirect(new URL("/dashboard/orders", request.url));
+    }
+
+    // 3. Rotas exclusivas de Administrador
+    const adminOnlyPrefixes = [
+      "/dashboard/users",
+      "/dashboard/register",
+      "/dashboard/partners",
+    ];
+
+    const isAdminOnlyRoute = adminOnlyPrefixes.some(
+      (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
+    );
+
+    if (isAdminOnlyRoute && role !== "ADMIN") {
       return NextResponse.redirect(new URL("/dashboard/orders", request.url));
     }
 

@@ -63,7 +63,7 @@ interface SystemUser {
   id: string;
   name: string;
   email: string;
-  role: "ADMIN" | "EMPLOYEE" | "FUNCIONARIO";
+  role: "ADMIN" | "EMPLOYEE";
   createdAt?: string;
 }
 
@@ -161,12 +161,11 @@ export default function SystemUsersPage() {
   const handleEdit = (user: SystemUser) => {
     setEditingUser(user);
     setShowForm(true);
-    const normalizedRole = user.role === "FUNCIONARIO" ? "EMPLOYEE" : user.role;
     form.reset({
       name: user.name || "",
       email: user.email || "",
       password: "",
-      role: normalizedRole as "ADMIN" | "EMPLOYEE",
+      role: user.role,
     });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -217,7 +216,7 @@ export default function SystemUsersPage() {
 
   const counts = useMemo(() => {
     const admins = users.filter((u) => u.role === "ADMIN").length;
-    const funcionarios = users.filter((u) => u.role === "EMPLOYEE" || u.role === "FUNCIONARIO").length;
+    const funcionarios = users.filter((u) => u.role === "EMPLOYEE").length;
     return { total: users.length, admins, funcionarios };
   }, [users]);
 

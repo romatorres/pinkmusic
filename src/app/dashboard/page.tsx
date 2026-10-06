@@ -63,7 +63,7 @@ export default function OverviewPage() {
   };
 
   const isAdmin = user?.role === "ADMIN";
-  const isEmployee = user?.role === "EMPLOYEE" || user?.role === "FUNCIONARIO";
+  const isEmployee = user?.role === "EMPLOYEE";
 
   return (
     <div className="space-y-6 pt-2 md:pt-0">

@@ -5,9 +5,9 @@ import { requireAdmin, requireStaff } from "@/lib/auth";
 import { isValidEmail, normalizeEmail } from "@/lib/authValidation";
 
 // GET /api/auth/users
-// - ?type=system -> lista apenas ADMIN e FUNCIONARIO (somente Admin)
+// - ?type=system -> lista apenas ADMIN e EMPLOYEE (somente Admin)
 // - ?type=customers -> lista apenas USER com métricas de pedidos (Staff: Admin e Funcionário)
-// - sem param -> padrão lista equipe (ADMIN e FUNCIONARIO)
+// - sem param -> padrão lista equipe (ADMIN e EMPLOYEE)
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -71,7 +71,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(formattedCustomers);
     }
 
-    // Padrão: Usuários do sistema (ADMIN e FUNCIONARIO) - restrito a ADMIN
+    // Padrão: Usuários do sistema (ADMIN e EMPLOYEE) - restrito a ADMIN
     const authResult = await requireAdmin(request);
     if (authResult.response) {
       return authResult.response;
@@ -80,7 +80,7 @@ export async function GET(request: NextRequest) {
     const systemUsers = await prisma.user.findMany({
       where: {
         role: {
-          in: ["ADMIN", "EMPLOYEE", "FUNCIONARIO"],
+          in: ["ADMIN", "EMPLOYEE"],
         },
       },
       select: {
@@ -118,8 +118,7 @@ export async function POST(request: NextRequest) {
     const email = typeof body.email === "string" ? body.email : "";
     const password = typeof body.password === "string" ? body.password : "";
     const name = typeof body.name === "string" ? body.name.trim() : "";
-    const roleInput = typeof body.role === "string" ? body.role.toUpperCase() : "EMPLOYEE";
-    const role = roleInput === "FUNCIONARIO" ? "EMPLOYEE" : roleInput;
+    const role = typeof body.role === "string" ? body.role.toUpperCase() : "EMPLOYEE";
 
     if (!name || name.length < 3) {
       return NextResponse.json(

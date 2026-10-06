@@ -16,7 +16,7 @@ export default function ConditionalWhatsApp() {
 
   return (
     <WhatsAppButton
-      phoneNumber="5575991988685"
+      phoneNumber="5575999661614"
       message="Olá! Vi seu site e gostaria de mais informações."
     />
   );
