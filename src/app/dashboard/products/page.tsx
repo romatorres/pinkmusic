@@ -47,6 +47,10 @@ import CategoryFilter from "@/components/site/_components/CategoryFilter";
 import BrandFilter from "@/components/site/_components/BrandFilter";
 import { ProductFormModal } from "./_components/ProductFormModal";
 import { LocalProductModal } from "./_components/LocalProductModal";
+import {
+  ProductEditModal,
+  ProductEditData,
+} from "./_components/ProductEditModal";
 import { Category, Brand, ProductOrigin } from "@/lib/types";
 
 interface Product {
@@ -57,10 +61,10 @@ interface Product {
   available_quantity: number;
   condition: string;
   origin?: ProductOrigin;
-  categoryId?: string;
-  category?: Category;
-  brandId?: string;
-  brand?: Brand;
+  categoryId?: string | null;
+  category?: Category | null;
+  brandId?: string | null;
+  brand?: Brand | null;
 }
 
 function ProductsPageContent() {
@@ -72,6 +76,7 @@ function ProductsPageContent() {
   const [productToDelete, setProductToDelete] = useState<string | null>(null);
   const [productFormOpen, setProductFormOpen] = useState(false);
   const [localProductModalOpen, setLocalProductModalOpen] = useState(false);
+  const [productEditId, setProductEditId] = useState<string | null>(null);
   const [syncingML, setSyncingML] = useState(false);
   const searchParams = useSearchParams();
   const [searchInput, setSearchInput] = useState(
@@ -208,6 +213,27 @@ function ProductsPageContent() {
     fetchProducts(currentPage, selectedCategory, selectedBrand, searchTerm, selectedOrigin);
   };
 
+  const handleProductUpdated = useCallback(
+    (updatedProduct: ProductEditData) => {
+      setProducts((currentProducts) =>
+        currentProducts.map((product) =>
+          product.id === updatedProduct.id
+            ? {
+              ...product,
+              ...updatedProduct,
+              condition: updatedProduct.condition || product.condition,
+            }
+            : product,
+        ),
+      );
+    },
+    [],
+  );
+
+  const handleCloseProductEdit = useCallback((open: boolean) => {
+    if (!open) setProductEditId(null);
+  }, []);
+
   const handleDeleteProduct = async (productId: string) => {
     try {
       const response = await fetch(`/api/products/${productId}`, {
@@ -298,8 +324,9 @@ function ProductsPageContent() {
               <CardTitle>Todos os Produtos</CardTitle>
               <p className="text-sm text-muted-foreground">Filtre e visualize o catálogo em um único painel.</p>
             </div>
-            <div className="flex w-full flex-col items-start gap-4 rounded-xl border border-border/80 bg-muted/30 p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">Filtros</p>
+            <hr className="my-2 border-primary/30 border-t w-full" />
+            <div className="flex w-full flex-col items-start gap-4">
+              <p className="text-sm text-foreground">Filtros</p>
               {/* Busca */}
               <div className="w-full">
                 <SearchInput
@@ -332,7 +359,7 @@ function ProductsPageContent() {
               </div>
 
               {/* Filtro de Origem / Canal */}
-              <div className="flex flex-col lg:flex-row gap-2 w-full">
+              <div className="flex flex-col lg:flex-row gap-2 w-full overflow-hidden">
                 <Label
                   htmlFor="origin-select"
                   className="text-start whitespace-nowrap"
@@ -383,6 +410,7 @@ function ProductsPageContent() {
                 </Select>
               </div>
             </div>
+            <hr className="mt-5 border-primary/30 border-t w-full" />
           </div>
         </CardHeader>
         <CardContent>
@@ -418,20 +446,13 @@ function ProductsPageContent() {
                     {products.map((product) => (
                       <TableRow key={product.id}>
                         <TableCell className="font-mono text-sm truncate max-w-[100px]">
-                          {product.code}
+                          {product.code ?? product.id}
                         </TableCell>
                         <TableCell className="font-medium">
                           <div className="flex flex-col gap-1 max-w-[490px]">
                             <span className="truncate font-semibold text-foreground" title={product.title}>
                               {product.title}
                             </span>
-                            {/* {product.code && (
-                              <div className="flex items-center gap-1.5 flex-wrap">
-                                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
-                                  Cód: {product.code}
-                                </span>
-                              </div>
-                            )} */}
                           </div>
                         </TableCell>
                         <TableCell>
@@ -502,13 +523,14 @@ function ProductsPageContent() {
                                 <Eye className="h-4 w-4" />
                               </Button>
                             </Link>
-                            <Link
-                              href={`/dashboard/products/${product.id}/edit`}
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => setProductEditId(product.id)}
+                              title="Editar produto"
                             >
-                              <Button variant="ghost" size="icon">
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                            </Link>
+                              <Edit className="h-4 w-4" />
+                            </Button>
 
                             <Dialog
                               open={productToDelete === product.id}
@@ -593,6 +615,15 @@ function ProductsPageContent() {
         categories={categories}
         brands={brands}
         onSuccess={handleProductAdded}
+      />
+
+      <ProductEditModal
+        productId={productEditId}
+        open={productEditId !== null}
+        onOpenChange={handleCloseProductEdit}
+        categories={categories}
+        brands={brands}
+        onSuccess={handleProductUpdated}
       />
     </div>
   );

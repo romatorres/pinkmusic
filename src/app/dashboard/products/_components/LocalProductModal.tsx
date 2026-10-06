@@ -160,8 +160,8 @@ export function LocalProductModal({
         formSubCategory && formSubCategory !== "none"
           ? formSubCategory
           : formMainCategory && formMainCategory !== "none"
-          ? formMainCategory
-          : null;
+            ? formMainCategory
+            : null;
 
       // 2. Salva o produto no banco com a URL gerada pelo Cloudinary
       const response = await fetch("/api/products/local", {
@@ -360,11 +360,11 @@ export function LocalProductModal({
               <Label className="font-semibold flex items-center gap-1.5">
                 <ImageIcon className="h-4 w-4" /> Imagem do Produto
               </Label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
+              <div className="grid grid-cols-1 gap-3 items-center">
                 <div>
                   <label
                     htmlFor="image-file-input"
-                    className="flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-4 cursor-pointer hover:border-emerald-500 hover:bg-emerald-50/20 transition-colors"
+                    className="flex flex-col items-center justify-center border-2 bg-popover border-dashed rounded-lg p-4 cursor-pointer hover:border-emerald-500 hover:bg-emerald-50/20 transition-colors"
                   >
                     <Upload className="h-6 w-6 text-muted-foreground mb-1" />
                     <span className="text-xs text-muted-foreground font-medium">
@@ -385,7 +385,7 @@ export function LocalProductModal({
                 </div>
 
                 <div className="space-y-1.5">
-                  <span className="text-xs text-muted-foreground">Ou informe uma URL:</span>
+                  <span className="text-xs text-card-foreground/80">Ou informe uma URL:</span>
                   <Input
                     type="url"
                     placeholder="https://exemplo.com/foto.jpg"
@@ -418,11 +418,11 @@ export function LocalProductModal({
               <Label htmlFor="local-desc">Descrição / Detalhes do Produto</Label>
               <textarea
                 id="local-desc"
-                rows={3}
+                rows={5}
                 placeholder="Ex: Jogo de cordas para guitarra elétrica, bitola 0.10-0.46, liga de níquel. Embalagem lacrada."
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                className="w-full rounded-md border border-input bg-popover px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                 disabled={isSubmitting}
               />
             </div>
@@ -453,7 +453,7 @@ export function LocalProductModal({
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-2"
+              variant="default"
             >
               {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
               {isSubmitting

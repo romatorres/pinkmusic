@@ -312,7 +312,7 @@ export default function EditProductPage() {
   const isLocal = product.origin === "LOCAL";
 
   return (
-    <div className="md:pt-8 pt-12 max-w-4xl mx-auto">
+    <div className="md:pt-8 pt-12 mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="md:text-3xl text-2xl font-bold">Editar Produto</h1>
@@ -403,11 +403,11 @@ export default function EditProductPage() {
                 do Produto
               </Label>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
+              <div className="grid grid-cols-1 gap-4 items-center">
                 {/* Preview Atual */}
                 <div className="flex flex-col items-center justify-center p-2 border rounded-lg bg-background min-h-[140px]">
                   {product.thumbnail ? (
-                    <div className="relative w-28 h-28">
+                    <div className="relative w-38 h-38">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={product.thumbnail}
@@ -430,7 +430,7 @@ export default function EditProductPage() {
                   <div>
                     <label
                       htmlFor="edit-image-file"
-                      className="flex items-center justify-center gap-2 border-2 border-dashed rounded-lg p-3 cursor-pointer hover:border-emerald-500 hover:bg-emerald-50/20 transition-colors"
+                      className="flex items-center justify-center gap-2 border-2 border-dashed border-card-foreground/30 rounded-lg p-3 cursor-pointer hover:border-emerald-500 hover:bg-emerald-50/20 transition-colors bg-popover/40"
                     >
                       <Upload className="h-5 w-5 text-muted-foreground" />
                       <span className="text-xs font-medium text-foreground">
@@ -716,14 +716,6 @@ export default function EditProductPage() {
             {/* Botões de Ação */}
             <div className="flex flex-col md:flex-row gap-4 pt-4 border-t">
               <Button
-                type="submit"
-                className="md:w-auto w-full bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-2"
-                disabled={saving}
-              >
-                {saving && <Loader2 className="h-4 w-4 animate-spin" />}
-                {saving ? uploadStatus || "Salvando..." : "Salvar Alterações"}
-              </Button>
-              <Button
                 type="button"
                 variant="outline"
                 className="md:w-auto w-full px-10"
@@ -731,6 +723,14 @@ export default function EditProductPage() {
                 disabled={saving}
               >
                 Cancelar
+              </Button>
+              <Button
+                type="submit"
+                variant="default"
+                disabled={saving}
+              >
+                {saving && <Loader2 className="h-4 w-4 animate-spin" />}
+                {saving ? uploadStatus || "Salvando..." : "Salvar Alterações"}
               </Button>
             </div>
           </form>
