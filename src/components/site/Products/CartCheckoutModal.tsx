@@ -350,6 +350,17 @@ export function CartCheckoutModal({ open, onOpenChange }: CartCheckoutModalProps
 
   const totalWithDelivery = total + (deliveryType === "delivery" ? deliveryFee : 0);
 
+  // Formulário completo para habilitar Gerar PIX
+  const isDeliveryReady =
+    deliveryType !== "delivery" ||
+    (
+      quoteFetched &&
+      zipCode.replace(/\D/g, "").length === 8 &&
+      address.trim() !== "" &&
+      neighborhood.trim() !== ""
+    );
+  const isFormReady = name.trim() !== "" && whatsapp.trim() !== "" && isDeliveryReady;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg max-h-[95vh] overflow-y-auto">
@@ -516,13 +527,23 @@ export function CartCheckoutModal({ open, onOpenChange }: CartCheckoutModalProps
                       type="button"
                       variant="outline"
                       onClick={handleFetchQuote}
-                      disabled={quoteLoading || zipCode.replace(/\D/g, "").length !== 8}
-                      className="shrink-0 border-emerald-600/50 text-emerald-700 hover:bg-emerald-50/50 font-semibold"
+                      disabled={
+                        quoteLoading ||
+                        zipCode.replace(/\D/g, "").length !== 8 ||
+                        !name.trim() ||
+                        !whatsapp.trim()
+                      }
+                      title={
+                        !name.trim() || !whatsapp.trim()
+                          ? "Preencha seu nome e WhatsApp primeiro"
+                          : undefined
+                      }
+                      className="shrink-0 border-emerald-600/50 text-emerald-700 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/30 font-semibold"
                     >
                       {quoteLoading ? (
-                        <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
+                        <Loader2 className="h-4 w-4 animate-spin" />
                       ) : (
-                        <Truck className="h-4 w-4 mr-1.5 text-emerald-600" />
+                        <Truck className="h-4 w-4 text-emerald-600" />
                       )}
                       {quoteLoading ? "Calculando..." : quoteFetched ? "Recalcular" : "Calcular Frete"}
                     </Button>
@@ -562,45 +583,58 @@ export function CartCheckoutModal({ open, onOpenChange }: CartCheckoutModalProps
                   </div>
                 )}
 
-                <div>
-                  <Label htmlFor="cart-address" className="text-xs">
-                    Rua e Número <span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    id="cart-address"
-                    placeholder="Ex: Rua das Flores, 123"
-                    value={address}
-                    onChange={(e) => { setAddress(e.target.value); }}
-                    className="mt-1"
-                  />
-                </div>
+                {/* Dica antes de calcular */}
+                {!quoteFetched && !quoteError && (
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/40 border border-border/60 rounded-lg px-3 py-2.5">
+                    <MapPin className="h-3.5 w-3.5 shrink-0 text-emerald-600" />
+                    <span>Informe seu CEP e calcule o frete para liberar os campos de endereço.</span>
+                  </div>
+                )}
 
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <Label htmlFor="cart-neighborhood" className="text-xs">
-                      Bairro <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                      id="cart-neighborhood"
-                      placeholder="Ex: Centro"
-                      value={neighborhood}
-                      onChange={(e) => { setNeighborhood(e.target.value); }}
-                      className="mt-1"
-                    />
+                {/* Endereço liberado somente após cálculo do frete */}
+                {quoteFetched && (
+                  <div className="space-y-3 pt-1 border-t border-border/50">
+                    <div>
+                      <Label htmlFor="cart-address" className="text-xs">
+                        Rua e Número <span className="text-red-500">*</span>
+                      </Label>
+                      <Input
+                        id="cart-address"
+                        placeholder="Ex: Rua das Flores, 123"
+                        value={address}
+                        onChange={(e) => { setAddress(e.target.value); }}
+                        className="mt-1"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <Label htmlFor="cart-neighborhood" className="text-xs">
+                          Bairro <span className="text-red-500">*</span>
+                        </Label>
+                        <Input
+                          id="cart-neighborhood"
+                          placeholder="Ex: Centro"
+                          value={neighborhood}
+                          onChange={(e) => { setNeighborhood(e.target.value); }}
+                          className="mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="cart-complement" className="text-xs">
+                          Complemento
+                        </Label>
+                        <Input
+                          id="cart-complement"
+                          placeholder="Apto, bloco..."
+                          value={complement}
+                          onChange={(e) => setComplement(e.target.value)}
+                          className="mt-1"
+                        />
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <Label htmlFor="cart-complement" className="text-xs">
-                      Complemento
-                    </Label>
-                    <Input
-                      id="cart-complement"
-                      placeholder="Apto, bloco..."
-                      value={complement}
-                      onChange={(e) => setComplement(e.target.value)}
-                      className="mt-1"
-                    />
-                  </div>
-                </div>
+                )}
               </div>
             )}
 
@@ -629,15 +663,19 @@ export function CartCheckoutModal({ open, onOpenChange }: CartCheckoutModalProps
 
             <Button
               onClick={handleGeneratePix}
-              disabled={loading}
-              className="w-full h-11 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm"
+              disabled={loading || !isFormReady}
+              className="w-full h-11 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-semibold text-sm"
             >
               {loading ? (
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                <QrCode className="h-4 w-4 mr-2" />
+                <QrCode className="h-4 w-4" />
               )}
-              {loading ? "Gerando PIX..." : `Gerar QR Code PIX — ${formatPrice(totalWithDelivery)}`}
+              {loading
+                ? "Gerando PIX..."
+                : !isFormReady && deliveryType === "delivery" && !quoteFetched
+                ? "Calcule o frete para continuar"
+                : `Gerar QR Code PIX — ${formatPrice(totalWithDelivery)}`}
             </Button>
           </>
         )}
