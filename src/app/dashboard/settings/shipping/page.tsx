@@ -91,6 +91,10 @@ export default function ShippingSettingsPage() {
   });
   const [zoneSubmitting, setZoneSubmitting] = useState(false);
 
+  // Modal de confirmação de exclusão de Zona
+  const [deleteZoneConfirmOpen, setDeleteZoneConfirmOpen] = useState(false);
+  const [zoneToDelete, setZoneToDelete] = useState<ShippingZone | null>(null);
+
   // Modais de CEP
   const [zipModalOpen, setZipModalOpen] = useState(false);
   const [zipForm, setZipForm] = useState({
@@ -103,6 +107,10 @@ export default function ShippingSettingsPage() {
     zoneId: "",
   });
   const [zipSubmitting, setZipSubmitting] = useState(false);
+
+  // Modal de confirmação de exclusão de CEP
+  const [deleteZipConfirmOpen, setDeleteZipConfirmOpen] = useState(false);
+  const [zipToDelete, setZipToDelete] = useState<{ id: string; zipCode: string } | null>(null);
 
   // Modal de Importação em Lote
   const [bulkModalOpen, setBulkModalOpen] = useState(false);
@@ -249,18 +257,16 @@ export default function ShippingSettingsPage() {
     }
   };
 
-  // Excluir zona
-  const handleDeleteZone = async (zone: ShippingZone) => {
-    if (
-      !confirm(
-        `Tem certeza que deseja excluir "${zone.name}"? Os CEPs vinculados ficarão sem zona fixa.`
-      )
-    ) {
-      return;
-    }
+  // Excluir zona — abre modal de confirmação
+  const handleDeleteZone = (zone: ShippingZone) => {
+    setZoneToDelete(zone);
+    setDeleteZoneConfirmOpen(true);
+  };
 
+  const confirmDeleteZone = async () => {
+    if (!zoneToDelete) return;
     try {
-      const res = await fetch(`/api/admin/shipping/zones/${zone.id}`, {
+      const res = await fetch(`/api/admin/shipping/zones/${zoneToDelete.id}`, {
         method: "DELETE",
       });
       const json = await res.json();
@@ -272,6 +278,9 @@ export default function ShippingSettingsPage() {
       }
     } catch {
       toast.error("Erro ao excluir zona.");
+    } finally {
+      setDeleteZoneConfirmOpen(false);
+      setZoneToDelete(null);
     }
   };
 
@@ -327,12 +336,16 @@ export default function ShippingSettingsPage() {
     }
   };
 
-  // Excluir CEP
-  const handleDeleteZipCode = async (id: string, zipCode: string) => {
-    if (!confirm(`Deseja remover o CEP ${formatZipCode(zipCode)} da base?`)) return;
+  // Excluir CEP — abre modal de confirmação
+  const handleDeleteZipCode = (id: string, zipCode: string) => {
+    setZipToDelete({ id, zipCode });
+    setDeleteZipConfirmOpen(true);
+  };
 
+  const confirmDeleteZipCode = async () => {
+    if (!zipToDelete) return;
     try {
-      const res = await fetch(`/api/admin/shipping/zipcodes/${id}`, {
+      const res = await fetch(`/api/admin/shipping/zipcodes/${zipToDelete.id}`, {
         method: "DELETE",
       });
       const json = await res.json();
@@ -345,6 +358,9 @@ export default function ShippingSettingsPage() {
       }
     } catch {
       toast.error("Erro ao remover CEP.");
+    } finally {
+      setDeleteZipConfirmOpen(false);
+      setZipToDelete(null);
     }
   };
 
@@ -461,16 +477,15 @@ export default function ShippingSettingsPage() {
             variant="outline"
             size="sm"
             onClick={() => setBulkModalOpen(true)}
-            className="gap-1.5 border-purple-300 dark:border-purple-800 text-purple-700 dark:text-purple-300"
           >
             <Upload className="h-3.5 w-3.5" />
             Importar CEPs (CSV)
           </Button>
 
           <Button
+            variant="default"
             size="sm"
             onClick={handleOpenCreateZone}
-            className="gap-1.5 bg-purple-600 hover:bg-purple-700 text-white"
           >
             <Plus className="h-3.5 w-3.5" />
             Nova Zona
@@ -567,7 +582,7 @@ export default function ShippingSettingsPage() {
               <p className="text-xs text-muted-foreground mt-1 mb-4">
                 Crie a primeira zona para começar a cobrar frete local por distância.
               </p>
-              <Button size="sm" onClick={handleOpenCreateZone} className="bg-purple-600 text-white">
+              <Button variant="default" size="sm" onClick={handleOpenCreateZone}>
                 <Plus className="h-4 w-4 mr-1.5" /> Criar Zona
               </Button>
             </div>
@@ -692,9 +707,9 @@ export default function ShippingSettingsPage() {
             </div>
 
             <Button
+              variant="default"
               size="sm"
               onClick={() => setZipModalOpen(true)}
-              className="gap-1.5 bg-purple-600 text-white"
             >
               <Plus className="h-3.5 w-3.5" /> Cadastrar CEP
             </Button>
@@ -899,7 +914,7 @@ export default function ShippingSettingsPage() {
               <Button type="button" variant="outline" onClick={() => setZoneModalOpen(false)}>
                 Cancelar
               </Button>
-              <Button type="submit" disabled={zoneSubmitting} className="bg-purple-600 text-white">
+              <Button type="submit" variant="default" disabled={zoneSubmitting}>
                 {zoneSubmitting ? <Loader2 className="h-4 w-4 animate-spin mr-1.5" /> : null}
                 {editingZone ? "Salvar Alterações" : "Criar Zona"}
               </Button>
@@ -1032,7 +1047,7 @@ export default function ShippingSettingsPage() {
               <Button type="button" variant="outline" onClick={() => setZipModalOpen(false)}>
                 Cancelar
               </Button>
-              <Button type="submit" disabled={zipSubmitting} className="bg-purple-600 text-white">
+              <Button type="submit" variant="default" disabled={zipSubmitting}>
                 {zipSubmitting ? <Loader2 className="h-4 w-4 animate-spin mr-1.5" /> : null}
                 Salvar CEP
               </Button>
@@ -1074,15 +1089,72 @@ export default function ShippingSettingsPage() {
               </Button>
               <Button
                 type="button"
+                variant="default"
                 onClick={handleBulkImport}
                 disabled={bulkSubmitting || !bulkCsvText.trim()}
-                className="bg-purple-600 text-white"
               >
                 {bulkSubmitting ? <Loader2 className="h-4 w-4 animate-spin mr-1.5" /> : <Upload className="h-4 w-4 mr-1.5" />}
                 Importar Lista
               </Button>
             </DialogFooter>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── MODAL: CONFIRMAR EXCLUSÃO DE CEP ──────────────────────────────── */}
+      <Dialog open={deleteZipConfirmOpen} onOpenChange={setDeleteZipConfirmOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Remover CEP</DialogTitle>
+            <DialogDescription>
+              Tem certeza que deseja remover o CEP{" "}
+              <span className="font-mono font-bold text-foreground">
+                {zipToDelete ? formatZipCode(zipToDelete.zipCode) : ""}
+              </span>{" "}
+              da base? Esta ação não pode ser desfeita.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteZipConfirmOpen(false)}
+            >
+              Cancelar
+            </Button>
+            <Button variant="destructive" onClick={confirmDeleteZipCode}>
+              <Trash2 className="h-4 w-4" />
+              Remover CEP
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── MODAL: CONFIRMAR EXCLUSÃO DE ZONA ─────────────────────────────── */}
+      <Dialog open={deleteZoneConfirmOpen} onOpenChange={setDeleteZoneConfirmOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Excluir Zona de Entrega</DialogTitle>
+            <DialogDescription>
+              Tem certeza que deseja excluir{" "}
+              <span className="font-bold text-foreground">
+                {zoneToDelete?.name}
+              </span>?
+              Os CEPs vinculados a ela ficarão sem zona fixa e passarão a ser
+              calculados por distância geográfica.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteZoneConfirmOpen(false)}
+            >
+              Cancelar
+            </Button>
+            <Button variant="destructive" onClick={confirmDeleteZone}>
+              <Trash2 className="h-4 w-4" />
+              Excluir Zona
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma";
 import { normalizeZipCode } from "./normalize-zipcode";
-import { calculateHaversineDistance } from "./calculate-distance";
+import { calculateDistance } from "./calculate-distance";
 import { STORE_SHIPPING_CONFIG } from "./config";
 import { ensureDefaultShippingZonesAndZipCodes } from "./seed";
 
@@ -46,7 +46,7 @@ export type CalculateShippingResult = ShippingSuccessResult | ShippingFailureRes
  * 2. Garante zonas padrões no banco se for primeira execução.
  * 3. Busca o CEP no banco de dados local (tabela ShippingZipCode).
  * 4. Se não estiver no banco, consulta ViaCEP para verificar se pertence a Feira de Santana - BA.
- * 5. Determina latitude/longitude e calcula a distância geográfica (Haversine) até o CEP de origem da loja.
+ * 5. Determina latitude/longitude e calcula a distância (OSRM real por estrada, fallback Haversine×1.35) até a loja.
  * 6. Encontra a ShippingZone ativa que cobre aquela faixa de distância (minDistance <= dist < maxDistance).
  * 7. Retorna os dados oficiais com o preço definido na zona pelo banco de dados.
  */
@@ -168,7 +168,7 @@ export async function calculateShipping(
     let distanceKm: number;
 
     if (latitude !== null && longitude !== null) {
-      const distanceResult = calculateHaversineDistance(
+      const distanceResult = await calculateDistance(
         STORE_SHIPPING_CONFIG.originCoordinates,
         { latitude, longitude }
       );
@@ -199,10 +199,9 @@ export async function calculateShipping(
     }
 
     // 5. Encontra a zona correspondente à distância calculada
-    // Uma distância pertence à zona se minDistance <= distanceKm E distanceKm <= maxDistance
-    // Se a distância for exatamente na divisa, pega a zona com maxDistance correspondente.
+    // minDistance é inclusivo, maxDistance é exclusivo: minDistance <= dist < maxDistance
     const matchedZone = activeZones.find(
-      (z) => distanceKm >= z.minDistance && distanceKm <= z.maxDistance
+      (z) => distanceKm >= z.minDistance && distanceKm < z.maxDistance
     );
 
     if (!matchedZone) {
