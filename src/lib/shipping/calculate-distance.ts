@@ -116,7 +116,17 @@ async function fetchOsrmDistance(
 
     // OSRM retorna distância em metros
     const distanceKm = data.routes[0].distance / 1000;
-    return Math.round(distanceKm * 100) / 100;
+    const roundedKm = Math.round(distanceKm * 100) / 100;
+
+    // Sanidade: distâncias > 500 km são absurdas para entrega local — descarta e usa fallback
+    if (roundedKm > 500) {
+      console.warn(
+        `[shipping/distance] OSRM retornou distância absurda (${roundedKm} km) para coords origin=(${origin.latitude},${origin.longitude}) dest=(${destination.latitude},${destination.longitude}). Usando fallback.`
+      );
+      return null;
+    }
+
+    return roundedKm;
   } catch (err) {
     console.warn(`[shipping/distance] Exceção ou timeout na chamada OSRM:`, err);
     return null;
@@ -136,6 +146,10 @@ export async function calculateDistance(
   origin: GeoCoordinate,
   destination: GeoCoordinate
 ): Promise<DistanceCalculationResult> {
+  console.log(
+    `[shipping/distance] Calculando distância: origin=(${origin.latitude},${origin.longitude}) → dest=(${destination.latitude},${destination.longitude})`
+  );
+
   const osrmDistanceKm = await fetchOsrmDistance(origin, destination);
 
   if (osrmDistanceKm !== null) {
