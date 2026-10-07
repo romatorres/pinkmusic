@@ -141,11 +141,11 @@ export async function calculateShipping(
       };
     }
 
-    // 4. Determina distância geográfica prioritariamente via OSRM (estrada real)
+    // 4. Calcula distância via Haversine × 1.4 (aproximação viária confiável para entrega local)
     let distanceKm: number;
 
     if (latitude !== null && longitude !== null) {
-      const distanceResult = await calculateDistance(
+      const distanceResult = calculateDistance(
         STORE_SHIPPING_CONFIG.originCoordinates,
         { latitude, longitude }
       );

@@ -42,7 +42,7 @@ export async function resolveZipCoordinates(
         Accept: "application/json",
         "User-Agent": "PinkMusicShipping/1.0",
       },
-      next: { revalidate: 86400 },
+      cache: "no-store",
     });
     clearTimeout(timer);
 
