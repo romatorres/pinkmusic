@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { requireStaff } from "@/lib/auth";
+import { requireAdmin } from "@/lib/auth";
 import { ensureDefaultShippingZonesAndZipCodes } from "@/lib/shipping/seed";
 
 // GET /api/admin/shipping/zones - Lista todas as zonas cadastradas
 export async function GET(request: NextRequest) {
   try {
-    const auth = await requireStaff(request);
+    const auth = await requireAdmin(request);
     if (auth.response) return auth.response;
 
     await ensureDefaultShippingZonesAndZipCodes();
@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
 // POST /api/admin/shipping/zones - Cria nova zona
 export async function POST(request: NextRequest) {
   try {
-    const auth = await requireStaff(request);
+    const auth = await requireAdmin(request);
     if (auth.response) return auth.response;
 
     const body = await request.json();

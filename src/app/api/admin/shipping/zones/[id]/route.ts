@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { requireStaff } from "@/lib/auth";
+import { requireAdmin } from "@/lib/auth";
 
 // PUT /api/admin/shipping/zones/[id] - Atualiza zona existente
 export async function PUT(
@@ -8,7 +8,7 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const auth = await requireStaff(request);
+    const auth = await requireAdmin(request);
     if (auth.response) return auth.response;
 
     const { id } = await params;
@@ -104,7 +104,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const auth = await requireStaff(request);
+    const auth = await requireAdmin(request);
     if (auth.response) return auth.response;
 
     const { id } = await params;

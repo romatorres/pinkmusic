@@ -54,6 +54,7 @@ export async function middleware(request: NextRequest) {
       "/dashboard/users",
       "/dashboard/register",
       "/dashboard/partners",
+      "/dashboard/shipping",
     ];
 
     const isAdminOnlyRoute = adminOnlyPrefixes.some(

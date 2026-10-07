@@ -182,19 +182,21 @@ export function Sidebar() {
               </li>
 
               {/* Entregas & Frete (Zonas Locais) */}
-              <li>
-                <Link
-                  href="/dashboard/settings/shipping"
-                  className={cn(
-                    "flex items-center space-x-2.5 px-3 py-2 rounded-lg text-sm transition-colors",
-                    isActive("/dashboard/settings/shipping")
-                  )}
-                  onClick={closeMobile}
-                >
-                  <Truck size={18} />
-                  <span>Entregas & Frete</span>
-                </Link>
-              </li>
+              {isAdmin && (
+                <li>
+                  <Link
+                    href="/dashboard/shipping"
+                    className={cn(
+                      "flex items-center space-x-2.5 px-3 py-2 rounded-lg text-sm transition-colors",
+                      isActive("/dashboard/shipping")
+                    )}
+                    onClick={closeMobile}
+                  >
+                    <Truck size={18} />
+                    <span>Entregas & Frete</span>
+                  </Link>
+                </li>
+              )}
             </ul>
           </div>
 

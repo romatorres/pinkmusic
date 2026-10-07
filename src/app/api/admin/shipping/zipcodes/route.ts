@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { requireStaff } from "@/lib/auth";
+import { requireAdmin } from "@/lib/auth";
 import { normalizeZipCode } from "@/lib/shipping/normalize-zipcode";
 import { STORE_SHIPPING_CONFIG } from "@/lib/shipping/config";
 import { calculateDistance } from "@/lib/shipping/calculate-distance";
@@ -9,7 +9,7 @@ import { resolveZipCoordinates } from "@/lib/shipping/geocode-zip";
 // GET /api/admin/shipping/zipcodes - Lista CEPs com paginação e busca
 export async function GET(request: NextRequest) {
   try {
-    const auth = await requireStaff(request);
+    const auth = await requireAdmin(request);
     if (auth.response) return auth.response;
 
     const { searchParams } = new URL(request.url);
@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
 // POST /api/admin/shipping/zipcodes - Cadastra ou importa CEPs (individual ou lote CSV/JSON)
 export async function POST(request: NextRequest) {
   try {
-    const auth = await requireStaff(request);
+    const auth = await requireAdmin(request);
     if (auth.response) return auth.response;
 
     const body = await request.json();
