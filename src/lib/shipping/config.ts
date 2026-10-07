@@ -3,17 +3,30 @@
  * Loja física Pink Music em Feira de Santana - BA
  */
 
+function parseEnvNumber(val: string | undefined, fallback: number): number {
+  if (!val) return fallback;
+  const cleaned = val.replace(/["']/g, "").replace(",", ".").trim();
+  const num = Number(cleaned);
+  return isNaN(num) ? fallback : num;
+}
+
+function parseEnvString(val: string | undefined, fallback: string): string {
+  if (!val) return fallback;
+  const cleaned = val.replace(/["']/g, "").trim();
+  return cleaned || fallback;
+}
+
 export const STORE_SHIPPING_CONFIG = {
   // CEP de Origem da Loja Física (Kalilândia / Centro - Feira de Santana - BA)
   originZipCode: process.env.STORE_ZIP?.replace(/\D/g, "") || "44002000",
   originZipCodeFormatted: "44002-000",
-  storeCity: process.env.STORE_CITY || "Feira de Santana",
-  storeState: process.env.STORE_STATE || "BA",
+  storeCity: parseEnvString(process.env.STORE_CITY, "Feira de Santana"),
+  storeState: parseEnvString(process.env.STORE_STATE, "BA"),
 
   // Coordenadas geográficas da loja física (ponto de partida das entregas)
   originCoordinates: {
-    latitude: Number(process.env.STORE_LAT) || -12.2576,
-    longitude: Number(process.env.STORE_LNG) || -38.9634,
+    latitude: parseEnvNumber(process.env.STORE_LAT, -12.2576),
+    longitude: parseEnvNumber(process.env.STORE_LNG, -38.9634),
   },
 
   // Raio máximo padrão em KM para entregas locais

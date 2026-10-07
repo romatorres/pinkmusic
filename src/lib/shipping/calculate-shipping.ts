@@ -46,8 +46,8 @@ export type CalculateShippingResult = ShippingSuccessResult | ShippingFailureRes
  * 1. Normaliza e valida o CEP brasileiro (8 dígitos).
  * 2. Garante zonas padrões no banco se for primeira execução.
  * 3. Busca o CEP no banco de dados local (tabela ShippingZipCode).
- * 4. Se não estiver no banco, consulta ViaCEP para verificar se pertence a Feira de Santana - BA.
- * 5. Determina latitude/longitude e calcula a distância (OSRM real por estrada, fallback Haversine×1.35) até a loja.
+ * 4. Se não estiver no banco (ou se os dados salvos estiverem corrompidos/inválidos), geocodifica.
+ * 5. Determina latitude/longitude e calcula a distância (Haversine × 1.4) até a loja.
  * 6. Encontra a ShippingZone ativa que cobre aquela faixa de distância (minDistance <= dist < maxDistance).
  * 7. Retorna os dados oficiais com o preço definido na zona pelo banco de dados.
  */
@@ -80,8 +80,26 @@ export async function calculateShipping(
     let latitude = zipRecord?.latitude ?? null;
     let longitude = zipRecord?.longitude ?? null;
 
-    // 2. Se não existir no banco OU se não tiver coordenadas salvas, geocodifica
-    if (!zipRecord || zipRecord.latitude === null || zipRecord.longitude === null) {
+    // Sanidade das coordenadas do banco: no Brasil, a latitude e a longitude são ambas negativas
+    // e para Feira de Santana a distância até a loja não pode exceder 50 km.
+    let isDbDataInvalid = false;
+    if (latitude !== null && longitude !== null) {
+      // Coordenadas brasileiras são ambas negativas (Sul/Oeste)
+      if (latitude > 0 || longitude > 0) {
+        isDbDataInvalid = true;
+      } else {
+        const testDistance = calculateDistance(
+          STORE_SHIPPING_CONFIG.originCoordinates,
+          { latitude, longitude }
+        ).distanceKm;
+        if (testDistance > 50) {
+          isDbDataInvalid = true;
+        }
+      }
+    }
+
+    // 2. Se não existir no banco, ou se não tiver coordenadas, ou se as coordenadas salvam forem inválidas/corrompidas, geocodifica
+    if (!zipRecord || zipRecord.latitude === null || zipRecord.longitude === null || isDbDataInvalid) {
       try {
         const geocoded = await resolveZipCoordinates(cleanZip, district);
 
@@ -150,8 +168,8 @@ export async function calculateShipping(
         { latitude, longitude }
       );
       distanceKm = distanceResult.distanceKm;
-    } else if (zipRecord?.zone && zipRecord.zone.active) {
-      // Se não conseguimos coordenadas mesmo após geocodificar, mas já tinha zona
+    } else if (zipRecord?.zone && zipRecord.zone.active && !isDbDataInvalid) {
+      // Se não conseguimos coordenadas mesmo após geocodificar, mas já tinha zona válida
       const zone = zipRecord.zone;
       const zonePrice = Number(zone.price);
       return {
@@ -219,7 +237,11 @@ export async function calculateShipping(
             zoneId: matchedZone.id,
           },
         });
-      } else if (latitude !== null && longitude !== null && (zipRecord.latitude === null || zipRecord.longitude === null || zipRecord.zoneId !== matchedZone.id)) {
+      } else if (
+        latitude !== null &&
+        longitude !== null &&
+        (zipRecord.latitude !== latitude || zipRecord.longitude !== longitude || zipRecord.zoneId !== matchedZone.id)
+      ) {
         await prisma.shippingZipCode.update({
           where: { zipCode: cleanZip },
           data: {
