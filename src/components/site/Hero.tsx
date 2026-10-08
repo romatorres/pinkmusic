@@ -1,138 +1,147 @@
 "use client";
 
-import { PageContainer } from "../ui/Page-container";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
-import Autoplay from "embla-carousel-autoplay";
-import * as React from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import Social from "./_components/Social";
+import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+
+const slides = [
+  {
+    img: "/img/hero/hero-cordas.jpg",
+    kicker: "Cordas",
+    title: "Seu próximo instrumento começa aqui.",
+    text: "Violões e guitarras selecionados por quem entende de música.",
+    cta: "Ver produtos",
+    href: "/products-all?categorySlug=cordas",
+  },
+  {
+    img: "/img/hero/hero-baterias.jpg",
+    kicker: "Ofertas especiais Pink Music",
+    title: "Baterias com até 12% off.",
+    text: "Acústicas e eletrônicas, prontas para o palco.",
+    cta: "Ver oferta",
+    href: "/products-all?categorySlug=baterias",
+  },
+  {
+    img: "/img/hero/hero-studio.jpg",
+    kicker: "Home Studio",
+    title: "Equipamentos para quem leva música a sério.",
+    text: "Interfaces, monitores e microfones para gravar em casa.",
+    cta: "Comprar agora",
+    href: "/products-all?categorySlug=home-studio",
+  },
+];
 
 export default function Hero() {
-  const plugin = React.useRef(
-    Autoplay({ delay: 5000, stopOnInteraction: false, stopOnMouseEnter: true })
-  );
+  const [current, setCurrent] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrent((prev) => (prev + 1) % slides.length);
+    }, 6500);
+    return () => clearInterval(timer);
+  }, []);
+
+  const handlePrev = () => {
+    setCurrent((prev) => (prev - 1 + slides.length) % slides.length);
+  };
+
+  const handleNext = () => {
+    setCurrent((prev) => (prev + 1) % slides.length);
+  };
 
   return (
-    <section className="relative flex w-full flex-col items-center justify-center bg-[url('/img/bg-hero.jpg')] bg-cover bg-center py-20 md:min-h-[680px] md:py-28">
-      <PageContainer>
-        <div className="flex w-full max-w-[1440px] flex-col-reverse items-center gap-8 md:gap-4 px-4 lg:flex-row lg:items-center lg:justify-between mt-12">
-          <div className="flex flex-col items-center justify-center text-center lg:w-1/2 lg:items-start lg:text-left">
-            <h1 className="m-0 font-tanker text-5xl md:text-5xl lg:text-6xl xl:text-[80px] leading-tight text-primary md:leading-14 lg:leading-16 xl:leading-24 lg:tracking-[3.2px]">
-              Tudo para <br />
-              sua música <br />
-              em um só lugar!
-            </h1>
-            <div className="w-full">
-              <div className="flex w-full flex-col items-stretch justify-center md:justify-start md:flex-row md:items-center mt-8 md:mt-10 gap-6 md:gap-4">
-                <Link
-                  href="https://www.mercadolivre.com.br/pagina/pinkmusic"
-                  passHref
-                  target="_blank"
-                  className="w-full"
-                >
-                  <button className="flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-full bg-primary lg:px-10 lg:py-4 md:px-7 md:py-3 px-7 py-3 text-lg font-semibold text-white transition-colors duration-300 ease-in-out hover:cursor-pointer hover:bg-secondary">
-                    <Image
-                      src="/img/icon-store.svg"
-                      alt="E-commerce Icon"
-                      width={22}
-                      height={22}
-                      className="aspect-square object-contain"
-                    />
-                    E-commerce
-                  </button>
-                </Link>
-                <Link href="#contact" className="w-full">
-                  <button className="flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border-primary border-[1px] bg-white lg:px-10 lg:py-4 md:px-7 md:py-3 px-7 py-3 text-lg font-semibold text-primary transition-colors duration-300 ease-in-out hover:cursor-pointer hover:bg-background">
-                    <Image
-                      src="/img/icon-location.svg"
-                      alt="Store Localização"
-                      width={22}
-                      height={22}
-                      className="aspect-square object-contain"
-                    />
-                    Loja Física
-                  </button>
-                </Link>
-              </div>
-              <div className="mt-8 md:mt-10">
-                <Social />
+    <section
+      className="container-page pt-4 md:pt-6"
+      aria-roledescription="carrossel"
+      aria-label="Destaques e Promoções"
+    >
+      <div className="relative h-[460px] overflow-hidden rounded-3xl bg-hero shadow-card md:h-[520px]">
+        {slides.map((s, index) => {
+          const isActive = index === current;
+          return (
+            <div
+              key={s.img}
+              className={cn(
+                "absolute inset-0 transition-opacity duration-700 ease-in-out",
+                isActive ? "opacity-100 z-10" : "pointer-events-none opacity-0 z-0"
+              )}
+              aria-hidden={!isActive}
+            >
+              {/* Imagem de fundo */}
+              <Image
+                src={s.img}
+                alt={s.title}
+                fill
+                priority={index === 0}
+                className="object-cover object-[70%_center]"
+                sizes="(max-width: 768px) 100vw, 1320px"
+              />
+
+              {/* Overlay com gradiente do tema */}
+              <div className="bg-hero-overlay absolute inset-0" />
+
+              {/* Conteúdo textual */}
+              <div className="relative flex h-full max-w-xl flex-col justify-end p-6 text-hero-foreground md:justify-center md:p-14 z-20">
+                <span className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-ml font-display">
+                  {s.kicker}
+                </span>
+                <h1 className="text-3xl font-extrabold leading-[1.05] tracking-tight md:text-5xl lg:text-6xl font-display">
+                  {s.title}
+                </h1>
+                <p className="mt-4 text-sm text-hero-foreground/85 md:text-base lg:text-lg">
+                  {s.text}
+                </p>
+                <div className="mt-7">
+                  <Button variant="hero" size="lg" asChild className="rounded-full px-6 py-6 font-semibold">
+                    <Link href={s.href} className="inline-flex items-center gap-2">
+                      {s.cta} <ArrowRight className="size-4" />
+                    </Link>
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
-          <div className="flex w-full items-center justify-center md:w-1/2">
-            <Carousel
-              plugins={[plugin.current]}
-              className="h-auto w-full max-w-[85%] object-contain sm:max-w-[75%] md:max-w-[85%] lg:max-w-[90%] xl:max-w-[430px]"
-            >
-              <CarouselContent>
-                <CarouselItem className="flex w-full items-center justify-center">
-                  <Image
-                    src="/img/carousel/carousel-1.png"
-                    alt="Carousel image 1"
-                    width={430}
-                    height={300}
-                    className="h-auto w-full max-w-[85%] object-contain sm:max-w-[75%] md:max-w-[85%] lg:max-w-[90%] xl:max-w-[430px]"
-                  />
-                </CarouselItem>
-                <CarouselItem className="flex w-full items-center justify-center">
-                  <Image
-                    src="/img/carousel/carousel-2.png"
-                    alt="Carousel image 2"
-                    width={430}
-                    height={300}
-                    className="h-auto w-full max-w-[85%] object-contain sm:max-w-[75%] md:max-w-[85%] lg:max-w-[90%] xl:max-w-[430px]"
-                  />
-                </CarouselItem>
-                <CarouselItem className="flex w-full items-center justify-center">
-                  <Image
-                    src="/img/carousel/carousel-3.png"
-                    alt="Carousel image 3"
-                    width={430}
-                    height={300}
-                    className="h-auto w-full max-w-[85%] object-contain sm:max-w-[75%] md:max-w-[85%] lg:max-w-[90%] xl:max-w-[430px]"
-                  />
-                </CarouselItem>
-                <CarouselItem className="flex w-full items-center justify-center">
-                  <Image
-                    src="/img/carousel/carousel-4.png"
-                    alt="Carousel image 4"
-                    width={430}
-                    height={300}
-                    className="h-auto w-full max-w-[85%] object-contain sm:max-w-[75%] md:max-w-[85%] lg:max-w-[90%] xl:max-w-[430px]"
-                  />
-                </CarouselItem>
-                <CarouselItem className="flex w-full items-center justify-center">
-                  <Image
-                    src="/img/carousel/carousel-5.png"
-                    alt="Carousel image 5"
-                    width={430}
-                    height={300}
-                    className="h-auto w-full max-w-[85%] object-contain sm:max-w-[75%] md:max-w-[85%] lg:max-w-[90%] xl:max-w-[430px]"
-                  />
-                </CarouselItem>
-                <CarouselItem className="flex w-full items-center justify-center">
-                  <Image
-                    src="/img/carousel/carousel-6.png"
-                    alt="Carousel image 6"
-                    width={430}
-                    height={300}
-                    className="h-auto w-full max-w-[85%] object-contain sm:max-w-[75%] md:max-w-[85%] lg:max-w-[90%] xl:max-w-[430px]"
-                  />
-                </CarouselItem>
-              </CarouselContent>
-              <CarouselPrevious />
-              <CarouselNext />
-            </Carousel>
-          </div>
+          );
+        })}
+
+        {/* Controles de navegação (indicadores e setas) */}
+        <div className="absolute bottom-6 right-6 z-30 flex items-center gap-2">
+          <button
+            type="button"
+            aria-label="Slide anterior"
+            onClick={handlePrev}
+            className="hidden size-11 place-items-center rounded-full border border-hero-foreground/30 text-hero-foreground hover:bg-hero-foreground/15 transition-colors cursor-pointer md:grid"
+          >
+            <ChevronLeft className="size-5" />
+          </button>
+
+          {slides.map((_, index) => (
+            <button
+              key={index}
+              type="button"
+              aria-label={`Ir para slide ${index + 1}`}
+              onClick={() => setCurrent(index)}
+              className={cn(
+                "h-1.5 rounded-full transition-all duration-300 cursor-pointer",
+                index === current
+                  ? "w-8 bg-hero-foreground"
+                  : "w-3 bg-hero-foreground/40 hover:bg-hero-foreground/70"
+              )}
+            />
+          ))}
+
+          <button
+            type="button"
+            aria-label="Próximo slide"
+            onClick={handleNext}
+            className="hidden size-11 place-items-center rounded-full border border-hero-foreground/30 text-hero-foreground hover:bg-hero-foreground/15 transition-colors cursor-pointer md:grid"
+          >
+            <ChevronRight className="size-5" />
+          </button>
         </div>
-      </PageContainer>
+      </div>
     </section>
   );
 }

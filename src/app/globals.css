@@ -52,6 +52,10 @@ html {
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-breadcrumb: var(--breadcrumb);
+  /* Hero e Mercado Livre */
+  --color-hero: var(--hero);
+  --color-hero-foreground: var(--hero-foreground);
+  --color-ml: var(--ml);
   /* Extras herdados */
   --color-tertiary: var(--tertiary);
   --color-tertiary-foreground: var(--tertiary-foreground);
@@ -104,7 +108,10 @@ html {
   --shadow-card: 0 1px 2px #0d19140f, 0 8px 24px -12px #0d19142e;
   --shadow-lift: 0 2px 4px #0d19140f, 0 20px 40px -18px #02291c59;
 
-  /* Gradientes do Hero */
+  /* Gradientes e cores do Hero */
+  --hero: #011c11;
+  --hero-foreground: #f7faf2;
+  --ml: #ffe600;
   --gradient-hero: linear-gradient(90deg, #011c11f2 0%, #011c11b2 40%, #011c1100 75%);
   --gradient-hero-mobile: linear-gradient(0deg, #011c11f5 15%, #011c114c 65%, #011c1100 100%);
 

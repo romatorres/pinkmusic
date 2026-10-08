@@ -1,12 +1,14 @@
 "use client";
+
 import React, { useState } from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { Package, ShoppingCart, Plus, Check, Eye } from "lucide-react";
+import Link from "next/link";
+import { Check, ShoppingBag, ExternalLink, Eye, MapPin } from "lucide-react";
 import type { Product } from "@/lib/types";
 import { useCartStore } from "@/store/cartStore";
 import { toast } from "sonner";
 import { createProductSlug } from "@/lib/slug";
+import { Button } from "@/components/ui/button";
 
 interface ProductCardProps {
   product: Product;
@@ -19,172 +21,155 @@ const formatPrice = (price: number, currency: string) => {
   }).format(price);
 };
 
-const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
-  const router = useRouter();
-  const [addedToCart, setAddedToCart] = useState(false);
+const ProductCard: React.FC<ProductCardProps> = ({ product: p }) => {
+  const [added, setAdded] = useState(false);
   const { addItem } = useCartStore();
 
+  const isLocal = p.origin === "LOCAL";
+  const isOutOfStock = p.available_quantity <= 0;
+
   const imageUrl =
-    product.pictures && product.pictures.length > 0
-      ? product.pictures[0].url
-      : product.thumbnail;
+    p.pictures && p.pictures.length > 0
+      ? p.pictures[0].url
+      : p.thumbnail || "/img/placeholder.png";
 
-  const productUrl = `/products/${createProductSlug(product.title, product.id)}`;
-
-  const handleCardClick = () => {
-    router.push(productUrl);
-  };
-
-  const handleBuyClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation();
-    if (product.origin === "LOCAL" || !product.permalink) {
-      router.push(productUrl);
-    } else {
-      window.open(product.permalink, "_blank", "noopener,noreferrer");
-    }
-  };
+  const productUrl = `/products/${createProductSlug(p.title, p.id)}`;
 
   const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
     e.stopPropagation();
-    if (product.origin !== "LOCAL" || product.available_quantity <= 0) return;
+
+    if (!isLocal || isOutOfStock) return;
 
     addItem({
-      productId: product.id,
-      title: product.title,
-      price: product.price,
-      thumbnail: product.thumbnail,
-      code: product.code,
-      availableQuantity: product.available_quantity,
+      productId: p.id,
+      title: p.title,
+      price: p.price,
+      thumbnail: p.thumbnail,
+      code: p.code,
+      availableQuantity: p.available_quantity,
     });
 
-    setAddedToCart(true);
-    toast.success("Adicionado ao carrinho! 🛒");
-    setTimeout(() => setAddedToCart(false), 2000);
+    setAdded(true);
+    toast.success("Adicionado ao carrinho", { description: p.title });
+    setTimeout(() => setAdded(false), 1400);
   };
 
-  const isLocal = product.origin === "LOCAL";
-
   return (
-    <div className="w-full max-w-xs sm:max-w-sm md:max-w-[300px] isolate">
-      <div
-        onClick={handleCardClick}
-        className="bg-card rounded-3xl shadow-sm overflow-hidden flex flex-col min-h-[460px] sm:min-h-[480px] transition-transform duration-300 ease-in-out hover:translate-y-[-5px] cursor-pointer relative"
+    <article className="group flex flex-col overflow-hidden rounded-2xl border border-border/80 bg-card shadow-card transition-all duration-300 hover:-translate-y-1 hover:shadow-lift w-full">
+      {/* Imagem do Produto */}
+      <Link
+        href={productUrl}
+        className="relative block aspect-square overflow-hidden bg-muted/40"
       >
-        {/* Container da imagem */}
-        <div className="relative flex min-h-[220px] sm:min-h-[260px] w-full flex-col justify-center p-2">
-          <div className="absolute inset-2 rounded-2xl sm:rounded-3xl bg-white shadow-inner">
-            <div className="relative w-full h-full flex items-center justify-center p-3 sm:p-4">
-              <div className="relative w-full h-full max-w-[160px] max-h-[160px] sm:max-w-[200px] sm:max-h-[200px]">
-                <Image
-                  src={imageUrl}
-                  alt={product.title}
-                  fill
-                  sizes="(max-width: 640px) 160px, 200px"
-                  style={{ objectFit: "contain" }}
-                  className="rounded-lg"
-                />
-              </div>
-            </div>
-          </div>
+        <Image
+          src={imageUrl}
+          alt={p.title}
+          fill
+          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          className="object-contain p-4 transition-transform duration-500 group-hover:scale-105"
+        />
 
-          {/* Badge de Pronta Entrega Local */}
-          {isLocal && (
-            <div className="absolute top-4 left-4 z-10">
-              <span className="bg-primary/60 text-white text-[10px] px-2 py-0.5 rounded-full shadow-xs flex items-center gap-1 uppercase tracking-wide">
-                Venda Local
-              </span>
-            </div>
-          )}
-
-          {/* Botão rápido de carrinho (hover) — só para produtos locais */}
-          {isLocal && product.available_quantity > 0 && (
-            <button
-              type="button"
-              onClick={handleAddToCart}
-              aria-label="Adicionar ao carrinho"
-              className={`absolute bottom-4 right-4 z-10 h-9 w-9 flex-shrink-0 overflow-hidden rounded-full flex items-center justify-center shadow-md transition-all duration-300 ${addedToCart
-                ? "bg-emerald-500 text-white scale-110"
-                : "bg-white text-primary hover:bg-primary hover:text-white hover:scale-110"
-                }`}
-            >
-              {addedToCart ? (
-                <Check className="h-4 w-4 shrink-0" />
-              ) : (
-                <Plus className="h-4 w-4 shrink-0" />
-              )}
-            </button>
+        {/* Badge do Canal: Loja Física ou Mercado Livre */}
+        <div className="absolute left-2.5 top-2.5 z-10 flex flex-col gap-1">
+          {isLocal ? (
+            <span className="inline-flex items-center gap-1 rounded-md bg-primary/90 px-2 py-0.5 text-[11px] font-semibold text-primary-foreground backdrop-blur-xs shadow-xs">
+              <MapPin className="size-3" />
+              Loja Física
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1 rounded-md bg-ml px-2 py-0.5 text-[11px] font-bold text-[#011c11] shadow-xs">
+              Mercado Livre
+            </span>
           )}
         </div>
 
-        {/* Conteúdo do card */}
-        <div className="p-3 sm:p-4 flex flex-col flex-1">
-          <h2 className="text-sm sm:text-base font-semibold text-foreground mb-2 line-clamp-2">
-            {product.title}
-          </h2>
+        {/* Overlay se esgotado */}
+        {isOutOfStock && (
+          <span className="absolute inset-x-0 bottom-0 bg-foreground/80 py-1.5 text-center text-xs font-semibold text-background backdrop-blur-xs">
+            Indisponível
+          </span>
+        )}
+      </Link>
 
-          <div className="flex items-center gap-2 text-sm sm:text-base font-semibold text-primary mb-2">
-            <span className="flex items-center gap-1">
-              <Package size={12} className="sm:w-4 sm:h-4" />
-              {product.brand?.name || "Pink Music"}
-            </span>
-          </div>
+      {/* Detalhes do Produto */}
+      <div className="flex flex-1 flex-col p-3 md:p-4">
+        {/* Marca */}
+        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground truncate">
+          {p.brand?.name || "Pink Music"}
+        </span>
 
-          <div className="flex justify-start items-center mb-2">
-            <div className="text-2xl sm:text-4xl font-tanker text-foreground leading-tight">
-              {formatPrice(product.price, product.currency_id)}
-            </div>
-          </div>
+        {/* Nome do Produto */}
+        <Link
+          href={productUrl}
+          className="mt-1 line-clamp-2 min-h-[2.6em] text-sm md:text-[15px] font-medium leading-snug text-foreground hover:text-primary transition-colors"
+          title={p.title}
+        >
+          {p.title}
+        </Link>
 
-          <p className="text-primary text-xs sm:text-sm mb-4">
-            Disponível:{" "}
-            <span className="font-semibold text-base">
-              {product.available_quantity}
-            </span>
-            {isLocal && (
-              <span className="ml-1 text-primary/80 font-medium text-xs">
-                (na loja física)
-              </span>
-            )}
-          </p>
+        {/* Preço */}
+        <div className="mt-3 flex-1 flex items-baseline gap-2">
+          <span className="font-display text-xl md:text-2xl font-bold text-foreground">
+            {formatPrice(p.price, p.currency_id)}
+          </span>
+        </div>
 
-          <div className="space-y-2 mt-auto">
-            {/* Botão adicionar ao carrinho (apenas local) */}
-            {isLocal && (
-              <button
-                type="button"
-                onClick={handleAddToCart}
-                disabled={product.available_quantity <= 0}
-                className={`w-full py-3 px-4 rounded-full flex items-center justify-center gap-2 transition-all duration-300 whitespace-nowrap overflow-hidden ${addedToCart
-                  ? "bg-emerald-500 text-white"
-                  : "border border-primary text-primary hover:bg-primary/5"
-                  } disabled:opacity-40 disabled:cursor-not-allowed`}
-              >
-                {addedToCart ? (
-                  <>
-                    <Check size={15} className="shrink-0" />
-                    <span className="truncate">No carrinho!</span>
-                  </>
-                ) : (
-                  <>
-                    <ShoppingCart size={15} className="shrink-0" />
-                    <span className="truncate">Adicionar ao Carrinho</span>
-                  </>
-                )}
-              </button>
-            )}
-
-            <button
-              type="button"
-              onClick={handleBuyClick}
-              className="w-full py-3 px-6 rounded-full flex items-center justify-center gap-2 transition-colors cursor-pointer text-white bg-primary hover:bg-primary/85 whitespace-nowrap overflow-hidden"
+        {/* Ações (Botões com novo padrão Lovable rounded-xl) */}
+        <div className="mt-4 pt-1">
+          {isLocal ? (
+            <Button
+              variant="local"
+              className="w-full rounded-xl h-10 font-medium"
+              disabled={isOutOfStock}
+              onClick={handleAddToCart}
             >
-              <Eye size={20} className="shrink-0" />
-              <span className="truncate">{isLocal ? "Ver Produto" : "Comprar"}</span>
-            </button>
-          </div>
+              {added ? (
+                <>
+                  <Check className="size-4" />
+                  <span>Adicionado!</span>
+                </>
+              ) : isOutOfStock ? (
+                <span>Indisponível</span>
+              ) : (
+                <>
+                  <ShoppingBag className="size-4" />
+                  <span className="hidden sm:inline">Adicionar ao carrinho</span>
+                  <span className="sm:hidden">Adicionar</span>
+                </>
+              )}
+            </Button>
+          ) : (
+            <Button
+              variant="ml"
+              className="w-full rounded-xl h-10 font-bold"
+              asChild
+            >
+              {p.permalink ? (
+                <a
+                  href={p.permalink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-1.5"
+                >
+                  <span className="hidden sm:inline">Ver no Mercado Livre</span>
+                  <span className="sm:hidden">Mercado Livre</span>
+                  <ExternalLink className="size-3.5" />
+                </a>
+              ) : (
+                <Link
+                  href={productUrl}
+                  className="inline-flex items-center justify-center gap-1.5"
+                >
+                  <Eye className="size-4" />
+                  <span>Ver Detalhes</span>
+                </Link>
+              )}
+            </Button>
+          )}
         </div>
       </div>
-    </div>
+    </article>
   );
 };
 
