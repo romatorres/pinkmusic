@@ -74,8 +74,37 @@ function CartButton({
   );
 }
 
+// Mapeamento de imagens locais para as categorias principais
+const CATEGORY_IMAGES: Record<string, string> = {
+  baterias: "/img/categories/cat-baterias.jpg",
+  cordas: "/img/categories/cat-cordas.jpg",
+  "home-studio": "/img/categories/cat-studio.jpg",
+  studio: "/img/categories/cat-studio.jpg",
+  percussao: "/img/categories/cat-percussao.jpg",
+  sopro: "/img/categories/cat-sopro.jpg",
+  teclas: "/img/categories/cat-teclas.jpg",
+  audio: "/img/categories/cat-audio.jpg",
+  "áudio": "/img/categories/cat-audio.jpg",
+};
+
+function getCategoryThumbnail(name: string): string | null {
+  const normalized = name
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, "-");
+
+  for (const [key, path] of Object.entries(CATEGORY_IMAGES)) {
+    const normKey = key.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    if (normalized.includes(normKey) || normKey.includes(normalized)) {
+      return path;
+    }
+  }
+  return null;
+}
+
 // ---------------------------------------------------------------------------
-// MegaMenu Desktop — grid de categorias com subcategorias
+// MegaMenu Desktop — grid de categorias com subcategorias em 1 linha
 // ---------------------------------------------------------------------------
 function MegaMenu({
   categories,
@@ -93,40 +122,48 @@ function MegaMenu({
       ref={menuRef}
       className="absolute inset-x-0 top-full w-full border-b bg-card shadow-lift animate-in fade-in-0 slide-in-from-top-2 z-50 max-h-[calc(100vh-5rem)] overflow-y-auto"
     >
-      <div className="container-page grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-8 gap-y-8 py-8">
-        {rootCategories.map((cat) => {
-          const subs =
-            cat.subcategories && cat.subcategories.length > 0
-              ? cat.subcategories
-              : [];
+      <div className="container-page py-8">
+        <div
+          className="grid gap-x-6 gap-y-6"
+          style={{
+            gridTemplateColumns: `repeat(${Math.max(rootCategories.length, 1)}, minmax(0, 1fr))`,
+          }}
+        >
+          {rootCategories.map((cat) => {
+            const subs =
+              cat.subcategories && cat.subcategories.length > 0
+                ? cat.subcategories
+                : [];
 
-          return (
-            <div key={cat.id} className="min-w-0">
-              <Link
-                href={`/products-all?categoryIds=${cat.id}`}
-                onClick={onClose}
-                className="mb-3 block font-display text-sm font-extrabold uppercase tracking-wider text-primary hover:underline truncate"
-              >
-                {cat.name}
-              </Link>
-              <ul className="space-y-1.5">
-                {subs.map((sub) => (
-                  <li key={sub.id}>
-                    <Link
-                      href={`/products-all?categoryIds=${sub.id}`}
-                      onClick={onClose}
-                      className="block text-sm text-muted-foreground hover:text-foreground transition-colors truncate"
-                    >
-                      {sub.name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          );
-        })}
+            return (
+              <div key={cat.id} className="min-w-0">
+                <Link
+                  href={`/products-all?categoryIds=${cat.id}`}
+                  onClick={onClose}
+                  className="mb-3 block font-display text-sm font-extrabold uppercase tracking-wider text-primary hover:underline truncate"
+                >
+                  {cat.name}
+                </Link>
+                <ul className="space-y-1.5">
+                  {subs.map((sub) => (
+                    <li key={sub.id}>
+                      <Link
+                        href={`/products-all?categoryIds=${sub.id}`}
+                        onClick={onClose}
+                        className="block text-xs xl:text-sm text-muted-foreground hover:text-foreground transition-colors truncate"
+                      >
+                        {sub.name}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            );
+          })}
+        </div>
+
         {/* Link geral */}
-        <div className="col-span-full border-t border-border/40 pt-4 mt-2">
+        <div className="border-t border-border/40 pt-4 mt-6">
           <Link
             href="/products-all"
             onClick={onClose}
@@ -141,7 +178,7 @@ function MegaMenu({
 }
 
 // ---------------------------------------------------------------------------
-// MobileMenu — Sheet com navegação em dois níveis (categoria → subcategorias)
+// MobileMenu — Sheet com navegação em dois níveis e miniaturas de fotos
 // ---------------------------------------------------------------------------
 function MobileMenu({
   open,
@@ -174,7 +211,7 @@ function MobileMenu({
               <ChevronLeft className="size-5" /> Voltar
             </button>
           ) : (
-            <span className="px-2 font-display text-lg font-bold">Menu</span>
+            <span className="px-2 font-display text-lg font-bold">Categorias</span>
           )}
           <button
             onClick={() => onOpenChange(false)}
@@ -185,21 +222,39 @@ function MobileMenu({
           </button>
         </div>
 
-        <div className="overflow-y-auto">
+        <div className="overflow-y-auto max-h-[calc(100vh-3.5rem)] pb-8">
           {!activeCategory ? (
-            /* Nível 1: lista de categorias */
+            /* Nível 1: lista de categorias com miniatura */
             <ul key="root" className="animate-in fade-in-0 slide-in-from-left-4">
-              {rootCategories.map((cat) => (
-                <li key={cat.id}>
-                  <button
-                    onClick={() => setActiveCategory(cat)}
-                    className="flex w-full items-center gap-3 border-b px-4 py-3.5 text-left"
-                  >
-                    <span className="flex-1 text-base font-semibold">{cat.name}</span>
-                    <ChevronRight className="size-5 text-muted-foreground" />
-                  </button>
-                </li>
-              ))}
+              {rootCategories.map((cat) => {
+                const thumb = getCategoryThumbnail(cat.name);
+                return (
+                  <li key={cat.id}>
+                    <button
+                      onClick={() => setActiveCategory(cat)}
+                      className="flex w-full items-center gap-3 border-b px-4 py-3 text-left hover:bg-muted/40 transition-colors"
+                    >
+                      {thumb ? (
+                        <div className="relative size-11 shrink-0 overflow-hidden rounded-lg bg-muted">
+                          <Image
+                            src={thumb}
+                            alt={cat.name}
+                            fill
+                            sizes="44px"
+                            className="object-cover"
+                          />
+                        </div>
+                      ) : (
+                        <div className="grid size-11 shrink-0 place-items-center rounded-lg bg-secondary text-primary font-bold">
+                          {cat.name.slice(0, 2).toUpperCase()}
+                        </div>
+                      )}
+                      <span className="flex-1 text-base font-semibold">{cat.name}</span>
+                      <ChevronRight className="size-5 text-muted-foreground" />
+                    </button>
+                  </li>
+                );
+              })}
               {/* Links extras */}
               <li className="grid gap-1 p-4 text-base">
                 <Link
