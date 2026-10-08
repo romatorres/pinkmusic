@@ -80,15 +80,20 @@ function CartButton({
 function MegaMenu({
   categories,
   onClose,
+  menuRef,
 }: {
   categories: Category[];
   onClose: () => void;
+  menuRef?: React.RefObject<HTMLDivElement | null>;
 }) {
   const rootCategories = categories.filter((c) => !c.parentId);
 
   return (
-    <div className="absolute inset-x-0 top-full border-b bg-card shadow-lift animate-in fade-in-0 slide-in-from-top-2 z-30">
-      <div className="container-page grid grid-cols-4 gap-x-8 gap-y-8 py-8 xl:grid-cols-7">
+    <div
+      ref={menuRef}
+      className="absolute inset-x-0 top-full w-full border-b bg-card shadow-lift animate-in fade-in-0 slide-in-from-top-2 z-50 max-h-[calc(100vh-5rem)] overflow-y-auto"
+    >
+      <div className="container-page grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-8 gap-y-8 py-8">
         {rootCategories.map((cat) => {
           const subs =
             cat.subcategories && cat.subcategories.length > 0
@@ -96,11 +101,11 @@ function MegaMenu({
               : [];
 
           return (
-            <div key={cat.id}>
+            <div key={cat.id} className="min-w-0">
               <Link
                 href={`/products-all?categoryIds=${cat.id}`}
                 onClick={onClose}
-                className="mb-3 block font-display text-sm font-extrabold uppercase tracking-wider text-primary hover:underline"
+                className="mb-3 block font-display text-sm font-extrabold uppercase tracking-wider text-primary hover:underline truncate"
               >
                 {cat.name}
               </Link>
@@ -110,7 +115,7 @@ function MegaMenu({
                     <Link
                       href={`/products-all?categoryIds=${sub.id}`}
                       onClick={onClose}
-                      className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                      className="block text-sm text-muted-foreground hover:text-foreground transition-colors truncate"
                     >
                       {sub.name}
                     </Link>
@@ -125,7 +130,7 @@ function MegaMenu({
           <Link
             href="/products-all"
             onClick={onClose}
-            className="text-sm font-semibold text-primary hover:underline"
+            className="text-sm font-semibold text-primary hover:underline inline-flex items-center gap-1"
           >
             Ver todas as categorias →
           </Link>
@@ -339,6 +344,7 @@ function HeaderContent() {
   const [mega, setMega] = useState(false);
   const [mobileMenu, setMobileMenu] = useState(false);
   const megaRef = useRef<HTMLDivElement | null>(null);
+  const megaButtonRef = useRef<HTMLButtonElement | null>(null);
 
   const { itemsCount, toggleCart } = useCartStore();
   const { isAuth, user, logout } = useAuthStore();
@@ -382,12 +388,18 @@ function HeaderContent() {
   // Fecha menus ao clicar fora
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (megaRef.current && !megaRef.current.contains(event.target as Node)) {
+      const target = event.target as Node;
+      if (
+        megaRef.current &&
+        !megaRef.current.contains(target) &&
+        megaButtonRef.current &&
+        !megaButtonRef.current.contains(target)
+      ) {
         setMega(false);
       }
       if (
         userMenuRef.current &&
-        !userMenuRef.current.contains(event.target as Node)
+        !userMenuRef.current.contains(target)
       ) {
         setUserMenuOpen(false);
       }
@@ -427,12 +439,12 @@ function HeaderContent() {
 
   const userInitials = user?.name
     ? user.name
-        .trim()
-        .split(/\s+/)
-        .filter(Boolean)
-        .slice(0, 2)
-        .map((part) => part[0]?.toUpperCase() || "")
-        .join("") || "U"
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase() || "")
+      .join("") || "U"
     : "";
 
   return (
@@ -442,31 +454,26 @@ function HeaderContent() {
         <div className="container-page hidden h-20 items-center gap-6 lg:flex">
           <Logo />
 
-          {/* Botão Categorias com mega menu */}
-          <div ref={megaRef} className="relative">
-            <button
-              type="button"
-              onClick={() => setMega((m) => !m)}
-              aria-expanded={mega}
-              aria-haspopup="menu"
-              className={cn(
-                "flex h-11 items-center gap-2 rounded-lg px-4 font-semibold transition-colors",
-                mega
-                  ? "bg-primary text-primary-foreground"
-                  : "hover:bg-secondary"
-              )}
-            >
-              <Grid3x3 className="size-4" />
-              Categorias
-              <ChevronDown
-                className={cn("size-4 transition-transform duration-200", mega && "rotate-180")}
-              />
-            </button>
-
-            {mega && categories.length > 0 && (
-              <MegaMenu categories={categories} onClose={() => setMega(false)} />
+          {/* Botão Categorias */}
+          <button
+            ref={megaButtonRef}
+            type="button"
+            onClick={() => setMega((m) => !m)}
+            aria-expanded={mega}
+            aria-haspopup="menu"
+            className={cn(
+              "flex h-11 items-center gap-2 rounded-lg px-4 font-semibold transition-colors cursor-pointer",
+              mega
+                ? "bg-primary text-primary-foreground"
+                : "hover:bg-secondary"
             )}
-          </div>
+          >
+            <Grid3x3 className="size-4" />
+            Categorias
+            <ChevronDown
+              className={cn("size-4 transition-transform duration-200", mega && "rotate-180")}
+            />
+          </button>
 
           {/* Busca */}
           <HeaderSearchBox
@@ -503,9 +510,14 @@ function HeaderContent() {
           </nav>
         </div>
 
+        {/* MegaMenu Desktop de largura total */}
         {mega && categories.length > 0 && (
           <div className="hidden lg:block">
-            {/* MegaMenu é posicionado como absolute dentro do container acima */}
+            <MegaMenu
+              categories={categories}
+              onClose={() => setMega(false)}
+              menuRef={megaRef}
+            />
           </div>
         )}
 
