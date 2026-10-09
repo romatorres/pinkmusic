@@ -11,7 +11,7 @@ export default function Home() {
     <main className="flex flex-col items-center justify-center">
       <div className="relative w-full">
         <Hero />
-        <Partners />
+
         <CategoriesSection />
 
         {/* Mais Procurados — 4 produtos (1 linha tradicional no desktop) */}
@@ -32,6 +32,7 @@ export default function Home() {
           showSeeAllButton={true}
           randomizeProducts={true}
         />
+        <Partners />
         <Newsletter />
         <section id="about">
           <About />

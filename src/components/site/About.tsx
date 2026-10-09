@@ -1,10 +1,21 @@
 "use client";
 
-import Link from "next/link";
-import { PageContainer } from "../ui/Page-container";
+import React from "react";
 import Image from "next/image";
-import { MapPin, Navigation } from "lucide-react";
-import { Button } from "../ui/button";
+import Link from "next/link";
+import {
+  Store,
+  MapPin,
+  Truck,
+  Headphones,
+  Mail,
+  Phone,
+  Clock,
+  Navigation,
+  ArrowRight,
+  ExternalLink,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function About() {
   const address = {
@@ -29,237 +40,291 @@ export default function About() {
   };
 
   return (
-    <section className="bg-sidebar-primary">
-      <PageContainer>
-        {/* About */}
-        <div className="flex flex-col">
-          {/* Div Textos e Imagem */}
-          <div className="flex md:flex-row flex-col w-full md:justify-between justify-center items-center gap-2 mt-8">
-            {/* Testos */}
-            <div className="flex-1 max-w-[640px]">
-              <div className="flex items-center gap-2 whitespace-nowrap font-tanker text-3xl text-foreground lg:whitespace-initial">
-                <div className="my-auto h-7 w-2 shrink-0 self-stretch bg-secondary" />
-                <h2 className="my-auto self-stretch font-normal">Sobre</h2>
-              </div>
-              <h3 className="mb-0 mt-2.5 font-tanker text-4xl font-normal text-primary lg:max-w-full lg:text-[52px]">
-                Mais do que uma loja, uma paixão pela música.
-              </h3>
-              <p className="mt-6 font-inter text-lg leading-[22px] tracking-[0.36px] text-foreground lg:max-w-full">
-                Localizada em Feira de Santana, na Bahia, a Pink Music é uma
-                loja física com mais de 30 anos de tradição no mercado de
-                instrumentos musicais e equipamentos de áudio. Nosso compromisso
-                é oferecer qualidade, atendimento especializado e uma verdadeira
-                experiência para músicos, produtores e apaixonados por som.
-              </p>
-            </div>
-            {/* Imagem */}
-            <div className="relative md:w-[449px] md:h-[355px] w-[358px] max-h-[283px] md:max-h-full aspect-[0.83] flex-1 justify-center items-center">
-              <Image
-                src="/img/about.png"
-                alt="Sobre Pink Music"
-                fill
-                className="object-contain object-center"
-              />
-            </div>
-          </div>
-
-          {/* Botões */}
-          <div className="flex md:flex-row flex-col gap-6 my-10 md:w-auto w-full">
-            <div className="w-full md:w-auto">
-              <Link
-                href="https://www.mercadolivre.com.br/pagina/pinkmusic"
-                passHref
+    <section id="about" className="container-page py-16 md:py-24 space-y-16">
+      {/* ── 1. Banner Principal Estilo Lovable (Compra online. Atendimento de verdade.) ── */}
+      <div className="grid overflow-hidden rounded-3xl bg-hero text-hero-foreground shadow-lift lg:grid-cols-2">
+        <div className="p-7 md:p-12 lg:p-14 flex flex-col justify-center">
+          <span className="text-xs font-bold uppercase tracking-[0.2em] text-ml font-display">
+            Feira de Santana — Bahia
+          </span>
+          <h2 className="mt-3 text-3xl font-extrabold tracking-tight md:text-5xl lg:text-5xl font-display leading-[1.08]">
+            Compra online. Atendimento de verdade.
+          </h2>
+          <p className="mt-4 text-hero-foreground/85 text-base md:text-lg leading-relaxed">
+            Com mais de 30 anos de tradição em Feira de Santana, a Pink Music une a
+            praticidade da compra online com o acolhimento, a segurança e a consultoria de músicos experientes que você só encontra na loja física.
+          </p>
+          <div className="mt-8 flex flex-wrap gap-4 items-center">
+            <Button
+              variant="hero"
+              size="lg"
+              className="rounded-xl px-6 h-12 font-bold"
+              onClick={openGoogleMaps}
+            >
+              <span>Venha nos visitar</span>
+              <Navigation className="size-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="lg"
+              className="rounded-xl px-6 h-12 font-semibold text-white border-hero-foreground/30 hover:bg-hero-foreground/15 bg-transparent"
+              asChild
+            >
+              <a
+                href="https://wa.me/5575999661614"
                 target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2"
               >
-                <button className="flex w-full md:w-auto items-center justify-center gap-2 whitespace-nowrap rounded-full bg-primary px-7 py-3 text-lg font-semibold text-white transition-colors duration-300 ease-in-out hover:cursor-pointer hover:bg-secondary lg:px-10 lg:py-4">
-                  <Image
-                    src="/img/icon-store.svg"
-                    alt="E-commerce Icon"
-                    width={22}
-                    height={22}
-                    className="aspect-square object-contain"
-                  />
-                  E-commerce
-                </button>
-              </Link>
-            </div>
-            <div className="w-full md:w-auto">
-              <Link href="#contact">
-                <button className="flex w-full md:w-auto items-center justify-center gap-2 whitespace-nowrap border-primary border-[1px] rounded-full bg-white px-7 py-3 text-lg font-semibold text-primary transition-colors duration-300 ease-in-out hover:cursor-pointer hover:bg-background lg:px-10 lg:py-4">
-                  <Image
-                    src="/img/icon-location.svg"
-                    alt="Store Localização"
-                    width={22}
-                    height={22}
-                    className="aspect-square object-contain"
-                  />
-                  Loja Física
-                </button>
-              </Link>
-            </div>
+                <span>Falar no WhatsApp</span>
+                <ExternalLink className="size-4" />
+              </a>
+            </Button>
           </div>
         </div>
 
-        {/* Contacts */}
-        <div className="text-center sm:mb-12 mb-8 md:mt-20 mt-2">
-          <h2 className="text-3xl md:text-5xl font-tanker text-primary mt-3">
-            Fale com a gente
-          </h2>
-          <p className="text-foreground mt-4 max-w-2xl mx-auto">
-            Tire suas dúvidas, peça orçamentos ou venha nos visitar. Estamos
-            prontos para ajudar você a encontrar o instrumento perfeito.
+        {/* Grade de 4 diferenciais */}
+        <ul className="grid grid-cols-2 gap-px bg-hero-foreground/15 border-t lg:border-t-0 lg:border-l border-hero-foreground/15">
+          {[
+            {
+              icon: Store,
+              title: "Duas Lojas Físicas",
+              desc: "Venha testar instrumentos e amplificadores antes de levar.",
+            },
+            {
+              icon: MapPin,
+              title: "Retirada Grátis",
+              desc: "Compre online e retire no balcão da loja em poucas horas.",
+            },
+            {
+              icon: Truck,
+              title: "Entrega Local Rápida",
+              desc: "Entregamos na sua casa ou estúdio em toda Feira de Santana.",
+            },
+            {
+              icon: Headphones,
+              title: "Atendimento de Músico",
+              desc: "Equipe especializada pronta para tirar qualquer dúvida técnica.",
+            },
+          ].map((item, idx) => {
+            const Icon = item.icon;
+            return (
+              <li key={idx} className="bg-hero p-6 md:p-8 flex flex-col justify-between">
+                <Icon className="size-7 text-ml mb-3" />
+                <div>
+                  <div className="font-display text-lg md:text-xl font-bold text-hero-foreground">
+                    {item.title}
+                  </div>
+                  <div className="mt-1 text-xs md:text-sm text-hero-foreground/75 leading-relaxed">
+                    {item.desc}
+                  </div>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+
+      {/* ── 2. Sobre a Nossa História + Imagem ── */}
+      <div className="grid lg:grid-cols-2 gap-10 items-center pt-4">
+        <div className="space-y-4">
+          <div className="inline-flex items-center gap-2 rounded-full bg-secondary px-3.5 py-1 text-xs font-bold text-secondary-foreground">
+            Tradição Musical
+          </div>
+          <h3 className="text-3xl md:text-4xl font-extrabold tracking-tight text-foreground font-display">
+            Mais do que uma loja, uma paixão pela música.
+          </h3>
+          <p className="text-base text-muted-foreground leading-relaxed">
+            A Pink Music nasceu do amor pela arte e pela sonoridade. Estamos presentes no dia a dia de igrejas, bandas, estúdios e iniciantes que buscam o seu primeiro instrumento.
+          </p>
+          <p className="text-base text-muted-foreground leading-relaxed">
+            Trabalhamos com marcas consagradas mundiais e nacionais, garantindo procedência, nota fiscal, garantia e o melhor custo-benefício para Feira de Santana e toda a Bahia.
+          </p>
+          <div className="pt-2 flex flex-wrap gap-3">
+            <Link
+              href="/products-all"
+              className="inline-flex items-center gap-1.5 text-sm font-bold text-primary hover:underline"
+            >
+              Conferir catálogo completo <ArrowRight className="size-4" />
+            </Link>
+          </div>
+        </div>
+
+        <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-muted/30 border border-border/80 shadow-card">
+          <Image
+            src="/img/about.png"
+            alt="Fachada e instrumentos da Pink Music"
+            fill
+            className="object-contain p-4"
+            sizes="(max-width: 1024px) 100vw, 50vw"
+          />
+        </div>
+      </div>
+
+      {/* ── 3. Nossos Contatos e Unidades ── */}
+      <div className="pt-6 space-y-8">
+        <div className="text-center max-w-xl mx-auto space-y-2">
+          <h3 className="text-2xl md:text-3xl font-extrabold tracking-tight text-foreground font-display">
+            Fale com a gente ou venha tomar um café
+          </h3>
+          <p className="text-sm md:text-base text-muted-foreground">
+            Nossos canais oficiais de atendimento e localizações no centro de Feira de Santana.
           </p>
         </div>
-        <div className="flex flex-col items-center justify-center md:py-6 py-2 px-4 w-full">
-          {/* Informações de Contato */}
-          <div className="space-y-8 w-full">
-            <div className="grid lg:grid-cols-4 md:grid-cols-2 grid-cols-1 gap-8 w-full">
-              {/* EMAIL */}
-              <div className="group bg-card rounded-2xl flex flex-col space-y-2 justify-center items-center p-6 shadow-card hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-border/50 text-center">
-                <div className="mb-4">
-                  <Image
-                    src="/img/icon-email_contacts.svg"
-                    alt="Email"
-                    width={56}
-                    height={56}
-                    className="aspect-square object-contain object-center w-14 self-stretch flex-shrink-0 my-auto"
-                  />
-                </div>
-                <h3 className="text-foreground sm:text-2xl text-xl font-semibold">
-                  E-MAIL
-                </h3>
-                <p className="text-foreground flex flex-col">
-                  <a href="mailto:vendas@pinkmusic.com.br">
-                    vendas@pinkmusic.com.br
-                  </a>
-                  <a href="mailto:contato@pinkmusic.com.br">
-                    contato@pinkmusic.com.br
-                  </a>
-                </p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
+          {/* WhatsApp */}
+          <div className="bg-card rounded-2xl p-6 border border-border/80 shadow-card flex flex-col justify-between hover:shadow-lift transition-all">
+            <div>
+              <div className="size-11 rounded-xl bg-secondary text-primary grid place-items-center mb-4">
+                <Phone className="size-5" />
               </div>
-              {/* WHATSAPP */}
-              <div className="group bg-card rounded-2xl flex flex-col space-y-2 justify-center items-center p-6 shadow-card hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-border/50 text-center">
-                <div className="text-2xl font-bold text-foreground mb-6 flex items-center gap-4">
-                  <Image
-                    src="/img/icon-whats_contacts.svg"
-                    alt="Localização"
-                    width={56}
-                    height={56}
-                    className="aspect-square object-contain object-center w-14 self-stretch flex-shrink-0 my-auto"
-                  />
-                </div>
-                <h3 className="text-foreground sm:text-2xl text-xl font-semibold">
-                  WHATSAPP
-                </h3>
-                <div className="flex items-center space-x-3">
-                  <div>
-                    <p className="text-foreground">
-                      <a href="https://wa.me/5575999661614" target="_blank">
-                        Loja 01 | (75) 99966-1614
-                      </a>
-                    </p>
-                    <p className="text-foreground">
-                      <a href="https://wa.me/5575991988685" target="_blank">
-                        Loja 02 | (75) 99198-8685
-                      </a>
-                    </p>
-                  </div>
-                </div>
-              </div>
-              {/* HORARIOS */}
-              <div className="group bg-card rounded-2xl flex flex-col space-y-2 justify-center items-center p-6 shadow-card hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-border/50 text-center">
-                <div className="text-2xl font-bold text-foreground mb-6 flex items-center gap-4">
-                  <Image
-                    src="/img/icon-horario_contacts.svg"
-                    alt="Localização"
-                    width={56}
-                    height={56}
-                    className="aspect-square object-contain object-center w-14 self-stretch flex-shrink-0 my-auto"
-                  />
-                </div>
-                <h3 className="text-foreground sm:text-2xl text-xl font-semibold">
-                  HORÁRIOS
-                </h3>
-                <div className="flex items-center space-x-3">
-                  <div>
-                    <p className="text-foreground">
-                      Segunda a Sexta: 8h às 18h
-                    </p>
-                    <p className="text-foreground">Sábado: 8h às 13h</p>
-                    <p className="text-foreground">Domingo: Fechado</p>
-                  </div>
-                </div>
-              </div>
-              {/* LOCALIZAÇAO */}
-              <div className="group bg-card rounded-2xl flex flex-col space-y-2 justify-center items-center p-6 shadow-card hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-border/50 text-center">
-                <h2 className="text-2xl font-bold text-foreground mb-6 flex items-center gap-4">
-                  <Image
-                    src="/img/icon-location_contacts.svg"
-                    alt="Localização"
-                    width={56}
-                    height={56}
-                    className="aspect-square object-contain object-center w-14 self-stretch flex-shrink-0 my-auto"
-                  />
-                </h2>
-                <h3 className="text-foreground sm:text-2xl text-xl font-semibold">
-                  ENDEREÇO
-                </h3>
-                <div className="space-y-4">
-                  <div className="flex items-start space-x-3">
-                    <div>
-                      <p className="text-foreground">{address.street1}</p>
-                      <p className="text-foreground">{address.street2}</p>
-                      <p className="text-primary">{address.district}</p>
-                      <p className="text-primary">
-                        {address.city} - {address.state}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <h4 className="font-display font-bold text-base text-foreground mb-1">
+                WhatsApp
+              </h4>
+              <p className="text-xs text-muted-foreground mb-4">
+                Atendimento direto com nossos vendedores
+              </p>
             </div>
+            <div className="space-y-1.5 text-sm font-medium">
+              <a
+                href="https://wa.me/5575999661614"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block hover:text-primary transition-colors text-foreground"
+              >
+                Loja 01: (75) 99966-1614
+              </a>
+              <a
+                href="https://wa.me/5575991988685"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block hover:text-primary transition-colors text-foreground"
+              >
+                Loja 02: (75) 99198-8685
+              </a>
+            </div>
+          </div>
 
-            {/* Mapa */}
-            <div className="space-y-6 md:my-16 my-8">
-              {/* Mapa interativo alternativo */}
-              <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-sidebar-primary h-[500px]">
-                <div className="bg-card p-4">
-                  <h3 className="flex gap-2 items-center text-lg font-bold text-foreground">
-                    <MapPin size={20} />
-                    Mapa Interativo
-                  </h3>
-                </div>
-
-                <div className="relative">
-                  <iframe
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3895.721234567890!2d-38.9668729!3d-12.2568785!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x7143793755d3343%3A0xb0521fd81d69892b!2sPink%20Music!5e0!3m2!1spt-BR!2sbr!4v1723334567890!5m2!1spt-BR!2sbr"
-                    width="100%"
-                    height="500"
-                    style={{ border: 0 }}
-                    allowFullScreen
-                    loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
-                    title="Mapa interativo da Pink Music Instrumentos"
-                  ></iframe>
-                </div>
+          {/* E-mail */}
+          <div className="bg-card rounded-2xl p-6 border border-border/80 shadow-card flex flex-col justify-between hover:shadow-lift transition-all">
+            <div>
+              <div className="size-11 rounded-xl bg-secondary text-primary grid place-items-center mb-4">
+                <Mail className="size-5" />
               </div>
+              <h4 className="font-display font-bold text-base text-foreground mb-1">
+                E-mail
+              </h4>
+              <p className="text-xs text-muted-foreground mb-4">
+                Orçamentos corporativos e suporte
+              </p>
+            </div>
+            <div className="space-y-1.5 text-sm font-medium">
+              <a
+                href="mailto:vendas@pinkmusic.com.br"
+                className="block hover:text-primary transition-colors text-foreground truncate"
+              >
+                vendas@pinkmusic.com.br
+              </a>
+              <a
+                href="mailto:contato@pinkmusic.com.br"
+                className="block hover:text-primary transition-colors text-foreground truncate"
+              >
+                contato@pinkmusic.com.br
+              </a>
+            </div>
+          </div>
 
-              {/* Botões de Navegação */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Button onClick={openGoogleMaps} variant="default">
-                  <Navigation size={20} />
-                  <span>Abrir no Google Maps</span>
-                </Button>
-
-                <Button onClick={openWaze} variant="secondary">
-                  <Navigation size={20} />
-                  <span>Abrir no Waze</span>
-                </Button>
+          {/* Horários */}
+          <div className="bg-card rounded-2xl p-6 border border-border/80 shadow-card flex flex-col justify-between hover:shadow-lift transition-all">
+            <div>
+              <div className="size-11 rounded-xl bg-secondary text-primary grid place-items-center mb-4">
+                <Clock className="size-5" />
               </div>
+              <h4 className="font-display font-bold text-base text-foreground mb-1">
+                Funcionamento
+              </h4>
+              <p className="text-xs text-muted-foreground mb-4">
+                Horário de funcionamento das lojas
+              </p>
+            </div>
+            <div className="space-y-1 text-sm text-foreground">
+              <p>Seg a Sex: 8h às 18h</p>
+              <p>Sábado: 8h às 13h</p>
+              <p className="text-muted-foreground text-xs">Domingos: Fechado</p>
+            </div>
+          </div>
+
+          {/* Endereço */}
+          <div className="bg-card rounded-2xl p-6 border border-border/80 shadow-card flex flex-col justify-between hover:shadow-lift transition-all">
+            <div>
+              <div className="size-11 rounded-xl bg-secondary text-primary grid place-items-center mb-4">
+                <MapPin className="size-5" />
+              </div>
+              <h4 className="font-display font-bold text-base text-foreground mb-1">
+                Onde Estamos
+              </h4>
+              <p className="text-xs text-muted-foreground mb-4">
+                Centro de Feira de Santana — BA
+              </p>
+            </div>
+            <div className="space-y-1 text-sm text-foreground">
+              <p className="font-semibold">{address.street1}</p>
+              <p className="font-semibold">{address.street2}</p>
+              <p className="text-xs text-muted-foreground">Centro, Feira de Santana</p>
             </div>
           </div>
         </div>
-      </PageContainer>
+
+        {/* ── 4. Mapa Interativo e Rotas ── */}
+        <div className="bg-card rounded-3xl overflow-hidden border border-border/80 shadow-card">
+          <div className="p-5 md:p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-border/60">
+            <div>
+              <h4 className="font-display font-bold text-lg text-foreground flex items-center gap-2">
+                <MapPin className="size-5 text-primary" />
+                Como chegar na Pink Music
+              </h4>
+              <p className="text-xs md:text-sm text-muted-foreground mt-0.5">
+                Rua JJ Seabra, Centro — Feira de Santana, Bahia
+              </p>
+            </div>
+
+            <div className="flex gap-3 w-full sm:w-auto">
+              <Button
+                variant="default"
+                size="sm"
+                className="rounded-xl flex-1 sm:flex-initial"
+                onClick={openGoogleMaps}
+              >
+                <Navigation className="size-4" />
+                <span>Google Maps</span>
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="rounded-xl flex-1 sm:flex-initial"
+                onClick={openWaze}
+              >
+                <Navigation className="size-4" />
+                <span>Waze</span>
+              </Button>
+            </div>
+          </div>
+
+          <div className="relative w-full h-[360px] md:h-[420px]">
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3895.721234567890!2d-38.9668729!3d-12.2568785!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x7143793755d3343%3A0xb0521fd81d69892b!2sPink%20Music!5e0!3m2!1spt-BR!2sbr!4v1723334567890!5m2!1spt-BR!2sbr"
+              width="100%"
+              height="100%"
+              style={{ border: 0 }}
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              title="Mapa das lojas Pink Music em Feira de Santana"
+            />
+          </div>
+        </div>
+      </div>
     </section>
   );
 }
