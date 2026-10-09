@@ -282,13 +282,13 @@ export default function CustomerOrdersPage() {
                     ? o.items.map((i) => i.title).join(", ")
                     : o.product?.title || "Produto Pink Music";
 
-                const isDelivery = o.deliveryType === "delivery";
+                const isDelivery = o.deliveryType === "delivery" || !o.deliveryType;
 
                 return (
-                  <div
+                  <Link
                     key={o.id}
-                    onClick={() => setSelectedOrder(o)}
-                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-border/80 bg-card p-5 shadow-card transition-all hover:shadow-lift hover:border-primary/40 cursor-pointer"
+                    href={`/meus-pedidos/${o.id}`}
+                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-border/80 bg-card p-5 shadow-card transition-all hover:shadow-lift hover:border-primary/40"
                   >
                     <div className="min-w-0 flex-1">
                       {/* Topo do card: ID e status tag */}
@@ -344,7 +344,7 @@ export default function CustomerOrdersPage() {
                         <ChevronRight className="size-4" />
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 );
               })}
             </div>
