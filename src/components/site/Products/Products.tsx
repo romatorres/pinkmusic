@@ -10,6 +10,8 @@ import { Carousel, CarouselContent, CarouselItem } from "../../ui/carousel";
 import type { Product } from "@/lib/types";
 import { PageContainer } from "@/components/ui/Page-container";
 import { useProductStore } from "@/store/productStore";
+import { SectionHead } from "../_components/SectionHead";
+import { Button } from "@/components/ui/button";
 
 interface ApiResponse {
   success: boolean;
@@ -29,6 +31,10 @@ interface ProductsProps {
   showSeeAllButton?: boolean;
   /** Texto do título da seção. null = sem título (útil em products-all) */
   title?: string | null;
+  /** Subtítulo da seção */
+  subtitle?: string;
+  /** Filtrar apenas produtos com desconto/oferta */
+  hasDiscount?: boolean;
   /** Filtros */
   searchQuery?: string;
   categoryIds?: string[];
@@ -59,7 +65,9 @@ const Products: React.FC<ProductsProps> = ({
   limit = 12,
   showPagination = false,
   showSeeAllButton = true,
-  title = "Mais Visitados",  // passar null para ocultar o título
+  title = "Mais Procurados", // atualizado para o novo layout
+  subtitle,
+  hasDiscount = false,
   searchQuery,
   categoryIds,
   brandIds,
@@ -102,7 +110,10 @@ const Products: React.FC<ProductsProps> = ({
           // Para a home: busca um pool maior e embaralha (apenas uma vez)
           if (hasRandomized.current) return;
 
-          const response = await fetch(`/api/products?page=1&limit=48`);
+          const url = hasDiscount
+            ? `/api/products?page=1&limit=48&hasDiscount=true`
+            : `/api/products?page=1&limit=48`;
+          const response = await fetch(url);
           const result: ApiResponse = await response.json();
 
           if (result.success && result.data) {
@@ -119,6 +130,7 @@ const Products: React.FC<ProductsProps> = ({
           params.set("page", String(currentPageRef.current));
           params.set("limit", String(limit));
 
+          if (hasDiscount) params.set("hasDiscount", "true");
           if (searchQuery) params.set("search", searchQuery);
           if (categoryIds && categoryIds.length > 0)
             params.set("categoryIds", categoryIds.join(","));
@@ -254,13 +266,10 @@ const Products: React.FC<ProductsProps> = ({
     <>
       {/* Título da seção — omitido quando title é null */}
       {title != null && (
-        <div className="mb-8 flex items-center gap-4 sm:gap-6">
-          <span aria-hidden className="h-px flex-1 bg-foreground opacity-50" />
-          <h2 className="text-3xl text-primary font-tanker uppercase leading-none tracking-wide sm:text-4xl">
-            {title}
-          </h2>
-          <span aria-hidden className="h-px flex-1 bg-foreground opacity-50" />
-        </div>
+        <SectionHead
+          title={title}
+          subtitle={subtitle}
+        />
       )}
 
       {loading && (
@@ -268,18 +277,18 @@ const Products: React.FC<ProductsProps> = ({
       )}
 
       {!loading && !hasProducts && !error && (
-        <div className="text-center text-gray-500 py-16">
+        <div className="text-center text-muted-foreground py-16">
           <h3 className="text-xl font-semibold">Nenhum produto encontrado</h3>
-          <p className="mt-2">
+          <p className="mt-2 text-sm">
             Tente ajustar seus filtros ou pesquisar por outro termo.
           </p>
         </div>
       )}
 
       {error && !loading && (
-        <div className="text-center text-red-500 py-16">
+        <div className="text-center text-destructive py-16">
           <h3 className="text-xl font-semibold">Ocorreu um erro</h3>
-          <p className="mt-2">{error}</p>
+          <p className="mt-2 text-sm">{error}</p>
         </div>
       )}
 
@@ -301,13 +310,17 @@ const Products: React.FC<ProductsProps> = ({
 
       {showSeeAllButton && (
         <div className="mt-12 mx-2 flex justify-center">
-          <Link
-            href="/products-all"
-            className="w-full sm:w-auto border-[1px] border-primary/70 text-primary/70 py-3 px-6 rounded-full hover:bg-primary/10 flex items-center justify-center gap-2 font-semibold text-sm transition-colors"
+          <Button
+            variant="outline"
+            size="lg"
+            className="w-full sm:w-auto rounded-xl px-8 h-12 font-semibold hover:border-primary hover:text-primary transition-all"
+            asChild
           >
-            <span>Todos os Produtos</span>
-            <ArrowRight size={20} />
-          </Link>
+            <Link href="/products-all" className="inline-flex items-center gap-2">
+              <span>Ver todos os produtos</span>
+              <ArrowRight className="size-4" />
+            </Link>
+          </Button>
         </div>
       )}
     </>

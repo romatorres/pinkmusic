@@ -13,8 +13,22 @@ export default function Home() {
         <Hero />
         <Partners />
         <CategoriesSection />
+
+        {/* Mais Procurados — 4 produtos (1 linha tradicional no desktop) */}
         <Products
-          limit={12}
+          title="Mais Procurados"
+          subtitle="Os instrumentos e equipamentos favoritos dos nossos músicos."
+          limit={4}
+          showSeeAllButton={false}
+          randomizeProducts={true}
+        />
+
+        {/* Ofertas Especiais — 4 produtos com desconto (1 linha tradicional) */}
+        <Products
+          title="Ofertas"
+          subtitle="Preços especiais por tempo limitado."
+          limit={4}
+          hasDiscount={true}
           showSeeAllButton={true}
           randomizeProducts={true}
         />

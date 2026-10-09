@@ -62,6 +62,7 @@ model Product {
   code               String?            @unique // Código fiscal interno da loja / SKU
   title              String
   price              Float
+  originalPrice      Float?             // Preço original / anterior para ofertas e descontos
   currency_id        String             @default("BRL")
   thumbnail          String
   condition          String             @default("new")

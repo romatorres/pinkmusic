@@ -78,6 +78,11 @@ export async function GET(req: Request) {
       whereClause.origin = origin;
     }
 
+    const hasDiscount = searchParams.get("hasDiscount");
+    if (hasDiscount === "true") {
+      whereClause.originalPrice = { not: null };
+    }
+
     if (searchQuery) {
       whereClause.OR = [
         {

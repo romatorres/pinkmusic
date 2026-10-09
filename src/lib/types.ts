@@ -18,6 +18,7 @@ export interface Product {
   code?: string | null;
   title: string;
   price: number;
+  originalPrice?: number | null;
   currency_id: string;
   thumbnail: string;
   condition: string;
