@@ -226,8 +226,8 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
                       type="button"
                       onClick={() => setSelectedImage(index)}
                       className={`relative flex-shrink-0 size-20 rounded-2xl overflow-hidden border-2 bg-card p-1 transition-all cursor-pointer ${isSelected
-                          ? "border-primary ring-2 ring-primary/20 scale-105 shadow-xs"
-                          : "border-border/80 opacity-70 hover:opacity-100 hover:border-muted-foreground/40"
+                        ? "border-primary ring-2 ring-primary/20 scale-105 shadow-xs"
+                        : "border-border/80 opacity-70 hover:opacity-100 hover:border-muted-foreground/40"
                         }`}
                     >
                       {picUrl && (
@@ -293,21 +293,17 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
                   {formatPrice(product.price, product.currency_id)}
                 </div>
 
-                {product.price > 100 && (
-                  <p className="mt-1.5 text-sm text-muted-foreground">
-                    ou até 10x de{" "}
-                    <span className="font-semibold text-foreground">
-                      {formatPrice(product.price / 10, product.currency_id)}
-                    </span>{" "}
-                    sem juros
-                  </p>
-                )}
+
+                <p className="mt-1.5 text-sm text-muted-foreground">
+                  Compre parcelado em até 12x no Mercado Livre
+                </p>
+
 
                 <div className="mt-4 flex items-center gap-2">
                   <span
                     className={`inline-block size-2.5 rounded-full ${product.available_quantity > 0
-                        ? "bg-emerald-500"
-                        : "bg-destructive"
+                      ? "bg-emerald-500"
+                      : "bg-destructive"
                       }`}
                   />
                   <span className="text-sm font-medium text-muted-foreground">
@@ -374,8 +370,8 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
                       disabled={isOutOfStock}
                       size="lg"
                       className={`w-full h-12 rounded-2xl text-sm font-semibold border-2 transition-all gap-2 ${addedToCart
-                          ? "bg-emerald-500 text-white border-emerald-500 hover:bg-emerald-600"
-                          : "border-primary/40 text-foreground hover:bg-primary/5 hover:border-primary"
+                        ? "bg-emerald-500 text-white border-emerald-500 hover:bg-emerald-600"
+                        : "border-primary/40 text-foreground hover:bg-primary/5 hover:border-primary"
                         }`}
                     >
                       {addedToCart ? (
