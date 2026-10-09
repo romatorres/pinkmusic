@@ -2,7 +2,6 @@ import Hero from "@/components/site/Hero";
 import Partners from "@/components/site/Partners";
 import Products from "@/components/site/Products/Products";
 import About from "@/components/site/About";
-import Newsletter from "@/components/site/Newsletter";
 import { CategoriesSection } from "@/components/site/Categories";
 
 
@@ -33,7 +32,6 @@ export default function Home() {
           randomizeProducts={true}
         />
         <Partners />
-        <Newsletter />
         <section id="about">
           <About />
         </section>

@@ -77,7 +77,7 @@ const Products: React.FC<ProductsProps> = ({
   randomizeProducts = false,
   forceGridOnMobile = false,
   isSection = true,
-  onProductsLoad = () => {},
+  onProductsLoad = () => { },
 }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -306,22 +306,6 @@ const Products: React.FC<ProductsProps> = ({
             </div>
           )}
         </>
-      )}
-
-      {showSeeAllButton && (
-        <div className="mt-12 mx-2 flex justify-center">
-          <Button
-            variant="outline"
-            size="lg"
-            className="w-full sm:w-auto rounded-xl px-8 h-12 font-semibold hover:border-primary hover:text-primary transition-all"
-            asChild
-          >
-            <Link href="/products-all" className="inline-flex items-center gap-2">
-              <span>Ver todos os produtos</span>
-              <ArrowRight className="size-4" />
-            </Link>
-          </Button>
-        </div>
       )}
     </>
   );
