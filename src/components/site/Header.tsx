@@ -264,13 +264,6 @@ function MobileMenu({
                 >
                   Sobre a Pink Music
                 </Link>
-                <Link
-                  href="/meus-pedidos"
-                  onClick={() => onOpenChange(false)}
-                  className="py-2 text-foreground hover:text-primary transition-colors"
-                >
-                  Meus Pedidos
-                </Link>
               </li>
             </ul>
           ) : (
@@ -308,6 +301,55 @@ function MobileMenu({
 // ---------------------------------------------------------------------------
 // UserMenu — dropdown de usuário autenticado
 // ---------------------------------------------------------------------------
+function AccountMenuItems({
+  mobile = false,
+  onLogout,
+  onMenuItemClick,
+}: {
+  mobile?: boolean;
+  onLogout?: () => void;
+  onMenuItemClick?: () => void;
+}) {
+  const itemClassName = mobile
+    ? "flex min-h-12 items-center gap-3 rounded-lg px-3 py-3 text-base hover:bg-muted/60 transition-colors"
+    : "flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-muted/60 transition-colors";
+
+  return (
+    <div className={mobile ? "space-y-1 p-3" : "space-y-0.5 p-1.5"}>
+      <Link
+        href="/conta"
+        onClick={onMenuItemClick}
+        className={itemClassName}
+      >
+        <User className="size-4 text-muted-foreground" />
+        Minha Conta
+      </Link>
+      <Link
+        href="/meus-pedidos"
+        onClick={onMenuItemClick}
+        className={itemClassName}
+      >
+        <Package className="size-4 text-muted-foreground" />
+        Meus Pedidos
+      </Link>
+      <button
+        type="button"
+        onClick={() => {
+          onLogout?.();
+          onMenuItemClick?.();
+        }}
+        className={cn(
+          "flex w-full items-center gap-2 rounded-lg text-destructive hover:bg-destructive/10 transition-colors cursor-pointer",
+          mobile ? "min-h-12 gap-3 px-3 py-3 text-base" : "px-3 py-2 text-sm"
+        )}
+      >
+        <LogOut className="size-4" />
+        Sair da conta
+      </button>
+    </div>
+  );
+}
+
 function UserMenu({
   isAuth,
   userName,
@@ -360,35 +402,10 @@ function UserMenu({
             </p>
           </div>
           <div className="mx-2 h-px bg-border/90" />
-          <div className="p-1.5 space-y-0.5">
-            <Link
-              href="/conta"
-              onClick={onMenuItemClick}
-              className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-muted/60 transition-colors"
-            >
-              <User className="size-4 text-muted-foreground" />
-              Minha Conta
-            </Link>
-            <Link
-              href="/meus-pedidos"
-              onClick={onMenuItemClick}
-              className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-muted/60 transition-colors"
-            >
-              <Package className="size-4 text-muted-foreground" />
-              Meus Pedidos
-            </Link>
-            <button
-              type="button"
-              onClick={() => {
-                onLogout?.();
-                onMenuItemClick?.();
-              }}
-              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
-            >
-              <LogOut className="size-4" />
-              Sair da conta
-            </button>
-          </div>
+          <AccountMenuItems
+            onLogout={onLogout}
+            onMenuItemClick={onMenuItemClick}
+          />
         </div>
       )}
     </div>
@@ -413,6 +430,7 @@ function HeaderContent() {
   const { isAuth, user, logout } = useAuthStore();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [mobileAccountOpen, setMobileAccountOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement | null>(null);
   const cartCount = itemsCount();
 
@@ -421,6 +439,8 @@ function HeaderContent() {
     const timeout = window.setTimeout(() => {
       setMega(false);
       setMobileMenu(false);
+      setUserMenuOpen(false);
+      setMobileAccountOpen(false);
     }, 0);
     return () => window.clearTimeout(timeout);
   }, [pathname]);
@@ -478,6 +498,7 @@ function HeaderContent() {
       useCartStore.getState().clearCart();
       logout();
       setUserMenuOpen(false);
+      setMobileAccountOpen(false);
       router.replace("/");
       router.refresh();
     }
@@ -601,10 +622,12 @@ function HeaderContent() {
               <button
                 type="button"
                 onClick={() => {
-                  if (isAuth) setUserMenuOpen((v) => !v);
+                  if (isAuth) setMobileAccountOpen(true);
                   else setShowAuthModal(true);
                 }}
                 aria-label={isAuth ? `Olá, ${user?.name}` : "Entrar"}
+                aria-haspopup={isAuth ? "dialog" : undefined}
+                aria-expanded={isAuth ? mobileAccountOpen : undefined}
                 className="grid size-11 place-items-center rounded-lg hover:bg-secondary transition-colors"
               >
                 {isAuth && user?.name ? (
@@ -635,6 +658,30 @@ function HeaderContent() {
         onOpenChange={setMobileMenu}
         categories={categories}
       />
+
+      <Sheet
+        open={mobileAccountOpen && isAuth}
+        onOpenChange={setMobileAccountOpen}
+      >
+        <SheetContent
+          side="right"
+          className="w-[88vw] max-w-sm gap-0 p-0 [&>button]:hidden"
+        >
+          <div className="border-b px-4 py-5 pr-14">
+            <SheetTitle className="truncate text-base">
+              {user?.name || "Minha conta"}
+            </SheetTitle>
+            <p className="mt-1 truncate text-sm text-muted-foreground">
+              {user?.email || "E-mail não disponível"}
+            </p>
+          </div>
+          <AccountMenuItems
+            mobile
+            onLogout={handleLogout}
+            onMenuItemClick={() => setMobileAccountOpen(false)}
+          />
+        </SheetContent>
+      </Sheet>
 
       {/* CartDrawer global */}
       <CartDrawer />
