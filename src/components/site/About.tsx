@@ -150,7 +150,7 @@ export default function About() {
           </div>
         </div>
 
-        <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-muted/30 border border-border/80 shadow-card">
+        <div className="relative aspect-[4/3] w-full overflow-hidden">
           <Image
             src="/img/about.png"
             alt="Fachada e instrumentos da Pink Music"
