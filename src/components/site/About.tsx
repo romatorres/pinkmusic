@@ -150,7 +150,7 @@ export default function About() {
           </div>
         </div>
 
-        <div className="relative aspect-[4/3] w-full overflow-hidden">
+        <div className="relative aspect-[3/2] w-full overflow-hidden">
           <Image
             src="/img/about.png"
             alt="Fachada e instrumentos da Pink Music"
@@ -293,16 +293,16 @@ export default function About() {
               <Button
                 variant="default"
                 size="sm"
-                className="rounded-xl flex-1 sm:flex-initial"
+                className="flex-1 sm:flex-initial"
                 onClick={openGoogleMaps}
               >
                 <Navigation className="size-4" />
                 <span>Google Maps</span>
               </Button>
               <Button
-                variant="outline"
+                variant="default"
                 size="sm"
-                className="rounded-xl flex-1 sm:flex-initial"
+                className="flex-1 sm:flex-initial"
                 onClick={openWaze}
               >
                 <Navigation className="size-4" />

@@ -200,14 +200,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
                 )}
               </div>
 
-              {/* Overlay se esgotado */}
-              {isOutOfStock && (
-                <div className="absolute inset-0 bg-background/70 backdrop-blur-xs flex items-center justify-center z-10">
-                  <span className="rounded-xl bg-foreground px-4 py-2 text-sm font-bold text-background shadow-md">
-                    Produto Esgotado
-                  </span>
-                </div>
-              )}
+
 
               {currentPictureUrl && (
                 <Image
@@ -232,11 +225,10 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
                       key={picture.id || index}
                       type="button"
                       onClick={() => setSelectedImage(index)}
-                      className={`relative flex-shrink-0 size-20 rounded-2xl overflow-hidden border-2 bg-card p-1 transition-all cursor-pointer ${
-                        isSelected
+                      className={`relative flex-shrink-0 size-20 rounded-2xl overflow-hidden border-2 bg-card p-1 transition-all cursor-pointer ${isSelected
                           ? "border-primary ring-2 ring-primary/20 scale-105 shadow-xs"
                           : "border-border/80 opacity-70 hover:opacity-100 hover:border-muted-foreground/40"
-                      }`}
+                        }`}
                     >
                       {picUrl && (
                         <Image
@@ -313,17 +305,15 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
 
                 <div className="mt-4 flex items-center gap-2">
                   <span
-                    className={`inline-block size-2.5 rounded-full ${
-                      product.available_quantity > 0
+                    className={`inline-block size-2.5 rounded-full ${product.available_quantity > 0
                         ? "bg-emerald-500"
                         : "bg-destructive"
-                    }`}
+                      }`}
                   />
                   <span className="text-sm font-medium text-muted-foreground">
                     {product.available_quantity > 0
-                      ? `${product.available_quantity} unidade${
-                          product.available_quantity > 1 ? "s" : ""
-                        } disponível${product.available_quantity > 1 ? "is" : ""}`
+                      ? `${product.available_quantity} unidade${product.available_quantity > 1 ? "s" : ""
+                      } disponível${product.available_quantity > 1 ? "is" : ""}`
                       : "Produto temporariamente indisponível"}
                   </span>
                 </div>
@@ -383,11 +373,10 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
                       onClick={handleAddToCart}
                       disabled={isOutOfStock}
                       size="lg"
-                      className={`w-full h-12 rounded-2xl text-sm font-semibold border-2 transition-all gap-2 ${
-                        addedToCart
+                      className={`w-full h-12 rounded-2xl text-sm font-semibold border-2 transition-all gap-2 ${addedToCart
                           ? "bg-emerald-500 text-white border-emerald-500 hover:bg-emerald-600"
                           : "border-primary/40 text-foreground hover:bg-primary/5 hover:border-primary"
-                      }`}
+                        }`}
                     >
                       {addedToCart ? (
                         <>

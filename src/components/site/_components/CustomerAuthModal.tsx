@@ -150,9 +150,6 @@ export function CustomerAuthModal({
           <div className="absolute -top-6 -right-6 size-28 rounded-full bg-white/10 blur-2xl pointer-events-none" />
           <div className="absolute bottom-0 left-0 w-full h-px bg-white/20" />
           <div className="relative flex items-start gap-3">
-            <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-white/15 border border-white/20">
-              <Music2 className="size-5" />
-            </div>
             <DialogHeader className="flex-1 space-y-0.5">
               <DialogTitle className="text-lg font-bold text-white leading-tight">
                 {tab === "login" ? "Acesse sua conta" : "Crie sua conta"}

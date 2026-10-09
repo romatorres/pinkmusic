@@ -19,7 +19,7 @@ const slides = [
   {
     img: "/img/hero/hero-baterias.jpg",
     kicker: "Ofertas especiais Pink Music",
-    title: "Baterias com até 12% off.",
+    title: "Acessórios com até 12% off.",
     text: "Acústicas e eletrônicas, prontas para o palco.",
     cta: "Ver oferta",
     href: "/products-all?categorySlug=baterias",

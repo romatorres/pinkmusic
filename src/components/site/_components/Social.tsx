@@ -1,41 +1,27 @@
+import { Facebook, Instagram } from "lucide-react";
 import Image from "next/image";
 
 export default function Social() {
   return (
     <section>
-      <div className="flex items-center gap-6 md:gap-6 lg:mt-0 mt-8 justify-center lg:justify-normal">
-        <a
-          href="https://www.facebook.com/PinkMusicInstrumentos/"
-          target="_blank"
-        >
-          <Image
-            src="/img/icon-facebook.svg"
-            alt="Icon Social Facebook"
-            width={56}
-            height={56}
-            className="object-contain transition-transform duration-300 ease-in-out hover:scale-110 hover:cursor-pointer"
-          />
-        </a>
+      <div className="flex gap-6">
         <a
           href="https://www.instagram.com/pinkmusicinstrumentos"
           target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Instagram da Pink Music"
+          className="grid size-12 place-items-center rounded-full border-2 border-primary hover:scale-110 transition-all cursor-pointer"
         >
-          <Image
-            src="/img/icon-instagram.svg"
-            alt="Icon Social Instagram"
-            width={56}
-            height={56}
-            className="object-contain transition-transform duration-300 ease-in-out hover:scale-110 hover:cursor-pointer"
-          />
+          <Instagram className="size-6 text-primary" />
         </a>
-        <a href="https://wa.me/5575999661614" target="_blank">
-          <Image
-            src="/img/icon-whatsapp.svg"
-            alt="Icon Social Twitter"
-            width={56}
-            height={56}
-            className="object-contain transition-transform duration-300 ease-in-out hover:scale-110 hover:cursor-pointer"
-          />
+        <a
+          href="https://www.facebook.com/PinkMusicInstrumentos/"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Facebook da Pink Music"
+          className="grid size-12 place-items-center rounded-full border-2 border-primary hover:scale-110 transition-all cursor-pointer"
+        >
+          <Facebook className="size-6 text-primary" />
         </a>
       </div>
     </section>
