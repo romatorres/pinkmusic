@@ -38,6 +38,7 @@ export interface ProductEditData {
     code?: string | null;
     title: string;
     price: number;
+    originalPrice?: number | null;
     available_quantity: number;
     categoryId?: string | null;
     brandId?: string | null;
@@ -56,6 +57,7 @@ const emptyProduct: ProductEditData = {
     id: "",
     title: "",
     price: 0,
+    originalPrice: null,
     available_quantity: 0,
     categoryId: null,
     brandId: null,
@@ -155,8 +157,8 @@ export function ProductEditModal({
         setProduct((current) => ({
             ...current,
             [name]:
-                name === "price" || name === "available_quantity"
-                    ? parseFloat(value) || 0
+                name === "price" || name === "available_quantity" || name === "originalPrice"
+                    ? value === "" ? null : parseFloat(value) || 0
                     : value,
         }));
     };
@@ -223,6 +225,7 @@ export function ProductEditModal({
                     code: product.code?.trim() || null,
                     title: product.title.trim(),
                     price: product.price,
+                    originalPrice: product.originalPrice ?? null,
                     available_quantity: product.available_quantity,
                     categoryId: finalCategoryId,
                     brandId: product.brandId || null,
@@ -345,7 +348,7 @@ export function ProductEditModal({
                                 </div>
                             </div>
 
-                            <div className="grid gap-4 md:grid-cols-2">
+                            <div className="grid gap-4 md:grid-cols-3">
                                 <div className="gap-1 flex-col flex">
                                     <Label htmlFor="edit-price">Preço de venda *</Label>
                                     <Input
@@ -357,6 +360,23 @@ export function ProductEditModal({
                                         value={product.price}
                                         onChange={updateProductField}
                                         required
+                                        disabled={saving}
+                                    />
+                                </div>
+                                <div className="gap-1 flex-col flex">
+                                    <Label htmlFor="edit-original-price" className="flex items-center justify-between">
+                                        <span>Preço Original (De:)</span>
+                                        <span className="text-[10px] text-muted-foreground font-normal">Opcional</span>
+                                    </Label>
+                                    <Input
+                                        id="edit-original-price"
+                                        name="originalPrice"
+                                        type="number"
+                                        min="0"
+                                        step="0.01"
+                                        placeholder="Ex: 299.90"
+                                        value={product.originalPrice ?? ""}
+                                        onChange={updateProductField}
                                         disabled={saving}
                                     />
                                 </div>

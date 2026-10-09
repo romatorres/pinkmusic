@@ -3,31 +3,25 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { createProductSlug } from "@/lib/slug";
 import {
   Package,
   Clock,
-  CheckCircle,
+  CheckCircle2,
   Truck,
   Store,
   ExternalLink,
   RefreshCw,
-  QrCode,
   Copy,
   Check,
   MessageCircle,
   ShoppingBag,
   LogIn,
   ArrowLeft,
-  XCircle,
-  ChevronsRight,
+  ChevronRight,
+  QrCode,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageContainer } from "@/components/ui/Page-container";
-import {
-  ScrollableBadgeGroup,
-  ScrollablePillGroup,
-} from "@/components/ui/scrollable-badges";
 import {
   Dialog,
   DialogContent,
@@ -37,15 +31,9 @@ import {
 } from "@/components/ui/dialog";
 import { useAuthStore } from "@/store/authStore";
 import { CustomerAuthModal } from "@/components/site/_components/CustomerAuthModal";
+import { OrderStatus, type OrderStatusType } from "@/components/site/_components/OrderStatus";
 import { toast } from "sonner";
-
-type OrderStatus =
-  | "PENDING_PAYMENT"
-  | "PAID"
-  | "PREPARING"
-  | "DISPATCHED"
-  | "DELIVERED"
-  | "CANCELLED";
+import { createProductSlug } from "@/lib/slug";
 
 interface OrderItem {
   id: string;
@@ -65,7 +53,7 @@ interface CustomerOrder {
   deliveryAddress: string | null;
   deliveryFee: number;
   totalAmount: number;
-  status: OrderStatus;
+  status: OrderStatusType;
   paidAt: string | null;
   createdAt: string;
   mpQrCode: string | null;
@@ -84,71 +72,12 @@ interface CustomerOrder {
   } | null;
 }
 
-const STATUS_CONFIG: Record<
-  OrderStatus,
-  { label: string; badgeClass: string; icon: React.ReactNode; description: string }
-> = {
-  PENDING_PAYMENT: {
-    label: "Aguardando PIX",
-    badgeClass:
-      "bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border-amber-300 dark:border-amber-800",
-    icon: <Clock className="h-3.5 w-3.5" />,
-    description: "Realize o pagamento do PIX para confirmarmos seu pedido.",
-  },
-  PAID: {
-    label: "Pagamento Confirmado",
-    badgeClass:
-      "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800",
-    icon: <CheckCircle className="h-3.5 w-3.5" />,
-    description: "Pagamento recebido com sucesso! Estamos processando o pedido.",
-  },
-  PREPARING: {
-    label: "Em Preparação",
-    badgeClass:
-      "bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300 border-blue-300 dark:border-blue-800",
-    icon: <Package className="h-3.5 w-3.5" />,
-    description: "Seus produtos estão sendo separados e embalados na loja.",
-  },
-  DISPATCHED: {
-    label: "A Caminho / Despachado",
-    badgeClass:
-      "bg-purple-100 text-purple-800 dark:bg-purple-950/60 dark:text-purple-300 border-purple-300 dark:border-purple-800",
-    icon: <Truck className="h-3.5 w-3.5" />,
-    description: "Seu pacote já saiu para entrega e está a caminho!",
-  },
-  DELIVERED: {
-    label: "Entregue / Retirado",
-    badgeClass:
-      "bg-green-100 text-green-800 dark:bg-green-950/60 dark:text-green-300 border-green-300 dark:border-green-800",
-    icon: <Check className="h-3.5 w-3.5" />,
-    description: "Pedido entregue com sucesso. Aproveite sua música!",
-  },
-  CANCELLED: {
-    label: "Cancelado",
-    badgeClass:
-      "bg-gray-100 text-gray-700 dark:bg-gray-900/60 dark:text-gray-400 border-gray-300 dark:border-gray-700",
-    icon: <XCircle className="h-3.5 w-3.5" />,
-    description: "Este pedido foi cancelado.",
-  },
-};
-
-function formatPrice(value: number) {
+const formatPrice = (price: number) => {
   return new Intl.NumberFormat("pt-BR", {
     style: "currency",
     currency: "BRL",
-  }).format(value);
-}
-
-function formatDate(iso: string) {
-  const d = new Date(iso);
-  return d.toLocaleDateString("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
+  }).format(price);
+};
 
 export default function CustomerOrdersPage() {
   const { user, isAuth } = useAuthStore();
@@ -157,8 +86,8 @@ export default function CustomerOrdersPage() {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [filterTab, setFilterTab] = useState<"ALL" | "PENDING" | "DELIVERED">("ALL");
 
-  // Modal para ver PIX pendente
-  const [pixModalOrder, setPixModalOrder] = useState<CustomerOrder | null>(null);
+  // Pedido selecionado para detalhes/PIX
+  const [selectedOrder, setSelectedOrder] = useState<CustomerOrder | null>(null);
   const [copied, setCopied] = useState(false);
 
   const fetchOrders = useCallback(async () => {
@@ -191,8 +120,8 @@ export default function CustomerOrdersPage() {
   const handleCopyPix = (code: string) => {
     navigator.clipboard.writeText(code);
     setCopied(true);
-    toast.success("Código PIX copiado para a área de transferência!");
-    setTimeout(() => setCopied(false), 3000);
+    toast.success("Código PIX copiado!");
+    setTimeout(() => setCopied(false), 2500);
   };
 
   const filteredOrders = orders.filter((o) => {
@@ -206,477 +135,501 @@ export default function CustomerOrdersPage() {
   });
 
   return (
-    <div className="min-h-[75vh] py-8 md:py-12 bg-muted/20">
-      <PageContainer>
-        {/* Navegação de volta */}
+    <div className="min-h-[80vh] py-8 md:py-12">
+      <PageContainer className="max-w-4xl mx-auto">
+        {/* Voltar para Home / Conta */}
         <div className="mb-6 flex items-center justify-between">
           <Link
-            href="/"
+            href="/conta"
             className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
           >
-            <ArrowLeft className="h-3.5 w-3.5" />
-            Voltar para a Loja
+            <ArrowLeft className="size-3.5" />
+            Minha Conta
           </Link>
+
           {isAuth && (
             <Button
-              variant="ghost"
+              variant="outline"
               size="sm"
               onClick={fetchOrders}
               disabled={loading}
-              className="h-8 text-xs gap-1.5"
+              className="h-8 rounded-xl text-xs gap-1.5 border-border"
             >
-              <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
+              <RefreshCw className={`size-3.5 ${loading ? "animate-spin" : ""}`} />
               Atualizar
             </Button>
           )}
         </div>
 
-        {/* Cabeçalho da Página */}
-        <div className="mb-8">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/60 pb-6">
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-foreground flex items-center gap-2.5">
-                <Package className="h-7 w-7 text-primary" />
-                Meus Pedidos
-              </h1>
-              <p className="text-sm text-muted-foreground mt-1">
-                {isAuth && user
-                  ? `Olá, ${user.name}! Acompanhe aqui o andamento de todas as suas compras.`
-                  : "Acesse sua conta para visualizar e acompanhar seus pedidos."}
-              </p>
-            </div>
-
-            {/* Badges de resumo se logado */}
-            {isAuth && orders.length > 0 && (
-              <ScrollableBadgeGroup
-                items={[
-                  {
-                    label: "Total",
-                    value: orders.length,
-                  },
-                  {
-                    label: "Pagos",
-                    value: orders.filter((o) => o.status !== "PENDING_PAYMENT" && o.status !== "CANCELLED").length,
-                    className:
-                      "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300",
-                    valueClassName: "text-emerald-700 dark:text-emerald-300",
-                  },
-                ]}
-                className="max-w-full md:max-w-[340px]"
-              />
-            )}
-          </div>
-
-          {/* Abas de filtro quando logado */}
-          {isAuth && orders.length > 0 && (
-            <ScrollablePillGroup
-              className="mt-4"
-              items={[
-                {
-                  label: "Todos",
-                  count: orders.length,
-                  active: filterTab === "ALL",
-                  onClick: () => setFilterTab("ALL"),
-                },
-                {
-                  label: "Aguardando Pagamento",
-                  count: orders.filter((o) => o.status === "PENDING_PAYMENT").length,
-                  active: filterTab === "PENDING",
-                  onClick: () => setFilterTab("PENDING"),
-                  className:
-                    filterTab === "PENDING"
-                      ? "bg-amber-600 text-white border-amber-600"
-                      : "bg-card border-border text-muted-foreground hover:text-foreground",
-                },
-                {
-                  label: "Concluídos",
-                  count: orders.filter((o) => o.status === "DELIVERED").length,
-                  active: filterTab === "DELIVERED",
-                  onClick: () => setFilterTab("DELIVERED"),
-                  className:
-                    filterTab === "DELIVERED"
-                      ? "bg-emerald-600 text-white border-emerald-600"
-                      : "bg-card border-border text-muted-foreground hover:text-foreground",
-                },
-              ]}
-            />
-          )}
+        {/* Título Principal estilo Lovable */}
+        <div>
+          <h1 className="text-3xl font-extrabold md:text-4xl font-display text-foreground">
+            Meus Pedidos
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Acompanhe seus pedidos de venda local Pink Music. Compras feitas no Mercado Livre são acompanhadas pelo próprio Mercado Livre.
+          </p>
         </div>
 
-        {/* Estado: Não Autenticado */}
+        {/* Não Autenticado */}
         {!isAuth && !loading && (
-          <div className="max-w-md mx-auto text-center py-16 px-6 bg-card border border-border rounded-2xl shadow-sm">
-            <div className="w-16 h-16 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto mb-4">
-              <LogIn className="h-8 w-8" />
+          <div className="mt-8 rounded-3xl border border-border/80 bg-card p-8 sm:p-12 text-center max-w-md mx-auto shadow-card">
+            <div className="size-16 rounded-2xl bg-secondary text-primary flex items-center justify-center mx-auto mb-4">
+              <LogIn className="size-8" />
             </div>
-            <h2 className="text-xl font-bold text-foreground">Identifique-se para ver seus pedidos</h2>
-            <p className="text-sm text-muted-foreground mt-2 mb-6">
-              Entre com sua conta da Pink Music para ver o histórico das suas compras, códigos PIX e status das suas entregas.
+            <h2 className="text-xl font-bold font-display text-foreground">
+              Identifique-se para ver seus pedidos
+            </h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Entre com sua conta Pink Music para ver o status dos seus pedidos, códigos PIX e entrega.
             </p>
-            <Button
-              onClick={() => setAuthModalOpen(true)}
-              className="w-full bg-primary hover:bg-primary/90 text-white font-semibold py-5"
-            >
-              <LogIn className="h-4 w-4 mr-2" />
-              Entrar ou Criar Conta
-            </Button>
+            <div className="mt-6 flex flex-col gap-3">
+              <Button
+                onClick={() => setAuthModalOpen(true)}
+                className="h-11 rounded-xl font-bold shadow-md"
+              >
+                Entrar ou Criar Conta
+              </Button>
+              <Button asChild variant="outline" className="h-11 rounded-xl">
+                <Link href="/login">Ir para a página de Login</Link>
+              </Button>
+            </div>
           </div>
         )}
 
-        {/* Estado: Carregando */}
+        {/* Carregando */}
         {loading && (
           <div className="py-20 flex flex-col items-center justify-center gap-3 text-muted-foreground">
-            <RefreshCw className="h-7 w-7 animate-spin text-primary" />
+            <RefreshCw className="size-8 animate-spin text-primary" />
             <p className="text-sm">Buscando seus pedidos...</p>
           </div>
         )}
 
-        {/* Estado: Autenticado mas sem pedidos */}
+        {/* Autenticado sem pedidos */}
         {isAuth && !loading && orders.length === 0 && (
-          <div className="max-w-md mx-auto text-center py-16 px-6 bg-card border border-border rounded-2xl shadow-sm">
-            <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-4 text-muted-foreground">
-              <ShoppingBag className="h-8 w-8" />
+          <div className="mt-8 rounded-3xl border border-border/80 bg-card p-8 sm:p-12 text-center max-w-md mx-auto shadow-card">
+            <div className="size-16 rounded-2xl bg-secondary text-primary flex items-center justify-center mx-auto mb-4">
+              <Package className="size-8" />
             </div>
-            <h2 className="text-xl font-bold text-foreground">Nenhum pedido encontrado</h2>
-            <p className="text-sm text-muted-foreground mt-2 mb-6">
-              Você ainda não realizou compras com esta conta. Que tal conferir nossos instrumentos e novidades?
+            <h2 className="text-xl font-bold font-display text-foreground">
+              Nenhum pedido ainda
+            </h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Seus pedidos de venda local na Pink Music aparecerão aqui.
             </p>
-            <Button asChild variant="outline">
-              <Link href="/products-all">
-                Explorar Produtos
-                <ChevronsRight className="h-4 w-4" />
-              </Link>
-            </Button>
+            <div className="mt-6">
+              <Button asChild className="h-11 rounded-xl font-bold">
+                <Link href="/products-all">Explorar produtos</Link>
+              </Button>
+            </div>
           </div>
         )}
 
-        {/* Lista de Pedidos */}
-        {isAuth && !loading && filteredOrders.length > 0 && (
-          <div className="space-y-5">
-            {filteredOrders.map((order) => {
-              const statusCfg = STATUS_CONFIG[order.status] || STATUS_CONFIG.PENDING_PAYMENT;
-              const itemsCount =
-                order.items && order.items.length > 0
-                  ? order.items.reduce((s, i) => s + i.quantity, 0)
-                  : 1;
+        {/* Lista de Pedidos estilo Lovable */}
+        {isAuth && !loading && orders.length > 0 && (
+          <div className="mt-6 space-y-4">
+            {/* Filtros em Abas */}
+            <div className="flex gap-2 p-1 rounded-xl bg-muted/60 border border-border/50 w-fit mb-4">
+              <button
+                type="button"
+                onClick={() => setFilterTab("ALL")}
+                className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                  filterTab === "ALL"
+                    ? "bg-card text-foreground shadow-xs"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Todos ({orders.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setFilterTab("PENDING")}
+                className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                  filterTab === "PENDING"
+                    ? "bg-card text-foreground shadow-xs"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Aguardando PIX (
+                {orders.filter((o) => o.status === "PENDING_PAYMENT").length}
+                )
+              </button>
+              <button
+                type="button"
+                onClick={() => setFilterTab("DELIVERED")}
+                className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                  filterTab === "DELIVERED"
+                    ? "bg-card text-foreground shadow-xs"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Concluídos (
+                {orders.filter((o) => o.status === "DELIVERED").length}
+                )
+              </button>
+            </div>
 
-              return (
-                <div
-                  key={order.id}
-                  className="bg-card border border-border/80 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow"
-                >
-                  {/* Cabeçalho do Card */}
-                  <div className="bg-muted/40 p-4 sm:px-6 flex flex-wrap items-center justify-between gap-3 border-b border-border/60">
-                    <div className="flex items-center gap-3 flex-wrap">
-                      <span className="font-mono text-xs font-semibold px-2.5 py-1 rounded-md bg-background border border-border">
-                        #{order.id.slice(-8).toUpperCase()}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        Realizado em {formatDate(order.createdAt)}
-                      </span>
-                    </div>
+            {/* Cards de Pedidos */}
+            <div className="space-y-3">
+              {filteredOrders.map((o) => {
+                const totalItems =
+                  o.items && o.items.length > 0
+                    ? o.items.reduce((acc, it) => acc + it.quantity, 0)
+                    : 1;
 
-                    <div className="flex items-center gap-2">
-                      <span
-                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${statusCfg.badgeClass}`}
-                      >
-                        {statusCfg.icon}
-                        {statusCfg.label}
-                      </span>
-                    </div>
-                  </div>
+                const itemsSummary =
+                  o.items && o.items.length > 0
+                    ? o.items.map((i) => i.title).join(", ")
+                    : o.product?.title || "Produto Pink Music";
 
-                  {/* Corpo do Pedido */}
-                  <div className="p-4 sm:p-6 space-y-5">
-                    {/* Alerta explicativo do status */}
-                    <p className="text-xs text-muted-foreground">{statusCfg.description}</p>
+                const isDelivery = o.deliveryType === "delivery";
 
-                    {/* Lista de Itens do Pedido */}
-                    <div className="space-y-3">
-                      <p className="text-xs font-semibold text-foreground uppercase tracking-wider">
-                        {itemsCount === 1 ? "Produto" : `Itens do Pacote (${itemsCount})`}
-                      </p>
+                return (
+                  <div
+                    key={o.id}
+                    onClick={() => setSelectedOrder(o)}
+                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-border/80 bg-card p-5 shadow-card transition-all hover:shadow-lift hover:border-primary/40 cursor-pointer"
+                  >
+                    <div className="min-w-0 flex-1">
+                      {/* Topo do card: ID e status tag */}
+                      <div className="flex flex-wrap items-center gap-2.5">
+                        <span className="font-display text-base sm:text-lg font-bold text-foreground">
+                          #{o.id.slice(-8).toUpperCase()}
+                        </span>
+                        <OrderStatus
+                          status={o.status}
+                          deliveryType={o.deliveryType}
+                          compact
+                        />
+                      </div>
 
-                      {order.items && order.items.length > 0 ? (
-                        <div className="space-y-2.5">
-                          {order.items.map((item) => (
-                            <div
-                              key={item.id}
-                              className="flex items-center justify-between gap-4 p-2.5 rounded-xl bg-muted/20 border border-border/40 text-xs"
-                            >
-                              <div className="flex items-center gap-3 min-w-0">
-                                {item.thumbnail ? (
-                                  <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-muted border shrink-0">
-                                    <Image
-                                      src={item.thumbnail}
-                                      alt={item.title}
-                                      fill
-                                      sizes="48px"
-                                      className="object-cover"
-                                    />
-                                  </div>
-                                ) : (
-                                  <div className="w-12 h-12 rounded-lg bg-muted border flex items-center justify-center shrink-0">
-                                    <Package className="w-5 h-5 text-muted-foreground" />
-                                  </div>
-                                )}
-                                <div className="min-w-0">
-                                  <Link
-                                    href={`/products/${createProductSlug(item.title, item.productId)}`}
-                                    className="font-medium text-foreground hover:text-primary transition-colors line-clamp-1 text-sm"
-                                  >
-                                    {item.title}
-                                  </Link>
-                                  <div className="flex items-center gap-2 text-muted-foreground mt-0.5">
-                                    {item.productCode && (
-                                      <span className="font-mono text-[10px] px-1.5 py-0.2 rounded bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
-                                        Cód: {item.productCode}
-                                      </span>
-                                    )}
-                                    <span>
-                                      Qtd: <strong className="text-foreground">{item.quantity}</strong>
-                                    </span>
-                                    <span>·</span>
-                                    <span>{formatPrice(item.price)} cada</span>
-                                  </div>
-                                </div>
-                              </div>
-                              <div className="text-right shrink-0">
-                                <span className="font-bold text-foreground text-sm">
-                                  {formatPrice(item.price * item.quantity)}
-                                </span>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      ) : order.product ? (
-                        /* Legado produto único */
-                        <div className="flex items-center justify-between gap-4 p-2.5 rounded-xl bg-muted/20 border border-border/40 text-xs">
-                          <div className="flex items-center gap-3 min-w-0">
-                            {order.product.thumbnail ? (
-                              <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-muted border shrink-0">
-                                <Image
-                                  src={order.product.thumbnail}
-                                  alt={order.product.title}
-                                  fill
-                                  sizes="48px"
-                                  className="object-cover"
-                                />
-                              </div>
-                            ) : (
-                              <div className="w-12 h-12 rounded-lg bg-muted border flex items-center justify-center shrink-0">
-                                <Package className="w-5 h-5 text-muted-foreground" />
-                              </div>
-                            )}
-                            <div className="min-w-0">
-                              <Link
-                                href={`/products/${createProductSlug(order.product.title, order.product.id)}`}
-                                className="font-medium text-foreground hover:text-primary transition-colors line-clamp-1 text-sm"
-                              >
-                                {order.product.title}
-                              </Link>
-                              {order.product.code && (
-                                <span className="font-mono text-[10px] px-1.5 py-0.2 rounded bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-800 mt-1 inline-block">
-                                  Cód: {order.product.code}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                          <div className="text-right shrink-0">
-                            <span className="font-bold text-foreground text-sm">
-                              {formatPrice(order.totalAmount)}
-                            </span>
-                          </div>
-                        </div>
-                      ) : null}
-                    </div>
+                      {/* Data e contagem */}
+                      <div className="mt-1 text-xs text-muted-foreground">
+                        {new Date(o.createdAt).toLocaleDateString("pt-BR", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        })}{" "}
+                        · {totalItems} {totalItems === 1 ? "item" : "itens"}
+                      </div>
 
-                    {/* Detalhes de Logística / Entrega */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-3 border-t border-border/50 text-xs">
-                      <div className="space-y-1">
-                        <span className="text-muted-foreground font-semibold">Forma de Recebimento</span>
-                        {order.deliveryType === "pickup" ? (
-                          <div className="flex items-start gap-2 p-2.5 rounded-lg bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200/70 dark:border-amber-800/70 text-amber-900 dark:text-amber-200">
-                            <Store className="h-4 w-4 shrink-0 mt-0.5 text-amber-700 dark:text-amber-400" />
-                            <div>
-                              <p className="font-semibold">Retirada na Loja Física</p>
-                              <p className="text-[11px] text-muted-foreground mt-0.5">
-                                Rua JJ Seabra, 31 - Centro, Feira de Santana, BA
-                              </p>
-                            </div>
-                          </div>
+                      {/* Resumo dos itens */}
+                      <div className="mt-1 line-clamp-1 text-sm text-foreground/90 font-medium">
+                        {itemsSummary}
+                      </div>
+
+                      {/* Método de Entrega */}
+                      <div className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground">
+                        {isDelivery ? (
+                          <>
+                            <Truck className="size-3.5 text-primary" />
+                            <span>Entrega Local em Feira de Santana</span>
+                          </>
                         ) : (
-                          <div className="flex items-start gap-2 p-2.5 rounded-lg bg-purple-50/70 dark:bg-purple-950/30 border border-purple-200/70 dark:border-purple-800/70 text-purple-900 dark:text-purple-200">
-                            <Truck className="h-4 w-4 shrink-0 mt-0.5 text-purple-600 dark:text-purple-400" />
-                            <div>
-                              <p className="font-semibold">Entrega Local</p>
-                              <p className="text-[11px] text-muted-foreground mt-0.5">
-                                {order.deliveryAddress || "Endereço registrado no pedido"}
-                              </p>
-                            </div>
-                          </div>
+                          <>
+                            <Store className="size-3.5 text-primary" />
+                            <span>Retirada no balcão da loja</span>
+                          </>
                         )}
                       </div>
-
-                      {/* Resumo Financeiro */}
-                      <div className="space-y-1 md:text-right">
-                        <span className="text-muted-foreground font-semibold">Resumo do Pedido</span>
-                        <div className="p-2.5 rounded-lg bg-muted/30 border border-border/50 space-y-1">
-                          {order.deliveryFee > 0 && (
-                            <div className="flex items-center justify-between text-muted-foreground">
-                              <span>Frete:</span>
-                              <span>{formatPrice(order.deliveryFee)}</span>
-                            </div>
-                          )}
-                          <div className="flex items-center justify-between font-bold text-foreground text-sm pt-0.5">
-                            <span>Total Geral:</span>
-                            <span className="text-emerald-600 dark:text-emerald-400">
-                              {formatPrice(order.totalAmount)}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
                     </div>
 
-                    {/* Destaque Uber Direct: Rastreio em Tempo Real quando despachado */}
-                    {order.uberTrackingUrl && (
-                      <div className="p-3.5 rounded-xl bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-950/40 dark:to-indigo-950/40 border border-purple-200 dark:border-purple-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                        <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-full bg-purple-600 text-white flex items-center justify-center shrink-0">
-                            {order.uberVehicleType === "motorcycle" ? "🛵" : "🚗"}
-                          </div>
-                          <div>
-                            <p className="font-semibold text-purple-950 dark:text-purple-100 text-xs">
-                              {order.uberCourierName
-                                ? `Entregador(a): ${order.uberCourierName}`
-                                : "Entregador Uber a caminho"}
-                            </p>
-                            <p className="text-[11px] text-purple-700/80 dark:text-purple-300/80">
-                              Acompanhe o mapa e a localização exata do seu pedido em tempo real.
-                            </p>
-                          </div>
-                        </div>
-                        <a
-                          href={order.uberTrackingUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold shadow-sm transition-colors shrink-0"
-                        >
-                          <ExternalLink className="h-3.5 w-3.5" />
-                          Rastrear no Mapa Uber
-                        </a>
+                    {/* Preço e Ação */}
+                    <div className="flex items-center justify-between sm:flex-col sm:items-end gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 border-border/40 shrink-0">
+                      <div className="font-display text-lg sm:text-xl font-bold tabular text-foreground">
+                        {formatPrice(o.totalAmount)}
                       </div>
-                    )}
-
-                    {/* Barra de Ações do Pedido */}
-                    <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-border/50">
-                      {/* Ação primária se PIX pendente */}
-                      {order.status === "PENDING_PAYMENT" && order.mpQrCode && (
-                        <Button
-                          size="sm"
-                          onClick={() => setPixModalOrder(order)}
-                          className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs gap-1.5"
-                        >
-                          <QrCode className="h-4 w-4" />
-                          Pagar Agora via PIX
-                        </Button>
-                      )}
-
-                      {/* Botão de ajuda via WhatsApp da loja */}
-                      <a
-                        href={`https://wa.me/5575999661614?text=${encodeURIComponent(
-                          `Olá! Gostaria de informações sobre o meu pedido #${order.id.slice(-8).toUpperCase()} na Pink Music.`
-                        )}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors ml-auto"
-                      >
-                        <MessageCircle className="h-3.5 w-3.5 text-emerald-500" />
-                        Dúvidas sobre o pedido? Fale conosco
-                      </a>
+                      <div className="flex items-center gap-1 text-xs font-semibold text-primary">
+                        <span>Ver detalhes</span>
+                        <ChevronRight className="size-4" />
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         )}
       </PageContainer>
 
-      {/* Modal de Autenticação */}
-      <CustomerAuthModal
-        open={authModalOpen}
-        onOpenChange={setAuthModalOpen}
-        onSuccess={() => {
-          setAuthModalOpen(false);
-          fetchOrders();
-        }}
-      />
-
-      {/* Modal de Pagamento PIX Pendente */}
+      {/* Modal Completo de Acompanhamento do Pedido (estilo pedido.$id.tsx do Lovable) */}
       <Dialog
-        open={!!pixModalOrder}
-        onOpenChange={(open) => !open && setPixModalOrder(null)}
+        open={Boolean(selectedOrder)}
+        onOpenChange={(open) => !open && setSelectedOrder(null)}
       >
-        <DialogContent className="sm:max-w-md text-center">
-          <DialogHeader>
-            <DialogTitle className="flex items-center justify-center gap-2 text-base font-bold">
-              <QrCode className="h-5 w-5 text-emerald-600" />
-              Pagamento via PIX
-            </DialogTitle>
-            <DialogDescription className="text-xs">
-              {pixModalOrder && `Pedido #${pixModalOrder.id.slice(-8).toUpperCase()}`}
-            </DialogDescription>
-          </DialogHeader>
-
-          {pixModalOrder && (
-            <div className="space-y-4 py-2">
-              <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800">
-                <p className="text-xs text-muted-foreground">Valor a pagar</p>
-                <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
-                  {formatPrice(pixModalOrder.totalAmount)}
-                </p>
-              </div>
-
-              {/* QR Code Imagem */}
-              {pixModalOrder.mpQrCodeBase64 ? (
-                <div className="flex justify-center my-2">
-                  <div className="p-3 bg-white rounded-xl border shadow-sm">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={`data:image/png;base64,${pixModalOrder.mpQrCodeBase64}`}
-                      alt="QR Code PIX"
-                      className="w-48 h-48 mx-auto"
-                    />
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl p-6 sm:p-8">
+          {selectedOrder && (
+            <div>
+              <DialogHeader className="mb-6">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <DialogTitle className="font-display text-2xl font-bold text-foreground">
+                      Pedido #{selectedOrder.id.slice(-8).toUpperCase()}
+                    </DialogTitle>
+                    <DialogDescription className="text-xs text-muted-foreground mt-0.5">
+                      Realizado em{" "}
+                      {new Date(selectedOrder.createdAt).toLocaleDateString(
+                        "pt-BR",
+                        {
+                          day: "2-digit",
+                          month: "long",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        }
+                      )}
+                    </DialogDescription>
                   </div>
+                  <OrderStatus
+                    status={selectedOrder.status}
+                    deliveryType={selectedOrder.deliveryType}
+                    compact
+                  />
                 </div>
-              ) : null}
+              </DialogHeader>
 
-              {/* Código Copia e Cola */}
-              {pixModalOrder.mpQrCode && (
-                <div className="space-y-2">
-                  <p className="text-xs text-muted-foreground">Ou copie a chave PIX Copia e Cola:</p>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      readOnly
-                      value={pixModalOrder.mpQrCode}
-                      className="w-full text-xs font-mono bg-muted p-2 rounded-lg border truncate"
-                    />
-                    <Button
-                      size="sm"
-                      onClick={() => handleCopyPix(pixModalOrder.mpQrCode!)}
-                      className="shrink-0 bg-emerald-600 hover:bg-emerald-700 text-white"
-                    >
-                      {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+              <div className="space-y-6">
+                {/* Seção 1: Status de Pagamento PIX */}
+                {selectedOrder.status === "PENDING_PAYMENT" ? (
+                  <div className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-6 text-center">
+                    <div className="inline-flex items-center gap-2 rounded-full bg-amber-500/10 px-3 py-1 text-xs font-bold text-amber-700 dark:text-amber-300 mb-3">
+                      <Clock className="size-4" />
+                      Aguardando pagamento via PIX
+                    </div>
+                    <div className="text-xs text-muted-foreground">Valor total</div>
+                    <div className="font-display text-3xl sm:text-4xl font-extrabold text-foreground tabular mt-1">
+                      {formatPrice(selectedOrder.totalAmount)}
+                    </div>
+
+                    {/* QR Code */}
+                    {selectedOrder.mpQrCodeBase64 ? (
+                      <div className="mx-auto mt-4 size-48 rounded-2xl border border-border bg-white p-3 flex items-center justify-center shadow-xs">
+                        <Image
+                          src={`data:image/png;base64,${selectedOrder.mpQrCodeBase64}`}
+                          alt="QR Code PIX"
+                          width={180}
+                          height={180}
+                          className="size-full object-contain"
+                        />
+                      </div>
+                    ) : (
+                      <div className="mx-auto mt-4 size-48 rounded-2xl border border-border bg-muted flex items-center justify-center text-muted-foreground">
+                        <QrCode className="size-20 opacity-30" />
+                      </div>
+                    )}
+
+                    <p className="mt-3 text-xs text-muted-foreground max-w-sm mx-auto">
+                      Abra o app do seu banco, escolha PIX e escaneie o QR Code — ou use o código Copia e Cola abaixo.
+                    </p>
+
+                    {selectedOrder.mpQrCode && (
+                      <div className="mt-4">
+                        <div className="break-all rounded-xl bg-muted p-2.5 text-left font-mono text-[11px] text-muted-foreground border border-border/50 max-h-20 overflow-y-auto">
+                          {selectedOrder.mpQrCode}
+                        </div>
+                        <Button
+                          size="lg"
+                          className="mt-3 w-full h-11 rounded-xl text-sm font-bold gap-2"
+                          onClick={() => handleCopyPix(selectedOrder.mpQrCode!)}
+                        >
+                          {copied ? (
+                            <>
+                              <Check className="size-4" /> Código PIX copiado!
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="size-4" /> Copiar código PIX
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-6 text-center">
+                    <CheckCircle2 className="mx-auto size-12 text-emerald-600 dark:text-emerald-400 animate-in zoom-in-50" />
+                    <h3 className="mt-2 text-xl font-bold font-display text-foreground">
+                      Pagamento Confirmado
+                    </h3>
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                      Obrigado! Já estamos cuidando do seu pedido.
+                    </p>
+                    <div className="mt-2 font-display text-2xl font-extrabold text-foreground tabular">
+                      {formatPrice(selectedOrder.totalAmount)}
+                    </div>
+                  </div>
+                )}
+
+                {/* Seção 2: Linha do Tempo de Acompanhamento */}
+                <div className="rounded-2xl border border-border/80 bg-card p-5">
+                  <h4 className="font-display text-base font-bold text-foreground mb-4">
+                    Etapas do Pedido
+                  </h4>
+                  <OrderStatus
+                    status={selectedOrder.status}
+                    deliveryType={selectedOrder.deliveryType}
+                  />
+                </div>
+
+                {/* Rastreio Uber Direct se houver */}
+                {selectedOrder.uberTrackingUrl && (
+                  <div className="rounded-2xl border border-purple-500/30 bg-purple-500/5 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="size-10 rounded-xl bg-purple-600 text-white flex items-center justify-center shrink-0">
+                        {selectedOrder.uberVehicleType === "motorcycle" ? "🛵" : "🚗"}
+                      </div>
+                      <div>
+                        <p className="font-bold text-foreground text-xs">
+                          {selectedOrder.uberCourierName
+                            ? `Entregador: ${selectedOrder.uberCourierName}`
+                            : "Entregador a caminho"}
+                        </p>
+                        <p className="text-[11px] text-muted-foreground">
+                          Acompanhe o trajeto no mapa em tempo real.
+                        </p>
+                      </div>
+                    </div>
+                    <Button asChild size="sm" className="rounded-xl text-xs gap-1.5 shrink-0">
+                      <a
+                        href={selectedOrder.uberTrackingUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <ExternalLink className="size-3.5" />
+                        Ver no Mapa
+                      </a>
                     </Button>
                   </div>
+                )}
+
+                {/* Seção 3: Itens do Pedido */}
+                <div className="rounded-2xl border border-border/80 bg-card p-5">
+                  <h4 className="font-display text-base font-bold text-foreground mb-3">
+                    Itens Comprados
+                  </h4>
+                  <div className="divide-y divide-border/50">
+                    {selectedOrder.items && selectedOrder.items.length > 0 ? (
+                      selectedOrder.items.map((item) => (
+                        <div
+                          key={item.id}
+                          className="py-3 first:pt-0 last:pb-0 flex items-center justify-between gap-3"
+                        >
+                          <div className="flex items-center gap-3 min-w-0">
+                            {item.thumbnail ? (
+                              <div className="relative size-12 rounded-lg overflow-hidden border border-border shrink-0 bg-muted">
+                                <Image
+                                  src={item.thumbnail}
+                                  alt={item.title}
+                                  fill
+                                  className="object-contain p-1"
+                                />
+                              </div>
+                            ) : (
+                              <div className="size-12 rounded-lg border border-border bg-muted flex items-center justify-center shrink-0">
+                                <Package className="size-5 text-muted-foreground" />
+                              </div>
+                            )}
+                            <div className="min-w-0">
+                              <p className="text-xs sm:text-sm font-semibold text-foreground line-clamp-1">
+                                {item.title}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                Qtd: {item.quantity} × {formatPrice(item.price)}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="text-right text-xs sm:text-sm font-bold text-foreground tabular shrink-0">
+                            {formatPrice(item.price * item.quantity)}
+                          </div>
+                        </div>
+                      ))
+                    ) : selectedOrder.product ? (
+                      <div className="py-3 first:pt-0 last:pb-0 flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-3 min-w-0">
+                          {selectedOrder.product.thumbnail ? (
+                            <div className="relative size-12 rounded-lg overflow-hidden border border-border shrink-0 bg-muted">
+                              <Image
+                                src={selectedOrder.product.thumbnail}
+                                alt={selectedOrder.product.title}
+                                fill
+                                className="object-contain p-1"
+                              />
+                            </div>
+                          ) : (
+                            <div className="size-12 rounded-lg border border-border bg-muted flex items-center justify-center shrink-0">
+                              <Package className="size-5 text-muted-foreground" />
+                            </div>
+                          )}
+                          <div className="min-w-0">
+                            <p className="text-xs sm:text-sm font-semibold text-foreground line-clamp-1">
+                              {selectedOrder.product.title}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="text-right text-xs sm:text-sm font-bold text-foreground tabular shrink-0">
+                          {formatPrice(selectedOrder.totalAmount - (selectedOrder.deliveryFee || 0))}
+                        </div>
+                      </div>
+                    ) : null}
+                  </div>
+
+                  {/* Resumo de Entrega e Frete */}
+                  <div className="mt-4 pt-3 border-t border-border/50 text-xs text-muted-foreground space-y-1">
+                    {selectedOrder.deliveryFee > 0 && (
+                      <div className="flex justify-between">
+                        <span>Frete:</span>
+                        <span className="font-semibold text-foreground">
+                          {formatPrice(selectedOrder.deliveryFee)}
+                        </span>
+                      </div>
+                    )}
+                    <div className="flex justify-between font-bold text-sm text-foreground pt-1">
+                      <span>Total do Pedido:</span>
+                      <span className="text-primary font-display text-base">
+                        {formatPrice(selectedOrder.totalAmount)}
+                      </span>
+                    </div>
+
+                    <div className="pt-2 text-[11px]">
+                      {selectedOrder.deliveryType === "pickup" ? (
+                        <span>
+                          Retirada na loja: Rua JJ Seabra, 31 - Centro, Feira de Santana, BA
+                        </span>
+                      ) : (
+                        <span>
+                          Entrega em: {selectedOrder.deliveryAddress || "Endereço cadastrado"}
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 </div>
-              )}
+
+                {/* Ajuda / Dúvidas */}
+                <div className="pt-2 flex items-center justify-center">
+                  <a
+                    href={`https://wa.me/5575999661614?text=${encodeURIComponent(
+                      `Olá! Gostaria de falar sobre o meu pedido #${selectedOrder.id.slice(-8).toUpperCase()} na Pink Music.`
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:underline"
+                  >
+                    <MessageCircle className="size-4" />
+                    Dúvidas sobre o pedido? Fale conosco no WhatsApp
+                  </a>
+                </div>
+              </div>
             </div>
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Modal de autenticação */}
+      <CustomerAuthModal
+        open={authModalOpen}
+        onOpenChange={setAuthModalOpen}
+        onSuccess={fetchOrders}
+      />
     </div>
   );
 }

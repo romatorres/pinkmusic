@@ -11,9 +11,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, LogIn, UserPlus, Eye, EyeOff, Phone } from "lucide-react";
+import { Loader2, LogIn, UserPlus, Eye, EyeOff, Phone, Music2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuthStore } from "@/store/authStore";
+import { cn } from "@/lib/utils";
 
 interface CustomerAuthModalProps {
   open: boolean;
@@ -141,45 +142,56 @@ export function CustomerAuthModal({
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent
-        className="sm:max-w-[440px] p-0 overflow-hidden rounded-2xl"
+        className="sm:max-w-[420px] p-0 overflow-hidden rounded-xl border-border/60 shadow-2xl"
         onInteractOutside={required ? (e) => e.preventDefault() : undefined}
       >
-        {/* Header gradiente */}
-        <div className="bg-gradient-to-br from-primary to-primary/80 px-6 pt-6 pb-5 text-white">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-bold text-white">
-              {tab === "login" ? "Acesse sua conta" : "Crie sua conta"}
-            </DialogTitle>
-            <DialogDescription className="text-white/70 text-sm">
-              {tab === "login"
-                ? "Entre para finalizar sua compra com seus dados já preenchidos."
-                : "Cadastre-se gratuitamente e acompanhe seus pedidos."}
-            </DialogDescription>
-          </DialogHeader>
+        {/* Header */}
+        <div className="relative bg-gradient-to-br from-primary via-primary to-primary/80 px-6 pt-7 pb-6 text-white overflow-hidden">
+          <div className="absolute -top-6 -right-6 size-28 rounded-full bg-white/10 blur-2xl pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-full h-px bg-white/20" />
+          <div className="relative flex items-start gap-3">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-white/15 border border-white/20">
+              <Music2 className="size-5" />
+            </div>
+            <DialogHeader className="flex-1 space-y-0.5">
+              <DialogTitle className="text-lg font-bold text-white leading-tight">
+                {tab === "login" ? "Acesse sua conta" : "Crie sua conta"}
+              </DialogTitle>
+              <DialogDescription className="text-white/65 text-[13px] leading-snug">
+                {tab === "login"
+                  ? "Entre para finalizar sua compra com seus dados já preenchidos."
+                  : "Cadastre-se gratuitamente e acompanhe seus pedidos."}
+              </DialogDescription>
+            </DialogHeader>
+          </div>
         </div>
 
-        {/* Abas */}
-        <div className="flex border-b border-border/50 bg-muted/30">
+        {/* Tab switcher */}
+        <div className="flex bg-muted/40 border-b border-border/50">
           <button
             type="button"
             onClick={() => setTab("login")}
-            className={`flex-1 py-3 text-sm font-medium transition-colors flex items-center justify-center gap-2 ${tab === "login"
-              ? "text-primary border-b-2 border-primary bg-white"
-              : "text-muted-foreground hover:text-foreground"
-              }`}
+            className={cn(
+              "flex flex-1 items-center justify-center gap-2 py-3 text-sm font-medium transition-all",
+              tab === "login"
+                ? "bg-background text-primary border-b-2 border-primary shadow-sm"
+                : "text-muted-foreground hover:text-foreground hover:bg-background/50"
+            )}
           >
-            <LogIn className="h-4 w-4" />
+            <LogIn className="size-3.5" />
             Entrar
           </button>
           <button
             type="button"
             onClick={() => setTab("register")}
-            className={`flex-1 py-3 text-sm font-medium transition-colors flex items-center justify-center gap-2 ${tab === "register"
-              ? "text-primary border-b-2 border-primary bg-white"
-              : "text-muted-foreground hover:text-foreground"
-              }`}
+            className={cn(
+              "flex flex-1 items-center justify-center gap-2 py-3 text-sm font-medium transition-all",
+              tab === "register"
+                ? "bg-background text-primary border-b-2 border-primary shadow-sm"
+                : "text-muted-foreground hover:text-foreground hover:bg-background/50"
+            )}
           >
-            <UserPlus className="h-4 w-4" />
+            <UserPlus className="size-3.5" />
             Criar Conta
           </button>
         </div>
@@ -187,9 +199,9 @@ export function CustomerAuthModal({
         {/* Formulário de Login */}
         {tab === "login" && (
           <form onSubmit={handleLogin} className="p-6 space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="login-email" className="text-sm font-medium">
-                Email
+            <div className="space-y-1.5">
+              <Label htmlFor="login-email" className="text-sm font-medium text-foreground">
+                E-mail
               </Label>
               <Input
                 id="login-email"
@@ -199,12 +211,12 @@ export function CustomerAuthModal({
                 onChange={(e) => setLoginEmail(e.target.value)}
                 required
                 autoComplete="email"
-                className="h-10"
+                className="h-10 rounded-lg"
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="login-password" className="text-sm font-medium">
+            <div className="space-y-1.5">
+              <Label htmlFor="login-password" className="text-sm font-medium text-foreground">
                 Senha
               </Label>
               <div className="relative">
@@ -216,27 +228,28 @@ export function CustomerAuthModal({
                   onChange={(e) => setLoginPassword(e.target.value)}
                   required
                   autoComplete="current-password"
-                  className="h-10 pr-10"
+                  className="h-10 pr-10 rounded-lg"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  tabIndex={-1}
                 >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                 </button>
               </div>
             </div>
 
             <Button
               type="submit"
-              className="w-full h-10 font-semibold"
+              className="w-full h-10 rounded-lg font-semibold"
               disabled={isLoading}
             >
               {isLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                <Loader2 className="size-4 animate-spin" />
               ) : (
-                <LogIn className="h-4 w-4 mr-2" />
+                <LogIn className="size-4" />
               )}
               {isLoading ? "Entrando..." : "Entrar na minha conta"}
             </Button>
@@ -246,7 +259,7 @@ export function CustomerAuthModal({
               <button
                 type="button"
                 onClick={() => setTab("register")}
-                className="text-primary font-medium hover:underline"
+                className="text-primary font-medium hover:underline underline-offset-4"
               >
                 Cadastre-se grátis
               </button>
@@ -257,8 +270,8 @@ export function CustomerAuthModal({
         {/* Formulário de Cadastro */}
         {tab === "register" && (
           <form onSubmit={handleRegister} className="p-6 space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="reg-name" className="text-sm font-medium">
+            <div className="space-y-1.5">
+              <Label htmlFor="reg-name" className="text-sm font-medium text-foreground">
                 Nome completo
               </Label>
               <Input
@@ -269,17 +282,17 @@ export function CustomerAuthModal({
                 onChange={(e) => setRegName(e.target.value)}
                 required
                 autoComplete="name"
-                className="h-10"
+                className="h-10 rounded-lg"
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="reg-phone" className="text-sm font-medium">
+            <div className="space-y-1.5">
+              <Label htmlFor="reg-phone" className="text-sm font-medium text-foreground">
                 WhatsApp{" "}
-                <span className="text-muted-foreground font-normal">(opcional)</span>
+                <span className="text-muted-foreground font-normal text-xs">(opcional)</span>
               </Label>
               <div className="relative">
-                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                 <Input
                   id="reg-phone"
                   type="tel"
@@ -287,14 +300,14 @@ export function CustomerAuthModal({
                   value={regPhone}
                   onChange={(e) => setRegPhone(e.target.value)}
                   autoComplete="tel"
-                  className="h-10 pl-9"
+                  className="h-10 pl-9 rounded-lg"
                 />
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="reg-email" className="text-sm font-medium">
-                Email
+            <div className="space-y-1.5">
+              <Label htmlFor="reg-email" className="text-sm font-medium text-foreground">
+                E-mail
               </Label>
               <Input
                 id="reg-email"
@@ -304,12 +317,12 @@ export function CustomerAuthModal({
                 onChange={(e) => setRegEmail(e.target.value)}
                 required
                 autoComplete="email"
-                className="h-10"
+                className="h-10 rounded-lg"
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="reg-password" className="text-sm font-medium">
+            <div className="space-y-1.5">
+              <Label htmlFor="reg-password" className="text-sm font-medium text-foreground">
                 Senha
               </Label>
               <div className="relative">
@@ -321,33 +334,35 @@ export function CustomerAuthModal({
                   onChange={(e) => setRegPassword(e.target.value)}
                   required
                   autoComplete="new-password"
-                  className="h-10 pr-10"
+                  className="h-10 pr-10 rounded-lg"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  tabIndex={-1}
                 >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                 </button>
               </div>
             </div>
 
             <Button
               type="submit"
-              className="w-full h-10 font-semibold"
+              className="w-full h-10 rounded-lg font-semibold"
               disabled={isLoading}
             >
               {isLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                <Loader2 className="size-4 animate-spin" />
               ) : (
-                <UserPlus className="h-4 w-4 mr-2" />
+                <UserPlus className="size-4" />
               )}
               {isLoading ? "Criando conta..." : "Criar minha conta"}
             </Button>
 
             <p className="text-center text-xs text-muted-foreground">
-              Ao criar uma conta, você concorda com nossos termos de uso.
+              Ao criar uma conta, você concorda com nossos{" "}
+              <span className="text-primary hover:underline underline-offset-4 cursor-pointer">termos de uso</span>.
             </p>
           </form>
         )}

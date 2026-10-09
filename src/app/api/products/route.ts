@@ -83,6 +83,11 @@ export async function GET(req: Request) {
       whereClause.originalPrice = { not: null };
     }
 
+    const onlyAvailable = searchParams.get("onlyAvailable");
+    if (onlyAvailable === "true") {
+      whereClause.available_quantity = { gt: 0 };
+    }
+
     if (searchQuery) {
       whereClause.OR = [
         {

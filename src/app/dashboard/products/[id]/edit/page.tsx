@@ -23,6 +23,7 @@ interface ProductData {
   code?: string | null;
   title: string;
   price: number;
+  originalPrice?: number | null;
   available_quantity: number;
   categoryId: string | null;
   brandId: string | null;
@@ -139,7 +140,9 @@ export default function EditProductPage() {
           [name]:
             name === "price" || name === "available_quantity"
               ? parseFloat(value) || 0
-              : value,
+              : name === "originalPrice"
+                ? value === "" ? null : parseFloat(value) || 0
+                : value,
         }
         : null,
     );
@@ -225,6 +228,7 @@ export default function EditProductPage() {
           code: product.code ? product.code.trim() : null,
           title: product.title,
           price: product.price,
+          originalPrice: product.originalPrice ?? null,
           available_quantity: product.available_quantity,
           categoryId: finalCategoryId,
           brandId: product.brandId || null,
@@ -468,8 +472,8 @@ export default function EditProductPage() {
               </div>
             </div>
 
-            {/* Preço e Estoque */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Preço, Preço Original e Estoque */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <Label htmlFor="price" className="mb-2 block font-semibold">
                   Preço de Venda (R$) <span className="text-red-500">*</span>
@@ -483,6 +487,23 @@ export default function EditProductPage() {
                   value={product.price}
                   onChange={handleChange}
                   required
+                  disabled={saving}
+                />
+              </div>
+              <div>
+                <Label htmlFor="originalPrice" className="mb-2 flex items-center justify-between font-semibold">
+                  <span>Preço Original (De:)</span>
+                  <span className="text-xs font-normal text-muted-foreground">Opcional</span>
+                </Label>
+                <Input
+                  id="originalPrice"
+                  name="originalPrice"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  placeholder="Ex: 299.90"
+                  value={product.originalPrice ?? ""}
+                  onChange={handleChange}
                   disabled={saving}
                 />
               </div>

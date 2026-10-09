@@ -4,10 +4,12 @@ import React, { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import ProductDetails from "@/components/site/Products/ProductDetails";
 import { LoadingState } from "@/components/ui/loading-state";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, SearchX, AlertCircle } from "lucide-react";
 import { useProductStore } from "@/store/productStore";
 import type { Product } from "@/lib/types";
 import { extractProductId, createProductSlug } from "@/lib/slug";
+import { PageContainer } from "@/components/ui/Page-container";
+import { Button } from "@/components/ui/button";
 
 interface ApiResponse<T> {
   success: boolean;
@@ -74,31 +76,59 @@ export default function ProductDetailsPage({
 
   if (error) {
     return (
-      <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md mt-10">
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
-          {error}
+      <PageContainer className="py-16">
+        <div className="mx-auto flex max-w-md flex-col items-center text-center">
+          <div className="mb-4 grid size-14 place-items-center rounded-2xl bg-destructive/10 text-destructive">
+            <AlertCircle className="size-7" />
+          </div>
+          <h2 className="text-xl font-bold text-foreground">Não foi possível carregar</h2>
+          <p className="mt-2 text-sm text-muted-foreground">{error}</p>
+          <div className="mt-6 flex gap-3">
+            <Button
+              variant="outline"
+              onClick={() => router.back()}
+              className="gap-2"
+            >
+              <ArrowLeft className="size-4" /> Voltar
+            </Button>
+            <Button
+              onClick={() => router.push("/products-all")}
+            >
+              Ver todos os produtos
+            </Button>
+          </div>
         </div>
-        <button
-          onClick={() => router.back()}
-          className="flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
-        >
-          <ArrowLeft size={20} /> Voltar
-        </button>
-      </div>
+      </PageContainer>
     );
   }
 
   if (!product) {
     return (
-      <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md mt-10 text-center">
-        <p className="text-gray-600">Produto não encontrado.</p>
-        <button
-          onClick={() => router.back()}
-          className="mt-4 flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 mx-auto"
-        >
-          <ArrowLeft size={20} /> Voltar
-        </button>
-      </div>
+      <PageContainer className="py-16">
+        <div className="mx-auto flex max-w-md flex-col items-center text-center">
+          <div className="mb-4 grid size-14 place-items-center rounded-2xl bg-muted text-muted-foreground">
+            <SearchX className="size-7" />
+          </div>
+          <h2 className="text-xl font-bold text-foreground">Produto não encontrado</h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            O item que você está procurando pode ter sido removido ou está temporariamente indisponível.
+          </p>
+          <div className="mt-6 flex gap-3">
+            <Button
+              variant="outline"
+              onClick={() => router.back()}
+              className="gap-2"
+            >
+              <ArrowLeft className="size-4" /> Voltar
+            </Button>
+            <Button
+              onClick={() => router.push("/products-all")}
+            >
+              Ver todos os produtos
+            </Button>
+          </div>
+        </div>
+      </PageContainer>
     );
   }
 

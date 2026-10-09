@@ -27,23 +27,25 @@ const Pagination: React.FC<PaginationProps> = ({
   };
 
   return (
-    <div className="flex items-center justify-center space-x-4">
+    <div className="flex items-center justify-center space-x-3">
       <button
         onClick={handlePrevious}
         disabled={currentPage === 1}
-        className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-card text-foreground transition-colors hover:bg-accent hover:text-accent-foreground disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+        aria-label="Página anterior"
       >
-        <ChevronLeft size={20} />
+        <ChevronLeft className="h-4 w-4" />
       </button>
-      <span className="text-sm text-foreground">
+      <span className="text-sm font-medium text-muted-foreground px-2">
         Página {currentPage} de {totalPages}
       </span>
       <button
         onClick={handleNext}
         disabled={currentPage === totalPages}
-        className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-card text-foreground transition-colors hover:bg-accent hover:text-accent-foreground disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+        aria-label="Próxima página"
       >
-        <ChevronRight size={20} />
+        <ChevronRight className="h-4 w-4" />
       </button>
     </div>
   );

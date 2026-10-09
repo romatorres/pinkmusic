@@ -11,16 +11,16 @@ import {
   Suspense,
 } from "react";
 import Link from "next/link";
-import { ChevronRight, Filter, Home } from "lucide-react";
-import FilterSidebar from "@/components/site/_components/FilterSidebar";
+import { ChevronRight, Home, SlidersHorizontal } from "lucide-react";
+import FilterSidebar, { type OriginFilter } from "@/components/site/_components/FilterSidebar";
 import {
   Sheet,
   SheetContent,
-  SheetHeader,
   SheetTitle,
+  SheetTrigger,
 } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
 import { Brand, Category } from "@/lib/types";
-import MobileFilterBar from "@/components/site/_components/MobileFilterBar";
 import { useDebounce } from "use-debounce";
 
 function ProductAllClientContent() {
@@ -33,6 +33,8 @@ function ProductAllClientContent() {
   const [brands, setBrands] = useState<Brand[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [filteredCount, setFilteredCount] = useState(0);
+  const [origin, setOrigin] = useState<OriginFilter>("all");
+  const [onlyAvailable, setOnlyAvailable] = useState(false);
 
   // Memoize derived state from URL to prevent unnecessary re-renders
   const searchTerm = searchParams.get("search") || "";
@@ -178,6 +180,8 @@ function ProductAllClientContent() {
   };
 
   const handleClearFilters = () => {
+    setOrigin("all");
+    setOnlyAvailable(false);
     router.push("/products-all");
   };
 
@@ -185,80 +189,113 @@ function ProductAllClientContent() {
   const activeFilterCount =
     selectedCategories.length +
     selectedBrands.length +
-    (priceRange[0] > 0 || priceRange[1] < 50000 ? 1 : 0);
+    (priceRange[0] > 0 || priceRange[1] < 50000 ? 1 : 0) +
+    (origin !== "all" ? 1 : 0) +
+    (onlyAvailable ? 1 : 0);
   const hasActiveFilters = activeFilterCount > 0;
 
-  return (
-    <section>
-      {/* Breadcrumb */}
-      <div className="bg-breadcrumb border-b border-gray-300 w-full">
-        <div className="mx-auto w-full container px-4 sm:px-6 lg:px-8 py-3">
-          <nav
-            className="flex items-center gap-2 text-sm"
-            aria-label="Breadcrumb"
-          >
-            <Link
-              href="/"
-              className="flex items-center gap-1 text-primary/60 hover:text-primary transition-colors"
-            >
-              <Home className="h-4 w-4" />
-              <span className="hidden sm:inline">Home</span>
-            </Link>
-            <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
-            <span className="text-primary font-medium">Produtos</span>
-          </nav>
-        </div>
-      </div>
+  const sidebarContent = (
+    <FilterSidebar
+      brands={filteredBrands}
+      categories={filteredCategories}
+      selectedCategories={selectedCategories}
+      selectedBrands={selectedBrands}
+      priceRange={priceRange}
+      origin={origin}
+      onlyAvailable={onlyAvailable}
+      onCategoryChange={(c) => updateURL({ categoryIds: c })}
+      onBrandChange={(b) => updateURL({ brandIds: b })}
+      onPriceChange={(p) => updateURL({ priceRange: p })}
+      onOriginChange={(o) => setOrigin(o)}
+      onAvailabilityChange={(a) => setOnlyAvailable(a)}
+      onClearFilters={handleClearFilters}
+    />
+  );
 
+  return (
+    <section className="w-full">
       <PageContainer>
-        <div className="flex gap-6 items-start py-8">
-          <aside className="hidden lg:block w-80 flex-shrink-0">
-            <div className="sticky top-28 bg-popover backdrop-blur-sm rounded-2xl border border-border/50 p-6 shadow-sm">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                  <Filter className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <h2 className="font-display text-lg font-bold text-foreground">
-                    Filtros
-                  </h2>
-                  {hasActiveFilters && (
-                    <p className="text-xs text-muted-foreground">
-                      {activeFilterCount}{" "}
-                      {activeFilterCount === 1
-                        ? "filtro ativo"
-                        : "filtros ativos"}
-                    </p>
-                  )}
-                </div>
-              </div>
-              <FilterSidebar
-                brands={filteredBrands}
-                categories={filteredCategories}
-                selectedCategories={selectedCategories}
-                selectedBrands={selectedBrands}
-                priceRange={priceRange}
-                onCategoryChange={(c) => updateURL({ categoryIds: c })}
-                onBrandChange={(b) => updateURL({ brandIds: b })}
-                onPriceChange={(p) => updateURL({ priceRange: p })}
-                onClearFilters={handleClearFilters}
-              />
+        {/* Breadcrumb limpo e moderno */}
+        <nav
+          className="flex items-center gap-2 pt-4 pb-4 text-sm text-muted-foreground"
+          aria-label="Breadcrumb"
+        >
+          <Link
+            href="/"
+            className="flex items-center gap-1 hover:text-foreground transition-colors"
+          >
+            <Home className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">Home</span>
+          </Link>
+          <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/50" />
+          <span className="text-foreground font-medium">Produtos</span>
+        </nav>
+
+        {/* Layout Principal estilo Lovable: Grid 240px sidebar + 1fr produtos */}
+        <div className="grid gap-8 lg:grid-cols-[240px_1fr] pb-12">
+          {/* Sidebar Desktop */}
+          <aside className="hidden lg:block">
+            <div className="sticky top-28">
+              {sidebarContent}
             </div>
           </aside>
 
+          {/* Conteúdo Principal */}
           <main
-            className={`flex-1 transition-opacity ${
+            className={`min-w-0 transition-opacity ${
               isPending ? "opacity-50 pointer-events-none" : ""
             }`}
           >
-            <MobileFilterBar
-              sortBy={sortBy}
-              onSortChange={(s) => updateURL({ sortBy: s })}
-              hasActiveFilters={hasActiveFilters}
-              activeFilterCount={activeFilterCount}
-              onOpenFilters={() => setMobileFilterOpen(true)}
-              filteredCount={filteredCount}
-            />
+            {/* Barra superior de controle estilo Lovable */}
+            <div className="mb-6 flex items-center justify-between gap-3">
+              {/* Botão Gaveta Mobile */}
+              <Sheet open={mobileFilterOpen} onOpenChange={setMobileFilterOpen}>
+                <SheetTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="lg:hidden flex items-center gap-2 h-10 px-3.5 rounded-lg border-border"
+                  >
+                    <SlidersHorizontal className="h-4 w-4" />
+                    <span>Filtros</span>
+                    {hasActiveFilters && (
+                      <span className="flex size-5 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground">
+                        {activeFilterCount}
+                      </span>
+                    )}
+                  </Button>
+                </SheetTrigger>
+                <SheetContent
+                  side="bottom"
+                  className="max-h-[85vh] overflow-y-auto rounded-t-2xl p-6"
+                >
+                  <SheetTitle className="mb-6 font-display text-xl">
+                    Filtros
+                  </SheetTitle>
+                  {sidebarContent}
+                </SheetContent>
+              </Sheet>
+
+              {/* Contagem de produtos (desktop) */}
+              <span className="hidden text-sm text-muted-foreground lg:block">
+                {filteredCount} {filteredCount === 1 ? "produto" : "produtos"}
+              </span>
+
+              {/* Ordenar */}
+              <label className="flex items-center gap-2 text-sm ml-auto">
+                <span className="hidden text-muted-foreground sm:inline">
+                  Ordenar:
+                </span>
+                <select
+                  value={sortBy}
+                  onChange={(e) => updateURL({ sortBy: e.target.value })}
+                  className="h-10 rounded-lg border border-border bg-card px-3 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
+                >
+                  <option value="relevance">Mais relevantes</option>
+                  <option value="price-asc">Menor preço</option>
+                  <option value="price-desc">Maior preço</option>
+                </select>
+              </label>
+            </div>
 
             <Products
               key={searchParams.toString()} // Force re-render on search param change
@@ -274,50 +311,13 @@ function ProductAllClientContent() {
               minPrice={debouncedPriceRange[0]}
               maxPrice={debouncedPriceRange[1]}
               sortBy={sortBy}
+              origin={origin !== "all" ? origin : undefined}
+              onlyAvailable={onlyAvailable}
               onProductsLoad={setFilteredCount}
             />
           </main>
         </div>
       </PageContainer>
-
-      <Sheet open={mobileFilterOpen} onOpenChange={setMobileFilterOpen}>
-        <SheetContent
-          side="left"
-          className="w-[320px] overflow-y-auto p-0 lg:hidden"
-        >
-          <SheetHeader className="p-6 pb-4 border-b border-border/50">
-            <SheetTitle className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                <Filter className="h-5 w-5 text-primary" />
-              </div>
-              <div className="text-left">
-                <span className="block">Filtros</span>
-                {hasActiveFilters && (
-                  <span className="text-xs font-normal text-muted-foreground">
-                    {activeFilterCount}{" "}
-                    {activeFilterCount === 1
-                      ? "filtro ativo"
-                      : "filtros ativos"}
-                  </span>
-                )}
-              </div>
-            </SheetTitle>
-          </SheetHeader>
-          <div className="p-4">
-            <FilterSidebar
-              brands={filteredBrands}
-              categories={filteredCategories}
-              selectedCategories={selectedCategories}
-              selectedBrands={selectedBrands}
-              priceRange={priceRange}
-              onCategoryChange={(c) => updateURL({ categoryIds: c })}
-              onBrandChange={(b) => updateURL({ brandIds: b })}
-              onPriceChange={(p) => updateURL({ priceRange: p })}
-              onClearFilters={handleClearFilters}
-            />
-          </div>
-        </SheetContent>
-      </Sheet>
     </section>
   );
 }

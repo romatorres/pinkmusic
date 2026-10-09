@@ -234,6 +234,7 @@ export async function PUT(
       "code",
       "title",
       "price",
+      "originalPrice",
       "currency_id",
       "thumbnail",
       "condition",
@@ -255,6 +256,9 @@ export async function PUT(
           if (key === "code") {
             const val = typeof rawData[key] === "string" ? rawData[key].trim() : null;
             obj[key] = val || null;
+          } else if (key === "originalPrice") {
+            // Permite null para remover o desconto ou number para definir
+            obj[key] = rawData[key] === null ? null : Number(rawData[key]) || null;
           } else if (rawData[key] !== null) {
             obj[key] = rawData[key];
           }

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import ProductCard from "./ProductCard";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, SearchX } from "lucide-react";
 import Link from "next/link";
 import Pagination from "../../ui/Pagination";
 import { LoadingState } from "@/components/ui/loading-state";
@@ -48,6 +48,10 @@ interface ProductsProps {
   forceGridOnMobile?: boolean;
   /** Se true (padrão), envolve com wrapper de seção (py-12 md:py-20) e PageContainer. Se false, renderiza apenas o conteúdo (products-all) */
   isSection?: boolean;
+  /** Filtra por origem: LOCAL ou MERCADO_LIVRE */
+  origin?: "LOCAL" | "MERCADO_LIVRE";
+  /** Se true, filtra apenas produtos com estoque > 0 */
+  onlyAvailable?: boolean;
   /** Callback chamado após o fetch com o total de produtos */
   onProductsLoad?: (total: number) => void;
 }
@@ -77,6 +81,8 @@ const Products: React.FC<ProductsProps> = ({
   randomizeProducts = false,
   forceGridOnMobile = false,
   isSection = true,
+  origin,
+  onlyAvailable = false,
   onProductsLoad = () => { },
 }) => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -139,6 +145,8 @@ const Products: React.FC<ProductsProps> = ({
           if (minPrice !== undefined) params.set("minPrice", String(minPrice));
           if (maxPrice !== undefined) params.set("maxPrice", String(maxPrice));
           if (sortBy) params.set("sortBy", sortBy);
+          if (origin) params.set("origin", origin);
+          if (onlyAvailable) params.set("onlyAvailable", "true");
 
           const response = await fetch(`/api/products?${params.toString()}`);
           const result: ApiResponse = await response.json();
@@ -190,6 +198,8 @@ const Products: React.FC<ProductsProps> = ({
     minPrice,
     maxPrice,
     sortBy,
+    origin,
+    onlyAvailable,
     randomizeProducts,
     storeSetProducts,
   ]);
@@ -218,6 +228,8 @@ const Products: React.FC<ProductsProps> = ({
     minPrice,
     maxPrice,
     sortBy,
+    origin,
+    onlyAvailable,
     randomizeProducts,
   ]);
 
@@ -225,7 +237,7 @@ const Products: React.FC<ProductsProps> = ({
   const hasProducts = products.length > 0;
 
   const renderGrid = () => (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 md:gap-5">
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 md:gap-5">
       {products.map((product) => (
         <ProductCard key={product.id} product={product} />
       ))}
@@ -277,10 +289,13 @@ const Products: React.FC<ProductsProps> = ({
       )}
 
       {!loading && !hasProducts && !error && (
-        <div className="text-center text-muted-foreground py-16">
-          <h3 className="text-xl font-semibold">Nenhum produto encontrado</h3>
-          <p className="mt-2 text-sm">
-            Tente ajustar seus filtros ou pesquisar por outro termo.
+        <div className="flex flex-col items-center justify-center text-center py-16 px-4">
+          <div className="size-12 rounded-full bg-muted flex items-center justify-center mb-4 text-muted-foreground">
+            <SearchX className="size-6" />
+          </div>
+          <h3 className="text-lg font-bold text-foreground">Nenhum produto encontrado</h3>
+          <p className="mt-1 text-sm text-muted-foreground max-w-sm">
+            Tente remover alguns filtros ou buscar por outro termo.
           </p>
         </div>
       )}

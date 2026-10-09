@@ -362,6 +362,14 @@ function UserMenu({
           <div className="mx-2 h-px bg-border/90" />
           <div className="p-1.5 space-y-0.5">
             <Link
+              href="/conta"
+              onClick={onMenuItemClick}
+              className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-muted/60 transition-colors"
+            >
+              <User className="size-4 text-muted-foreground" />
+              Minha Conta
+            </Link>
+            <Link
               href="/meus-pedidos"
               onClick={onMenuItemClick}
               className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-muted/60 transition-colors"

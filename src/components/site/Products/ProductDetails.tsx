@@ -1,22 +1,27 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import {
   ShoppingCart,
-  Package,
-  Home,
-  ChevronRight,
-  TriangleAlert,
   Store,
   Check,
+  ExternalLink,
+  ShieldCheck,
+  Home,
+  ChevronRight,
+  PackageCheck,
+  Zap,
 } from "lucide-react";
 import Link from "next/link";
 import { PageContainer } from "@/components/ui/Page-container";
+import { Button } from "@/components/ui/button";
+import { SectionHead } from "../_components/SectionHead";
+import ProductCard from "./ProductCard";
 import Social from "../_components/Social";
 import { CustomerAuthModal } from "../_components/CustomerAuthModal";
 import { CartCheckoutModal } from "./CartCheckoutModal";
-import type { ProductDetailsProps } from "@/lib/types";
+import type { Product, ProductDetailsProps } from "@/lib/types";
 import { useCartStore } from "@/store/cartStore";
 import { useAuthStore } from "@/store/authStore";
 import { toast } from "sonner";
@@ -33,6 +38,10 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
   const [pixModalOpen, setPixModalOpen] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
+
+  // Produtos relacionados
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+  const [loadingRelated, setLoadingRelated] = useState(false);
 
   const { isAuth } = useAuthStore();
   const { addItem } = useCartStore();
@@ -72,6 +81,43 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
     setPixModalOpen(true);
   };
 
+  // Buscar produtos relacionados
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchRelated = async () => {
+      if (!product.id) return;
+      setLoadingRelated(true);
+      try {
+        const params = new URLSearchParams();
+        if (product.categoryId) {
+          params.set("categoryIds", product.categoryId);
+        } else if (product.brandId) {
+          params.set("brandIds", product.brandId);
+        }
+        params.set("limit", "8");
+
+        const res = await fetch(`/api/products?${params.toString()}`);
+        const data = await res.json();
+        if (data.success && data.data?.products && !cancelled) {
+          const filtered = data.data.products.filter(
+            (p: Product) => p.id !== product.id
+          );
+          setRelatedProducts(filtered.slice(0, 4));
+        }
+      } catch (err) {
+        console.error("Erro ao buscar produtos relacionados:", err);
+      } finally {
+        if (!cancelled) setLoadingRelated(false);
+      }
+    };
+
+    fetchRelated();
+    return () => {
+      cancelled = true;
+    };
+  }, [product.id, product.categoryId, product.brandId]);
+
   const isLocal = product.origin === "LOCAL";
   const hasCustomDesc = Boolean(
     product.description && product.description.trim().length > 0
@@ -80,258 +126,379 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
     product.attributes && product.attributes.length > 0
   );
 
-  // Garante que seja exibida apenas UMA descrição (nunca ambas simultaneamente):
-  // 1. Se configurado como 'ML', prefere atributos do Mercado Livre (se existirem).
-  // 2. Se configurado como 'CUSTOM' ou não definido, prioriza a descrição personalizada da loja.
-  // 3. Fallback inteligente: se a opção preferida estiver vazia, exibe a outra opção disponível.
   const preferMl = product.descriptionSource === "ML";
   const showMlAttributes = hasMlAttrs && (preferMl || !hasCustomDesc);
   const showCustomDescription = !showMlAttributes && hasCustomDesc;
 
-  return (
-    <section>
-      <div className="bg-breadcrumb border-b border-gray-300 w-full">
-        {/* Breadcrumb */}
-        <div className="mx-auto w-full container px-4 sm:px-6 lg:px-8 py-3">
-          <nav
-            className="flex items-center gap-2 text-sm"
-            aria-label="Breadcrumb"
-          >
-            <Link
-              href="/"
-              className="flex items-center gap-1 text-primary/60 hover:text-primary transition-colors"
-            >
-              <Home className="h-4 w-4" />
-              <span className="hidden sm:inline">Home</span>
-            </Link>
-            <Link
-              href="/products-all"
-              className="flex items-center gap-1 text-primary/60 hover:text-primary transition-colors"
-            >
-              <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
-              <span className="font-medium">Produtos</span>
-            </Link>
+  // Cálculo de desconto
+  const hasDiscount = Boolean(
+    product.originalPrice && product.originalPrice > product.price
+  );
+  const discountPercent = hasDiscount
+    ? Math.round(
+      ((product.originalPrice! - product.price) / product.originalPrice!) * 100
+    )
+    : 0;
 
-            <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
-            <span className="text-primary font-medium truncate max-w-[200px]">
-              {product.title}
-            </span>
-          </nav>
-        </div>
-      </div>
+  const isOutOfStock = product.available_quantity <= 0;
+
+  const currentPictureUrl =
+    product.pictures?.[selectedImage]?.secure_url ||
+    product.pictures?.[selectedImage]?.url ||
+    product.thumbnail;
+
+  return (
+    <section className="w-full pb-16">
       <PageContainer>
-        <div className="mx-auto p-6 my-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Imagens */}
-            <div className="space-y-4">
-              <div className="aspect-square bg-white rounded-lg overflow-hidden relative w-full">
-                {(product.pictures?.[selectedImage]?.secure_url ||
-                  product.pictures?.[selectedImage]?.url ||
-                  product.thumbnail) && (
-                    <Image
-                      src={
-                        product.pictures?.[selectedImage]?.secure_url ||
-                        product.pictures?.[selectedImage]?.url ||
-                        product.thumbnail
-                      }
-                      alt={product.title}
-                      fill
-                      style={{ objectFit: "contain" }}
-                      className="rounded-lg"
-                    />
-                  )}
+        {/* Breadcrumb limpo e moderno estilo Lovable */}
+        <nav
+          aria-label="Navegação estrutural"
+          className="flex flex-wrap items-center gap-1.5 pt-4 pb-6 text-sm text-muted-foreground"
+        >
+          <Link
+            href="/"
+            className="hover:text-foreground transition-colors flex items-center gap-1"
+          >
+            <Home className="size-3.5" />
+            <span>Início</span>
+          </Link>
+          <ChevronRight className="size-3.5 text-muted-foreground/60" />
+          <Link
+            href="/products-all"
+            className="hover:text-foreground transition-colors"
+          >
+            Produtos
+          </Link>
+          {product.category && (
+            <>
+              <ChevronRight className="size-3.5 text-muted-foreground/60" />
+              <Link
+                href={`/products-all?categoryIds=${product.category.id}`}
+                className="hover:text-foreground transition-colors truncate max-w-[160px]"
+              >
+                {product.category.name}
+              </Link>
+            </>
+          )}
+          <ChevronRight className="size-3.5 text-muted-foreground/60" />
+          <span className="font-medium text-foreground truncate max-w-[240px] sm:max-w-[360px]">
+            {product.title}
+          </span>
+        </nav>
+
+        {/* Grade Principal do Produto */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+          {/* Coluna Esquerda: Imagens */}
+          <div className="space-y-4">
+            <div className="relative aspect-square w-full overflow-hidden rounded-3xl border border-border/80 bg-card p-6 flex items-center justify-center shadow-card">
+              {/* Badges de destaque */}
+              <div className="absolute left-4 top-4 z-10 flex flex-col gap-2">
+                {hasDiscount && (
+                  <span className="inline-flex items-center rounded-md bg-destructive px-2.5 py-1 text-xs font-bold text-white shadow-xs">
+                    -{discountPercent}% OFF
+                  </span>
+                )}
               </div>
 
-              {product.pictures && product.pictures.length > 1 && (
-                <div className="flex gap-2 overflow-x-auto pb-2">
-                  {product.pictures.map((picture, index) => {
-                    const picUrl = picture.secure_url || picture.url;
-                    return (
-                      <button
-                        key={picture.id || index}
-                        onClick={() => setSelectedImage(index)}
-                        className={`flex-shrink-0 w-20 h-20 rounded-md overflow-hidden border-2 ${selectedImage === index
-                          ? "border-primary"
-                          : "border-gray-200"
-                          }`}
-                      >
-                        <div className="relative w-full h-full">
-                          {picUrl && (
-                            <Image
-                              src={picUrl}
-                              alt={`Thumbnail ${index + 1}`}
-                              fill
-                              style={{ objectFit: "cover" }}
-                            />
-                          )}
-                        </div>
-                      </button>
-                    );
-                  })}
+              {/* Overlay se esgotado */}
+              {isOutOfStock && (
+                <div className="absolute inset-0 bg-background/70 backdrop-blur-xs flex items-center justify-center z-10">
+                  <span className="rounded-xl bg-foreground px-4 py-2 text-sm font-bold text-background shadow-md">
+                    Produto Esgotado
+                  </span>
                 </div>
+              )}
+
+              {currentPictureUrl && (
+                <Image
+                  src={currentPictureUrl}
+                  alt={product.title}
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  priority
+                  className="object-contain p-6 transition-transform duration-300 hover:scale-105"
+                />
               )}
             </div>
 
-            {/* Informações do Produto */}
-            <div className="space-y-6">
-              <div>
-                <h1 className="text-3xl font-bold text-foreground mb-2">
-                  {product.title}
-                </h1>
-                <div className="flex items-center gap-2 text-sm sm:text-base font-semibold text-primary mb-2">
-                  <span className="flex items-center gap-1">
-                    <Package size={12} className="sm:w-4 sm:h-4" />
-                    {product.brand?.name || "Pink Music"}
+            {/* Carrossel de Miniaturas */}
+            {product.pictures && product.pictures.length > 1 && (
+              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin">
+                {product.pictures.map((picture, index) => {
+                  const picUrl = picture.secure_url || picture.url;
+                  const isSelected = selectedImage === index;
+                  return (
+                    <button
+                      key={picture.id || index}
+                      type="button"
+                      onClick={() => setSelectedImage(index)}
+                      className={`relative flex-shrink-0 size-20 rounded-2xl overflow-hidden border-2 bg-card p-1 transition-all cursor-pointer ${
+                        isSelected
+                          ? "border-primary ring-2 ring-primary/20 scale-105 shadow-xs"
+                          : "border-border/80 opacity-70 hover:opacity-100 hover:border-muted-foreground/40"
+                      }`}
+                    >
+                      {picUrl && (
+                        <Image
+                          src={picUrl}
+                          alt={`Thumbnail ${index + 1}`}
+                          fill
+                          className="object-contain p-1"
+                        />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Coluna Direita: Informações e Ações */}
+          <div className="flex flex-col justify-between">
+            <div>
+              {/* Cabeçalho: Marca + Badge de Procedência */}
+              <div className="flex items-center justify-between gap-2 flex-wrap">
+                <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  {product.brand?.name || "Pink Music"}
+                </span>
+
+                {isLocal ? (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-3 py-1 text-xs font-bold uppercase tracking-wider border border-emerald-500/20">
+                    <Store className="size-3.5" /> Venda Local
                   </span>
-                </div>
+                ) : (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 px-3 py-1 text-xs font-bold uppercase tracking-wider border border-amber-500/20">
+                    <ExternalLink className="size-3.5" /> Mercado Livre
+                  </span>
+                )}
               </div>
 
-              <div className="border-t pt-6">
-                <div className="text-5xl font-tanker text-foreground mb-2">
+              {/* Título do Produto */}
+              <h1 className="mt-2 text-2xl sm:text-3xl md:text-4xl font-extrabold text-foreground leading-tight tracking-tight">
+                {product.title}
+              </h1>
+
+              {product.code && (
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Código: <span className="font-mono">{product.code}</span>
+                </p>
+              )}
+
+              {/* Bloco de Preço estilo Lovable */}
+              <div className="mt-6 pt-6 border-t border-border/60">
+                {hasDiscount && product.originalPrice && (
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-sm sm:text-base text-muted-foreground line-through">
+                      {formatPrice(product.originalPrice, product.currency_id)}
+                    </span>
+                    <span className="text-xs font-bold text-destructive bg-destructive/10 px-2 py-0.5 rounded-md">
+                      -{discountPercent}%
+                    </span>
+                  </div>
+                )}
+
+                <div className="text-4xl sm:text-5xl font-extrabold text-foreground tracking-tight">
                   {formatPrice(product.price, product.currency_id)}
                 </div>
-                <div className="flex items-center gap-3">
-                  <p className="text-primary font-medium">
-                    {product.available_quantity > 0
-                      ? `${product.available_quantity} disponível${product.available_quantity > 1 ? "s" : ""
-                      }`
-                      : "Produto esgotado"}
+
+                {product.price > 100 && (
+                  <p className="mt-1.5 text-sm text-muted-foreground">
+                    ou até 10x de{" "}
+                    <span className="font-semibold text-foreground">
+                      {formatPrice(product.price / 10, product.currency_id)}
+                    </span>{" "}
+                    sem juros
                   </p>
+                )}
+
+                <div className="mt-4 flex items-center gap-2">
+                  <span
+                    className={`inline-block size-2.5 rounded-full ${
+                      product.available_quantity > 0
+                        ? "bg-emerald-500"
+                        : "bg-destructive"
+                    }`}
+                  />
+                  <span className="text-sm font-medium text-muted-foreground">
+                    {product.available_quantity > 0
+                      ? `${product.available_quantity} unidade${
+                          product.available_quantity > 1 ? "s" : ""
+                        } disponível${product.available_quantity > 1 ? "is" : ""}`
+                      : "Produto temporariamente indisponível"}
+                  </span>
                 </div>
               </div>
 
-              {/* Aviso de Procedência */}
+              {/* Cartão de Informação de Procedência */}
               {isLocal ? (
-                <div className="flex items-start md:items-center gap-2 bg-emerald-50/70 dark:bg-emerald-950/30 p-3 rounded-lg border border-emerald-200 dark:border-emerald-800">
-                  <Store size={20} className="text-emerald-600 flex-shrink-0" />
-                  <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-300">
-                    Produto disponível no balcão da Pink Music para retirada
-                    imediata ou entrega local combinada.
-                  </p>
+                <div className="mt-6 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-4 sm:p-5">
+                  <div className="flex items-start gap-3">
+                    <div className="size-10 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0 text-emerald-600 dark:text-emerald-400">
+                      <Store className="size-5" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-foreground">
+                        Retirada ou Entrega em Feira de Santana
+                      </h4>
+                      <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
+                        Pronto para retirada no balcão da loja ou entrega combinada na cidade. Pagamento rápido e seguro via PIX.
+                      </p>
+                    </div>
+                  </div>
                 </div>
               ) : (
-                <div className="flex items-start md:items-center gap-2">
-                  <span className="text-destructive text-sm">
-                    <TriangleAlert size={20} />
-                  </span>
-                  <p className="text-sm font-semibold text-primary">
-                    {showCustomDescription
-                      ? "Imagens, estoque e disponibilidade são integrados ao Mercado Livre."
-                      : "Descrições, características e imagens são de responsabilidade do Mercado Livre."}
-                  </p>
-                </div>
-              )}
-
-              {/* Descrição cadastrada pela loja */}
-              {showCustomDescription && (
-                <div className="border-t pt-6">
-                  <h3 className="text-xl font-semibold mb-3">
-                    Descrição do Produto
-                  </h3>
-                  <p className="text-foreground/80 whitespace-pre-line text-sm leading-relaxed">
-                    {product.description}
-                  </p>
-                </div>
-              )}
-
-              {/* Atributos do Mercado Livre / características */}
-              {showMlAttributes && (
-                <div className="border-t pt-6">
-                  <h3 className="text-xl font-semibold mb-3">
-                    Características
-                  </h3>
-                  <div className="space-y-2">
-                    {product.attributes!.slice(0, 8).map((attr, index) => (
-                      <div
-                        key={index}
-                        className="flex justify-between py-1 border-b border-card"
-                      >
-                        <span className="text-primary">{attr.name}:</span>
-                        <span className="font-semibold text-primary">
-                          {attr.value_name}
-                        </span>
-                      </div>
-                    ))}
+                <div className="mt-6 rounded-2xl border border-border bg-card p-4 sm:p-5">
+                  <div className="flex items-start gap-3">
+                    <div className="size-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 text-primary">
+                      <ShieldCheck className="size-5" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-foreground">
+                        Compra Segura pelo Mercado Livre
+                      </h4>
+                      <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
+                        Estoque oficial integrado, envio rápido com rastreamento e todas as garantias do Mercado Livre.
+                      </p>
+                    </div>
                   </div>
                 </div>
               )}
 
               {/* Botões de Ação */}
-              <div className="border-t pt-6 space-y-3">
+              <div className="mt-6 pt-6 border-t border-border/60 space-y-3">
                 {isLocal ? (
                   <>
-                    {/* Botão Adicionar ao Carrinho */}
-                    <button
-                      type="button"
+                    <Button
+                      onClick={handleBuyNow}
+                      disabled={isOutOfStock}
+                      size="lg"
+                      className="w-full h-13 rounded-2xl text-base font-bold shadow-md hover:shadow-lg transition-all gap-2"
+                    >
+                      <Zap className="size-5" />
+                      Comprar Agora via PIX
+                    </Button>
+
+                    <Button
+                      variant="outline"
                       onClick={handleAddToCart}
-                      disabled={product.available_quantity <= 0}
-                      className={`w-full py-3 px-4 rounded-full flex items-center justify-center gap-2 transition-all duration-300 whitespace-nowrap overflow-hidden ${addedToCart
-                        ? "bg-emerald-500 text-white"
-                        : "border border-primary text-primary hover:bg-white/40 cursor-pointer"
-                        } disabled:opacity-50 disabled:cursor-not-allowed`}
+                      disabled={isOutOfStock}
+                      size="lg"
+                      className={`w-full h-12 rounded-2xl text-sm font-semibold border-2 transition-all gap-2 ${
+                        addedToCart
+                          ? "bg-emerald-500 text-white border-emerald-500 hover:bg-emerald-600"
+                          : "border-primary/40 text-foreground hover:bg-primary/5 hover:border-primary"
+                      }`}
                     >
                       {addedToCart ? (
                         <>
-                          <Check size={15} className="shrink-0" />
-                          <span className="truncate">No carrinho!</span>
+                          <Check className="size-4" /> No carrinho!
                         </>
                       ) : (
                         <>
-                          <ShoppingCart size={15} className="shrink-0" />
-                          <span className="truncate">Adicionar ao Carrinho</span>
+                          <ShoppingCart className="size-4" /> Adicionar ao Carrinho
                         </>
                       )}
-                    </button>
-
-                    {/* Botão Comprar Agora (abre checkout direto) */}
-                    <button
-                      type="button"
-                      onClick={handleBuyNow}
-                      disabled={product.available_quantity <= 0}
-                      className={`w-full  py-3 px-6 rounded-full flex items-center justify-center gap-2 font-semibold ${product.available_quantity <= 0
-                        ? "cursor-not-allowed bg-primary/80 text-white opacity-60"
-                        : "cursor-pointer bg-primary text-white hover:bg-primary/85"}`}
-                    >
-                      <Store size={20} />
-                      Comprar Agora via PIX
-                    </button>
+                    </Button>
 
                     {product.permalink && (
                       <a
                         href={product.permalink}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="cursor-pointer w-full border border-primary text-primary py-3 px-6 rounded-full hover:bg-primary/10 flex items-center justify-center gap-2 font-semibold transition-colors"
+                        className="flex items-center justify-center gap-2 w-full py-2.5 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors"
                       >
-                        <ShoppingCart size={18} />
+                        <ExternalLink className="size-3.5" />
                         Comprar também pelo Mercado Livre
                       </a>
                     )}
                   </>
                 ) : (
                   product.permalink && (
-                    <a
-                      href={product.permalink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="cursor-pointer w-full bg-primary text-white py-3 px-6 rounded-full hover:bg-primary/85 flex items-center justify-center gap-2 font-semibold"
+                    <Button
+                      asChild
+                      size="lg"
+                      className="w-full h-13 rounded-2xl text-base font-bold shadow-md hover:shadow-lg transition-all gap-2"
                     >
-                      <ShoppingCart size={20} />
-                      Comprar no MercadoLivre
-                    </a>
+                      <a
+                        href={product.permalink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <ExternalLink className="size-5" />
+                        Comprar no Mercado Livre
+                      </a>
+                    </Button>
                   )
                 )}
               </div>
+            </div>
 
-              <div className="w-full flex items-center justify-center lg:mt-12 md:mt-0 mt-0">
-                <Social />
-              </div>
+            {/* Redes Sociais / Dúvidas */}
+            <div className="mt-8 pt-6 border-t border-border/40 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <span className="text-xs text-muted-foreground">
+                Dúvidas sobre o produto? Fale conosco:
+              </span>
+              <Social />
             </div>
           </div>
         </div>
+
+        {/* Seções de Detalhes: Descrição e Características */}
+        {(showCustomDescription || showMlAttributes) && (
+          <div className="mt-16 sm:mt-20 pt-10 border-t border-border/60">
+            {showCustomDescription && (
+              <div className="max-w-3xl">
+                <h3 className="text-xl font-bold font-display text-foreground mb-4">
+                  Descrição do Produto
+                </h3>
+                <p className="text-muted-foreground whitespace-pre-line text-[15px] leading-relaxed">
+                  {product.description}
+                </p>
+              </div>
+            )}
+
+            {showMlAttributes && (
+              <div className="mt-8">
+                <h3 className="text-xl font-bold font-display text-foreground mb-4">
+                  Especificações Técnicas
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                  {product.attributes!.slice(0, 12).map((attr, index) => (
+                    <div
+                      key={index}
+                      className="rounded-xl border border-border/80 bg-card p-3.5 flex flex-col justify-between"
+                    >
+                      <span className="text-xs text-muted-foreground">
+                        {attr.name}
+                      </span>
+                      <span className="text-sm font-semibold text-foreground mt-1">
+                        {attr.value_name}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Seção de Produtos Relacionados */}
+        {relatedProducts.length > 0 && (
+          <section className="mt-16 sm:mt-24 pt-12 border-t border-border/60">
+            <SectionHead
+              title="Produtos Relacionados"
+              subtitle="Equipamentos selecionados que você também pode gostar."
+            />
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 md:gap-5">
+              {relatedProducts.map((relProduct) => (
+                <ProductCard key={relProduct.id} product={relProduct} />
+              ))}
+            </div>
+          </section>
+        )}
       </PageContainer>
 
-      {/* Modal de autenticação */}
+      {/* Modal de autenticação para clientes */}
       <CustomerAuthModal
         open={showAuthModal}
         onOpenChange={setShowAuthModal}
@@ -339,12 +506,12 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
         required
       />
 
-      {/* Modal de Checkout - agora sempre usa o CartCheckoutModal */}
+      {/* Modal de Checkout direto */}
       <CartCheckoutModal
         open={pixModalOpen}
         onOpenChange={setPixModalOpen}
       />
-    </section >
+    </section>
   );
 };
 

@@ -1,21 +1,9 @@
 import { useState } from "react";
-import {
-  X,
-  ChevronDown,
-  ChevronUp,
-  Sliders,
-  Tag,
-  Banknote,
-} from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
+import { X, ChevronDown, ChevronUp } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
 import { Brand, Category } from "@/lib/types";
+
+export type OriginFilter = "all" | "LOCAL" | "MERCADO_LIVRE";
 
 interface FilterSidebarProps {
   categories: Category[];
@@ -23,10 +11,25 @@ interface FilterSidebarProps {
   selectedCategories: string[];
   selectedBrands: string[];
   priceRange: [number, number];
+  origin: OriginFilter;
+  onlyAvailable: boolean;
   onCategoryChange: (categories: string[]) => void;
   onBrandChange: (brands: string[]) => void;
   onPriceChange: (range: [number, number]) => void;
+  onOriginChange: (origin: OriginFilter) => void;
+  onAvailabilityChange: (onlyAvailable: boolean) => void;
   onClearFilters: () => void;
+}
+
+function Block({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <h3 className="mb-3 font-sans text-xs font-bold uppercase tracking-wider text-muted-foreground">
+        {title}
+      </h3>
+      {children}
+    </div>
+  );
 }
 
 export default function FilterSidebar({
@@ -35,18 +38,18 @@ export default function FilterSidebar({
   selectedCategories,
   selectedBrands,
   priceRange,
+  origin,
+  onlyAvailable,
   onCategoryChange,
   onBrandChange,
   onPriceChange,
+  onOriginChange,
+  onAvailabilityChange,
   onClearFilters,
 }: FilterSidebarProps) {
-  const [categoryOpen, setCategoryOpen] = useState(false);
-  const [brandOpen, setBrandOpen] = useState(true);
-  const [priceOpen, setPriceOpen] = useState(true);
   const [expandedParents, setExpandedParents] = useState<Record<string, boolean>>({});
 
-  const toggleParentExpand = (parentId: string, e: React.MouseEvent) => {
-    e.stopPropagation();
+  const toggleParentExpand = (parentId: string) => {
     setExpandedParents((prev) => ({
       ...prev,
       [parentId]: !prev[parentId],
@@ -62,24 +65,19 @@ export default function FilterSidebar({
 
     if (isParent) {
       if (selectedCategories.includes(categoryId)) {
-        // Desmarcou o pai: remove o pai e quaisquer filhas dele
         newCategories = selectedCategories.filter(
           (c) => c !== categoryId && !childIds.includes(c)
         );
       } else {
-        // Marcou o pai: adiciona o pai e remove filhas pontuais (o pai engloba tudo)
         newCategories = [
           ...selectedCategories.filter((c) => !childIds.includes(c)),
           categoryId,
         ];
       }
     } else {
-      // É uma subcategoria filha
       if (selectedCategories.includes(categoryId)) {
-        // Desmarcou a filha
         newCategories = selectedCategories.filter((c) => c !== categoryId);
       } else {
-        // Marcou a filha: se o pai estiver selecionado, desmarca o pai para refinar para a subcategoria!
         const currentCat = categories.find((c) => c.id === categoryId);
         const parentId = currentCat?.parentId;
         newCategories = [
@@ -99,63 +97,71 @@ export default function FilterSidebar({
     onBrandChange(newBrands);
   };
 
-  const formatPrice = (value: number) => {
-    return new Intl.NumberFormat("pt-BR", {
+  const formatPrice = (value: number) =>
+    new Intl.NumberFormat("pt-BR", {
       style: "currency",
       currency: "BRL",
       minimumFractionDigits: 0,
     }).format(value);
-  };
 
   const hasActiveFilters =
     selectedCategories.length > 0 ||
     selectedBrands.length > 0 ||
     priceRange[0] > 0 ||
-    priceRange[1] < 50000;
+    priceRange[1] < 50000 ||
+    origin !== "all" ||
+    onlyAvailable;
+
+  const rootCategories = categories.filter((c) => !c.parentId);
+  const childCategories = categories.filter((c) => !!c.parentId);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-7">
+
+      {/* Limpar filtros */}
       {hasActiveFilters && (
         <button
           onClick={onClearFilters}
-          className="flex items-center text-destructive hover:text-destructive/80 cursor-pointer"
+          className="flex items-center gap-1.5 text-[13px] text-destructive hover:text-destructive/80 transition-colors cursor-pointer"
         >
-          <X className="h-5 w-5 mr-1.5" />
-          <span>Limpar todos os filtros</span>
+          <X className="h-3.5 w-3.5" />
+          Limpar filtros
         </button>
       )}
 
-      {/* Categories */}
-      <Collapsible open={categoryOpen} onOpenChange={setCategoryOpen}>
-        <CollapsibleTrigger asChild>
-          <button className="w-full flex items-center justify-between p-3 rounded-xl hover:bg-secondary/10 transition-colors group">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-secondary/20 transition-colors">
-                <Sliders className="h-4 w-4 text-primary" />
-              </div>
-              <span className="font-semibold text-foreground">Categorias</span>
-            </div>
-            <div className="flex items-center gap-2">
-              {selectedCategories.length > 0 && (
-                <span className="px-2 py-0.5 text-xs font-medium bg-primary text-primary-foreground rounded-full">
-                  {selectedCategories.length}
-                </span>
-              )}
-              {categoryOpen ? (
-                <ChevronUp className="h-4 w-4 text-muted-foreground" />
-              ) : (
-                <ChevronDown className="h-4 w-4 text-muted-foreground" />
-              )}
-            </div>
-          </button>
-        </CollapsibleTrigger>
-        <CollapsibleContent className="pt-2 pl-1 space-y-2">
-          {(() => {
-            // Separar categorias raiz (principais) e suas filhas
-            const rootCategories = categories.filter((c) => !c.parentId);
-            const childCategories = categories.filter((c) => !!c.parentId);
+      {/* Onde Comprar */}
+      <Block title="Onde comprar">
+        {(
+          [
+            ["all", "Todos"],
+            ["LOCAL", "Venda local Pink Music"],
+            ["MERCADO_LIVRE", "Mercado Livre"],
+          ] as const
+        ).map(([value, label]) => (
+          <label
+            key={value}
+            className="flex cursor-pointer items-center gap-2.5 py-1 text-[15px]"
+          >
+            <input
+              type="radio"
+              name="origin"
+              value={value}
+              checked={origin === value}
+              onChange={() => onOriginChange(value)}
+              className="size-4 accent-[var(--primary)]"
+            />
+            {label}
+          </label>
+        ))}
+      </Block>
 
-            return rootCategories.map((category) => {
+      <hr className="border-border/60" />
+
+      {/* Categorias */}
+      {rootCategories.length > 0 && (
+        <Block title="Categorias">
+          <div className="space-y-0.5">
+            {rootCategories.map((category) => {
               const children =
                 category.subcategories && category.subcategories.length > 0
                   ? category.subcategories
@@ -166,194 +172,126 @@ export default function FilterSidebar({
               const childIds = children.map((c) => c.id);
 
               return (
-                <div key={category.id} className="space-y-1">
-                  <div
-                    className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-all ${
-                      isSelected
-                        ? "bg-primary/10"
-                        : "hover:bg-secondary/10"
-                    }`}
-                    onClick={(e) => {
-                      if (hasChildren) {
-                        toggleParentExpand(category.id, e);
-                      } else {
-                        handleCategoryToggle(category.id, true, childIds);
-                      }
-                    }}
-                  >
-                    <div className="flex items-center space-x-2.5 flex-1 min-w-0">
-                      <Checkbox
-                        id={`category-${category.id}`}
+                <div key={category.id}>
+                  {/* Categoria pai */}
+                  <div className="flex items-center justify-between">
+                    <label className="flex cursor-pointer items-center gap-2.5 py-1 text-[15px] flex-1">
+                      <input
+                        type="checkbox"
                         checked={isSelected}
-                        onClick={(e) => e.stopPropagation()}
-                        onCheckedChange={() =>
+                        onChange={() =>
                           handleCategoryToggle(category.id, true, childIds)
                         }
+                        className="size-4 accent-[var(--primary)]"
                       />
-                      <Label
-                        htmlFor={`category-${category.id}`}
-                        className="text-sm font-semibold cursor-pointer truncate"
-                        onClick={(e) => {
-                          if (hasChildren) {
-                            e.preventDefault();
-                            toggleParentExpand(category.id, e);
-                          }
-                        }}
-                      >
+                      <span className={isSelected ? "font-semibold text-foreground" : ""}>
                         {category.name}
-                      </Label>
-                    </div>
-
+                      </span>
+                    </label>
                     {hasChildren && (
                       <button
                         type="button"
-                        onClick={(e) => toggleParentExpand(category.id, e)}
-                        className="p-1 text-muted-foreground hover:text-foreground rounded-md hover:bg-secondary/20 transition-colors"
-                        title={isExpanded ? "Recolher subcategorias" : "Ver subcategorias"}
+                        onClick={() => toggleParentExpand(category.id)}
+                        className="p-1 text-muted-foreground hover:text-foreground transition-colors"
                       >
                         {isExpanded ? (
-                          <ChevronUp className="h-4 w-4" />
+                          <ChevronUp className="h-3.5 w-3.5" />
                         ) : (
-                          <ChevronDown className="h-4 w-4" />
+                          <ChevronDown className="h-3.5 w-3.5" />
                         )}
                       </button>
                     )}
                   </div>
 
-                  {/* Subcategorias filhas identadas */}
+                  {/* Subcategorias */}
                   {hasChildren && isExpanded && (
-                    <div className="pl-6 space-y-1 border-l-2 border-border/40 ml-4 py-1">
+                    <div className="ml-6 border-l border-border/50 pl-3 space-y-0.5 mb-1">
                       {children.map((sub) => {
                         const isSubSelected = selectedCategories.includes(sub.id);
                         return (
-                          <div
+                          <label
                             key={sub.id}
-                            className={`flex items-center space-x-2.5 p-1.5 rounded-md cursor-pointer transition-all ${
-                              isSubSelected
-                                ? "bg-primary/10 text-primary font-medium"
-                                : "hover:bg-secondary/10 text-muted-foreground hover:text-foreground"
-                            }`}
-                            onClick={() => handleCategoryToggle(sub.id, false)}
+                            className="flex cursor-pointer items-center gap-2.5 py-0.5 text-[14px] text-muted-foreground hover:text-foreground transition-colors"
                           >
-                            <Checkbox
-                              id={`category-${sub.id}`}
+                            <input
+                              type="checkbox"
                               checked={isSubSelected}
-                              onClick={(e) => e.stopPropagation()}
-                              onCheckedChange={() => handleCategoryToggle(sub.id, false)}
+                              onChange={() => handleCategoryToggle(sub.id, false)}
+                              className="size-3.5 accent-[var(--primary)]"
                             />
-                            <Label
-                              htmlFor={`category-${sub.id}`}
-                              className="text-xs cursor-pointer flex-1"
-                            >
+                            <span className={isSubSelected ? "text-foreground font-medium" : ""}>
                               {sub.name}
-                            </Label>
-                          </div>
+                            </span>
+                          </label>
                         );
                       })}
                     </div>
                   )}
                 </div>
               );
-            });
-          })()}
-        </CollapsibleContent>
-      </Collapsible>
+            })}
+          </div>
+        </Block>
+      )}
 
-      {/* Brands */}
-      <Collapsible open={brandOpen} onOpenChange={setBrandOpen}>
-        <CollapsibleTrigger asChild>
-          <button className="w-full flex items-center justify-between p-3 rounded-xl hover:bg-secondary/10 transition-colors group">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-secondary/20 transition-colors">
-                <Tag className="h-4 w-4 text-primary" />
-              </div>
-              <span className="font-semibold text-foreground">Marcas</span>
-            </div>
-            <div className="flex items-center gap-2">
-              {selectedBrands.length > 0 && (
-                <span className="px-2 py-0.5 text-xs font-medium bg-primary text-primary-foreground rounded-full">
-                  {selectedBrands.length}
-                </span>
-              )}
-              {brandOpen ? (
-                <ChevronUp className="h-4 w-4 text-muted-foreground" />
-              ) : (
-                <ChevronDown className="h-4 w-4 text-muted-foreground" />
-              )}
-            </div>
-          </button>
-        </CollapsibleTrigger>
-        <CollapsibleContent className="pt-2 pl-3 space-y-1 max-h-56 overflow-y-auto scrollbar-thin">
-          {brands.map((brand) => (
-            <div
-              key={brand.id}
-              className={`flex items-center space-x-3 p-2.5 rounded-lg cursor-pointer transition-all ${
-                selectedBrands.includes(brand.id)
-                  ? "bg-primary/10"
-                  : "hover:bg-secondary/10"
-              }`}
-              onClick={() => handleBrandToggle(brand.id)}
-            >
-              <Checkbox
-                id={`brand-${brand.id}`}
-                checked={selectedBrands.includes(brand.id)}
-                onCheckedChange={() => handleBrandToggle(brand.id)}
-              />
-              <Label
-                htmlFor={`brand-${brand.id}`}
-                className="text-sm font-medium cursor-pointer flex-1"
+      <hr className="border-border/60" />
+
+      {/* Marcas */}
+      {brands.length > 0 && (
+        <Block title="Marca">
+          <div className="max-h-52 overflow-y-auto space-y-0.5 pr-1">
+            {brands.map((brand) => (
+              <label
+                key={brand.id}
+                className="flex cursor-pointer items-center gap-2.5 py-1 text-[15px]"
               >
+                <input
+                  type="checkbox"
+                  checked={selectedBrands.includes(brand.id)}
+                  onChange={() => handleBrandToggle(brand.id)}
+                  className="size-4 accent-[var(--primary)]"
+                />
                 {brand.name}
-              </Label>
-            </div>
-          ))}
-        </CollapsibleContent>
-      </Collapsible>
+              </label>
+            ))}
+          </div>
+        </Block>
+      )}
 
-      {/* Price Range */}
-      <Collapsible open={priceOpen} onOpenChange={setPriceOpen}>
-        <CollapsibleTrigger asChild>
-          <button className="w-full flex items-center justify-between p-3 rounded-xl hover:bg-secondary/10 transition-colors group">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-secondary/20 transition-colors">
-                <Banknote className="h-4 w-4 text-primary" />
-              </div>
-              <span className="font-semibold text-foreground">
-                Faixa de Preço
-              </span>
-            </div>
-            {priceOpen ? (
-              <ChevronUp className="h-4 w-4 text-muted-foreground" />
-            ) : (
-              <ChevronDown className="h-4 w-4 text-muted-foreground" />
-            )}
-          </button>
-        </CollapsibleTrigger>
-        <CollapsibleContent className="pt-4 px-3 space-y-5">
-          <div className="px-2">
-            <Slider
-              value={priceRange}
-              onValueChange={(value) =>
-                onPriceChange(value as [number, number])
-              }
-              max={50000}
-              min={0}
-              step={100}
-              className="w-full"
-              aria-label="Faixa de preço"
-            />
-          </div>
-          <div className="flex items-center justify-between">
-            <div className="px-3 py-2 rounded-full bg-background text-sm font-medium">
-              {formatPrice(priceRange[0])}
-            </div>
-            <div className="h-px flex-1 bg-border mx-3" />
-            <div className="px-3 py-2 rounded-full bg-background text-sm font-medium">
-              {formatPrice(priceRange[1])}
-            </div>
-          </div>
-        </CollapsibleContent>
-      </Collapsible>
+      <hr className="border-border/60" />
+
+      {/* Faixa de Preço */}
+      <Block title="Preço máximo">
+        <Slider
+          value={priceRange}
+          onValueChange={(value) => onPriceChange(value as [number, number])}
+          max={50000}
+          min={0}
+          step={100}
+          className="w-full mt-1 mb-3"
+          aria-label="Faixa de preço"
+        />
+        <div className="flex items-center justify-between text-[13px] text-muted-foreground">
+          <span>{formatPrice(priceRange[0])}</span>
+          <span className="font-semibold text-foreground">{formatPrice(priceRange[1])}</span>
+        </div>
+      </Block>
+
+      <hr className="border-border/60" />
+
+      {/* Disponibilidade */}
+      <Block title="Disponibilidade">
+        <label className="flex cursor-pointer items-center gap-2.5 text-[15px]">
+          <input
+            type="checkbox"
+            checked={onlyAvailable}
+            onChange={(e) => onAvailabilityChange(e.target.checked)}
+            className="size-4 accent-[var(--primary)]"
+          />
+          Somente disponíveis
+        </label>
+      </Block>
+
     </div>
   );
 }

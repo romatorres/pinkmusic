@@ -43,6 +43,7 @@ export function LocalProductModal({
   const [title, setTitle] = useState("");
   const [code, setCode] = useState("");
   const [price, setPrice] = useState("");
+  const [originalPrice, setOriginalPrice] = useState("");
   const [availableQuantity, setAvailableQuantity] = useState("1");
   const [formMainCategory, setFormMainCategory] = useState("");
   const [formSubCategory, setFormSubCategory] = useState("");
@@ -96,6 +97,7 @@ export function LocalProductModal({
     setTitle("");
     setCode("");
     setPrice("");
+    setOriginalPrice("");
     setAvailableQuantity("1");
     setFormMainCategory("");
     setFormSubCategory("");
@@ -171,6 +173,7 @@ export function LocalProductModal({
           code: code.trim() || null,
           title: title.trim(),
           price: parsedPrice,
+          originalPrice: originalPrice ? parseFloat(originalPrice.replace(",", ".")) || null : null,
           available_quantity: parsedQty,
           brandId: formBrand && formBrand !== "none" ? formBrand : null,
           categoryId: finalCategoryId,
@@ -252,8 +255,8 @@ export function LocalProductModal({
               </div>
             </div>
 
-            {/* Preço e Estoque */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Preço, Preço Original e Estoque */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="space-y-1.5">
                 <Label htmlFor="local-price">
                   Preço de Venda (R$) <span className="text-red-500">*</span>
@@ -265,6 +268,21 @@ export function LocalProductModal({
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
                   required
+                  disabled={isSubmitting}
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="local-original-price" className="flex items-center justify-between">
+                  <span>Preço Original (De:)</span>
+                  <span className="text-[10px] text-muted-foreground font-normal">Opcional</span>
+                </Label>
+                <Input
+                  id="local-original-price"
+                  type="text"
+                  placeholder="Ex: 59,90"
+                  value={originalPrice}
+                  onChange={(e) => setOriginalPrice(e.target.value)}
                   disabled={isSubmitting}
                 />
               </div>
