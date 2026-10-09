@@ -76,7 +76,7 @@ function LoginForm() {
 
   return (
     <div className="min-h-[85vh] flex flex-col justify-center py-10 px-4">
-      <PageContainer className="max-w-sm w-full mx-auto">
+      <PageContainer className="max-w-md w-full mx-auto">
         {/* Voltar para Home */}
         <div className="mb-6">
           <Link
@@ -94,9 +94,6 @@ function LoginForm() {
           <div className="bg-gradient-to-br from-primary to-primary/80 px-6 pt-7 pb-6 text-white relative overflow-hidden">
             <div className="absolute -top-6 -right-6 size-24 rounded-full bg-white/10 blur-2xl pointer-events-none" />
             <div className="relative flex items-start gap-3">
-              <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-white/15 border border-white/20">
-                <ShieldCheck className="size-5" />
-              </div>
               <div>
                 <div className="relative w-32 h-9 mb-1">
                   <Image
