@@ -12,19 +12,25 @@ export default function Footer() {
     "mb-4 font-display text-sm font-bold uppercase tracking-wider text-hero-foreground";
 
   return (
-    <footer className="mt-20 bg-hero text-hero-foreground border-t border-hero-foreground/10">
+    <footer className="bg-hero text-hero-foreground border-t border-hero-foreground/10">
       <div className="container-page grid grid-cols-2 gap-8 py-14 md:grid-cols-4">
         {/* Coluna 1: Pink Music */}
         <div>
           <h3 className={h}>Pink Music</h3>
           <ul className={col}>
             <li>
-              <Link href="/#about" className="hover:text-hero-foreground transition-colors">
+              <Link
+                href="/#about"
+                className="hover:text-hero-foreground transition-colors"
+              >
                 Sobre nós
               </Link>
             </li>
             <li>
-              <Link href="/#about" className="hover:text-hero-foreground transition-colors">
+              <Link
+                href="/#about"
+                className="hover:text-hero-foreground transition-colors"
+              >
                 Nossas lojas
               </Link>
             </li>
@@ -56,12 +62,18 @@ export default function Footer() {
           <h3 className={h}>Comprar</h3>
           <ul className={col}>
             <li>
-              <Link href="/products-all" className="hover:text-hero-foreground transition-colors">
+              <Link
+                href="/products-all"
+                className="hover:text-hero-foreground transition-colors"
+              >
                 Todos os produtos
               </Link>
             </li>
             <li>
-              <Link href="/products-all" className="hover:text-hero-foreground transition-colors">
+              <Link
+                href="/products-all"
+                className="hover:text-hero-foreground transition-colors"
+              >
                 Categorias
               </Link>
             </li>
@@ -89,7 +101,10 @@ export default function Footer() {
           <h3 className={h}>Atendimento</h3>
           <ul className={col}>
             <li>
-              <Link href="/meus-pedidos" className="hover:text-hero-foreground transition-colors">
+              <Link
+                href="/meus-pedidos"
+                className="hover:text-hero-foreground transition-colors"
+              >
                 Meus pedidos
               </Link>
             </li>

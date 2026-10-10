@@ -30,9 +30,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product: p }) => {
   const productUrl = `/products/${createProductSlug(p.title, p.id)}`;
 
   // Cálculo de desconto
-  const hasDiscount = Boolean(
-    p.originalPrice && p.originalPrice > p.price
-  );
+  const hasDiscount = Boolean(p.originalPrice && p.originalPrice > p.price);
   const discountPercent = hasDiscount
     ? Math.round(((p.originalPrice! - p.price) / p.originalPrice!) * 100)
     : 0;
@@ -63,7 +61,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product: p }) => {
 
         {/* Overlay se esgotado */}
         {isOutOfStock && (
-          <span className="absolute inset-x-0 bottom-0 bg-foreground/80 py-1.5 text-center text-xs font-semibold text-background backdrop-blur-xs">
+          <span className="absolute inset-x-0 bottom-0 bg-foreground/60 py-1.5 text-center text-xs font-semibold text-background backdrop-blur-xs">
             Indisponível
           </span>
         )}
