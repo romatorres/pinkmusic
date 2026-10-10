@@ -38,7 +38,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product: p }) => {
     : 0;
 
   return (
-    <article className="group flex flex-col overflow-hidden rounded-2xl border border-border/80 bg-card shadow-card transition-all duration-300 hover:-translate-y-1 hover:shadow-lift w-full">
+    <article className="group flex flex-col overflow-hidden rounded-2xl border border-border/80 bg-white shadow-card transition-all duration-300 hover:-translate-y-1 hover:shadow-lift w-full">
       {/* Imagem do Produto */}
       <Link
         href={productUrl}
@@ -70,7 +70,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product: p }) => {
       </Link>
 
       {/* Detalhes do Produto */}
-      <div className="flex flex-1 flex-col p-3 md:p-4">
+      <div className="flex flex-1 flex-col p-3 md:p-4 bg-card">
         {/* Marca */}
         <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground truncate">
           {p.brand?.name || "Pink Music"}
