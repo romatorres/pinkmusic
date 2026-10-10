@@ -79,6 +79,7 @@ export async function POST(req: NextRequest) {
         available_quantity: numericQuantity,
         seller_nickname: "Pink Music Loja Física",
         origin: "LOCAL",
+        isLocalSale: true,
         description: description?.trim() || null,
         descriptionSource: descriptionSource === "ML" ? "ML" : "CUSTOM",
         isLocalPickup: Boolean(isLocalPickup),

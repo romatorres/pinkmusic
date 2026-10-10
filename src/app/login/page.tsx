@@ -4,15 +4,7 @@ import React, { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  ArrowLeft,
-  Mail,
-  Lock,
-  Eye,
-  EyeOff,
-  Loader2,
-  ShieldCheck,
-} from "lucide-react";
+import { ArrowLeft, Mail, Lock, Eye, EyeOff, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageContainer } from "@/components/ui/Page-container";
 import { useAuthStore } from "@/store/authStore";
@@ -21,7 +13,8 @@ import { toast } from "sonner";
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") || searchParams.get("redirect") || "";
+  const callbackUrl =
+    searchParams.get("callbackUrl") || searchParams.get("redirect") || "";
 
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -76,7 +69,7 @@ function LoginForm() {
 
   return (
     <div className="min-h-[85vh] flex flex-col justify-center py-10 px-4">
-      <PageContainer className="max-w-md w-full mx-auto">
+      <PageContainer className="max-w-lg w-full mx-auto">
         {/* Voltar para Home */}
         <div className="mb-6">
           <Link
@@ -152,7 +145,11 @@ function LoginForm() {
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1"
                   tabIndex={-1}
                 >
-                  {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                  {showPassword ? (
+                    <EyeOff className="size-4" />
+                  ) : (
+                    <Eye className="size-4" />
+                  )}
                 </button>
               </div>
             </div>
@@ -173,7 +170,8 @@ function LoginForm() {
             </Button>
 
             <p className="text-center text-xs text-muted-foreground pt-1">
-              Acesso disponivel apenas para usuarios cadastrados pelo administrador.
+              Acesso disponivel apenas para usuarios cadastrados pelo
+              administrador.
             </p>
           </form>
         </div>
@@ -184,7 +182,11 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div className="min-h-[70vh] flex items-center justify-center" />}>
+    <Suspense
+      fallback={
+        <div className="min-h-[70vh] flex items-center justify-center" />
+      }
+    >
       <LoginForm />
     </Suspense>
   );

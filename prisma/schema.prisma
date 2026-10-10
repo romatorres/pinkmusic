@@ -70,6 +70,7 @@ model Product {
   seller_nickname    String             @default("Pink Music")
   permalink          String?            @unique
   origin             ProductOrigin      @default(MERCADO_LIVRE)
+  isLocalSale        Boolean            @default(false)
   description        String?
   descriptionSource  DescriptionSource? @default(CUSTOM)
   isLocalPickup      Boolean            @default(true)
@@ -242,4 +243,3 @@ model ShippingZipCode {
   @@index([zipCode])
   @@index([zoneId])
 }
-

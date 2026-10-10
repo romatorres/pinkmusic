@@ -65,6 +65,7 @@ interface Product {
   category?: Category | null;
   brandId?: string | null;
   brand?: Brand | null;
+  isLocalSale?: boolean;
 }
 
 function ProductsPageContent() {
@@ -462,10 +463,17 @@ function ProductsPageContent() {
                               Local
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
-                              <ShoppingCart className="h-3 w-3 text-amber-600 dark:text-amber-400" />
-                              Mercado Livre
-                            </span>
+                            <div className="flex flex-col gap-1 items-start">
+                              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
+                                <ShoppingCart className="h-3 w-3 text-amber-600 dark:text-amber-400" />
+                                Mercado Livre
+                              </span>
+                              {product.isLocalSale && (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                                  <Store className="h-2.5 w-2.5" /> + Venda Local
+                                </span>
+                              )}
+                            </div>
                           )}
                         </TableCell>
                         <TableCell className="font-semibold">

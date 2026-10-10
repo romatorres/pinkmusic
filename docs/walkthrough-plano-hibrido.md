@@ -35,6 +35,7 @@ Implementamos com sucesso a arquitetura híbrida para a Pink Music, permitindo g
 - **Modal de Cadastro Local ([LocalProductModal.tsx](file:///c:/Web/pinkmusic/src/app/dashboard/products/_components/LocalProductModal.tsx)):**
   - Permite envio de foto local (arquivo ou URL) com preview instantâneo.
   - Configuração de estoque em tempo real.
+- **Edição de produtos:** a opção **"Disponível para venda local (carrinho / PIX)"** habilita o canal local também para um produto do Mercado Livre, sem remover o link do anúncio. A opção de retirada no balcão continua independente.
 - **Nova Coluna e Tags na Tabela:**
   - Identificação visual clara: `🟢 Local` vs. `🟡 Mercado Livre`.
 - **Filtro por Origem:**
@@ -50,8 +51,8 @@ Implementamos com sucesso a arquitetura híbrida para a Pink Music, permitindo g
 - **Na Página de Detalhes ([ProductDetails.tsx](file:///c:/Web/pinkmusic/src/components/site/Products/ProductDetails.tsx)):**
   - Mensagem de garantia de procedência física no balcão da Pink Music.
   - Exibição de descrição personalizada cadastrada na loja.
-  - Botão principal: **"Comprar com PIX / Retirar na Loja"** (verde, em destaque).
-  - Caso o produto também exista no Mercado Livre, exibe botão secundário de compra pelo ML.
+  - Para produtos disponíveis nos dois canais, exibe **"Adicionar ao Carrinho"** e **"Comprar no Mercado Livre"**.
+  - Produtos apenas locais mantêm o fluxo de compra via PIX; produtos apenas do Mercado Livre mantêm o link do anúncio.
 - **Modal de Checkout PIX ([PixCheckoutModal.tsx](file:///c:/Web/pinkmusic/src/components/site/Products/PixCheckoutModal.tsx)):**
   - Permite ao cliente selecionar **Retirar na Loja** ou **Entrega Local (Motoboy)**.
   - Apresenta a Chave PIX oficial com botão de copiar em 1 clique.

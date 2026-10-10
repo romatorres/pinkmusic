@@ -28,6 +28,7 @@ interface ProductData {
   categoryId: string | null;
   brandId: string | null;
   origin?: "MERCADO_LIVRE" | "LOCAL";
+  isLocalSale?: boolean;
   description?: string | null;
   descriptionSource?: "CUSTOM" | "ML" | null;
   isLocalPickup?: boolean;
@@ -233,6 +234,7 @@ export default function EditProductPage() {
           categoryId: finalCategoryId,
           brandId: product.brandId || null,
           origin: product.origin || "MERCADO_LIVRE",
+          isLocalSale: product.origin === "LOCAL" || Boolean(product.isLocalSale),
           description: product.description || null,
           descriptionSource: product.descriptionSource || "CUSTOM",
           isLocalPickup: Boolean(product.isLocalPickup),
@@ -731,6 +733,25 @@ export default function EditProductPage() {
               >
                 Disponível para retirada imediata no balcão da loja física (Pink
                 Music)
+              </Label>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="isLocalSale"
+                checked={product.origin === "LOCAL" || Boolean(product.isLocalSale)}
+                onCheckedChange={(checked) =>
+                  setProduct((prev) =>
+                    prev ? { ...prev, isLocalSale: Boolean(checked) } : null,
+                  )
+                }
+                disabled={saving || product.origin === "LOCAL"}
+              />
+              <Label
+                htmlFor="isLocalSale"
+                className="text-sm cursor-pointer font-medium"
+              >
+                Disponível para venda local (carrinho / PIX)
               </Label>
             </div>
 

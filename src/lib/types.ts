@@ -30,6 +30,7 @@ export interface Product {
   seller_nickname: string;
   permalink?: string | null;
   origin?: ProductOrigin;
+  isLocalSale?: boolean;
   description?: string | null;
   descriptionSource?: DescriptionSource | null;
   isLocalPickup?: boolean;

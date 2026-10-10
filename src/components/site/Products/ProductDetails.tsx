@@ -119,6 +119,8 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
   }, [product.id, product.categoryId, product.brandId]);
 
   const isLocal = product.origin === "LOCAL";
+  const hasLocalSale = isLocal || Boolean(product.isLocalSale);
+  const hasMlSale = Boolean(product.permalink);
   const hasCustomDesc = Boolean(
     product.description && product.description.trim().length > 0
   );
@@ -254,11 +256,12 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
                   {product.brand?.name || "Pink Music"}
                 </span>
 
-                {isLocal ? (
+                {hasLocalSale && (
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-3 py-1 text-xs font-bold uppercase tracking-wider border border-emerald-500/20">
                     <Store className="size-3.5" /> Venda Local
                   </span>
-                ) : (
+                )}
+                {hasMlSale && (
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 px-3 py-1 text-xs font-bold uppercase tracking-wider border border-amber-500/20">
                     <ExternalLink className="size-3.5" /> Mercado Livre
                   </span>
@@ -294,9 +297,11 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
                 </div>
 
 
-                <p className="mt-1.5 text-sm text-muted-foreground">
-                  Compre parcelado em até 12x no Mercado Livre
-                </p>
+                {hasMlSale && (
+                  <p className="mt-1.5 text-sm text-muted-foreground">
+                    Compre parcelado em até 12x no Mercado Livre
+                  </p>
+                )}
 
 
                 <div className="mt-4 flex items-center gap-2">
@@ -316,7 +321,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
               </div>
 
               {/* Cartão de Informação de Procedência */}
-              {isLocal ? (
+              {hasLocalSale && (
                 <div className="mt-6 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-4 sm:p-5">
                   <div className="flex items-start gap-3">
                     <div className="size-10 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0 text-emerald-600 dark:text-emerald-400">
@@ -332,7 +337,8 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
                     </div>
                   </div>
                 </div>
-              ) : (
+              )}
+              {hasMlSale && (
                 <div className="mt-6 rounded-2xl border border-border bg-card p-4 sm:p-5">
                   <div className="flex items-start gap-3">
                     <div className="size-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 text-primary">
@@ -352,7 +358,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
 
               {/* Botões de Ação */}
               <div className="mt-6 pt-6 border-t border-border/60 space-y-3">
-                {isLocal ? (
+                {hasLocalSale && (
                   <>
                     <Button
                       onClick={handleBuyNow}
@@ -384,36 +390,23 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
                         </>
                       )}
                     </Button>
-
-                    {product.permalink && (
-                      <a
-                        href={product.permalink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-2 w-full py-2.5 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors"
-                      >
-                        <ExternalLink className="size-3.5" />
-                        Comprar também pelo Mercado Livre
-                      </a>
-                    )}
                   </>
-                ) : (
-                  product.permalink && (
-                    <Button
-                      asChild
-                      size="lg"
-                      className="w-full h-13 rounded-2xl text-base font-bold shadow-md hover:shadow-lg transition-all gap-2"
+                )}
+                {hasMlSale && (
+                  <Button
+                    asChild
+                    size="lg"
+                    className="w-full h-13 rounded-2xl text-base font-bold shadow-md hover:shadow-lg transition-all gap-2"
+                  >
+                    <a
+                      href={product.permalink!}
+                      target="_blank"
+                      rel="noopener noreferrer"
                     >
-                      <a
-                        href={product.permalink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <ExternalLink className="size-5" />
-                        Comprar no Mercado Livre
-                      </a>
-                    </Button>
-                  )
+                      <ExternalLink className="size-5" />
+                      Comprar no Mercado Livre
+                    </a>
+                  </Button>
                 )}
               </div>
             </div>

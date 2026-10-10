@@ -245,6 +245,7 @@ export async function PUT(
       "brandId", // NOVO: Permitir atualizar marca
       "description",
       "descriptionSource",
+      "isLocalSale",
       "isLocalPickup",
       "origin",
     ];

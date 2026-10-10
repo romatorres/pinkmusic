@@ -43,6 +43,7 @@ export interface ProductEditData {
     categoryId?: string | null;
     brandId?: string | null;
     origin?: "MERCADO_LIVRE" | "LOCAL";
+    isLocalSale?: boolean;
     description?: string | null;
     descriptionSource?: "CUSTOM" | "ML" | null;
     isLocalPickup?: boolean;
@@ -62,6 +63,7 @@ const emptyProduct: ProductEditData = {
     categoryId: null,
     brandId: null,
     origin: "MERCADO_LIVRE",
+    isLocalSale: false,
     description: null,
     descriptionSource: "ML",
     isLocalPickup: true,
@@ -230,6 +232,7 @@ export function ProductEditModal({
                     categoryId: finalCategoryId,
                     brandId: product.brandId || null,
                     origin: product.origin || "MERCADO_LIVRE",
+                    isLocalSale: product.origin === "LOCAL" || Boolean(product.isLocalSale),
                     description: product.description?.trim() || null,
                     descriptionSource: product.descriptionSource || "CUSTOM",
                     isLocalPickup: Boolean(product.isLocalPickup),
@@ -435,6 +438,21 @@ export function ProductEditModal({
                                         </SelectContent>
                                     </Select>
                                 </div>
+                            </div>
+
+                            <div className="flex items-center gap-2 rounded-lg border p-3">
+                                <Checkbox
+                                    id="edit-local-sale"
+                                    checked={product.origin === "LOCAL" || Boolean(product.isLocalSale)}
+                                    onCheckedChange={(checked) => setProduct((current) => ({
+                                        ...current,
+                                        isLocalSale: Boolean(checked),
+                                    }))}
+                                    disabled={saving || isLocal}
+                                />
+                                <Label htmlFor="edit-local-sale" className="cursor-pointer text-sm">
+                                    Disponível para venda local (carrinho / PIX)
+                                </Label>
                             </div>
 
                             <div className="grid gap-4 md:grid-cols-2">
