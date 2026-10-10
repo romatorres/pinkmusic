@@ -42,7 +42,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product: p }) => {
       {/* Imagem do Produto */}
       <Link
         href={productUrl}
-        className="relative block aspect-square overflow-hidden bg-muted/40"
+        className="relative block aspect-square overflow-hidden"
       >
         <Image
           src={imageUrl}
@@ -70,7 +70,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product: p }) => {
       </Link>
 
       {/* Detalhes do Produto */}
-      <div className="flex flex-1 flex-col p-3 md:p-4 bg-card">
+      <div className="flex flex-1 flex-col p-3 md:p-4 bg-card border-t border-border/60">
         {/* Marca */}
         <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground truncate">
           {p.brand?.name || "Pink Music"}

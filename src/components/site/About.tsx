@@ -155,14 +155,14 @@ export default function About() {
             src="/img/about.png"
             alt="Fachada e instrumentos da Pink Music"
             fill
-            className="object-contain p-4"
+            className="object-contain p-2"
             sizes="(max-width: 1024px) 100vw, 50vw"
           />
         </div>
       </div>
 
       {/* ── 3. Nossos Contatos e Unidades ── */}
-      <div className="pt-6 space-y-8">
+      <div className="pt-0 sm:p-4 space-y-8">
         <div className="text-center max-w-xl mx-auto space-y-2">
           <h3 className="text-2xl md:text-3xl font-extrabold tracking-tight text-foreground font-display">
             Fale com a gente ou venha tomar um café
