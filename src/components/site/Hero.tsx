@@ -32,6 +32,14 @@ const slides = [
     cta: "Comprar agora",
     href: "/products-all?categorySlug=home-studio",
   },
+  {
+    img: "/img/hero/hero-teclas.jpg",
+    kicker: "Lançamento",
+    title: "Chegou o teclado SX620.",
+    text: "O novo arranjador que estava faltando no seu palco. Conheça na categoria Teclas.",
+    cta: "Conheça o SX620",
+    href: "/products-all?categorySlug=teclas",
+  },
 ];
 
 export default function Hero() {
@@ -66,7 +74,9 @@ export default function Hero() {
               key={s.img}
               className={cn(
                 "absolute inset-0 transition-opacity duration-700 ease-in-out",
-                isActive ? "opacity-100 z-10" : "pointer-events-none opacity-0 z-0"
+                isActive
+                  ? "opacity-100 z-10"
+                  : "pointer-events-none opacity-0 z-0",
               )}
               aria-hidden={!isActive}
             >
@@ -95,8 +105,16 @@ export default function Hero() {
                   {s.text}
                 </p>
                 <div className="mt-7">
-                  <Button variant="hero" size="lg" asChild className="rounded-full px-6 py-6 font-semibold">
-                    <Link href={s.href} className="inline-flex items-center gap-2">
+                  <Button
+                    variant="hero"
+                    size="lg"
+                    asChild
+                    className="rounded-full px-6 py-6 font-semibold"
+                  >
+                    <Link
+                      href={s.href}
+                      className="inline-flex items-center gap-2"
+                    >
                       {s.cta} <ArrowRight className="size-4" />
                     </Link>
                   </Button>
@@ -127,7 +145,7 @@ export default function Hero() {
                 "h-1.5 rounded-full transition-all duration-300 cursor-pointer",
                 index === current
                   ? "w-8 bg-hero-foreground"
-                  : "w-3 bg-hero-foreground/40 hover:bg-hero-foreground/70"
+                  : "w-3 bg-hero-foreground/40 hover:bg-hero-foreground/70",
               )}
             />
           ))}

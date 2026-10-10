@@ -3,16 +3,12 @@
 import Products from "@/components/site/Products/Products";
 import { PageContainer } from "@/components/ui/Page-container";
 import { useSearchParams, useRouter } from "next/navigation";
-import {
-  useState,
-  useEffect,
-  useTransition,
-  useMemo,
-  Suspense,
-} from "react";
+import { useState, useEffect, useTransition, useMemo, Suspense } from "react";
 import Link from "next/link";
 import { ChevronRight, Home, SlidersHorizontal } from "lucide-react";
-import FilterSidebar, { type OriginFilter } from "@/components/site/_components/FilterSidebar";
+import FilterSidebar, {
+  type OriginFilter,
+} from "@/components/site/_components/FilterSidebar";
 import {
   Sheet,
   SheetContent,
@@ -43,13 +39,13 @@ function ProductAllClientContent() {
   const categoryIdsParam = searchParams.get("categoryIds");
   const selectedCategories = useMemo(
     () => categoryIdsParam?.split(",") || [],
-    [categoryIdsParam]
+    [categoryIdsParam],
   );
 
   const brandIdsParam = searchParams.get("brandIds");
   const selectedBrands = useMemo(
     () => brandIdsParam?.split(",") || [],
-    [brandIdsParam]
+    [brandIdsParam],
   );
 
   const minPriceParam = searchParams.get("minPrice");
@@ -106,7 +102,7 @@ function ProductAllClientContent() {
     }
     const brandIds = new Set<string>();
     const selectedCategoryData = categories.filter((c) =>
-      selectedCategories.includes(c.id)
+      selectedCategories.includes(c.id),
     );
 
     selectedCategoryData.forEach((cat) => {
@@ -126,7 +122,7 @@ function ProductAllClientContent() {
     }
     const categoryIds = new Set<string>();
     const selectedBrandData = brands.filter((b) =>
-      selectedBrands.includes(b.id)
+      selectedBrands.includes(b.id),
     );
 
     selectedBrandData.forEach((br) => {
@@ -148,7 +144,7 @@ function ProductAllClientContent() {
       priceRange?: [number, number];
       sortBy?: string;
       search?: string;
-    } = {}
+    } = {},
   ) => {
     startTransition(() => {
       const params = new URLSearchParams(searchParams);
@@ -217,7 +213,7 @@ function ProductAllClientContent() {
       <PageContainer>
         {/* Breadcrumb limpo e moderno */}
         <nav
-          className="flex items-center gap-2 pt-4 pb-4 text-sm text-muted-foreground"
+          className="flex items-center gap-2 pt-4 pb-12 text-sm text-muted-foreground"
           aria-label="Breadcrumb"
         >
           <Link
@@ -235,9 +231,7 @@ function ProductAllClientContent() {
         <div className="grid gap-8 lg:grid-cols-[240px_1fr] pb-12">
           {/* Sidebar Desktop */}
           <aside className="hidden lg:block">
-            <div className="sticky top-28">
-              {sidebarContent}
-            </div>
+            <div className="sticky top-28">{sidebarContent}</div>
           </aside>
 
           {/* Conteúdo Principal */}
