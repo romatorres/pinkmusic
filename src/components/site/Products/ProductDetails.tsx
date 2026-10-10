@@ -255,17 +255,6 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
                 <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                   {product.brand?.name || "Pink Music"}
                 </span>
-
-                {hasLocalSale && (
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-3 py-1 text-xs font-bold uppercase tracking-wider border border-emerald-500/20">
-                    <Store className="size-3.5" /> Venda Local
-                  </span>
-                )}
-                {hasMlSale && (
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 px-3 py-1 text-xs font-bold uppercase tracking-wider border border-amber-500/20">
-                    <ExternalLink className="size-3.5" /> Mercado Livre
-                  </span>
-                )}
               </div>
 
               {/* Título do Produto */}
@@ -361,23 +350,13 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
                 {hasLocalSale && (
                   <>
                     <Button
-                      onClick={handleBuyNow}
-                      disabled={isOutOfStock}
-                      size="lg"
-                      className="w-full h-13 rounded-2xl text-base font-bold shadow-md hover:shadow-lg transition-all gap-2"
-                    >
-                      <Zap className="size-5" />
-                      Comprar Agora via PIX
-                    </Button>
-
-                    <Button
                       variant="outline"
                       onClick={handleAddToCart}
                       disabled={isOutOfStock}
                       size="lg"
-                      className={`w-full h-12 rounded-2xl text-sm font-semibold border-2 transition-all gap-2 ${addedToCart
+                      className={`w-full h-12 rounded-2xl text-base font-semibold border-2 transition-all gap-2 ${addedToCart
                         ? "bg-emerald-500 text-white border-emerald-500 hover:bg-emerald-600"
-                        : "border-primary/40 text-foreground hover:bg-primary/5 hover:border-primary"
+                        : "border-foreground/75 text-foreground hover:bg-primary/5 hover:border-primary"
                         }`}
                     >
                       {addedToCart ? (
@@ -390,13 +369,23 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
                         </>
                       )}
                     </Button>
+
+                    {/* <Button
+                      onClick={handleBuyNow}
+                      disabled={isOutOfStock}
+                      size="lg"
+                      className="w-full h-13 rounded-2xl text-base font-bold shadow-md hover:shadow-lg transition-all gap-2"
+                    >
+                      <Zap className="size-5" />
+                      Comprar Agora via PIX
+                    </Button> */}
                   </>
                 )}
                 {hasMlSale && (
                   <Button
                     asChild
                     size="lg"
-                    className="w-full h-13 rounded-2xl text-base font-bold shadow-md hover:shadow-lg transition-all gap-2"
+                    className="bg-ml w-full h-13 rounded-2xl text-base text-foreground hover:bg-ml/70 shadow-md hover:shadow-lg transition-all gap-2"
                   >
                     <a
                       href={product.permalink!}
@@ -412,7 +401,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
             </div>
 
             {/* Redes Sociais / Dúvidas */}
-            <div className="mt-8 pt-6 border-t border-border/40 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="mt-8 pt-6 border-t border-border/40 flex flex-col sm:flex-row items-end justify-between gap-4">
               <span className="text-xs text-muted-foreground">
                 Dúvidas sobre o produto? Fale conosco:
               </span>

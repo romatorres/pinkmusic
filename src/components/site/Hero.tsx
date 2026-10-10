@@ -38,7 +38,7 @@ const slides = [
     title: "Chegou o teclado SX620.",
     text: "O novo arranjador que estava faltando no seu palco. Conheça na categoria Teclas.",
     cta: "Conheça o SX620",
-    href: "/products-all?categorySlug=teclas",
+    href: "/products/teclado-yamaha-psr-sx620-61-teclas-preto-127220v--MLB5271255135",
   },
 ];
 
