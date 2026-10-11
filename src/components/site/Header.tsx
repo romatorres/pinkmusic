@@ -84,7 +84,7 @@ const CATEGORY_IMAGES: Record<string, string> = {
   sopro: "/img/categories/cat-sopro.jpg",
   teclas: "/img/categories/cat-teclas.jpg",
   audio: "/img/categories/cat-audio.jpg",
-  "áudio": "/img/categories/cat-audio.jpg",
+  áudio: "/img/categories/cat-audio.jpg",
 };
 
 function getCategoryThumbnail(name: string): string | null {
@@ -198,7 +198,10 @@ function MobileMenu({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="left" className="w-[88vw] max-w-sm p-0 [&>button]:hidden">
+      <SheetContent
+        side="left"
+        className="w-[88vw] max-w-sm p-0 [&>button]:hidden"
+      >
         <SheetTitle className="sr-only">Menu</SheetTitle>
 
         {/* Cabeçalho do drawer */}
@@ -211,7 +214,9 @@ function MobileMenu({
               <ChevronLeft className="size-5" /> Voltar
             </button>
           ) : (
-            <span className="px-2 font-display text-lg font-bold">Categorias</span>
+            <span className="px-2 font-display text-lg font-bold">
+              Categorias
+            </span>
           )}
           <button
             onClick={() => onOpenChange(false)}
@@ -225,7 +230,10 @@ function MobileMenu({
         <div className="overflow-y-auto max-h-[calc(100vh-3.5rem)] pb-8">
           {!activeCategory ? (
             /* Nível 1: lista de categorias com miniatura */
-            <ul key="root" className="animate-in fade-in-0 slide-in-from-left-4">
+            <ul
+              key="root"
+              className="animate-in fade-in-0 slide-in-from-left-4"
+            >
               {rootCategories.map((cat) => {
                 const thumb = getCategoryThumbnail(cat.name);
                 return (
@@ -249,7 +257,9 @@ function MobileMenu({
                           {cat.name.slice(0, 2).toUpperCase()}
                         </div>
                       )}
-                      <span className="flex-1 text-base font-semibold">{cat.name}</span>
+                      <span className="flex-1 text-base font-semibold">
+                        {cat.name}
+                      </span>
                       <ChevronRight className="size-5 text-muted-foreground" />
                     </button>
                   </li>
@@ -268,7 +278,10 @@ function MobileMenu({
             </ul>
           ) : (
             /* Nível 2: subcategorias da categoria ativa */
-            <ul key={activeCategory.id} className="animate-in fade-in-0 slide-in-from-right-4">
+            <ul
+              key={activeCategory.id}
+              className="animate-in fade-in-0 slide-in-from-right-4"
+            >
               <li>
                 <Link
                   href={`/products-all?categoryIds=${activeCategory.id}`}
@@ -316,11 +329,7 @@ function AccountMenuItems({
 
   return (
     <div className={mobile ? "space-y-1 p-3" : "space-y-0.5 p-1.5"}>
-      <Link
-        href="/conta"
-        onClick={onMenuItemClick}
-        className={itemClassName}
-      >
+      <Link href="/conta" onClick={onMenuItemClick} className={itemClassName}>
         <User className="size-4 text-muted-foreground" />
         Minha Conta
       </Link>
@@ -340,7 +349,7 @@ function AccountMenuItems({
         }}
         className={cn(
           "flex w-full items-center gap-2 rounded-lg text-destructive hover:bg-destructive/10 transition-colors cursor-pointer",
-          mobile ? "min-h-12 gap-3 px-3 py-3 text-base" : "px-3 py-2 text-sm"
+          mobile ? "min-h-12 gap-3 px-3 py-3 text-base" : "px-3 py-2 text-sm",
         )}
       >
         <LogOut className="size-4" />
@@ -388,15 +397,15 @@ function UserMenu({
             <User className="size-5" />
           )}
         </span>
-        {isAuth && userName && (
-          <ChevronDown className="size-4 shrink-0" />
-        )}
+        {isAuth && userName && <ChevronDown className="size-4 shrink-0" />}
       </button>
 
       {isAuth && userMenuOpen && (
         <div className="absolute right-0 top-full z-50 mt-2 w-52 rounded-xl border border-border/60 bg-popover shadow-lift animate-in fade-in slide-in-from-top-2 duration-150">
           <div className="px-4 py-3">
-            <p className="text-sm font-semibold text-foreground truncate">{userName}</p>
+            <p className="text-sm font-semibold text-foreground truncate">
+              {userName}
+            </p>
             <p className="mt-0.5 text-xs text-muted-foreground truncate">
               {userEmail || "E-mail não disponível"}
             </p>
@@ -480,10 +489,7 @@ function HeaderContent() {
       ) {
         setMega(false);
       }
-      if (
-        userMenuRef.current &&
-        !userMenuRef.current.contains(target)
-      ) {
+      if (userMenuRef.current && !userMenuRef.current.contains(target)) {
         setUserMenuOpen(false);
       }
     };
@@ -516,19 +522,21 @@ function HeaderContent() {
         params.delete("search");
       }
       const queryString = params.toString();
-      router.push(queryString ? `/products-all?${queryString}` : "/products-all");
+      router.push(
+        queryString ? `/products-all?${queryString}` : "/products-all",
+      );
     },
-    [router, searchParams]
+    [router, searchParams],
   );
 
   const userInitials = user?.name
     ? user.name
-      .trim()
-      .split(/\s+/)
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((part) => part[0]?.toUpperCase() || "")
-      .join("") || "U"
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((part) => part[0]?.toUpperCase() || "")
+        .join("") || "U"
     : "";
 
   return (
@@ -549,13 +557,16 @@ function HeaderContent() {
               "flex h-11 items-center gap-2 rounded-lg px-4 font-semibold transition-colors cursor-pointer",
               mega
                 ? "bg-primary text-primary-foreground"
-                : "hover:bg-secondary"
+                : "hover:bg-secondary",
             )}
           >
             <Grid3x3 className="size-4" />
             Categorias
             <ChevronDown
-              className={cn("size-4 transition-transform duration-200", mega && "rotate-180")}
+              className={cn(
+                "size-4 transition-transform duration-200",
+                mega && "rotate-180",
+              )}
             />
           </button>
 
@@ -608,15 +619,17 @@ function HeaderContent() {
         {/* ── Mobile ── */}
         <div className="lg:hidden">
           <div className="flex h-14 items-center justify-between px-2">
-            <button
-              onClick={() => setMobileMenu(true)}
-              aria-label="Abrir menu"
-              className="grid size-11 place-items-center rounded-lg hover:bg-secondary transition-colors"
-            >
-              <Menu className="size-6" />
-            </button>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setMobileMenu(true)}
+                aria-label="Abrir menu"
+                className="grid size-11 place-items-center rounded-lg hover:bg-secondary transition-colors"
+              >
+                <Menu className="size-6" />
+              </button>
 
-            <Logo />
+              <Logo />
+            </div>
 
             <div className="flex items-center gap-1">
               <button
