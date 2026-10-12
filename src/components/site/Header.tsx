@@ -641,14 +641,19 @@ function HeaderContent() {
                 aria-label={isAuth ? `Olá, ${user?.name}` : "Entrar"}
                 aria-haspopup={isAuth ? "dialog" : undefined}
                 aria-expanded={isAuth ? mobileAccountOpen : undefined}
-                className="grid size-11 place-items-center rounded-lg hover:bg-secondary transition-colors"
+                className="inline-flex h-11 min-w-11 shrink-0 items-center justify-center gap-1 rounded-lg px-2 hover:bg-secondary transition-colors"
               >
-                {isAuth && user?.name ? (
-                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground">
-                    {userInitials || "U"}
-                  </span>
-                ) : (
-                  <User className="size-5" />
+                <span className="relative flex h-7 w-7 shrink-0 items-center justify-center rounded-full overflow-hidden">
+                  {isAuth && user?.name ? (
+                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground">
+                      {userInitials || "U"}
+                    </span>
+                  ) : (
+                    <User className="size-5" />
+                  )}
+                </span>
+                {isAuth && user?.name && (
+                  <ChevronDown className="size-4 shrink-0" />
                 )}
               </button>
               <CartButton count={cartCount} onClick={toggleCart} />
