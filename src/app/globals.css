@@ -1,12 +1,13 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap");
 
 /* Tanker: auto-hospedada para evitar dependência de CDN externo */
 @font-face {
   font-family: "Tanker";
-  src: url("/fonts/Tanker-Regular.woff2") format("woff2"),
-       url("/fonts/Tanker-Regular.woff") format("woff");
+  src:
+    url("/fonts/Tanker-Regular.woff2") format("woff2"),
+    url("/fonts/Tanker-Regular.woff") format("woff");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -22,7 +23,8 @@ html {
   /* Fontes */
   --font-sans: "Figtree", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Bricolage Grotesque", "Figtree", ui-sans-serif, sans-serif;
-  --font-tanker: "Tanker", Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+  --font-tanker:
+    "Tanker", Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
 
   /* Radius */
   --radius-sm: calc(var(--radius) - 4px);
@@ -86,7 +88,7 @@ html {
   --card-foreground: #0f1b16;
   --popover: #fdfefb;
   --popover-foreground: #0f1b16;
-  --primary: #004A32;
+  --primary: #104e36;
   --primary-foreground: #f7faf2;
   --secondary: #e0f0e3;
   --secondary-foreground: #073724;
@@ -112,8 +114,18 @@ html {
   --hero: #011c11;
   --hero-foreground: #f7faf2;
   --ml: #ffe600;
-  --gradient-hero: linear-gradient(90deg, #011c11f2 0%, #011c11b2 40%, #011c1100 75%);
-  --gradient-hero-mobile: linear-gradient(0deg, #011c11f5 15%, #011c114c 65%, #011c1100 100%);
+  --gradient-hero: linear-gradient(
+    90deg,
+    #011c11f2 0%,
+    #011c11b2 40%,
+    #011c1100 75%
+  );
+  --gradient-hero-mobile: linear-gradient(
+    0deg,
+    #011c11f5 15%,
+    #011c114c 65%,
+    #011c1100 100%
+  );
 
   /* Charts */
   --chart-1: #f54900;
@@ -183,7 +195,10 @@ html {
     font-size: 16px;
     -webkit-font-smoothing: antialiased;
   }
-  h1, h2, h3, h4 {
+  h1,
+  h2,
+  h3,
+  h4 {
     font-family: var(--font-display);
     letter-spacing: -0.02em;
   }
@@ -247,7 +262,9 @@ html {
 .whatsapp-btn {
   @apply fixed z-[1000] w-15 h-15 bg-[#25D366] rounded-full border-0 cursor-pointer flex items-center justify-center transition-all duration-300 ease-in-out;
   box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4);
-  animation: fadeInUp 0.5s ease, pulse 2s infinite;
+  animation:
+    fadeInUp 0.5s ease,
+    pulse 2s infinite;
 }
 
 .whatsapp-btn:hover {
@@ -336,15 +353,18 @@ html {
 
 @keyframes pulse {
   0% {
-    box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4),
+    box-shadow:
+      0 4px 20px rgba(37, 211, 102, 0.4),
       0 0 0 0 rgba(37, 211, 102, 0.7);
   }
   50% {
-    box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4),
+    box-shadow:
+      0 4px 20px rgba(37, 211, 102, 0.4),
       0 0 0 10px rgba(37, 211, 102, 0);
   }
   100% {
-    box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4),
+    box-shadow:
+      0 4px 20px rgba(37, 211, 102, 0.4),
       0 0 0 0 rgba(37, 211, 102, 0);
   }
 }

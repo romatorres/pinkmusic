@@ -30,17 +30,16 @@ import { cn } from "@/lib/utils";
 // ---------------------------------------------------------------------------
 function Logo({ className }: { className?: string }) {
   return (
-    <div className={cn("w-32 md:w-40 lg:w-50 aspect-[240/70.5]", className)}>
-      <Link href="/" className="relative block w-full h-full">
-        <Image
-          src="/img/logo-pink.svg"
-          alt="Logo Pink Music"
-          fill
-          className="object-contain"
-          priority
-        />
-      </Link>
-    </div>
+    <Link href="/" className={cn("block shrink-0", className)}>
+      <Image
+        src="/img/logo-pink.svg"
+        alt="Logo Pink Music"
+        width={3249}
+        height={1011}
+        className="h-auto w-32 md:w-36 lg:w-44"
+        priority
+      />
+    </Link>
   );
 }
 
