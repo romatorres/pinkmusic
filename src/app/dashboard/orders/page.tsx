@@ -269,24 +269,24 @@ export default function OrdersPage() {
     const itemsList =
       order.items && order.items.length > 0
         ? order.items
-            .map(
-              (i) =>
-                `  • ${i.quantity}x ${i.title}${i.productCode ? ` [Cód: ${i.productCode}]` : ""}`
-            )
-            .join("\n")
+          .map(
+            (i) =>
+              `  • ${i.quantity}x ${i.title}${i.productCode ? ` [Cód: ${i.productCode}]` : ""}`
+          )
+          .join("\n")
         : order.product
-        ? `  • 1x ${order.product.title}`
-        : "  • Produto não especificado";
+          ? `  • 1x ${order.product.title}`
+          : "  • Produto não especificado";
 
     const msg = encodeURIComponent(
       `🛵 *Pink Music — Entrega Local*\n\n` +
-        `📋 *Pedido:* #${shortId}\n` +
-        `👤 *Cliente:* ${order.customerName}\n` +
-        `📞 *Tel. Cliente:* ${order.customerPhone}\n\n` +
-        `📦 *Itens a entregar:*\n${itemsList}\n\n` +
-        `📍 *Endereço de entrega:*\n${order.deliveryAddress || "Não informado"}\n\n` +
-        `💰 *Frete combinado:* ${formatPrice(order.deliveryFee || 0)}\n\n` +
-        `⚠️ Confirme o recebimento após a entrega. Obrigado!`
+      `📋 *Pedido:* #${shortId}\n` +
+      `👤 *Cliente:* ${order.customerName}\n` +
+      `📞 *Tel. Cliente:* ${order.customerPhone}\n\n` +
+      `📦 *Itens a entregar:*\n${itemsList}\n\n` +
+      `📍 *Endereço de entrega:*\n${order.deliveryAddress || "Não informado"}\n\n` +
+      `💰 *Frete combinado:* ${formatPrice(order.deliveryFee || 0)}\n\n` +
+      `⚠️ Confirme o recebimento após a entrega. Obrigado!`
     );
 
     window.open(`https://wa.me/55${phone}?text=${msg}`, "_blank", "noopener,noreferrer");
@@ -630,12 +630,25 @@ export default function OrdersPage() {
                     {order.status === "PREPARING" && order.deliveryType === "pickup" && (
                       <Button
                         size="sm"
-                        className="h-7 text-xs bg-green-600 hover:bg-green-700 text-white"
+                        className="h-7 text-xs bg-green-600 hover:bg-green-700 text-white font-medium"
                         disabled={updatingId === order.id}
                         onClick={() => handleStatusChange(order.id, "DELIVERED")}
                       >
                         <CheckCircle className="h-3.5 w-3.5 mr-1" />
                         Retirado pelo Cliente
+                      </Button>
+                    )}
+
+                    {/* DISPATCHED (Delivery ou Pickup) → Confirmar Entrega */}
+                    {order.status === "DISPATCHED" && (
+                      <Button
+                        size="sm"
+                        className="h-7 text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-medium"
+                        disabled={updatingId === order.id}
+                        onClick={() => handleStatusChange(order.id, "DELIVERED")}
+                      >
+                        <CheckCircle className="h-3.5 w-3.5 mr-1" />
+                        Confirmar Entrega
                       </Button>
                     )}
 
@@ -811,7 +824,7 @@ export default function OrdersPage() {
                   <div>
                     <p className="font-semibold text-foreground">Coleta: Pink Music</p>
                     <p className="text-muted-foreground">
-                      Kalilândia / Centro - Feira de Santana, BA
+                      Rua JJ Seabra, 31, Centro - Feira de Santana, BA
                     </p>
                   </div>
                 </div>

@@ -87,6 +87,7 @@ export default function CustomerOrdersPage() {
   // Pedido selecionado para detalhes/PIX
   const [selectedOrder, setSelectedOrder] = useState<CustomerOrder | null>(null);
   const [copied, setCopied] = useState(false);
+  const [confirmingDelivery, setConfirmingDelivery] = useState(false);
 
   const fetchOrders = useCallback(async () => {
     setLoading(true);
@@ -120,6 +121,27 @@ export default function CustomerOrdersPage() {
     setCopied(true);
     toast.success("Código PIX copiado!");
     setTimeout(() => setCopied(false), 2500);
+  };
+
+  const handleConfirmDelivery = async (orderId: string) => {
+    setConfirmingDelivery(true);
+    try {
+      const res = await fetch(`/api/customer/orders/${orderId}`, {
+        method: "PATCH",
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        toast.success("Recebimento confirmado! Obrigado pela compra!");
+        setSelectedOrder((prev) => (prev ? { ...prev, status: "DELIVERED" } : null));
+        fetchOrders();
+      } else {
+        toast.error(data.error || "Erro ao confirmar recebimento.");
+      }
+    } catch {
+      toast.error("Erro de conexão ao confirmar recebimento.");
+    } finally {
+      setConfirmingDelivery(false);
+    }
   };
 
   const filteredOrders = orders.filter((o) => {
@@ -464,6 +486,29 @@ export default function CustomerOrdersPage() {
                     status={selectedOrder.status}
                     deliveryType={selectedOrder.deliveryType}
                   />
+
+                  {/* Ação do Cliente para Confirmar Entrega */}
+                  {selectedOrder.status === "DISPATCHED" && (
+                    <div className="mt-4 pt-4 border-t border-border/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-emerald-500/5 -mx-5 -mb-5 p-4 rounded-b-2xl border-emerald-500/20">
+                      <div>
+                        <p className="font-semibold text-foreground text-xs sm:text-sm">
+                          Seu pedido já foi despachado! 🛵
+                        </p>
+                        <p className="text-[11px] sm:text-xs text-muted-foreground">
+                          Quando os produtos chegarem até você, confirme abaixo:
+                        </p>
+                      </div>
+                      <Button
+                        size="sm"
+                        disabled={confirmingDelivery}
+                        onClick={() => handleConfirmDelivery(selectedOrder.id)}
+                        className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium shrink-0 h-8 text-xs"
+                      >
+                        <Check className="size-3.5 mr-1.5" />
+                        {confirmingDelivery ? "Confirmando..." : "Confirmar que Recebi"}
+                      </Button>
+                    </div>
+                  )}
                 </div>
 
                 {/* Rastreio Uber Direct se houver */}
