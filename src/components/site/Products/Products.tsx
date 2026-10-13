@@ -2,8 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import ProductCard from "./ProductCard";
-import { ArrowRight, SearchX } from "lucide-react";
-import Link from "next/link";
+import { SearchX } from "lucide-react";
 import Pagination from "../../ui/Pagination";
 import { LoadingState } from "@/components/ui/loading-state";
 import { Carousel, CarouselContent, CarouselItem } from "../../ui/carousel";
@@ -11,7 +10,6 @@ import type { Product } from "@/lib/types";
 import { PageContainer } from "@/components/ui/Page-container";
 import { useProductStore } from "@/store/productStore";
 import { SectionHead } from "../_components/SectionHead";
-import { Button } from "@/components/ui/button";
 
 interface ApiResponse {
   success: boolean;
@@ -68,7 +66,6 @@ const shuffleArray = <T,>(array: T[]): T[] => {
 const Products: React.FC<ProductsProps> = ({
   limit = 12,
   showPagination = false,
-  showSeeAllButton = true,
   title = "Mais Procurados", // atualizado para o novo layout
   subtitle,
   hasDiscount = false,

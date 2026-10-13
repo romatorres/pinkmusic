@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getPaymentStatus } from "@/lib/mercadopago";
 import { requireStaff } from "@/lib/auth";
+import { notifyOrderConfirmed } from "@/lib/firebase/notifications";
 
 // GET /api/orders/[id] — polling de status do pedido (público, por ID)
 export async function GET(
@@ -74,6 +75,13 @@ export async function GET(
             ]);
           }
 
+          // Dispara notificação push com garantia de idempotência
+          try {
+            await notifyOrderConfirmed(id);
+          } catch (pushErr) {
+            console.error("[Polling] Erro ao disparar push:", pushErr);
+          }
+
           return NextResponse.json({
             success: true,
             data: { ...order, status: "PAID", paidAt: mpStatus.paidAt },
@@ -130,6 +138,14 @@ export async function PATCH(
       data: { status },
       include: { product: { select: { title: true } } },
     });
+
+    if (status === "PAID") {
+      try {
+        await notifyOrderConfirmed(id);
+      } catch (pushErr) {
+        console.error("[PATCH /api/orders/[id]] Erro ao disparar push:", pushErr);
+      }
+    }
 
     return NextResponse.json({ success: true, data: order });
   } catch (error) {

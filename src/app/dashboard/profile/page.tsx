@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
+import { PushNotificationSettings } from "@/components/notifications/PushNotificationSettings";
 
 export default function ProfilePage() {
   const { user, setUser } = useAuthStore();
@@ -148,6 +149,9 @@ export default function ProfilePage() {
             </form>
           </CardContent>
         </Card>
+
+        {/* Notificações Push para Vendas */}
+        <PushNotificationSettings />
       </div>
     </div>
   );

@@ -1,0 +1,17 @@
+{
+  "name": "Pink Music Store",
+  "short_name": "Pink Music",
+  "description": "Painel de Gestão e Loja Pink Music",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#09090b",
+  "theme_color": "#ec4899",
+  "icons": [
+    {
+      "src": "/img/icon-logo.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

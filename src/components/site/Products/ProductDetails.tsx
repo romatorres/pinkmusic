@@ -10,8 +10,6 @@ import {
   ShieldCheck,
   Home,
   ChevronRight,
-  PackageCheck,
-  Zap,
 } from "lucide-react";
 import Link from "next/link";
 import { PageContainer } from "@/components/ui/Page-container";

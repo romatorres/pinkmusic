@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, LogIn, UserPlus, Eye, EyeOff, Phone, Music2 } from "lucide-react";
+import { Loader2, LogIn, UserPlus, Eye, EyeOff, Phone, } from "lucide-react";
 import { toast } from "sonner";
 import { useAuthStore } from "@/store/authStore";
 import { cn } from "@/lib/utils";

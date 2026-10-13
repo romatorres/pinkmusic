@@ -14,7 +14,6 @@ import {
   Copy,
   Check,
   MessageCircle,
-  ShoppingBag,
   LogIn,
   ArrowLeft,
   ChevronRight,
@@ -33,7 +32,6 @@ import { useAuthStore } from "@/store/authStore";
 import { CustomerAuthModal } from "@/components/site/_components/CustomerAuthModal";
 import { OrderStatus, type OrderStatusType } from "@/components/site/_components/OrderStatus";
 import { toast } from "sonner";
-import { createProductSlug } from "@/lib/slug";
 
 interface OrderItem {
   id: string;
@@ -80,7 +78,7 @@ const formatPrice = (price: number) => {
 };
 
 export default function CustomerOrdersPage() {
-  const { user, isAuth } = useAuthStore();
+  const { isAuth } = useAuthStore();
   const [orders, setOrders] = useState<CustomerOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [authModalOpen, setAuthModalOpen] = useState(false);
@@ -233,22 +231,20 @@ export default function CustomerOrdersPage() {
               <button
                 type="button"
                 onClick={() => setFilterTab("ALL")}
-                className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                  filterTab === "ALL"
-                    ? "bg-card text-foreground shadow-xs"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
+                className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${filterTab === "ALL"
+                  ? "bg-card text-foreground shadow-xs"
+                  : "text-muted-foreground hover:text-foreground"
+                  }`}
               >
                 Todos ({orders.length})
               </button>
               <button
                 type="button"
                 onClick={() => setFilterTab("PENDING")}
-                className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                  filterTab === "PENDING"
-                    ? "bg-card text-foreground shadow-xs"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
+                className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${filterTab === "PENDING"
+                  ? "bg-card text-foreground shadow-xs"
+                  : "text-muted-foreground hover:text-foreground"
+                  }`}
               >
                 Aguardando PIX (
                 {orders.filter((o) => o.status === "PENDING_PAYMENT").length}
@@ -257,11 +253,10 @@ export default function CustomerOrdersPage() {
               <button
                 type="button"
                 onClick={() => setFilterTab("DELIVERED")}
-                className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                  filterTab === "DELIVERED"
-                    ? "bg-card text-foreground shadow-xs"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
+                className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${filterTab === "DELIVERED"
+                  ? "bg-card text-foreground shadow-xs"
+                  : "text-muted-foreground hover:text-foreground"
+                  }`}
               >
                 Concluídos (
                 {orders.filter((o) => o.status === "DELIVERED").length}

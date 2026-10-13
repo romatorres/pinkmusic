@@ -20,7 +20,8 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  orders Order[]
+  orders            Order[]
+  pushSubscriptions PushSubscription[]
 }
 
 model Partner {
@@ -148,6 +149,9 @@ model Order {
   shippingDistance Float?
   shippingMethod   String? // "LOCAL_DELIVERY" | "PICKUP"
 
+  // Controle de Notificação Push (idempotência)
+  pushNotifiedAt   DateTime?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -242,4 +246,19 @@ model ShippingZipCode {
 
   @@index([zipCode])
   @@index([zoneId])
+}
+
+// Notificações Push para Administradores e Vendedores
+model PushSubscription {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token      String   @unique @db.Text
+  deviceName String?
+  userAgent  String?
+  enabled    Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([userId])
 }

@@ -8,6 +8,13 @@ import { Analytics } from "@vercel/analytics/react";
 export const metadata: Metadata = {
   title: "Pink Music",
   description: "Esta é a pagina da loja Pink Music Instrumentos Musicais",
+  manifest: "/manifest.webmanifest",
+  themeColor: "#ec4899",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Pink Music",
+  },
 };
 
 export default function RootLayout({

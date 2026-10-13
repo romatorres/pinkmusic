@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { Image as ImageIcon, Loader2, RefreshCw, Store, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -568,7 +569,7 @@ export function ProductEditModal({
                                 <div className="grid gap-4 sm:grid-cols-[120px_1fr] sm:items-center">
                                     <div className="flex min-h-28 flex-col items-center justify-center rounded-lg border bg-background p-2">
                                         {imagePreview ? (
-                                            <img src={imagePreview} alt="Prévia da imagem" className="h-20 w-20 object-contain" />
+                                            <Image src={imagePreview} alt="Prévia da imagem" className="h-20 w-20 object-contain" />
                                         ) : (
                                             <span className="text-xs text-muted-foreground">Sem imagem</span>
                                         )}

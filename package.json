@@ -27,6 +27,8 @@
     "cn": "^0.4.0",
     "embla-carousel-autoplay": "^8.6.0",
     "embla-carousel-react": "^8.6.0",
+    "firebase": "^11.4.0",
+    "firebase-admin": "^13.2.0",
     "jose": "^6.0.12",
     "js-cookie": "^3.0.5",
     "jsonwebtoken": "^9.0.2",

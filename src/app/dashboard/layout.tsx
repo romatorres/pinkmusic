@@ -6,6 +6,8 @@ import { useAuthStore } from "@/store/authStore";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { PushNotificationListener } from "@/components/notifications/PushNotificationListener";
+
 export default function DashboardLayout({
   children,
 }: {
@@ -62,6 +64,7 @@ export default function DashboardLayout({
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar />
+      <PushNotificationListener />
       <main className="flex-1 overflow-y-auto lg:p-8 p-4">{children}</main>
     </div>
   );

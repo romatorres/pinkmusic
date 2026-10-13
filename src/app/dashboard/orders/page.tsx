@@ -569,6 +569,20 @@ export default function OrdersPage() {
 
                   {/* Ações */}
                   <div className="flex flex-wrap items-center gap-2">
+                    {/* PENDING_PAYMENT → Confirmar Pagamento (Balcão / Teste) */}
+                    {order.status === "PENDING_PAYMENT" && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-7 text-xs border-emerald-500/30 text-emerald-600 hover:bg-emerald-500/10 font-medium"
+                        disabled={updatingId === order.id}
+                        onClick={() => handleStatusChange(order.id, "PAID")}
+                      >
+                        <CheckCircle className="h-3.5 w-3.5 mr-1" />
+                        Confirmar Pagamento
+                      </Button>
+                    )}
+
                     {/* PAID → Preparação */}
                     {order.status === "PAID" && (
                       <Button

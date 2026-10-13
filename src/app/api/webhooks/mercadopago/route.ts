@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getPaymentStatus } from "@/lib/mercadopago";
+import { notifyOrderConfirmed } from "@/lib/firebase/notifications";
 
 /**
  * POST /api/webhooks/mercadopago
@@ -105,6 +106,13 @@ export async function POST(request: NextRequest) {
       console.log(
         `[Webhook MP] ✅ Pagamento ${paymentId} confirmado — Pedido ${orderId} atualizado para PAID`
       );
+
+      // Dispara notificação push aos vendedores/administradores (com idempotência)
+      try {
+        await notifyOrderConfirmed(orderId);
+      } catch (pushErr) {
+        console.error("[Webhook MP] Erro ao disparar push:", pushErr);
+      }
     } else if (
       mpPayment.status === "cancelled" ||
       mpPayment.status === "rejected"

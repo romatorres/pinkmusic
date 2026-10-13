@@ -1,6 +1,5 @@
 "use client";
 
-import React, { useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -10,9 +9,7 @@ import {
   ChevronRight,
   User as UserIcon,
   Phone,
-  Mail,
   ArrowLeft,
-  Store,
 } from "lucide-react";
 import { PageContainer } from "@/components/ui/Page-container";
 import { Button } from "@/components/ui/button";
