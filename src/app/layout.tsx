@@ -9,12 +9,13 @@ export const metadata: Metadata = {
   title: "Pink Music",
   description: "Esta é a pagina da loja Pink Music Instrumentos Musicais",
   manifest: "/manifest.webmanifest",
-  themeColor: "#ec4899",
+  themeColor: "#104e36",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
     title: "Pink Music",
   },
+  icons: { apple: "/icons/apple-touch-icon.png" },
 };
 
 export default function RootLayout({
