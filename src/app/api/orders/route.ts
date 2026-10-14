@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
       const productIds: string[] = items.map((i: { productId: string }) => i.productId);
       const products = await prisma.product.findMany({
         where: { id: { in: productIds } },
-        select: { id: true, title: true, price: true, thumbnail: true, code: true, available_quantity: true },
+        select: { id: true, title: true, price: true, thumbnail: true, code: true, available_quantity: true, active: true },
       });
 
       // Verificar se todos os produtos existem e têm estoque
@@ -107,6 +107,12 @@ export async function POST(request: NextRequest) {
           return NextResponse.json(
             { success: false, error: `Produto não encontrado: ${orderItem.productId}` },
             { status: 404 }
+          );
+        }
+        if (!product.active) {
+          return NextResponse.json(
+            { success: false, error: `Produto indisponível: ${product.title}` },
+            { status: 409 }
           );
         }
         if (product.available_quantity < orderItem.quantity) {
@@ -209,6 +215,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { success: false, error: "Produto não encontrado." },
         { status: 404 }
+      );
+    }
+
+    if (!product.active) {
+      return NextResponse.json(
+        { success: false, error: "Produto indisponível." },
+        { status: 409 }
       );
     }
 

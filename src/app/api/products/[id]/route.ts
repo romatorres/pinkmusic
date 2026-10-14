@@ -109,6 +109,16 @@ export async function GET(
       );
     }
 
+    if (!productFromDb.active) {
+      const authResult = await requireStaff(req);
+      if (authResult.response) {
+        return NextResponse.json(
+          { success: false, error: "Produto não encontrado." },
+          { status: 404 }
+        );
+      }
+    }
+
     // 2. Se for produto LOCAL, usa exclusivamente os dados locais do banco sem bater no Mercado Livre
     if (productFromDb.origin === "LOCAL") {
       return NextResponse.json({
@@ -248,7 +258,15 @@ export async function PUT(
       "isLocalSale",
       "isLocalPickup",
       "origin",
+      "active",
     ];
+
+    if (rawData.active !== undefined && typeof rawData.active !== "boolean") {
+      return NextResponse.json(
+        { success: false, error: "O campo active deve ser booleano." },
+        { status: 400 }
+      );
+    }
 
     const filteredData = Object.keys(rawData)
       .filter((key) => allowedFields.includes(key))

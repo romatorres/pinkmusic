@@ -1,10 +1,20 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
+import { requireStaff } from "@/lib/auth";
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url);
+    const { searchParams } = req.nextUrl;
+    const includeInactive = searchParams.get("includeInactive") === "true";
+
+    if (includeInactive) {
+      const authResult = await requireStaff(req);
+      if (authResult.response) {
+        return authResult.response;
+      }
+    }
+
     const rawCategoryIds = searchParams.get("categoryIds") || searchParams.get("categoryId");
     const categoryIds = rawCategoryIds
       ? rawCategoryIds.split(",").map((c) => c.trim()).filter(Boolean)
@@ -25,6 +35,9 @@ export async function GET(req: Request) {
     const searchQuery = searchParams.get("search");
 
     const whereClause: Prisma.ProductWhereInput = {};
+    if (!includeInactive) {
+      whereClause.active = true;
+    }
 
     if (categoryIds && categoryIds.length > 0) {
       // 1. Identificar se alguma das categorias passadas é filha de outra que também foi passada

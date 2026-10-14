@@ -7,9 +7,15 @@ import React, {
   useMemo,
   Suspense,
 } from "react";
-import { Eye, Trash2, Edit, Store, ShoppingCart, RefreshCw } from "lucide-react";
-import Link from "next/link";
-import { createProductSlug } from "@/lib/slug";
+import {
+  Eye,
+  EyeOff,
+  Trash2,
+  Edit,
+  Store,
+  ShoppingCart,
+  RefreshCw,
+} from "lucide-react";
 import {
   Table,
   TableBody,
@@ -66,6 +72,7 @@ interface Product {
   brandId?: string | null;
   brand?: Brand | null;
   isLocalSale?: boolean;
+  active: boolean;
 }
 
 type OriginBadgeVariant = "ml" | "local";
@@ -100,6 +107,7 @@ function ProductsPageContent() {
   const [productFormOpen, setProductFormOpen] = useState(false);
   const [localProductModalOpen, setLocalProductModalOpen] = useState(false);
   const [productEditId, setProductEditId] = useState<string | null>(null);
+  const [updatingProductId, setUpdatingProductId] = useState<string | null>(null);
   const [syncingML, setSyncingML] = useState(false);
   const searchParams = useSearchParams();
   const [searchInput, setSearchInput] = useState(
@@ -182,6 +190,7 @@ function ProductsPageContent() {
         const params = new URLSearchParams({
           page: String(page),
           limit: String(limit),
+          includeInactive: "true",
         });
         if (categoryId) {
           params.append("categoryId", categoryId);
@@ -272,6 +281,40 @@ function ProductsPageContent() {
       }
     } catch {
       toast.error("Erro de conexão ao deletar produto.");
+    }
+  };
+
+  const handleToggleProduct = async (product: Product) => {
+    const active = !product.active;
+    setUpdatingProductId(product.id);
+
+    try {
+      const response = await fetch(`/api/products/${product.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ active }),
+      });
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        toast.error(result.error || "Erro ao atualizar disponibilidade do produto.");
+        return;
+      }
+
+      setProducts((currentProducts) =>
+        currentProducts.map((currentProduct) =>
+          currentProduct.id === product.id
+            ? { ...currentProduct, active }
+            : currentProduct,
+        ),
+      );
+      toast.success(
+        active ? "Produto habilitado com sucesso!" : "Produto desabilitado com sucesso!",
+      );
+    } catch {
+      toast.error("Erro de conexão ao atualizar produto.");
+    } finally {
+      setUpdatingProductId(null);
     }
   };
 
@@ -539,14 +582,21 @@ function ProductsPageContent() {
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex items-center justify-end gap-2">
-                            <Link
-                              href={`/products/${createProductSlug(product.title, product.id)}`}
-                              target="_blank"
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              title={product.active ? "Desabilitar produto" : "Habilitar produto"}
+                              aria-label={product.active ? "Desabilitar produto" : "Habilitar produto"}
+                              disabled={loading || updatingProductId !== null}
+                              onClick={() => handleToggleProduct(product)}
                             >
-                              <Button variant="ghost" size="icon">
+                              {product.active ? (
+                                <EyeOff className="h-4 w-4" />
+                              ) : (
                                 <Eye className="h-4 w-4" />
-                              </Button>
-                            </Link>
+                              )}
+                            </Button>
                             <Button
                               variant="ghost"
                               size="icon"

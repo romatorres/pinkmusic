@@ -34,6 +34,7 @@ export interface Product {
   description?: string | null;
   descriptionSource?: DescriptionSource | null;
   isLocalPickup?: boolean;
+  active?: boolean;
   sales?: number;
   pictures: { id: string; url: string; secure_url: string }[];
   attributes?: { id: string; name: string; value_name: string }[];
