@@ -68,6 +68,28 @@ interface Product {
   isLocalSale?: boolean;
 }
 
+type OriginBadgeVariant = "ml" | "local";
+
+const ORIGIN_BADGE_STYLES: Record<OriginBadgeVariant, string> = {
+  ml: "bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800",
+  local:
+    "bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800",
+};
+
+function OriginBadge({ variant }: { variant: OriginBadgeVariant }) {
+  const Icon = variant === "ml" ? ShoppingCart : Store;
+  const label = variant === "ml" ? "ML" : "Local";
+
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-1 text-xs font-semibold ${ORIGIN_BADGE_STYLES[variant]}`}
+    >
+      <Icon className="h-3 w-3" />
+      {label}
+    </span>
+  );
+}
+
 function ProductsPageContent() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -244,7 +266,7 @@ function ProductsPageContent() {
       if (response.ok && result.success) {
         toast.success("Produto deletado com sucesso!");
         setProductToDelete(null);
-        fetchProducts(currentPage, selectedCategory, selectedBrand, searchTerm);
+        fetchProducts(currentPage, selectedCategory, selectedBrand, searchTerm, selectedOrigin);
       } else {
         toast.error(result.error || "Erro ao deletar produto.");
       }
@@ -457,24 +479,18 @@ function ProductsPageContent() {
                           </div>
                         </TableCell>
                         <TableCell>
-                          {product.origin === "LOCAL" ? (
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
-                              <Store className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />
-                              Local
-                            </span>
-                          ) : (
-                            <div className="flex flex-col gap-1 items-start">
-                              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
-                                <ShoppingCart className="h-3 w-3 text-amber-600 dark:text-amber-400" />
-                                Mercado Livre
-                              </span>
-                              {product.isLocalSale && (
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
-                                  <Store className="h-2.5 w-2.5" /> + Venda Local
-                                </span>
-                              )}
-                            </div>
-                          )}
+                          <div className="flex flex-wrap items-center gap-1">
+                            {product.origin === "LOCAL" ? (
+                              <OriginBadge variant="local" />
+                            ) : (
+                              <>
+                                <OriginBadge variant="ml" />
+                                {product.isLocalSale && (
+                                  <OriginBadge variant="local" />
+                                )}
+                              </>
+                            )}
+                          </div>
                         </TableCell>
                         <TableCell className="font-semibold">
                           {new Intl.NumberFormat("pt-BR", {
