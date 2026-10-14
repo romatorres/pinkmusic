@@ -145,7 +145,7 @@ export async function PATCH(
       );
     }
 
-    if (order.status !== "DISPATCHED" && order.status !== "PREPARING") {
+    if (order.status !== "DISPATCHED") {
       return NextResponse.json(
         { success: false, error: "Este pedido não pode ser finalizado no status atual." },
         { status: 400 }
@@ -170,4 +170,3 @@ export async function PATCH(
     );
   }
 }
-

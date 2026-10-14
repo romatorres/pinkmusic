@@ -78,6 +78,7 @@ export default function OrderDetailPage({
   const [notFound, setNotFound] = useState(false);
   const [copied, setCopied] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [confirmingDelivery, setConfirmingDelivery] = useState(false);
 
   const fetchOrder = async () => {
     setLoading(true);
@@ -120,6 +121,31 @@ export default function OrderDetailPage({
     setCopied(true);
     toast.success("Código PIX copiado!");
     setTimeout(() => setCopied(false), 2500);
+  };
+
+  const handleConfirmDelivery = async () => {
+    if (!order) return;
+
+    setConfirmingDelivery(true);
+    try {
+      const res = await fetch(`/api/customer/orders/${order.id}`, {
+        method: "PATCH",
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        toast.error(data.error || "Erro ao confirmar recebimento.");
+        return;
+      }
+
+      setOrder((current) =>
+        current ? { ...current, status: "DELIVERED" } : current
+      );
+      toast.success("Recebimento confirmado! Obrigado pela compra!");
+    } catch {
+      toast.error("Erro de conexão ao confirmar recebimento.");
+    } finally {
+      setConfirmingDelivery(false);
+    }
   };
 
   // — Não autenticado —
@@ -381,6 +407,24 @@ export default function OrderDetailPage({
                 status={order.status}
                 deliveryType={order.deliveryType}
               />
+              {order.status === "DISPATCHED" && (
+                <div className="mt-5 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4">
+                  <p className="text-sm font-semibold text-foreground">
+                    Seu pedido já foi despachado!
+                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Quando receber o pedido, confirme a entrega abaixo.
+                  </p>
+                  <Button
+                    className="mt-3 w-full gap-2 rounded-xl bg-emerald-600 font-semibold text-white hover:bg-emerald-700"
+                    disabled={confirmingDelivery}
+                    onClick={handleConfirmDelivery}
+                  >
+                    <Check className="size-4" />
+                    {confirmingDelivery ? "Confirmando..." : "Confirmar que Recebi"}
+                  </Button>
+                </div>
+              )}
             </section>
 
             {/* Informações do pedido */}
