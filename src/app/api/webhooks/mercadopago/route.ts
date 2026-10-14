@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getPaymentStatus } from "@/lib/mercadopago";
 import { notifyOrderConfirmed } from "@/lib/firebase/notifications";
+import { confirmOrderPayment } from "@/lib/orders/confirm-order-payment";
 
 /**
  * POST /api/webhooks/mercadopago
@@ -39,68 +40,13 @@ export async function POST(request: NextRequest) {
     if (mpPayment.status === "approved" && mpPayment.externalReference) {
       const orderId = mpPayment.externalReference;
 
-      // Verifica se o pedido existe e ainda está pendente
-      const order = await prisma.order.findUnique({
-        where: { id: orderId },
-        include: { product: { select: { id: true, available_quantity: true } } },
+      const transitioned = await confirmOrderPayment(orderId, {
+        mpPaymentId: String(mpPayment.id),
+        paidAt: mpPayment.paidAt ? new Date(mpPayment.paidAt) : new Date(),
       });
 
-      if (!order) {
-        console.warn(`[Webhook MP] Pedido ${orderId} não encontrado.`);
+      if (!transitioned) {
         return NextResponse.json({ received: true });
-      }
-
-      // Idempotência: se já foi pago, ignora
-      if (order.status !== "PENDING_PAYMENT") {
-        return NextResponse.json({ received: true });
-      }
-
-      // Transação: atualiza pedido e decrementa estoque atomicamente
-      if (order.productId) {
-        // Fluxo legado: produto único
-        await prisma.$transaction([
-          prisma.order.update({
-            where: { id: orderId },
-            data: {
-              status: "PAID",
-              mpPaymentId: String(mpPayment.id),
-              paidAt: mpPayment.paidAt ? new Date(mpPayment.paidAt) : new Date(),
-            },
-          }),
-          prisma.product.update({
-            where: { id: order.productId },
-            data: {
-              available_quantity: { decrement: order.quantity },
-              sales: { increment: order.quantity },
-            },
-          }),
-        ]);
-      } else {
-        // Fluxo novo: múltiplos itens
-        const orderWithItems = await prisma.order.findUnique({
-          where: { id: orderId },
-          include: { items: true },
-        });
-        const stockUpdates = (orderWithItems?.items || []).map((item) =>
-          prisma.product.update({
-            where: { id: item.productId },
-            data: {
-              available_quantity: { decrement: item.quantity },
-              sales: { increment: item.quantity },
-            },
-          })
-        );
-        await prisma.$transaction([
-          prisma.order.update({
-            where: { id: orderId },
-            data: {
-              status: "PAID",
-              mpPaymentId: String(mpPayment.id),
-              paidAt: mpPayment.paidAt ? new Date(mpPayment.paidAt) : new Date(),
-            },
-          }),
-          ...stockUpdates,
-        ]);
       }
 
       console.log(
