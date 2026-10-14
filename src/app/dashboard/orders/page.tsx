@@ -12,6 +12,10 @@ import {
   Package,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
+  ChevronUp,
+  List,
+  LayoutGrid,
   ExternalLink,
   Loader2,
   MapPin,
@@ -181,6 +185,33 @@ export default function OrdersPage() {
   const [motoboyOrder, setMotoboyOrder] = useState<Order | null>(null);
   const [motoboyPhone, setMotoboyPhone] = useState("");
 
+  // Modo de visualização: inteligente por status ou forçado pelo usuário
+  const [viewModeOverride, setViewModeOverride] = useState<"compact" | "cards" | null>(null);
+  const [expandedOrderIds, setExpandedOrderIds] = useState<Set<string>>(new Set());
+
+  const toggleExpandOrder = (orderId: string) => {
+    setExpandedOrderIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(orderId)) next.delete(orderId);
+      else next.add(orderId);
+      return next;
+    });
+  };
+
+  // Status operacionais ativos demandam cards detalhados por padrão
+  const isActiveOperationalStatus =
+    filterStatus === "PENDING_PAYMENT" ||
+    filterStatus === "PAID" ||
+    filterStatus === "PREPARING" ||
+    filterStatus === "DISPATCHED";
+
+  const effectiveViewMode =
+    viewModeOverride !== null
+      ? viewModeOverride
+      : isActiveOperationalStatus
+      ? "cards"
+      : "compact";
+
   const fetchOrders = useCallback(async () => {
     setLoading(true);
     try {
@@ -294,6 +325,135 @@ export default function OrdersPage() {
     setMotoboyPhone("");
   };
 
+  const renderOrderActions = (order: Order, isCompact = false) => {
+    return (
+      <div className="flex flex-wrap items-center gap-1.5">
+        {/* PENDING_PAYMENT → Confirmar Pagamento */}
+        {order.status === "PENDING_PAYMENT" && (
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-7 text-xs border-emerald-500/30 text-emerald-600 hover:bg-emerald-500/10 font-medium cursor-pointer"
+            disabled={updatingId === order.id}
+            onClick={() => handleStatusChange(order.id, "PAID")}
+          >
+            <CheckCircle className="h-3.5 w-3.5 mr-1" />
+            {isCompact ? "Confirmar Pag." : "Confirmar Pagamento"}
+          </Button>
+        )}
+
+        {/* PAID → Preparação */}
+        {order.status === "PAID" && (
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-7 text-xs cursor-pointer"
+            disabled={updatingId === order.id}
+            onClick={() => handleStatusChange(order.id, "PREPARING")}
+          >
+            <Package className="h-3.5 w-3.5 mr-1" />
+            {isCompact ? "Preparar" : "Em Preparação"}
+          </Button>
+        )}
+
+        {/* PREPARING + delivery → Avisar Motoboy via WhatsApp */}
+        {order.status === "PREPARING" && order.deliveryType === "delivery" && (
+          <Button
+            size="sm"
+            className="h-7 text-xs bg-[#25D366] hover:bg-[#1ebe5b] text-white font-medium cursor-pointer"
+            onClick={() => {
+              setMotoboyOrder(order);
+              setMotoboyPhone("");
+            }}
+          >
+            <MessageCircle className="h-3.5 w-3.5 mr-1" />
+            Avisar Motoboy
+          </Button>
+        )}
+
+        {/* PAID ou PREPARING + delivery → Despachar */}
+        {(order.status === "PAID" || order.status === "PREPARING") &&
+          order.deliveryType === "delivery" && (
+            <Button
+              size="sm"
+              className="h-7 text-xs bg-purple-600 hover:bg-purple-700 text-white font-medium cursor-pointer"
+              disabled={updatingId === order.id || dispatching}
+              onClick={() => handleOpenDispatchModal(order)}
+            >
+              <Truck className="h-3.5 w-3.5 mr-1" />
+              Despachar
+            </Button>
+          )}
+
+        {/* PAID ou PREPARING + pickup → Pronto para Retirada (DISPATCHED) */}
+        {(order.status === "PAID" || order.status === "PREPARING") &&
+          order.deliveryType === "pickup" && (
+            <Button
+              size="sm"
+              className="h-7 text-xs bg-amber-600 hover:bg-amber-700 text-white font-medium cursor-pointer"
+              disabled={updatingId === order.id}
+              onClick={() => handleStatusChange(order.id, "DISPATCHED")}
+            >
+              <Store className="h-3.5 w-3.5 mr-1" />
+              Pronto p/ Retirada
+            </Button>
+          )}
+
+        {/* PREPARING + pickup → Retirado Direto no balcão */}
+        {order.status === "PREPARING" && order.deliveryType === "pickup" && (
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-7 text-xs border-green-500/30 text-green-600 hover:bg-green-500/10 font-medium cursor-pointer"
+            disabled={updatingId === order.id}
+            onClick={() => handleStatusChange(order.id, "DELIVERED")}
+          >
+            <CheckCircle className="h-3.5 w-3.5 mr-1" />
+            {isCompact ? "Retirado" : "Retirado pelo Cliente"}
+          </Button>
+        )}
+
+        {/* DISPATCHED (Delivery ou Pickup) → Confirmar Entrega / Retirada */}
+        {order.status === "DISPATCHED" && (
+          <Button
+            size="sm"
+            className="h-7 text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-medium cursor-pointer"
+            disabled={updatingId === order.id}
+            onClick={() => handleStatusChange(order.id, "DELIVERED")}
+          >
+            <CheckCircle className="h-3.5 w-3.5 mr-1" />
+            {order.deliveryType === "pickup" ? "Confirmar Retirada" : "Confirmar Entrega"}
+          </Button>
+        )}
+
+        {order.uberTrackingUrl && (
+          <a
+            href={order.uberTrackingUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 h-7 px-2.5 text-xs rounded border border-purple-300 dark:border-purple-800 bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 hover:bg-purple-100 transition-colors font-medium"
+          >
+            <ExternalLink className="h-3.5 w-3.5" />
+            Rastrear
+          </a>
+        )}
+
+        {order.status === "PENDING_PAYMENT" && (
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-7 text-xs text-red-600 hover:text-red-700 hover:bg-red-50 cursor-pointer"
+            disabled={updatingId === order.id}
+            onClick={() => handleStatusChange(order.id, "CANCELLED")}
+          >
+            <XCircle className="h-3.5 w-3.5 mr-1" />
+            Cancelar
+          </Button>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-6 pt-2 md:pt-0">
       {/* Header */}
@@ -339,7 +499,59 @@ export default function OrdersPage() {
         ]}
       />
 
-      {/* Cards */}
+      {/* Barra de controle de visualização e densidade */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-muted/40 p-2.5 rounded-2xl border border-border/50">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground pl-1">
+          <span>Modo de visualização:</span>
+          <span className="font-semibold text-foreground">
+            {effectiveViewMode === "compact" ? "Lista Compacta" : "Cards Detalhados"}
+          </span>
+          {viewModeOverride === null ? (
+            <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">
+              Automático por status
+            </span>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setViewModeOverride(null)}
+              className="text-[11px] text-primary hover:underline cursor-pointer"
+            >
+              (redefinir auto)
+            </button>
+          )}
+        </div>
+
+        <div className="flex items-center gap-1 bg-background/80 p-1 rounded-xl border border-border/60 self-start sm:self-auto shadow-xs">
+          <button
+            type="button"
+            onClick={() => setViewModeOverride("compact")}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+              effectiveViewMode === "compact"
+                ? "bg-primary text-primary-foreground shadow-xs"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+            }`}
+            title="Exibir como lista compacta otimizada"
+          >
+            <List className="w-3.5 h-3.5" />
+            Lista Compacta
+          </button>
+          <button
+            type="button"
+            onClick={() => setViewModeOverride("cards")}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+              effectiveViewMode === "cards"
+                ? "bg-primary text-primary-foreground shadow-xs"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+            }`}
+            title="Exibir como cards detalhados abertos"
+          >
+            <LayoutGrid className="w-3.5 h-3.5" />
+            Cards Detalhados
+          </button>
+        </div>
+      </div>
+
+      {/* Listagem de Pedidos */}
       {loading ? (
         <div className="flex justify-center py-16">
           <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -349,7 +561,232 @@ export default function OrdersPage() {
           <ClipboardList className="h-12 w-12 mx-auto mb-3 opacity-30" />
           <p>Nenhum pedido encontrado.</p>
         </div>
+      ) : effectiveViewMode === "compact" ? (
+        /* ── MODO 1: LISTA COMPACTA COM ACCORDION ── */
+        <div className="space-y-2">
+          {orders.map((order) => {
+            const statusCfg = STATUS_CONFIG[order.status];
+            const shortId = order.id.slice(-8).toUpperCase();
+            const totalItems =
+              order.items && order.items.length > 0
+                ? order.items.reduce((s, i) => s + i.quantity, 0)
+                : 1;
+
+            const itemsSummary =
+              order.items && order.items.length > 0
+                ? order.items.map((i) => `${i.quantity}x ${i.title}`).join(", ")
+                : order.product?.title || "Produto Pink Music";
+
+            const isExpanded = expandedOrderIds.has(order.id);
+            const isPickup = order.deliveryType === "pickup";
+
+            return (
+              <div
+                key={order.id}
+                className={`border rounded-xl bg-card overflow-hidden transition-all shadow-xs ${
+                  isExpanded ? "border-primary/50 shadow-sm" : "border-border/70 hover:border-border"
+                }`}
+              >
+                {/* Linha Compacta Principal */}
+                <div
+                  onClick={() => toggleExpandOrder(order.id)}
+                  className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 p-3 sm:px-4 cursor-pointer hover:bg-muted/30 transition-colors"
+                >
+                  {/* Bloco 1: Status + ID + Data */}
+                  <div className="flex items-center gap-2.5 min-w-[210px] shrink-0">
+                    <span
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${statusCfg.color}`}
+                    >
+                      {statusCfg.icon}
+                      {statusCfg.label}
+                    </span>
+                    <span className="font-mono text-xs font-bold text-foreground">
+                      #{shortId}
+                    </span>
+                    <span className="text-[11px] text-muted-foreground hidden sm:inline">
+                      · {formatDate(order.createdAt)}
+                    </span>
+                  </div>
+
+                  {/* Bloco 2: Cliente + WhatsApp */}
+                  <div className="flex items-center gap-2 min-w-[170px] text-xs">
+                    <span className="font-semibold text-foreground truncate max-w-[140px]" title={order.customerName}>
+                      {order.customerName}
+                    </span>
+                    {order.customerPhone && (
+                      <a
+                        href={`https://wa.me/55${order.customerPhone.replace(/\D/g, "")}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="text-[#25D366] hover:opacity-80 p-1 rounded hover:bg-[#25D366]/10 shrink-0"
+                        title="Conversar no WhatsApp"
+                      >
+                        <MessageCircle className="w-3.5 h-3.5" />
+                      </a>
+                    )}
+                  </div>
+
+                  {/* Bloco 3: Resumo dos itens + Método de Entrega */}
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground flex-1 min-w-[180px]">
+                    <span className="truncate max-w-[240px]" title={itemsSummary}>
+                      <strong className="text-foreground">{totalItems} {totalItems === 1 ? "item" : "itens"}:</strong> {itemsSummary}
+                    </span>
+                    <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-md bg-muted border border-border/50 shrink-0">
+                      {isPickup ? (
+                        <>
+                          <Store className="w-3 h-3 text-primary" /> Balcão
+                        </>
+                      ) : (
+                        <>
+                          <Truck className="w-3 h-3 text-primary" /> Entrega
+                        </>
+                      )}
+                    </span>
+                  </div>
+
+                  {/* Bloco 4: Valor Total + Ações Rápidas + Botão Expandir */}
+                  <div className="flex items-center justify-between lg:justify-end gap-3 shrink-0 pt-2 lg:pt-0 border-t lg:border-t-0 border-border/40">
+                    <div className="font-display font-extrabold text-sm tabular text-foreground min-w-[90px] text-right">
+                      {formatPrice(order.totalAmount)}
+                    </div>
+
+                    <div
+                      className="flex items-center gap-1.5"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {renderOrderActions(order, true)}
+                    </div>
+
+                    <button
+                      type="button"
+                      className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer shrink-0"
+                      title={isExpanded ? "Recolher detalhes" : "Expandir detalhes"}
+                    >
+                      {isExpanded ? (
+                        <ChevronUp className="w-4 h-4 text-primary" />
+                      ) : (
+                        <ChevronDown className="w-4 h-4" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Bloco Expandido Inline (Accordion) */}
+                {isExpanded && (
+                  <div className="p-4 bg-muted/20 border-t border-border/60 text-xs space-y-4 animate-in fade-in-50 duration-200">
+                    {/* Lista detalhada de itens */}
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1.5">
+                        <ShoppingCart className="w-3.5 h-3.5" />
+                        Itens no pedido
+                      </p>
+                      <div className="rounded-lg border border-border/60 bg-card divide-y divide-border/40">
+                        {order.items && order.items.length > 0 ? (
+                          order.items.map((item) => (
+                            <div key={item.id} className="flex items-center gap-3 p-2.5">
+                              {item.thumbnail ? (
+                                <div className="relative w-9 h-9 rounded-md overflow-hidden bg-muted border shrink-0">
+                                  <Image
+                                    src={item.thumbnail}
+                                    alt={item.title}
+                                    fill
+                                    sizes="36px"
+                                    className="object-cover"
+                                  />
+                                </div>
+                              ) : (
+                                <div className="w-9 h-9 rounded-md bg-muted border flex items-center justify-center shrink-0">
+                                  <Package className="w-4 h-4 text-muted-foreground" />
+                                </div>
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <p className="font-medium text-foreground line-clamp-1">{item.title}</p>
+                                <span className="text-[11px] text-muted-foreground">
+                                  Qtd: <strong className="text-foreground">{item.quantity}</strong> · {formatPrice(item.price)} un.
+                                </span>
+                              </div>
+                              <span className="font-semibold text-foreground shrink-0">
+                                {formatPrice(item.price * item.quantity)}
+                              </span>
+                            </div>
+                          ))
+                        ) : order.product ? (
+                          <div className="flex items-center gap-3 p-2.5">
+                            {order.product.thumbnail ? (
+                              <div className="relative w-9 h-9 rounded-md overflow-hidden bg-muted border shrink-0">
+                                <Image
+                                  src={order.product.thumbnail}
+                                  alt={order.product.title}
+                                  fill
+                                  sizes="36px"
+                                  className="object-cover"
+                                />
+                              </div>
+                            ) : (
+                              <div className="w-9 h-9 rounded-md bg-muted border flex items-center justify-center shrink-0">
+                                <Package className="w-4 h-4 text-muted-foreground" />
+                              </div>
+                            )}
+                            <div className="min-w-0 flex-1">
+                              <p className="font-medium text-foreground line-clamp-1">{order.product.title}</p>
+                            </div>
+                          </div>
+                        ) : null}
+                      </div>
+                    </div>
+
+                    {/* Dados de entrega e endereço */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 border-t border-border/40">
+                      <div className="space-y-1">
+                        <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                          {isPickup ? "Modalidade de Entrega" : "Endereço de Entrega"}
+                        </p>
+                        {isPickup ? (
+                          <p className="text-foreground font-medium flex items-center gap-1.5">
+                            <Store className="w-3.5 h-3.5 text-primary" />
+                            Retirada na loja física Pink Music
+                          </p>
+                        ) : (
+                          <p className="text-foreground font-medium flex items-start gap-1.5">
+                            <MapPin className="w-3.5 h-3.5 text-primary mt-0.5 shrink-0" />
+                            <span>{order.deliveryAddress || "Endereço não informado"}</span>
+                          </p>
+                        )}
+                        {order.shippingCep && (
+                          <p className="text-muted-foreground text-[11px]">CEP: {order.shippingCep}</p>
+                        )}
+                      </div>
+
+                      <div className="space-y-1">
+                        <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                          Entrega / Motoboy
+                        </p>
+                        {order.uberCourierName ? (
+                          <p className="text-foreground font-medium">
+                            Entregador: <strong>{order.uberCourierName}</strong>
+                            {order.uberCourierPhone && ` (${order.uberCourierPhone})`}
+                          </p>
+                        ) : (
+                          <p className="text-muted-foreground">
+                            {isPickup ? "Retirada pelo próprio cliente no balcão" : "Aguardando definição ou despacho"}
+                          </p>
+                        )}
+                        {order.paidAt && (
+                          <p className="text-muted-foreground text-[11px]">
+                            Pago em: {formatDate(order.paidAt)}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       ) : (
+        /* ── MODO 2: CARDS DETALHADOS ABERTOS ── */
         <div className="space-y-3">
           {orders.map((order) => {
             const statusCfg = STATUS_CONFIG[order.status];
@@ -568,115 +1005,7 @@ export default function OrdersPage() {
                   </div>
 
                   {/* Ações */}
-                  <div className="flex flex-wrap items-center gap-2">
-                    {/* PENDING_PAYMENT → Confirmar Pagamento (Balcão / Teste) */}
-                    {order.status === "PENDING_PAYMENT" && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="h-7 text-xs border-emerald-500/30 text-emerald-600 hover:bg-emerald-500/10 font-medium"
-                        disabled={updatingId === order.id}
-                        onClick={() => handleStatusChange(order.id, "PAID")}
-                      >
-                        <CheckCircle className="h-3.5 w-3.5 mr-1" />
-                        Confirmar Pagamento
-                      </Button>
-                    )}
-
-                    {/* PAID → Preparação */}
-                    {order.status === "PAID" && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="h-7 text-xs"
-                        disabled={updatingId === order.id}
-                        onClick={() => handleStatusChange(order.id, "PREPARING")}
-                      >
-                        <Package className="h-3.5 w-3.5 mr-1" />
-                        Em Preparação
-                      </Button>
-                    )}
-
-                    {/* PREPARING + delivery → Avisar Motoboy via WhatsApp */}
-                    {order.status === "PREPARING" && order.deliveryType === "delivery" && (
-                      <Button
-                        size="sm"
-                        className="h-7 text-xs bg-[#25D366] hover:bg-[#1ebe5b] text-white font-medium"
-                        onClick={() => {
-                          setMotoboyOrder(order);
-                          setMotoboyPhone("");
-                        }}
-                      >
-                        <MessageCircle className="h-3.5 w-3.5 mr-1" />
-                        Avisar Motoboy
-                      </Button>
-                    )}
-
-                    {/* PAID ou PREPARING + delivery → Despachar */}
-                    {(order.status === "PAID" || order.status === "PREPARING") &&
-                      order.deliveryType === "delivery" && (
-                        <Button
-                          size="sm"
-                          className="h-7 text-xs bg-purple-600 hover:bg-purple-700 text-white font-medium"
-                          disabled={updatingId === order.id || dispatching}
-                          onClick={() => handleOpenDispatchModal(order)}
-                        >
-                          <Truck className="h-3.5 w-3.5 mr-1" />
-                          Despachar
-                        </Button>
-                      )}
-
-                    {/* PREPARING + pickup → Retirado */}
-                    {order.status === "PREPARING" && order.deliveryType === "pickup" && (
-                      <Button
-                        size="sm"
-                        className="h-7 text-xs bg-green-600 hover:bg-green-700 text-white font-medium"
-                        disabled={updatingId === order.id}
-                        onClick={() => handleStatusChange(order.id, "DELIVERED")}
-                      >
-                        <CheckCircle className="h-3.5 w-3.5 mr-1" />
-                        Retirado pelo Cliente
-                      </Button>
-                    )}
-
-                    {/* DISPATCHED (Delivery ou Pickup) → Confirmar Entrega */}
-                    {order.status === "DISPATCHED" && (
-                      <Button
-                        size="sm"
-                        className="h-7 text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-medium"
-                        disabled={updatingId === order.id}
-                        onClick={() => handleStatusChange(order.id, "DELIVERED")}
-                      >
-                        <CheckCircle className="h-3.5 w-3.5 mr-1" />
-                        Confirmar Entrega
-                      </Button>
-                    )}
-
-                    {order.uberTrackingUrl && (
-                      <a
-                        href={order.uberTrackingUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 h-7 px-2.5 text-xs rounded border border-purple-300 dark:border-purple-800 bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 hover:bg-purple-100 transition-colors font-medium"
-                      >
-                        <ExternalLink className="h-3.5 w-3.5" />
-                        Rastrear
-                      </a>
-                    )}
-
-                    {order.status === "PENDING_PAYMENT" && (
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="h-7 text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
-                        disabled={updatingId === order.id}
-                        onClick={() => handleStatusChange(order.id, "CANCELLED")}
-                      >
-                        <XCircle className="h-3.5 w-3.5 mr-1" />
-                        Cancelar
-                      </Button>
-                    )}
-                  </div>
+                  {renderOrderActions(order, false)}
                 </div>
               </div>
             );

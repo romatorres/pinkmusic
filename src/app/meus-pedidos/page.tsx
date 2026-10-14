@@ -87,7 +87,7 @@ export default function CustomerOrdersPage() {
   // Pedido selecionado para detalhes/PIX
   const [selectedOrder, setSelectedOrder] = useState<CustomerOrder | null>(null);
   const [copied, setCopied] = useState(false);
-  const [confirmingDelivery, setConfirmingDelivery] = useState(false);
+  const [confirmingOrderId, setConfirmingOrderId] = useState<string | null>(null);
 
   const fetchOrders = useCallback(async () => {
     setLoading(true);
@@ -124,15 +124,19 @@ export default function CustomerOrdersPage() {
   };
 
   const handleConfirmDelivery = async (orderId: string) => {
-    setConfirmingDelivery(true);
+    setConfirmingOrderId(orderId);
     try {
       const res = await fetch(`/api/customer/orders/${orderId}`, {
         method: "PATCH",
       });
       const data = await res.json();
       if (res.ok && data.success) {
-        toast.success("Recebimento confirmado! Obrigado pela compra!");
-        setSelectedOrder((prev) => (prev ? { ...prev, status: "DELIVERED" } : null));
+        toast.success(data.message || "Recebimento confirmado! Obrigado pela compra!");
+        setSelectedOrder((prev) => (prev && prev.id === orderId ? { ...prev, status: "DELIVERED" } : prev));
+        // Atualiza a lista localmente imediatamente
+        setOrders((prev) =>
+          prev.map((o) => (o.id === orderId ? { ...o, status: "DELIVERED" } : o))
+        );
         fetchOrders();
       } else {
         toast.error(data.error || "Erro ao confirmar recebimento.");
@@ -140,7 +144,7 @@ export default function CustomerOrdersPage() {
     } catch {
       toast.error("Erro de conexão ao confirmar recebimento.");
     } finally {
-      setConfirmingDelivery(false);
+      setConfirmingOrderId(null);
     }
   };
 
@@ -302,66 +306,115 @@ export default function CustomerOrdersPage() {
                 const isDelivery = o.deliveryType === "delivery" || !o.deliveryType;
 
                 return (
-                  <Link
+                  <div
                     key={o.id}
-                    href={`/meus-pedidos/${o.id}`}
-                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-border/80 bg-card p-5 shadow-card transition-all hover:shadow-lift hover:border-primary/40"
+                    className="overflow-hidden rounded-2xl border border-border/80 bg-card shadow-card transition-all hover:border-primary/40 hover:shadow-lift"
                   >
-                    <div className="min-w-0 flex-1">
-                      {/* Topo do card: ID e status tag */}
-                      <div className="flex flex-wrap items-center gap-2.5">
-                        <span className="font-display text-base sm:text-lg font-bold text-foreground">
-                          #{o.id.slice(-8).toUpperCase()}
-                        </span>
-                        <OrderStatus
-                          status={o.status}
-                          deliveryType={o.deliveryType}
-                          compact
-                        />
+                    <Link
+                      href={`/meus-pedidos/${o.id}`}
+                      className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 transition-colors hover:bg-muted/10"
+                    >
+                      <div className="min-w-0 flex-1">
+                        {/* Topo do card: ID e status tag */}
+                        <div className="flex flex-wrap items-center gap-2.5">
+                          <span className="font-display text-base sm:text-lg font-bold text-foreground">
+                            #{o.id.slice(-8).toUpperCase()}
+                          </span>
+                          <OrderStatus
+                            status={o.status}
+                            deliveryType={o.deliveryType}
+                            compact
+                          />
+                        </div>
+
+                        {/* Data e contagem */}
+                        <div className="mt-1 text-xs text-muted-foreground">
+                          {new Date(o.createdAt).toLocaleDateString("pt-BR", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                          })}{" "}
+                          · {totalItems} {totalItems === 1 ? "item" : "itens"}
+                        </div>
+
+                        {/* Resumo dos itens */}
+                        <div className="mt-1 line-clamp-1 text-sm text-foreground/90 font-medium">
+                          {itemsSummary}
+                        </div>
+
+                        {/* Método de Entrega */}
+                        <div className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground">
+                          {isDelivery ? (
+                            <>
+                              <Truck className="size-3.5 text-primary" />
+                              <span>Entrega Local em Feira de Santana</span>
+                            </>
+                          ) : (
+                            <>
+                              <Store className="size-3.5 text-primary" />
+                              <span>Retirada no balcão da loja física</span>
+                            </>
+                          )}
+                        </div>
                       </div>
 
-                      {/* Data e contagem */}
-                      <div className="mt-1 text-xs text-muted-foreground">
-                        {new Date(o.createdAt).toLocaleDateString("pt-BR", {
-                          day: "2-digit",
-                          month: "short",
-                          year: "numeric",
-                        })}{" "}
-                        · {totalItems} {totalItems === 1 ? "item" : "itens"}
+                      {/* Preço e Ação */}
+                      <div className="flex items-center justify-between sm:flex-col sm:items-end gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 border-border/40 shrink-0">
+                        <div className="font-display text-lg sm:text-xl font-bold tabular text-foreground">
+                          {formatPrice(o.totalAmount)}
+                        </div>
+                        <div className="flex items-center gap-1 text-xs font-semibold text-primary">
+                          <span>Ver detalhes</span>
+                          <ChevronRight className="size-4" />
+                        </div>
                       </div>
+                    </Link>
 
-                      {/* Resumo dos itens */}
-                      <div className="mt-1 line-clamp-1 text-sm text-foreground/90 font-medium">
-                        {itemsSummary}
+                    {/* Ação do Cliente para Confirmar Entrega / Retirada Direto na Lista */}
+                    {o.status === "DISPATCHED" && (
+                      <div className="border-t border-emerald-500/25 bg-emerald-500/10 px-5 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div className="flex items-start gap-3">
+                          <div className="size-9 rounded-xl bg-emerald-600/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 mt-0.5 border border-emerald-500/30">
+                            {isDelivery ? <Truck className="size-4" /> : <Store className="size-4" />}
+                          </div>
+                          <div>
+                            <p className="font-bold text-foreground text-xs sm:text-sm">
+                              {isDelivery
+                                ? "Seu pedido já foi despachado! 🛵"
+                                : "Seu pedido está pronto para retirada no balcão! 🏪"}
+                            </p>
+                            <p className="text-[11px] sm:text-xs text-muted-foreground mt-0.5">
+                              {isDelivery
+                                ? "Quando os produtos chegarem até você, confirme o recebimento:"
+                                : "Já compareceu à loja física e retirou seus produtos? Confirme aqui:"}
+                            </p>
+                          </div>
+                        </div>
+                        <Button
+                          type="button"
+                          size="sm"
+                          disabled={confirmingOrderId === o.id}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleConfirmDelivery(o.id);
+                          }}
+                          className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold shrink-0 h-9 px-4 text-xs shadow-sm gap-1.5 self-end sm:self-auto cursor-pointer"
+                        >
+                          {confirmingOrderId === o.id ? (
+                            <RefreshCw className="size-3.5 animate-spin mr-1" />
+                          ) : (
+                            <Check className="size-3.5 mr-1" />
+                          )}
+                          {confirmingOrderId === o.id
+                            ? "Confirmando..."
+                            : isDelivery
+                            ? "Confirmar que Recebi"
+                            : "Confirmar Retirada"}
+                        </Button>
                       </div>
-
-                      {/* Método de Entrega */}
-                      <div className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground">
-                        {isDelivery ? (
-                          <>
-                            <Truck className="size-3.5 text-primary" />
-                            <span>Entrega Local em Feira de Santana</span>
-                          </>
-                        ) : (
-                          <>
-                            <Store className="size-3.5 text-primary" />
-                            <span>Retirada no balcão da loja</span>
-                          </>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Preço e Ação */}
-                    <div className="flex items-center justify-between sm:flex-col sm:items-end gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 border-border/40 shrink-0">
-                      <div className="font-display text-lg sm:text-xl font-bold tabular text-foreground">
-                        {formatPrice(o.totalAmount)}
-                      </div>
-                      <div className="flex items-center gap-1 text-xs font-semibold text-primary">
-                        <span>Ver detalhes</span>
-                        <ChevronRight className="size-4" />
-                      </div>
-                    </div>
-                  </Link>
+                    )}
+                  </div>
                 );
               })}
             </div>
@@ -487,25 +540,33 @@ export default function CustomerOrdersPage() {
                     deliveryType={selectedOrder.deliveryType}
                   />
 
-                  {/* Ação do Cliente para Confirmar Entrega */}
+                  {/* Ação do Cliente para Confirmar Entrega ou Retirada */}
                   {selectedOrder.status === "DISPATCHED" && (
                     <div className="mt-4 pt-4 border-t border-border/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-emerald-500/5 -mx-5 -mb-5 p-4 rounded-b-2xl border-emerald-500/20">
                       <div>
                         <p className="font-semibold text-foreground text-xs sm:text-sm">
-                          Seu pedido já foi despachado! 🛵
+                          {selectedOrder.deliveryType === "pickup"
+                            ? "Seu pedido está pronto para retirada no balcão! 🏪"
+                            : "Seu pedido já foi despachado! 🛵"}
                         </p>
                         <p className="text-[11px] sm:text-xs text-muted-foreground">
-                          Quando os produtos chegarem até você, confirme abaixo:
+                          {selectedOrder.deliveryType === "pickup"
+                            ? "Quando retirar seus produtos na loja, confirme abaixo:"
+                            : "Quando os produtos chegarem até você, confirme abaixo:"}
                         </p>
                       </div>
                       <Button
                         size="sm"
-                        disabled={confirmingDelivery}
+                        disabled={confirmingOrderId === selectedOrder.id}
                         onClick={() => handleConfirmDelivery(selectedOrder.id)}
-                        className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium shrink-0 h-8 text-xs"
+                        className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium shrink-0 h-8 text-xs cursor-pointer"
                       >
                         <Check className="size-3.5 mr-1.5" />
-                        {confirmingDelivery ? "Confirmando..." : "Confirmar que Recebi"}
+                        {confirmingOrderId === selectedOrder.id
+                          ? "Confirmando..."
+                          : selectedOrder.deliveryType === "pickup"
+                          ? "Confirmar Retirada"
+                          : "Confirmar que Recebi"}
                       </Button>
                     </div>
                   )}

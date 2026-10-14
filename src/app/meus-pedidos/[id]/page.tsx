@@ -137,10 +137,16 @@ export default function OrderDetailPage({
         return;
       }
 
+      const isPickup = order.deliveryType === "pickup";
       setOrder((current) =>
         current ? { ...current, status: "DELIVERED" } : current
       );
-      toast.success("Recebimento confirmado! Obrigado pela compra!");
+      toast.success(
+        data.message ||
+          (isPickup
+            ? "Retirada confirmada com sucesso! Obrigado pela preferência!"
+            : "Recebimento confirmado! Obrigado pela compra!")
+      );
     } catch {
       toast.error("Erro de conexão ao confirmar recebimento.");
     } finally {
@@ -230,12 +236,51 @@ export default function OrderDetailPage({
         </div>
 
         {/* Cabeçalho do Pedido */}
-        <div className="flex flex-wrap items-center gap-3 mb-8">
+        <div className="flex flex-wrap items-center gap-3 mb-6">
           <h1 className="text-3xl font-extrabold md:text-4xl font-display">
             Pedido #{order.id.slice(-8).toUpperCase()}
           </h1>
           <OrderStatus status={order.status} deliveryType={order.deliveryType} compact />
         </div>
+
+        {/* Banner de Ação Rápida no Topo: Confirmar Entrega / Retirada */}
+        {order.status === "DISPATCHED" && (
+          <div className="mb-6 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+            <div className="flex items-start gap-3.5">
+              <div className="size-10 rounded-xl bg-emerald-600/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/30">
+                {order.deliveryType === "pickup" ? <Store className="size-5" /> : <Truck className="size-5" />}
+              </div>
+              <div>
+                <h3 className="font-bold text-foreground text-sm sm:text-base">
+                  {order.deliveryType === "pickup"
+                    ? "Seu pedido está pronto para retirada no balcão! 🏪"
+                    : "Seu pedido já foi despachado para entrega! 🛵"}
+                </h3>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {order.deliveryType === "pickup"
+                    ? "Compareça à loja física para retirar. Assim que estiver com seus produtos em mãos, confirme abaixo."
+                    : "Assim que o entregador chegar e você conferir seus produtos, confirme o recebimento abaixo."}
+                </p>
+              </div>
+            </div>
+            <Button
+              className="gap-2 rounded-xl bg-emerald-600 font-bold text-white hover:bg-emerald-700 h-10 px-5 text-sm shrink-0 shadow-sm cursor-pointer"
+              disabled={confirmingDelivery}
+              onClick={handleConfirmDelivery}
+            >
+              {confirmingDelivery ? (
+                <RefreshCw className="size-4 animate-spin" />
+              ) : (
+                <Check className="size-4" />
+              )}
+              {confirmingDelivery
+                ? "Confirmando..."
+                : order.deliveryType === "pickup"
+                ? "Confirmar Retirada"
+                : "Confirmar que Recebi"}
+            </Button>
+          </div>
+        )}
 
         {/* Grid principal: 2 colunas no desktop */}
         <div className="grid gap-6 md:grid-cols-[1fr_360px]">
@@ -410,18 +455,30 @@ export default function OrderDetailPage({
               {order.status === "DISPATCHED" && (
                 <div className="mt-5 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4">
                   <p className="text-sm font-semibold text-foreground">
-                    Seu pedido já foi despachado!
+                    {order.deliveryType === "pickup"
+                      ? "Seu pedido está pronto para retirada no balcão! 🏪"
+                      : "Seu pedido já foi despachado! 🛵"}
                   </p>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    Quando receber o pedido, confirme a entrega abaixo.
+                    {order.deliveryType === "pickup"
+                      ? "Após retirar seus produtos na loja física, confirme a retirada abaixo:"
+                      : "Quando receber o pedido, confirme a entrega abaixo."}
                   </p>
                   <Button
-                    className="mt-3 w-full gap-2 rounded-xl bg-emerald-600 font-semibold text-white hover:bg-emerald-700"
+                    className="mt-3 w-full gap-2 rounded-xl bg-emerald-600 font-semibold text-white hover:bg-emerald-700 cursor-pointer"
                     disabled={confirmingDelivery}
                     onClick={handleConfirmDelivery}
                   >
-                    <Check className="size-4" />
-                    {confirmingDelivery ? "Confirmando..." : "Confirmar que Recebi"}
+                    {confirmingDelivery ? (
+                      <RefreshCw className="size-4 animate-spin" />
+                    ) : (
+                      <Check className="size-4" />
+                    )}
+                    {confirmingDelivery
+                      ? "Confirmando..."
+                      : order.deliveryType === "pickup"
+                      ? "Confirmar Retirada"
+                      : "Confirmar que Recebi"}
                   </Button>
                 </div>
               )}

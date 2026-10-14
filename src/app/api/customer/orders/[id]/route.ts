@@ -157,9 +157,13 @@ export async function PATCH(
       data: { status: "DELIVERED" },
     });
 
+    const isPickup = order.deliveryType === "pickup";
+
     return NextResponse.json({
       success: true,
-      message: "Recebimento confirmado com sucesso!",
+      message: isPickup
+        ? "Retirada confirmada com sucesso!"
+        : "Recebimento confirmado com sucesso!",
       data: updated,
     });
   } catch (error) {
