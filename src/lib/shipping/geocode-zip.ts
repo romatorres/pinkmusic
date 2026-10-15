@@ -15,8 +15,8 @@ const TIMEOUT_MS = 5000;
 
 /**
  * Limites geográficos (Bounding Box) da mancha urbana de Feira de Santana - BA.
- * Usado para impedir que povoados ou homônimos em distritos rurais distantes
- * (ex: Lagoa Grande em Ipuaçu a 22km) sejam confundidos com bairros urbanos.
+ * Usado para impedir que rodovias longas ou homônimos rurais em distritos distantes
+ * sejam confundidos com endereços da área urbana da cidade.
  */
 const FEIRA_URBAN_BOUNDS = {
   minLat: -12.35,
@@ -44,9 +44,14 @@ function normalizeKey(str: string): string {
 }
 
 /**
- * Centróides urbanos oficiais e mapeados dos bairros de Feira de Santana - BA.
- * Garante entrega rápida, sem falsos positivos rurais e com 100% de precisão de zona
- * caso as APIs públicas demorem ou sofram indisponibilidade.
+ * Catálogo de centróides urbanos oficiais dos bairros de Feira de Santana - BA.
+ *
+ * Esta é a fonte primária de coordenadas após ViaCEP retornar o nome do bairro.
+ * Garante que avenidas longas (ex: Av. Sérgio Carneiro, BR-324) e rodovias que
+ * atravessam a cidade não causem distâncias erradas pela posição de um trecho
+ * arbitrário da via no mapa.
+ *
+ * Padrão da chave: normalizeKey(nome do bairro) — tudo minúsculo, sem acento, sem espaço.
  */
 export const FEIRA_URBAN_NEIGHBORHOODS: Record<string, { lat: number; lng: number; displayName: string }> = {
   lagoagrande: { lat: -12.2503, lng: -38.942, displayName: "Lagoa Grande" },
@@ -60,6 +65,8 @@ export const FEIRA_URBAN_NEIGHBORHOODS: Record<string, { lat: number; lng: numbe
   cidadenova: { lat: -12.2341, lng: -38.948, displayName: "Cidade Nova" },
   tomba: { lat: -12.285, lng: -38.945, displayName: "Tomba" },
   sim: { lat: -12.26, lng: -38.92, displayName: "SIM" },
+  aviario: { lat: -12.2921, lng: -38.9121, displayName: "Aviário" },
+  aeroporto: { lat: -12.205, lng: -38.91, displayName: "Aeroporto" },
   santamonica: { lat: -12.26, lng: -38.94, displayName: "Santa Mônica" },
   santamonica2: { lat: -12.263, lng: -38.935, displayName: "Santa Mônica II" },
   capuchinhos: { lat: -12.265, lng: -38.95, displayName: "Capuchinhos" },
@@ -97,7 +104,6 @@ export const FEIRA_URBAN_NEIGHBORHOODS: Record<string, { lat: number; lng: numbe
   geisel: { lat: -12.222, lng: -38.945, displayName: "Geisel" },
   asabranca: { lat: -12.22, lng: -38.965, displayName: "Asa Branca" },
   novohorizonte: { lat: -12.215, lng: -38.955, displayName: "Novo Horizonte" },
-  aeroporto: { lat: -12.205, lng: -38.91, displayName: "Aeroporto" },
   santoantoniodosprazeres: { lat: -12.245, lng: -38.905, displayName: "Santo Antônio dos Prazeres" },
   gabriela: { lat: -12.228, lng: -38.985, displayName: "Gabriela" },
   coroneljosedepinto: { lat: -12.249, lng: -38.955, displayName: "Coronel J. Pinto" },
@@ -107,14 +113,13 @@ export const FEIRA_URBAN_NEIGHBORHOODS: Record<string, { lat: number; lng: numbe
 /**
  * Busca dados de localização e coordenadas geográficas (lat/lng) para um CEP.
  *
- * Estratégia em camadas protegidas:
+ * Estratégia em camadas com prioridade invertida (bairro antes de GPS):
  *  1. AwesomeAPI por CEP direto (valida se o resultado está dentro da mancha urbana).
- *  2. ViaCEP para obter Logradouro (rua) + Bairro oficiais.
- *  3. Nominatim restrito (Viewbox Bounded ao perímetro urbano de Feira de Santana,
- *     buscando por logradouro ou bairro, impedindo desvios para povoados rurais).
- *  4. Centróide urbano de bairro conhecido (mapa local de alta precisão).
- *  5. Herança de CEP vizinho já cadastrado no banco.
- *  6. Dados cadastrais ViaCEP.
+ *  2. ViaCEP para obter Logradouro + Bairro oficiais do IBGE.
+ *  3. Centróide urbano de bairro mapeado (prioridade ELEVADA — intercepta rodovias longas).
+ *  4. Herança de CEP vizinho já cadastrado no banco.
+ *  5. Nominatim (ÚLTIMO RECURSO GPS) restrito à Bounding Box urbana.
+ *  6. Fallback sem coordenadas (calcula distância central ou usa zona do banco).
  */
 export async function resolveZipCoordinates(
   cleanZip: string,
@@ -146,13 +151,16 @@ export async function resolveZipCoordinates(
         const lat = Number(data.lat);
         const lng = Number(data.lng);
         if (!isNaN(lat) && !isNaN(lng)) {
-          // Validação de sanidade: confere se a coordenada está dentro do perímetro de Feira
-          if (isWithinFeiraUrbanBounds(lat, lng)) {
-            district = data.district || district || "Centro";
-            city = data.city || city;
-            state = data.state || state;
-            street = data.address_name || data.address || "";
+          // Enriquece metadados independente de a coordenada ser válida ou não
+          district = data.district || district || "";
+          city = data.city || city;
+          state = data.state || state;
+          street = data.address_name || data.address || "";
 
+          // Retorna coordenada apenas se estiver dentro do perímetro urbano
+          // Rodovias longas (ex: BR-324 chegando em Humildes) são ignoradas aqui
+          // e o bairro correto será usado na Camada 3
+          if (isWithinFeiraUrbanBounds(lat, lng)) {
             return {
               latitude: lat,
               longitude: lng,
@@ -167,10 +175,11 @@ export async function resolveZipCoordinates(
       }
     }
   } catch {
-    // Falha silenciosa para prosseguir aos fallbacks seguros
+    // Falha silenciosa — prossegue para os fallbacks
   }
 
-  // ── 2. ViaCEP para obter o logradouro e bairro exatos ──────────────────────
+  // ── 2. ViaCEP para obter o bairro e logradouro exatos do IBGE ─────────────
+  // Reconfirma / complementa os dados já obtidos pela AwesomeAPI
   try {
     const controllerVia = new AbortController();
     const timerVia = setTimeout(() => controllerVia.abort(), TIMEOUT_MS);
@@ -194,19 +203,73 @@ export async function resolveZipCoordinates(
     // Falha silenciosa
   }
 
-  // ── 3. Nominatim com Viewbox Restrita ao Perímetro Urbano de Feira de Santana ──
-  // A viewbox + bounded=1 impede que o Nominatim busque vilarejos em distritos rurais homônimos
+  // ── 3. Centróide Urbano de Bairro Mapeado (PRIORIDADE ELEVADA) ───────────
+  // Subiu de Camada 4 para Camada 3 para interceptar casos onde o GPS retornou
+  // ponto equivocado em rodovias longas ou avenidas que atravessam a cidade.
+  // Bairros mapeados recebem coordenadas centrais precisas e sem ambiguidade.
+  if (district && city.toLowerCase().trim() === STORE_SHIPPING_CONFIG.storeCity.toLowerCase().trim()) {
+    const normalizedDistrict = normalizeKey(district);
+    const matchedCentroid = FEIRA_URBAN_NEIGHBORHOODS[normalizedDistrict];
+
+    if (matchedCentroid) {
+      return {
+        latitude: matchedCentroid.lat,
+        longitude: matchedCentroid.lng,
+        district: matchedCentroid.displayName || district,
+        city,
+        state,
+        street,
+        source: "neighborhood_centroid",
+      };
+    }
+  }
+
+  // ── 4. Bairro vizinho já cadastrado no banco local ────────────────────────
+  // Para bairros ainda não mapeados no catálogo local, herda coordenadas de
+  // outro CEP do mesmo bairro já resolvido e salvo anteriormente.
+  if (district) {
+    try {
+      const peer = await prisma.shippingZipCode.findFirst({
+        where: {
+          district: { equals: district, mode: "insensitive" },
+          latitude: { not: null },
+          longitude: { not: null },
+        },
+      });
+
+      if (
+        peer &&
+        peer.latitude !== null &&
+        peer.longitude !== null &&
+        isWithinFeiraUrbanBounds(peer.latitude, peer.longitude)
+      ) {
+        return {
+          latitude: peer.latitude,
+          longitude: peer.longitude,
+          district,
+          city,
+          state,
+          street,
+          source: "neighborhood_peer",
+        };
+      }
+    } catch {
+      // Ignora erro de consulta local
+    }
+  }
+
+  // ── 5. Nominatim / OpenStreetMap (ÚLTIMO RECURSO GPS) ────────────────────
+  // Só chega aqui se o bairro for completamente desconhecido.
+  // A viewbox + bounded=1 limita a busca ao perímetro urbano de Feira de Santana.
+  // Tenta primeiro pelo bairro (mais estável que a rua para evitar trechos errados).
   if (city.toLowerCase().trim() === STORE_SHIPPING_CONFIG.storeCity.toLowerCase().trim()) {
     const searchQueries: string[] = [];
 
-    // Prioridade 3.1: Logradouro + Cidade (ex: "Rua Belmiro, Feira de Santana, BA, Brasil")
-    if (street) {
-      searchQueries.push(`${street}, ${city}, ${state}, Brasil`);
-    }
-
-    // Prioridade 3.2: Bairro + Cidade (ex: "Lagoa Grande, Feira de Santana, BA, Brasil")
     if (district && district.toLowerCase() !== "centro") {
       searchQueries.push(`${district}, ${city}, ${state}, Brasil`);
+    }
+    if (street) {
+      searchQueries.push(`${street}, ${city}, ${state}, Brasil`);
     }
 
     const viewboxParam = `${FEIRA_URBAN_BOUNDS.minLng},${FEIRA_URBAN_BOUNDS.minLat},${FEIRA_URBAN_BOUNDS.maxLng},${FEIRA_URBAN_BOUNDS.maxLat}`;
@@ -249,60 +312,14 @@ export async function resolveZipCoordinates(
           }
         }
       } catch {
-        // Ignora erro e continua tentativas
+        // Ignora erro e continua próxima tentativa
       }
     }
   }
 
-  // ── 4. Centróide Urbano de Bairro Mapeado (Fallback Local Imediato e Confiável) ──
-  const normalizedDistrict = normalizeKey(district);
-  const matchedCentroid = FEIRA_URBAN_NEIGHBORHOODS[normalizedDistrict];
-
-  if (matchedCentroid) {
-    return {
-      latitude: matchedCentroid.lat,
-      longitude: matchedCentroid.lng,
-      district: matchedCentroid.displayName || district,
-      city,
-      state,
-      street,
-      source: "neighborhood_centroid",
-    };
-  }
-
-  // ── 5. Bairro vizinho já cadastrado no banco local ────────────────────────
-  if (district) {
-    try {
-      const peer = await prisma.shippingZipCode.findFirst({
-        where: {
-          district: { equals: district, mode: "insensitive" },
-          latitude: { not: null },
-          longitude: { not: null },
-        },
-      });
-
-      if (
-        peer &&
-        peer.latitude !== null &&
-        peer.longitude !== null &&
-        isWithinFeiraUrbanBounds(peer.latitude, peer.longitude)
-      ) {
-        return {
-          latitude: peer.latitude,
-          longitude: peer.longitude,
-          district,
-          city,
-          state,
-          street,
-          source: "neighborhood_peer",
-        };
-      }
-    } catch {
-      // Ignora erro de consulta local
-    }
-  }
-
-  // ── 6. Retorna dados cadastrais mesmo se sem coordenadas ──────────────────
+  // ── 6. Fallback sem coordenadas ───────────────────────────────────────────
+  // calculate-shipping.ts usará a zona já vinculada ao CEP no banco ou
+  // o fallback de distância urbana central (2.5 km), evitando rejeição indevida.
   return {
     latitude: null,
     longitude: null,
