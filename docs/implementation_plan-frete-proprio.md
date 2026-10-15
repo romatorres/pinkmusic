@@ -44,22 +44,24 @@ Cadastradas no banco de dados (tabela `ShippingZone`) e criadas/garantidas via `
 
 | Arquivo | Responsabilidade |
 |---|---|
-| [`config.ts`](file:///c:/Web/pinkmusic/src/lib/shipping/config.ts) | Parâmetros da loja física, cidade, estado e raio padrão de referência. |
+| [`config.ts`](file:///c:/Web/pinkmusic/src/lib/shipping/config.ts) | Parâmetros da loja física, cidade, estado e raio máximo de entrega rápida (12.0 km). |
 | [`normalize-zipcode.ts`](file:///c:/Web/pinkmusic/src/lib/shipping/normalize-zipcode.ts) | Sanitização do CEP (remoção de pontuação, validação estrita de 8 dígitos numéricos). |
-| [`zone-lookup.ts`](file:///c:/Web/pinkmusic/src/lib/shipping/zone-lookup.ts) | Resolução determinística da zona pelo bairro (ViaCEP + mapeamento catalogado dos bairros de Feira de Santana) sem oscilação de GPS. |
-| [`calculate-shipping.ts`](file:///c:/Web/pinkmusic/src/lib/shipping/calculate-shipping.ts) | Lógica central: verificação de cidade, enquadramento nas zonas cadastradas no banco, cache no banco e fallback. |
+| [`data/feira-ceps.json`](file:///c:/Web/pinkmusic/src/lib/shipping/data/feira-ceps.json) | Base local offline com mais de 800 logradouros/CEPs e bairros de Feira de Santana (~74 KB, leitura em 0ms). |
+| [`zone-lookup.ts`](file:///c:/Web/pinkmusic/src/lib/shipping/zone-lookup.ts) | Resolução determinística da zona pelo bairro (base local JSON + ViaCEP + bloqueio de distritos > 12 km + Zona 3 segura). |
+| [`calculate-shipping.ts`](file:///c:/Web/pinkmusic/src/lib/shipping/calculate-shipping.ts) | Lógica central: cálculo no checkout, distância estimada da faixa, bloqueio de áreas rurais e persistência. |
 | [`seed.ts`](file:///c:/Web/pinkmusic/src/lib/shipping/seed.ts) | Inicialização automática das 4 zonas de entrega caso a tabela esteja vazia. |
 
 ---
 
-## 5. Estratégia de Resolução Determinística de Zonas (`zone-lookup.ts`)
+## 5. Estratégia de Resolução Determinística e Segurança (`zone-lookup.ts`)
 
-Para eliminar oscilações de APIs de GPS/mapas (que falhavam 3 a cada 5 consultas e bloqueavam clientes indevidamente), o cálculo foi simplificado para ser **100% determinístico e instantâneo**:
+Para eliminar oscilações de APIs de GPS/mapas e garantir que o frete nunca seja negado indevidamente para a área urbana, o cálculo opera em **5 camadas ágeis**:
 
-1. **ViaCEP (com timeout de 2.5s e cache no banco):** obtém os dados oficiais do endereço (Bairro, Cidade, Estado).
-2. **Mapeamento Direto de Bairros:** normaliza o nome do bairro e enquadra diretamente na respectiva zona (Zona 1 a 4).
-3. **Fallback por Prefixo de CEP:** para logradouros sem bairro ou novos loteamentos de Feira de Santana, faixas de CEP mapeiam para a zona aproximada mais segura.
-4. **Alinhamento com o Banco de Dados:** o ID e o preço real cobrado vêm sempre da tabela `ShippingZone` ordenada pela distância/ordem, respeitando qualquer edição feita no painel Admin.
+1. **Bloqueio de Distritos Rurais (> 12 km):** CEPs ou bairros pertencentes a distritos distantes como Humildes, Ipuaçu, Bonfim de Feira, Jaguara, Tiquaruçu, Maria Quitéria e Matinha são interceptados e bloqueados com orientação amigável para combinar frete especial no WhatsApp.
+2. **Base Local Offline (`feira-ceps.json`):** Resposta imediata em **0ms** para os principais CEPs e ruas de Feira de Santana, sem depender de internet ou APIs externas.
+3. **Mapeamento Direto de Bairros:** Normaliza o nome do bairro e enquadra diretamente na respectiva zona (Zona 1 a 4).
+4. **Prefixo Urbano do CEP (5 dígitos):** Mapeia blocos numéricos urbanos para a zona vizinha mais próxima.
+5. **Rede de Segurança Urbana (Zona 3 = R$ 15,00):** Se o cliente morar em um endereço urbano de Feira de Santana (CEPs 440xx/441xx) novo ou não catalogado em nenhuma base, **o frete NUNCA é negado**: ele é aprovado com segurança na Zona 3, permitindo a conclusão da venda.
 
 ---
 

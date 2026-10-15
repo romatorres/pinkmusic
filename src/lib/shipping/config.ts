@@ -29,6 +29,6 @@ export const STORE_SHIPPING_CONFIG = {
     longitude: parseEnvNumber(process.env.STORE_LNG, -38.9634),
   },
 
-  // Raio máximo padrão em KM para entregas locais
-  maxDeliveryRadiusKm: 10,
+  // Raio máximo padrão em KM para entregas locais (limite da Zona 4)
+  maxDeliveryRadiusKm: 12,
 };

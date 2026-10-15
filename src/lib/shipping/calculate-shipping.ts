@@ -1,6 +1,6 @@
-﻿import prisma from "@/lib/prisma";
+import prisma from "@/lib/prisma";
 import { normalizeZipCode } from "./normalize-zipcode";
-import { resolveZoneOrder } from "./zone-lookup";
+import { resolveZoneOrder, KNOWN_SPECIAL_ZIPS } from "./zone-lookup";
 import { STORE_SHIPPING_CONFIG } from "./config";
 import { ensureDefaultShippingZonesAndZipCodes } from "./seed";
 
@@ -39,6 +39,15 @@ export interface ShippingFailureResult {
 export type CalculateShippingResult = ShippingSuccessResult | ShippingFailureResult;
 
 /**
+ * Retorna a distância estimada média da faixa da zona (ex: Zona 3 de 6 a 10km -> 8km)
+ * para exibição condizente e realista ao cliente.
+ */
+function getRepresentativeDistance(zone: { minDistance: number; maxDistance: number }): number {
+  const avg = (zone.minDistance + zone.maxDistance) / 2;
+  return Math.round(avg * 10) / 10;
+}
+
+/**
  * Funcao principal para calculo de frete local com base em zonas de bairro.
  *
  * Fluxo simplificado (sem GPS / sem calculo de distancia):
@@ -67,14 +76,17 @@ export async function calculateShipping(
     // 1. Garante que as zonas padrao existam se a tabela estiver vazia
     await ensureDefaultShippingZonesAndZipCodes();
 
-    // 2. Busca no cache local (banco de dados) - resposta instantanea
+    // 2. Busca no cache local (banco de dados)
     const zipRecord = await prisma.shippingZipCode.findUnique({
       where: { zipCode: cleanZip },
       include: { zone: true },
     });
 
-    // Se ja esta no cache com zona valida e ativa, retorna direto
-    if (zipRecord && zipRecord.zone && zipRecord.zone.active) {
+    // Se é um CEP com mapeamento especial manual (exceção catalogada), não usa cache desatualizado
+    const hasSpecialOverride = Boolean(KNOWN_SPECIAL_ZIPS[cleanZip]);
+
+    // Se ja esta no cache com zona valida e ativa (e não é uma exceção manual recente), retorna direto
+    if (zipRecord && zipRecord.zone && zipRecord.zone.active && !hasSpecialOverride) {
       const zone = zipRecord.zone;
       return {
         available: true,
@@ -88,13 +100,26 @@ export async function calculateShipping(
           name: zone.name,
           description: zone.description,
         },
-        distanceKm: zone.minDistance,
+        distanceKm: getRepresentativeDistance(zone),
         price: Number(zone.price),
       };
     }
 
-    // 3. Resolve zona via ViaCEP + tabela de bairros (ou prefixo CEP)
+    // 3. Resolve zona via base local, bairros ou prefixo
     const lookup = await resolveZoneOrder(cleanZip);
+
+    // Se for distrito ou área rural além de 12 km da loja física, bloqueia a entrega
+    if (lookup.isOutOfDeliveryArea || lookup.zoneOrder === null) {
+      return {
+        available: false,
+        reason: "OUT_OF_DELIVERY_AREA",
+        message: `Desculpe, este endereço fica a mais de ${STORE_SHIPPING_CONFIG.maxDeliveryRadiusKm} km da nossa loja física (distrito ou área rural) e ultrapassa o limite de entrega rápida por motoboy. Fale conosco pelo WhatsApp para combinar envio especial.`,
+        zipCode: cleanZip,
+        district: lookup.district,
+        city: lookup.city,
+        state: lookup.state,
+      };
+    }
 
     // Valida se e cidade atendida
     const isLocalCity =
@@ -188,7 +213,7 @@ export async function calculateShipping(
         name: matchedZone.name,
         description: matchedZone.description,
       },
-      distanceKm: matchedZone.minDistance,
+      distanceKm: getRepresentativeDistance(matchedZone),
       price: Number(matchedZone.price),
     };
   } catch (error) {

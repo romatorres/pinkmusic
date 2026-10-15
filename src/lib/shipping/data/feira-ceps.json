@@ -1,0 +1,3458 @@
+{
+  "44001008": {
+    "district": "Centro",
+    "street": "Avenida Maria Quitéria"
+  },
+  "44001024": {
+    "district": "Centro",
+    "street": "Largo São Francisco"
+  },
+  "44001048": {
+    "district": "Centro",
+    "street": "Vila Marta"
+  },
+  "44001104": {
+    "district": "Centro",
+    "street": "Rua Coronel Álvaro Simões"
+  },
+  "44001128": {
+    "district": "Centro",
+    "street": "Vila Santa Rita"
+  },
+  "44001130": {
+    "district": "Centro",
+    "street": "Rua Barão de Cotegipe"
+  },
+  "44001170": {
+    "district": "Centro",
+    "street": "Rua Barão de Cotegipe"
+  },
+  "44001175": {
+    "district": "Centro",
+    "street": "Rua Barão de Cotegipe"
+  },
+  "44001192": {
+    "district": "Centro",
+    "street": "Avenida Getúlio Vargas"
+  },
+  "44001252": {
+    "district": "Centro",
+    "street": "Vila Alaíde Stela"
+  },
+  "44001284": {
+    "district": "Centro",
+    "street": "Vila Maria Luíza"
+  },
+  "44001325": {
+    "district": "Centro",
+    "street": "Avenida Getúlio Vargas"
+  },
+  "44001344": {
+    "district": "Centro",
+    "street": "Avenida Maria Quitéria"
+  },
+  "44001368": {
+    "district": "Centro",
+    "street": "Avenida Maria Quitéria"
+  },
+  "44001370": {
+    "district": "Centro",
+    "street": "Vila Santana"
+  },
+  "44001408": {
+    "district": "Centro",
+    "street": "Rua João de Barros"
+  },
+  "44001412": {
+    "district": "Centro",
+    "street": "Vila Elzir"
+  },
+  "44001465": {
+    "district": "Centro",
+    "street": "Avenida Sampaio"
+  },
+  "44001472": {
+    "district": "Centro",
+    "street": "Avenida Sampaio"
+  },
+  "44001476": {
+    "district": "Centro",
+    "street": "Vila Conquista"
+  },
+  "44001480": {
+    "district": "Centro",
+    "street": "Praça Tiradentes"
+  },
+  "44001492": {
+    "district": "Centro",
+    "street": "Vila Freitas"
+  },
+  "44001496": {
+    "district": "Centro",
+    "street": "Avenida Getúlio Vargas"
+  },
+  "44001525": {
+    "district": "Centro",
+    "street": "Avenida Getúlio Vargas"
+  },
+  "44001550": {
+    "district": "Centro",
+    "street": "Rua Barão de Cotegipe"
+  },
+  "44001555": {
+    "district": "Centro",
+    "street": "Rua Barão de Cotegipe"
+  },
+  "44001575": {
+    "district": "Centro",
+    "street": "Avenida Sampaio"
+  },
+  "44001584": {
+    "district": "Centro",
+    "street": "Avenida Sampaio"
+  },
+  "44001600": {
+    "district": "Centro",
+    "street": "Travessa Doutor Pedro Américo de Brito"
+  },
+  "44001650": {
+    "district": "Centro",
+    "street": "Rua Barão de Cotegipe"
+  },
+  "44001655": {
+    "district": "Centro",
+    "street": "Rua Barão de Cotegipe"
+  },
+  "44001680": {
+    "district": "Centro",
+    "street": "Rua Nossa Senhora de Lourdes"
+  },
+  "44001696": {
+    "district": "Centro",
+    "street": "Rua Dom João VI"
+  },
+  "44001700": {
+    "district": "Centro",
+    "street": "Travessa Dom João VI"
+  },
+  "44001704": {
+    "district": "Centro",
+    "street": "Praça da Piedade"
+  },
+  "44001708": {
+    "district": "Centro",
+    "street": "Praça Gérson Simões Dias"
+  },
+  "44001733": {
+    "district": "Centro",
+    "street": "Vila Maria de Nazaré"
+  },
+  "44001744": {
+    "district": "Centro",
+    "street": "Praça Padre Ovídio"
+  },
+  "44001775": {
+    "district": "Centro",
+    "street": "Avenida Monsenhor Mário Pessoa"
+  },
+  "44001784": {
+    "district": "Centro",
+    "street": "Praça da República"
+  },
+  "44001795": {
+    "district": "Centro",
+    "street": "Avenida Senhor dos Passos"
+  },
+  "44001800": {
+    "district": "Centro",
+    "street": "Avenida Senhor dos Passos"
+  },
+  "44001900": {
+    "district": "Centro",
+    "street": "Rua Coronel Álvaro Simões"
+  },
+  "44001901": {
+    "district": "Centro",
+    "street": "Avenida Getúlio Vargas"
+  },
+  "44001959": {
+    "district": "Centro",
+    "street": "Avenida Getúlio Vargas"
+  },
+  "44001970": {
+    "district": "Centro",
+    "street": "Avenida Getúlio Vargas"
+  },
+  "44001971": {
+    "district": "Centro",
+    "street": "Avenida Sampaio"
+  },
+  "44002000": {
+    "district": "Centro",
+    "street": "Rua JJ Seabra"
+  },
+  "44002024": {
+    "district": "Centro",
+    "street": "Avenida Senhor dos Passos"
+  },
+  "44002035": {
+    "district": "Centro",
+    "street": "Avenida Senhor dos Passos"
+  },
+  "44002052": {
+    "district": "Centro",
+    "street": "Rua Bartolomeu Santos"
+  },
+  "44002104": {
+    "district": "Centro",
+    "street": "Rua de Santana"
+  },
+  "44002112": {
+    "district": "Centro",
+    "street": "Travessa Santana"
+  },
+  "44002120": {
+    "district": "Centro",
+    "street": "Praça Monsenhor Renato Galvão"
+  },
+  "44002135": {
+    "district": "Centro",
+    "street": "Rua Barão de Cotegipe"
+  },
+  "44002160": {
+    "district": "Centro",
+    "street": "Praça da Bandeira"
+  },
+  "44002168": {
+    "district": "Centro",
+    "street": "Praça João Pedreira"
+  },
+  "44002200": {
+    "district": "Centro",
+    "street": "Avenida Senhor dos Passos"
+  },
+  "44002205": {
+    "district": "Centro",
+    "street": "Avenida Senhor dos Passos"
+  },
+  "44002224": {
+    "district": "Centro",
+    "street": "Praça Bernardino Bahia"
+  },
+  "44002232": {
+    "district": "Centro",
+    "street": "Rua Pedro Francelino"
+  },
+  "44002280": {
+    "district": "Centro",
+    "street": "Rua Hermínio Santos"
+  },
+  "44002296": {
+    "district": "Centro",
+    "street": "Rua Monsenhor Tertuliano Carneiro"
+  },
+  "44002300": {
+    "district": "Centro",
+    "street": "Praça Fróes da Mota"
+  },
+  "44002328": {
+    "district": "Centro",
+    "street": "Praça Dom Pedro II"
+  },
+  "44002368": {
+    "district": "Centro",
+    "street": "Avenida Senhor dos Passos"
+  },
+  "44002375": {
+    "district": "Centro",
+    "street": "Avenida Senhor dos Passos"
+  },
+  "44002384": {
+    "district": "Centro",
+    "street": "Rua Santos Dumont"
+  },
+  "44002392": {
+    "district": "Centro",
+    "street": "Rua São José"
+  },
+  "44002395": {
+    "district": "Centro",
+    "street": "Rua São José"
+  },
+  "44002424": {
+    "district": "Centro",
+    "street": "Rua Coronel João Mendes"
+  },
+  "44002488": {
+    "district": "Centro",
+    "street": "Rua Santos Reis"
+  },
+  "44002496": {
+    "district": "Centro",
+    "street": "Travessa Santos Reis"
+  },
+  "44002516": {
+    "district": "Centro",
+    "street": "Vila Pedro Carneiro"
+  },
+  "44002568": {
+    "district": "Centro",
+    "street": "Praça 2 de Julho"
+  },
+  "44002640": {
+    "district": "Centro",
+    "street": "Rua São Luís"
+  },
+  "44002688": {
+    "district": "Centro",
+    "street": "Travessa Cuiabá"
+  },
+  "44002708": {
+    "district": "Centro",
+    "street": "Rua Dimas Simões"
+  },
+  "44002772": {
+    "district": "Centro",
+    "street": "Praça Carlos Bahia"
+  },
+  "44002796": {
+    "district": "Centro",
+    "street": "Rua Santa Maria"
+  },
+  "44002840": {
+    "district": "Centro",
+    "street": "Vila Santa Cruz"
+  },
+  "44003000": {
+    "district": "Serraria Brasil",
+    "street": "Avenida Maria Quitéria"
+  },
+  "44003016": {
+    "district": "Serraria Brasil",
+    "street": "Vila Maria Eunice"
+  },
+  "44003048": {
+    "district": "Serraria Brasil",
+    "street": "Rua Doutor João Mangabeira"
+  },
+  "44003050": {
+    "district": "Serraria Brasil",
+    "street": "Rua Manoel Narciso da Natividade"
+  },
+  "44003056": {
+    "district": "Serraria Brasil",
+    "street": "Vila Santa Isabel"
+  },
+  "44003134": {
+    "district": "Serraria Brasil",
+    "street": "Vila Moreira"
+  },
+  "44003136": {
+    "district": "Serraria Brasil",
+    "street": "Rua Nossa Senhora de Lourdes"
+  },
+  "44003144": {
+    "district": "Serraria Brasil",
+    "street": "Avenida Senhor dos Passos"
+  },
+  "44003165": {
+    "district": "Serraria Brasil",
+    "street": "Rua Barão de Cotegipe"
+  },
+  "44003168": {
+    "district": "Serraria Brasil",
+    "street": "Rua Barão de Cotegipe"
+  },
+  "44003174": {
+    "district": "Serraria Brasil",
+    "street": "Rua Clóvis Bevilacqua"
+  },
+  "44003176": {
+    "district": "Serraria Brasil",
+    "street": "Travessa Clóvis Bevilacqua"
+  },
+  "44003192": {
+    "district": "Serraria Brasil",
+    "street": "Rua Doutor João Mangabeira"
+  },
+  "44003278": {
+    "district": "Serraria Brasil",
+    "street": "Vila Isaura"
+  },
+  "44003282": {
+    "district": "Serraria Brasil",
+    "street": "Praça da Paquera"
+  },
+  "44003288": {
+    "district": "Serraria Brasil",
+    "street": "Rua São Félix"
+  },
+  "44003294": {
+    "district": "Serraria Brasil",
+    "street": "Rua Monsenhor Aderbal Miranda"
+  },
+  "44003336": {
+    "district": "Serraria Brasil",
+    "street": "Praça Tranqüilidade"
+  },
+  "44003342": {
+    "district": "Serraria Brasil",
+    "street": "Rua Pedro Suzart"
+  },
+  "44003348": {
+    "district": "Serraria Brasil",
+    "street": "Travessa Pedro Suzart"
+  },
+  "44003465": {
+    "district": "Olhos D'Água",
+    "street": "Avenida Papa João XXIII"
+  },
+  "44003546": {
+    "district": "Olhos D'Água",
+    "street": "Rua Felipe Camarão"
+  },
+  "44003552": {
+    "district": "Olhos D'Água",
+    "street": "Rua Milton Bahia"
+  },
+  "44003564": {
+    "district": "Olhos D'Água",
+    "street": "Travessa Cairu"
+  },
+  "44003575": {
+    "district": "Olhos D'Água",
+    "street": "Avenida Papa João XXIII"
+  },
+  "44003640": {
+    "district": "Olhos D'Água",
+    "street": "Vila Rica"
+  },
+  "44003650": {
+    "district": "Olhos D'Água",
+    "street": "Avenida Papa João XXIII"
+  },
+  "44003670": {
+    "district": "Olhos D'Água",
+    "street": "Travessa Águia"
+  },
+  "44003688": {
+    "district": "Olhos D'Água",
+    "street": "Praça Duque de Caxias"
+  },
+  "44003697": {
+    "district": "Olhos D'Água",
+    "street": "Avenida Papa João XXIII"
+  },
+  "44003900": {
+    "district": "Olhos D'Água",
+    "street": "Avenida Papa João XXIII"
+  },
+  "44003959": {
+    "district": "Centro",
+    "street": "Avenida Sampaio"
+  },
+  "44004005": {
+    "district": "Chácara São Cosme",
+    "street": "Avenida Papa João XXIII"
+  },
+  "44004048": {
+    "district": "Chácara São Cosme",
+    "street": "Rua Santo Amaro"
+  },
+  "44004052": {
+    "district": "Chácara São Cosme",
+    "street": "Travessa Santo Amaro"
+  },
+  "44004184": {
+    "district": "Chácara São Cosme",
+    "street": "Rua José Bonifácio"
+  },
+  "44004192": {
+    "district": "Chácara São Cosme",
+    "street": "Rua José de Alencar"
+  },
+  "44004235": {
+    "district": "Chácara São Cosme",
+    "street": "Vila Tropical"
+  },
+  "44004296": {
+    "district": "Jardim Acácia",
+    "street": "Rua José do Patrocínio"
+  },
+  "44004360": {
+    "district": "Jardim Acácia",
+    "street": "Rua Luz e Fraternidade"
+  },
+  "44004440": {
+    "district": "Jardim Acácia",
+    "street": "Avenida Papa João XXIII"
+  },
+  "44004592": {
+    "district": "Jardim Acácia",
+    "street": "Avenida Papa João XXIII"
+  },
+  "44004640": {
+    "district": "Jardim Acácia",
+    "street": "Rua Felipe Camarão"
+  },
+  "44004744": {
+    "district": "Jardim Acácia",
+    "street": "Rua Bahia"
+  },
+  "44005028": {
+    "district": "Muchila",
+    "street": "Rua Manoel Simões da Costa"
+  },
+  "44006100": {
+    "district": "Muchila",
+    "street": "Rua P"
+  },
+  "44006179": {
+    "district": "Muchila",
+    "street": "Travessa D - XX"
+  },
+  "44006193": {
+    "district": "Muchila",
+    "street": "Comunidade Urbana Feira X"
+  },
+  "44006205": {
+    "district": "Muchila",
+    "street": "Vila Q - XX"
+  },
+  "44006207": {
+    "district": "Muchila",
+    "street": "Travessa P-XX"
+  },
+  "44006470": {
+    "district": "Muchila",
+    "street": "Estrada da Muchila"
+  },
+  "44007005": {
+    "district": "Pedra do Descanso",
+    "street": "Vila Nilda Tenório de Almeida"
+  },
+  "44007080": {
+    "district": "Pedra do Descanso",
+    "street": "Praça da Concórdia"
+  },
+  "44007095": {
+    "district": "Pedra do Descanso",
+    "street": "Avenida Deputado Francisco José Pinto dos Santos"
+  },
+  "44007112": {
+    "district": "Pedra do Descanso",
+    "street": "Avenida Deputado Francisco José Pinto dos Santos"
+  },
+  "44007128": {
+    "district": "Pedra do Descanso",
+    "street": "Rua Francisco Souza Silva"
+  },
+  "44007144": {
+    "district": "Pedra do Descanso",
+    "street": "Rua João Vasconcelos"
+  },
+  "44007190": {
+    "district": "Pedra do Descanso",
+    "street": "Avenida Deputado Francisco José Pinto dos Santos"
+  },
+  "44007195": {
+    "district": "Pedra do Descanso",
+    "street": "Avenida Deputado Francisco José Pinto dos Santos"
+  },
+  "44007665": {
+    "district": "Pedra do Descanso",
+    "street": "Rua 8"
+  },
+  "44007775": {
+    "district": "Pedra do Descanso",
+    "street": "Avenida Deputado Francisco José Pinto dos Santos"
+  },
+  "44007880": {
+    "district": "Pedra do Descanso",
+    "street": "Avenida Deputado Francisco José Pinto dos Santos"
+  },
+  "44007970": {
+    "district": "Pedra do Descanso",
+    "street": "Avenida Deputado Francisco José Pinto dos Santos"
+  },
+  "44007972": {
+    "district": "Pedra do Descanso",
+    "street": "Avenida Deputado Francisco José Pinto dos Santos"
+  },
+  "44008420": {
+    "district": "Calumbi",
+    "street": "Rua B"
+  },
+  "44008544": {
+    "district": "Calumbi",
+    "street": "Vila Tenente Portela"
+  },
+  "44008552": {
+    "district": "Calumbi",
+    "street": "Rua São Lucas"
+  },
+  "44009016": {
+    "district": "Calumbi",
+    "street": "Rua Maria Barbosa Mendes"
+  },
+  "44009060": {
+    "district": "Calumbi",
+    "street": "Rua A"
+  },
+  "44009342": {
+    "district": "Calumbi",
+    "street": "Praça Estacionamento F"
+  },
+  "44009735": {
+    "district": "Calumbi",
+    "street": "Rodovia Santos Dumont"
+  },
+  "44009744": {
+    "district": "Calumbi",
+    "street": "Avenida Pau Brasil"
+  },
+  "44009748": {
+    "district": "Calumbi",
+    "street": "Rua Ipê"
+  },
+  "44009778": {
+    "district": "Calumbi",
+    "street": "Rua das Mangabeiras"
+  },
+  "44010070": {
+    "district": "CIS",
+    "street": "Praça União"
+  },
+  "44010090": {
+    "district": "CIS",
+    "street": "Rua Graciane Santana"
+  },
+  "44010135": {
+    "district": "CIS",
+    "street": "Rua Jardim das Flores"
+  },
+  "44010205": {
+    "district": "CIS",
+    "street": "Avenida da Imprensa"
+  },
+  "44010405": {
+    "district": "CIS",
+    "street": "Travessa BNDES"
+  },
+  "44010455": {
+    "district": "CIS",
+    "street": "Avenida Mathias"
+  },
+  "44010850": {
+    "district": "CIS",
+    "street": "Avenida Pró-Bahia"
+  },
+  "44010860": {
+    "district": "CIS",
+    "street": "Avenida Centro das Indústrias"
+  },
+  "44010865": {
+    "district": "CIS",
+    "street": "Avenida Centro das Indústrias"
+  },
+  "44011000": {
+    "district": "CIS",
+    "street": "Rodovia Santos Dumont"
+  },
+  "44013140": {
+    "district": "CIS",
+    "street": "Rua 6"
+  },
+  "44013170": {
+    "district": "CIS",
+    "street": "Rua 9"
+  },
+  "44014000": {
+    "district": "Vale do Jacuípe",
+    "street": "Rodovia Santos Dumont"
+  },
+  "44014007": {
+    "district": "Vale do Jacuípe",
+    "street": "Comunidade Urbana Vila São José"
+  },
+  "44016000": {
+    "district": "Nova Esperança",
+    "street": "Rodovia Santos Dumont"
+  },
+  "44020005": {
+    "district": "Baraúna",
+    "street": "Avenida Senhor dos Passos"
+  },
+  "44020008": {
+    "district": "Baraúna",
+    "street": "Avenida Senhor dos Passos"
+  },
+  "44020025": {
+    "district": "Baraúna",
+    "street": "Rua São José"
+  },
+  "44020028": {
+    "district": "Baraúna",
+    "street": "Rua São José"
+  },
+  "44020072": {
+    "district": "Baraúna",
+    "street": "Avenida Riachuelo"
+  },
+  "44020075": {
+    "district": "Baraúna",
+    "street": "Avenida Riachuelo"
+  },
+  "44020103": {
+    "district": "Baraúna",
+    "street": "Comunidade Urbana Parque das Águas"
+  },
+  "44020162": {
+    "district": "Baraúna",
+    "street": "Rua Lagoa Santa"
+  },
+  "44020210": {
+    "district": "Baraúna",
+    "street": "Alameda B"
+  },
+  "44020242": {
+    "district": "Baraúna",
+    "street": "Rua Érico Veríssimo"
+  },
+  "44020272": {
+    "district": "Baraúna",
+    "street": "Alameda O"
+  },
+  "44020282": {
+    "district": "Baraúna",
+    "street": "Avenida Riachuelo"
+  },
+  "44020285": {
+    "district": "Baraúna",
+    "street": "Avenida Riachuelo"
+  },
+  "44020295": {
+    "district": "Baraúna",
+    "street": "Rua Simonese"
+  },
+  "44020365": {
+    "district": "Baraúna",
+    "street": "Rua São Lucas"
+  },
+  "44020400": {
+    "district": "Baraúna",
+    "street": "Travessa Nana"
+  },
+  "44020492": {
+    "district": "Baraúna",
+    "street": "Rua João Vital"
+  },
+  "44020555": {
+    "district": "Baraúna",
+    "street": "Alameda F"
+  },
+  "44020575": {
+    "district": "Baraúna",
+    "street": "Travessa Ipuana"
+  },
+  "44021052": {
+    "district": "Sobradinho",
+    "street": "Rua João Vital"
+  },
+  "44021121": {
+    "district": "Sobradinho",
+    "street": "Travessa Alagoas"
+  },
+  "44021262": {
+    "district": "Sobradinho",
+    "street": "Travessa Santa Rita"
+  },
+  "44021305": {
+    "district": "Sobradinho",
+    "street": "Rua Santa Cruz"
+  },
+  "44022022": {
+    "district": "Cruzeiro",
+    "street": "Praça Guadalajara"
+  },
+  "44022042": {
+    "district": "Cruzeiro",
+    "street": "Rua Maragogipe"
+  },
+  "44022058": {
+    "district": "Cruzeiro",
+    "street": "Travessa Pontal"
+  },
+  "44022072": {
+    "district": "Cruzeiro",
+    "street": "Rua Pedro Álvares Cabral"
+  },
+  "44022075": {
+    "district": "Cruzeiro",
+    "street": "Praça Senhor do Bonfim"
+  },
+  "44022202": {
+    "district": "Cruzeiro",
+    "street": "Rua Santos Reis"
+  },
+  "44023064": {
+    "district": "Rua Nova",
+    "street": "Praça da Fraternidade"
+  },
+  "44023414": {
+    "district": "Rua Nova",
+    "street": "Travessa Irará"
+  },
+  "44023535": {
+    "district": "Rua Nova",
+    "street": "Praça Cícero Carneiro"
+  },
+  "44024012": {
+    "district": "Jardim Cruzeiro",
+    "street": "Rua B"
+  },
+  "44024024": {
+    "district": "Jardim Cruzeiro",
+    "street": "Travessa Itambé"
+  },
+  "44024032": {
+    "district": "Jardim Cruzeiro",
+    "street": "Rua Nossa Senhora da Purificação"
+  },
+  "44024092": {
+    "district": "Jardim Cruzeiro",
+    "street": "Rua Senhor do Bonfim"
+  },
+  "44024182": {
+    "district": "Jardim Cruzeiro",
+    "street": "Praça Elias Bacelar"
+  },
+  "44024422": {
+    "district": "Jardim Cruzeiro",
+    "street": "Rua Santa Cruz"
+  },
+  "44028031": {
+    "district": "Gabriela",
+    "street": "Comunidade Urbana Gabriela I"
+  },
+  "44028060": {
+    "district": "Gabriela",
+    "street": "Travessa Vamp"
+  },
+  "44028180": {
+    "district": "Gabriela",
+    "street": "Travessa Vila Flamengo"
+  },
+  "44028200": {
+    "district": "Gabriela",
+    "street": "Rua 7"
+  },
+  "44028405": {
+    "district": "Gabriela",
+    "street": "Avenida Ipanema"
+  },
+  "44028481": {
+    "district": "Gabriela",
+    "street": "Rua Santa Eulália"
+  },
+  "44028484": {
+    "district": "Gabriela",
+    "street": "Rua Santa Efigênia"
+  },
+  "44028487": {
+    "district": "Gabriela",
+    "street": "Rua José Machado"
+  },
+  "44028529": {
+    "district": "Gabriela",
+    "street": "Rua José Ferreira Néri"
+  },
+  "44028535": {
+    "district": "Gabriela",
+    "street": "Rua José Moreira Dias"
+  },
+  "44028541": {
+    "district": "Gabriela",
+    "street": "Rua Tárciso Pimenta Júnior"
+  },
+  "44028613": {
+    "district": "Gabriela",
+    "street": "Rua Antônio Francisco Neto"
+  },
+  "44028625": {
+    "district": "Gabriela",
+    "street": "Rua José Flantildes"
+  },
+  "44028666": {
+    "district": "Gabriela",
+    "street": "Rua Vila Madalena"
+  },
+  "44028678": {
+    "district": "Gabriela",
+    "street": "Rua Avenida Brasil"
+  },
+  "44028700": {
+    "district": "Gabriela",
+    "street": "Rua Mariá Alves de Freitas"
+  },
+  "44028712": {
+    "district": "Gabriela",
+    "street": "Rua Consuelo Simões Oliveira"
+  },
+  "44028716": {
+    "district": "Gabriela",
+    "street": "Rua J"
+  },
+  "44028720": {
+    "district": "Gabriela",
+    "street": "Rua H"
+  },
+  "44028726": {
+    "district": "Gabriela",
+    "street": "Rua Violeta Simões Azevêdo"
+  },
+  "44028881": {
+    "district": "Gabriela",
+    "street": "Rua João Peixoto Viegas"
+  },
+  "44029000": {
+    "district": "Gabriela",
+    "street": "Alameda A"
+  },
+  "44030126": {
+    "district": "Gabriela",
+    "street": "Rua F"
+  },
+  "44030322": {
+    "district": "Gabriela",
+    "street": "Avenida Lucilândia"
+  },
+  "44030412": {
+    "district": "Gabriela",
+    "street": "Travessa Taipas"
+  },
+  "44030645": {
+    "district": "Gabriela",
+    "street": "Rua Santo Amaro"
+  },
+  "44030665": {
+    "district": "Gabriela",
+    "street": "Rua Araripe Júnior"
+  },
+  "44030762": {
+    "district": "Gabriela",
+    "street": "Rua Alto de Santana"
+  },
+  "44031050": {
+    "district": "Pampalona",
+    "street": "Rua Santa Cecília"
+  },
+  "44031155": {
+    "district": "Pampalona",
+    "street": "Travessa Santo Antônio"
+  },
+  "44031160": {
+    "district": "Pampalona",
+    "street": "Rua Cedro de São José"
+  },
+  "44031210": {
+    "district": "Pampalona",
+    "street": "Travessa Dantas"
+  },
+  "44031351": {
+    "district": "Pampalona",
+    "street": "Travessa São José"
+  },
+  "44031355": {
+    "district": "Pampalona",
+    "street": "Travessa Mantina"
+  },
+  "44031370": {
+    "district": "Pampalona",
+    "street": "Rua Simplicidade"
+  },
+  "44031425": {
+    "district": "Pampalona",
+    "street": "Rua Transbrasil"
+  },
+  "44031442": {
+    "district": "Pampalona",
+    "street": "Praça Petrolina"
+  },
+  "44031455": {
+    "district": "Pampalona",
+    "street": "Rua Jardim Japão"
+  },
+  "44032014": {
+    "district": "Campo Limpo",
+    "street": "Travessa Salinas"
+  },
+  "44032046": {
+    "district": "Campo Limpo",
+    "street": "Rua São Luís"
+  },
+  "44032052": {
+    "district": "Campo Limpo",
+    "street": "Rua Brasília"
+  },
+  "44032162": {
+    "district": "Campo Limpo",
+    "street": "Praça Chico Mendes"
+  },
+  "44032238": {
+    "district": "Campo Limpo",
+    "street": "Rua Assis Brasil"
+  },
+  "44032244": {
+    "district": "Campo Limpo",
+    "street": "Rua Parque Ipanema"
+  },
+  "44032264": {
+    "district": "Campo Limpo",
+    "street": "Rua São João do Meriti"
+  },
+  "44032374": {
+    "district": "Campo Limpo",
+    "street": "Rua São João do Meriti"
+  },
+  "44032382": {
+    "district": "Campo Limpo",
+    "street": "Praça Centenário"
+  },
+  "44032402": {
+    "district": "Campo Limpo",
+    "street": "Rua Monsenhor Moisés Gonçalves do Couto"
+  },
+  "44032406": {
+    "district": "Campo Limpo",
+    "street": "Rua Monsenhor Moisés Gonçalves do Couto"
+  },
+  "44032487": {
+    "district": "Campo Limpo",
+    "street": "Rua Bahia"
+  },
+  "44032491": {
+    "district": "Campo Limpo",
+    "street": "Rua Monsenhor Moisés Gonçalves do Couto"
+  },
+  "44032492": {
+    "district": "Campo Limpo",
+    "street": "Avenida Cardoso"
+  },
+  "44032496": {
+    "district": "Campo Limpo",
+    "street": "Travessa Ronda"
+  },
+  "44032516": {
+    "district": "Campo Limpo",
+    "street": "Travessa Carlos Santos"
+  },
+  "44032521": {
+    "district": "Campo Limpo",
+    "street": "Rua Manoel Brasil"
+  },
+  "44032522": {
+    "district": "Campo Limpo",
+    "street": "Rua Enoque Brasil"
+  },
+  "44032524": {
+    "district": "Campo Limpo",
+    "street": "Rua Maria Alves Brasil"
+  },
+  "44032531": {
+    "district": "Campo Limpo",
+    "street": "Travessa Peniel"
+  },
+  "44032542": {
+    "district": "Campo Limpo",
+    "street": "Rua Antônio Alves Brasil"
+  },
+  "44032554": {
+    "district": "Campo Limpo",
+    "street": "Rua Maria Alves Melo"
+  },
+  "44032558": {
+    "district": "Campo Limpo",
+    "street": "Rua Maria Cerqueira"
+  },
+  "44032561": {
+    "district": "Campo Limpo",
+    "street": "Rua Maria Isabel Lima"
+  },
+  "44032562": {
+    "district": "Campo Limpo",
+    "street": "Rua João Lima"
+  },
+  "44032581": {
+    "district": "Campo Limpo",
+    "street": "Rua Monsenhor Moisés Gonçalves do Couto"
+  },
+  "44032616": {
+    "district": "Campo Limpo",
+    "street": "Rua Maria Conceição Borges"
+  },
+  "44033207": {
+    "district": "Campo Limpo",
+    "street": "Rua José Góes Gouveia"
+  },
+  "44033219": {
+    "district": "Campo Limpo",
+    "street": "Travessa Ipiúna"
+  },
+  "44033295": {
+    "district": "Campo Limpo",
+    "street": "Rua Joselino Ribeiro"
+  },
+  "44033340": {
+    "district": "Campo Limpo",
+    "street": "Comunidade Urbana Zé Ronaldo - Campo Limpo"
+  },
+  "44033371": {
+    "district": "Campo Limpo",
+    "street": "Rua Santa Maria da Vitória"
+  },
+  "44033379": {
+    "district": "Campo Limpo",
+    "street": "Praça João Nailton"
+  },
+  "44033403": {
+    "district": "Campo Limpo",
+    "street": "Travessa Monsenhor Moisés Gonçalves do Couto"
+  },
+  "44033404": {
+    "district": "Campo Limpo",
+    "street": "Vila Maria Regina"
+  },
+  "44034066": {
+    "district": "Campo Limpo",
+    "street": "Rua Monsenhor Moisés Gonçalves do Couto"
+  },
+  "44034109": {
+    "district": "Campo Limpo",
+    "street": "Comunidade Urbana Loteamento da Lagoa"
+  },
+  "44034149": {
+    "district": "Campo Limpo",
+    "street": "Comunidade Urbana Loteamento Tupinambá"
+  },
+  "44034151": {
+    "district": "Campo Limpo",
+    "street": "Travessa Parque Pitombo"
+  },
+  "44034152": {
+    "district": "Campo Limpo",
+    "street": "Rua Parque Pitombo"
+  },
+  "44034192": {
+    "district": "Campo Limpo",
+    "street": "Rua João Filho"
+  },
+  "44034231": {
+    "district": "Campo Limpo",
+    "street": "Travessa H"
+  },
+  "44035100": {
+    "district": "Campo Limpo",
+    "street": "Rua 1"
+  },
+  "44035366": {
+    "district": "Campo Limpo",
+    "street": "Avenida Central"
+  },
+  "44035418": {
+    "district": "Campo Limpo",
+    "street": "Rua José Luis Jorge"
+  },
+  "44035422": {
+    "district": "Campo Limpo",
+    "street": "Rua José Luis Júnior"
+  },
+  "44035582": {
+    "district": "Campo Limpo",
+    "street": "Travessa Xavier"
+  },
+  "44036226": {
+    "district": "Novo Horizonte",
+    "street": "Rua Senhor do Bonfim"
+  },
+  "44036236": {
+    "district": "Novo Horizonte",
+    "street": "Rua São José"
+  },
+  "44036241": {
+    "district": "Novo Horizonte",
+    "street": "Rua São João"
+  },
+  "44036246": {
+    "district": "Novo Horizonte",
+    "street": "Praça Maria Quitéria"
+  },
+  "44036251": {
+    "district": "Novo Horizonte",
+    "street": "Travessa Maria Quitéria"
+  },
+  "44036256": {
+    "district": "Novo Horizonte",
+    "street": "Travessa Santana"
+  },
+  "44036261": {
+    "district": "Novo Horizonte",
+    "street": "Rua São Paulo"
+  },
+  "44036271": {
+    "district": "Novo Horizonte",
+    "street": "Rua São Mateus"
+  },
+  "44036276": {
+    "district": "Novo Horizonte",
+    "street": "Rua São Roque"
+  },
+  "44036286": {
+    "district": "Novo Horizonte",
+    "street": "Travessa Senhor do Bonfim"
+  },
+  "44036296": {
+    "district": "Novo Horizonte",
+    "street": "Rua Santana"
+  },
+  "44036301": {
+    "district": "Novo Horizonte",
+    "street": "Rua São Jorge"
+  },
+  "44036322": {
+    "district": "Novo Horizonte",
+    "street": "Comunidade Urbana Nossa Senhora da Paz"
+  },
+  "44036331": {
+    "district": "Novo Horizonte",
+    "street": "Rodovia Santos Dumont"
+  },
+  "44036602": {
+    "district": "Novo Horizonte",
+    "street": "Rua Príncipe da Beira"
+  },
+  "44037760": {
+    "district": "Pedra Ferrada",
+    "street": "1ª Travessa Francisco Martins"
+  },
+  "44038006": {
+    "district": "Pedra Ferrada",
+    "street": "Rua Monsenhor Jessé Torres Cunha"
+  },
+  "44038254": {
+    "district": "Pedra Ferrada",
+    "street": "Avenida A"
+  },
+  "44038257": {
+    "district": "Pedra Ferrada",
+    "street": "Avenida B"
+  },
+  "44038260": {
+    "district": "Pedra Ferrada",
+    "street": "Rua N"
+  },
+  "44038261": {
+    "district": "Pedra Ferrada",
+    "street": "Rua S"
+  },
+  "44038265": {
+    "district": "Pedra Ferrada",
+    "street": "Rua R"
+  },
+  "44038267": {
+    "district": "Pedra Ferrada",
+    "street": "Avenida C"
+  },
+  "44038700": {
+    "district": "Pedra Ferrada",
+    "street": "Rodovia Santos Dumont"
+  },
+  "44039025": {
+    "district": "Mantiba",
+    "street": "Rua B"
+  },
+  "44040045": {
+    "district": "Mantiba",
+    "street": "Rua João Câmara"
+  },
+  "44040890": {
+    "district": "Mantiba",
+    "street": "Rodovia Santos Dumont"
+  },
+  "44042534": {
+    "district": "Campo do Gado Novo",
+    "street": "Rua Simplesmente"
+  },
+  "44042539": {
+    "district": "Campo do Gado Novo",
+    "street": "Rua São Carlos"
+  },
+  "44042559": {
+    "district": "Campo do Gado Novo",
+    "street": "Rua Santana"
+  },
+  "44042579": {
+    "district": "Campo do Gado Novo",
+    "street": "Rua Simpliciano"
+  },
+  "44042584": {
+    "district": "Campo do Gado Novo",
+    "street": "Rua Santa Cecília"
+  },
+  "44042594": {
+    "district": "Campo do Gado Novo",
+    "street": "Rua Simples"
+  },
+  "44042599": {
+    "district": "Campo do Gado Novo",
+    "street": "Rua Simplicidade"
+  },
+  "44042604": {
+    "district": "Campo do Gado Novo",
+    "street": "Rua Simplício"
+  },
+  "44042624": {
+    "district": "Campo do Gado Novo",
+    "street": "Praça Simplício"
+  },
+  "44044161": {
+    "district": "Asa Branca",
+    "street": "Rua José Lins Amorim"
+  },
+  "44044219": {
+    "district": "Asa Branca",
+    "street": "Rua José Adorno"
+  },
+  "44044251": {
+    "district": "Asa Branca",
+    "street": "Travessa Assis"
+  },
+  "44044295": {
+    "district": "Asa Branca",
+    "street": "Comunidade Urbana Asa Branca"
+  },
+  "44044309": {
+    "district": "Asa Branca",
+    "street": "Rua São Paulo"
+  },
+  "44044316": {
+    "district": "Asa Branca",
+    "street": "Rua Maria Eduarda Oliveira"
+  },
+  "44044344": {
+    "district": "Asa Branca",
+    "street": "Rua Sergipe"
+  },
+  "44044365": {
+    "district": "Asa Branca",
+    "street": "Rua Santa Catarina"
+  },
+  "44044455": {
+    "district": "Asa Branca",
+    "street": "Rua Mariápolis"
+  },
+  "44044536": {
+    "district": "Asa Branca",
+    "street": "Rua Maria São Pedro"
+  },
+  "44046015": {
+    "district": "Asa Branca",
+    "street": "Rua Santa Vitória"
+  },
+  "44046020": {
+    "district": "Asa Branca",
+    "street": "Rua Santa Teresa"
+  },
+  "44046055": {
+    "district": "Asa Branca",
+    "street": "Rua Santana do Cariri"
+  },
+  "44046095": {
+    "district": "Asa Branca",
+    "street": "Rua Santo Antônio"
+  },
+  "44046179": {
+    "district": "Asa Branca",
+    "street": "Rua H"
+  },
+  "44046190": {
+    "district": "Asa Branca",
+    "street": "Alameda 1"
+  },
+  "44046191": {
+    "district": "Asa Branca",
+    "street": "Alameda 4"
+  },
+  "44046192": {
+    "district": "Asa Branca",
+    "street": "Alameda 5"
+  },
+  "44046193": {
+    "district": "Asa Branca",
+    "street": "Alameda 3"
+  },
+  "44046200": {
+    "district": "Asa Branca",
+    "street": "Avenida Asa Branca"
+  },
+  "44046265": {
+    "district": "Asa Branca",
+    "street": "Rua L"
+  },
+  "44046315": {
+    "district": "Asa Branca",
+    "street": "Rua B"
+  },
+  "44046350": {
+    "district": "Asa Branca",
+    "street": "Alameda G"
+  },
+  "44046355": {
+    "district": "Asa Branca",
+    "street": "Alameda F"
+  },
+  "44046360": {
+    "district": "Asa Branca",
+    "street": "Alameda E"
+  },
+  "44046365": {
+    "district": "Asa Branca",
+    "street": "Alameda D"
+  },
+  "44046370": {
+    "district": "Asa Branca",
+    "street": "Alameda C"
+  },
+  "44046375": {
+    "district": "Asa Branca",
+    "street": "Alameda B"
+  },
+  "44046380": {
+    "district": "Asa Branca",
+    "street": "Alameda A"
+  },
+  "44046385": {
+    "district": "Asa Branca",
+    "street": "Alameda P"
+  },
+  "44046390": {
+    "district": "Asa Branca",
+    "street": "Alameda O"
+  },
+  "44046395": {
+    "district": "Asa Branca",
+    "street": "Alameda L"
+  },
+  "44046400": {
+    "district": "Asa Branca",
+    "street": "Alameda M"
+  },
+  "44046405": {
+    "district": "Asa Branca",
+    "street": "Alameda N"
+  },
+  "44046410": {
+    "district": "Asa Branca",
+    "street": "Alameda K"
+  },
+  "44046857": {
+    "district": "Asa Branca",
+    "street": "Avenida 1 - Lado B"
+  },
+  "44046864": {
+    "district": "Asa Branca",
+    "street": "Avenida 2 - Lado B"
+  },
+  "44046865": {
+    "district": "Asa Branca",
+    "street": "Avenida 2 - Lado A"
+  },
+  "44046870": {
+    "district": "Asa Branca",
+    "street": "Rua 8"
+  },
+  "44046878": {
+    "district": "Asa Branca",
+    "street": "Avenida 1 - Lado A"
+  },
+  "44050012": {
+    "district": "Queimadinha",
+    "street": "Rua Barão de Cotegipe"
+  },
+  "44050038": {
+    "district": "Queimadinha",
+    "street": "Vila Francisco da Silva"
+  },
+  "44050156": {
+    "district": "Queimadinha",
+    "street": "Rua Joseane"
+  },
+  "44050186": {
+    "district": "Queimadinha",
+    "street": "Rua Pedro Carneiro Neto"
+  },
+  "44050222": {
+    "district": "Queimadinha",
+    "street": "Rua Silva Jardim"
+  },
+  "44050228": {
+    "district": "Queimadinha",
+    "street": "Avenida Maria Quitéria"
+  },
+  "44050368": {
+    "district": "Queimadinha",
+    "street": "Avenida Maria Quitéria"
+  },
+  "44050418": {
+    "district": "Queimadinha",
+    "street": "Praça do Cruzeirinho"
+  },
+  "44050424": {
+    "district": "Queimadinha",
+    "street": "Rua José Conrado"
+  },
+  "44050452": {
+    "district": "Queimadinha",
+    "street": "Travessa Ceará"
+  },
+  "44050464": {
+    "district": "Queimadinha",
+    "street": "Rua Maria de Lourdes"
+  },
+  "44050482": {
+    "district": "Queimadinha",
+    "street": "Rua Espírito Santo"
+  },
+  "44050524": {
+    "district": "Queimadinha",
+    "street": "Rua A"
+  },
+  "44050614": {
+    "district": "Queimadinha",
+    "street": "Rua Doutor João Leal"
+  },
+  "44050632": {
+    "district": "Queimadinha",
+    "street": "Praça Centenário"
+  },
+  "44050662": {
+    "district": "Queimadinha",
+    "street": "Rua Sergipe"
+  },
+  "44050698": {
+    "district": "Queimadinha",
+    "street": "Rua Santa Catarina"
+  },
+  "44050704": {
+    "district": "Queimadinha",
+    "street": "Rua São Paulo"
+  },
+  "44050716": {
+    "district": "Queimadinha",
+    "street": "Rua Bahia"
+  },
+  "44050728": {
+    "district": "Queimadinha",
+    "street": "Rua Francisco Amaral"
+  },
+  "44050736": {
+    "district": "Queimadinha",
+    "street": "Rua São Lucas"
+  },
+  "44050794": {
+    "district": "Queimadinha",
+    "street": "Avenida Maria Quitéria"
+  },
+  "44050800": {
+    "district": "Queimadinha",
+    "street": "Avenida Maria Quitéria"
+  },
+  "44051005": {
+    "district": "São João",
+    "street": "Avenida Maria Quitéria"
+  },
+  "44051015": {
+    "district": "São João",
+    "street": "Avenida Maria Quitéria"
+  },
+  "44051180": {
+    "district": "São João",
+    "street": "Vila Bauru"
+  },
+  "44051188": {
+    "district": "São João",
+    "street": "Rua Santa Luzia"
+  },
+  "44051257": {
+    "district": "São João",
+    "street": "1ª Travessa João Durval"
+  },
+  "44051465": {
+    "district": "São João",
+    "street": "Avenida Maria Quitéria"
+  },
+  "44051475": {
+    "district": "São João",
+    "street": "Avenida Maria Quitéria"
+  },
+  "44051528": {
+    "district": "São João",
+    "street": "Vila Arlindo"
+  },
+  "44051658": {
+    "district": "São João",
+    "street": "Rua Santarém"
+  },
+  "44051682": {
+    "district": "São João",
+    "street": "Avenida Maria Quitéria"
+  },
+  "44052017": {
+    "district": "CASEB",
+    "street": "Travessa Peru"
+  },
+  "44052046": {
+    "district": "CASEB",
+    "street": "Rua Santos"
+  },
+  "44052051": {
+    "district": "CASEB",
+    "street": "Rua Santo André"
+  },
+  "44052153": {
+    "district": "CASEB",
+    "street": "Rua Hansen Bahia"
+  },
+  "44052163": {
+    "district": "CASEB",
+    "street": "Praça da Serra"
+  },
+  "44052388": {
+    "district": "Lagoa Grande",
+    "street": "Praça Getsemani"
+  },
+  "44052394": {
+    "district": "Lagoa Grande",
+    "street": "Rua São José"
+  },
+  "44052418": {
+    "district": "Lagoa Grande",
+    "street": "Rua São João"
+  },
+  "44052462": {
+    "district": "Lagoa Grande",
+    "street": "Travessa Belmiro"
+  },
+  "44053055": {
+    "district": "Cidade Nova",
+    "street": "Avenida Francisco Fraga Maia"
+  },
+  "44053060": {
+    "district": "Cidade Nova",
+    "street": "Avenida Francisco Manoel da Silva"
+  },
+  "44053096": {
+    "district": "Cidade Nova",
+    "street": "Rua Morada Campo Limpo"
+  },
+  "44053114": {
+    "district": "Cidade Nova",
+    "street": "Rua Pau Brasil"
+  },
+  "44053170": {
+    "district": "Cidade Nova",
+    "street": "1ª Travessa Casimiro de Abreu"
+  },
+  "44053176": {
+    "district": "Cidade Nova",
+    "street": "2ª Travessa Casimiro de Abreu"
+  },
+  "44053182": {
+    "district": "Cidade Nova",
+    "street": "3ª Travessa Casimiro de Abreu"
+  },
+  "44053200": {
+    "district": "Cidade Nova",
+    "street": "Avenida Casimiro de Abreu"
+  },
+  "44053234": {
+    "district": "Cidade Nova",
+    "street": "Rua Barra das Mangabeiras"
+  },
+  "44053250": {
+    "district": "Cidade Nova",
+    "street": "Rua Barra Avenida"
+  },
+  "44053262": {
+    "district": "Cidade Nova",
+    "street": "Rua Barra de São João"
+  },
+  "44053346": {
+    "district": "Cidade Nova",
+    "street": "Caminho Santo Amaro"
+  },
+  "44053370": {
+    "district": "Cidade Nova",
+    "street": "Caminho Coração de Maria"
+  },
+  "44053498": {
+    "district": "Cidade Nova",
+    "street": "Caminho Conceição Lobo Barreto"
+  },
+  "44053552": {
+    "district": "Cidade Nova",
+    "street": "Rua Maragogipe"
+  },
+  "44053648": {
+    "district": "Cidade Nova",
+    "street": "Caminho Ipecaetá"
+  },
+  "44053660": {
+    "district": "Cidade Nova",
+    "street": "Praça João Havelange"
+  },
+  "44053690": {
+    "district": "Cidade Nova",
+    "street": "Caminho Santo Estêvão"
+  },
+  "44053744": {
+    "district": "Cidade Nova",
+    "street": "Rua I"
+  },
+  "44053780": {
+    "district": "Cidade Nova",
+    "street": "Praça Quatro"
+  },
+  "44054175": {
+    "district": "Parque Ipê",
+    "street": "Travessa Olaria"
+  },
+  "44054233": {
+    "district": "Parque Ipê",
+    "street": "Rua Maria Soares Cardoso"
+  },
+  "44054257": {
+    "district": "Parque Ipê",
+    "street": "Travessa Tijuca"
+  },
+  "44054290": {
+    "district": "Parque Ipê",
+    "street": "Rua Vilas Boas"
+  },
+  "44054378": {
+    "district": "Parque Ipê",
+    "street": "Avenida Francisco Fraga Maia"
+  },
+  "44054418": {
+    "district": "Parque Ipê",
+    "street": "Rua Nossa Senhora de Lourdes"
+  },
+  "44054506": {
+    "district": "Parque Ipê",
+    "street": "Rua Vila Nova"
+  },
+  "44054526": {
+    "district": "Parque Ipê",
+    "street": "Rua I"
+  },
+  "44054682": {
+    "district": "Parque Ipê",
+    "street": "Rua Parque Antártica"
+  },
+  "44055002": {
+    "district": "Parque Ipê",
+    "street": "Rua Rubens Francisco Dias"
+  },
+  "44056208": {
+    "district": "Mangabeira",
+    "street": "Rua F"
+  },
+  "44056232": {
+    "district": "Mangabeira",
+    "street": "Avenida Francisco Fraga Maia"
+  },
+  "44056308": {
+    "district": "Mangabeira",
+    "street": "Rua Joselito Amorim"
+  },
+  "44056322": {
+    "district": "Mangabeira",
+    "street": "Rua São Braz"
+  },
+  "44056360": {
+    "district": "Mangabeira",
+    "street": "Praça Jardim Modelo"
+  },
+  "44056390": {
+    "district": "Mangabeira",
+    "street": "Rua João Mangabeira"
+  },
+  "44056400": {
+    "district": "Mangabeira",
+    "street": "Rua Santa Efigênia"
+  },
+  "44056402": {
+    "district": "Mangabeira",
+    "street": "Rua São Cosme"
+  },
+  "44056408": {
+    "district": "Mangabeira",
+    "street": "Rua José Machado"
+  },
+  "44056422": {
+    "district": "Mangabeira",
+    "street": "Largo da Mangabeira"
+  },
+  "44056458": {
+    "district": "Mangabeira",
+    "street": "Travessa Maria Joana"
+  },
+  "44056460": {
+    "district": "Mangabeira",
+    "street": "Rua Maria Joana"
+  },
+  "44056490": {
+    "district": "Mangabeira",
+    "street": "Travessa Lourdes Maria da Silva"
+  },
+  "44056500": {
+    "district": "Mangabeira",
+    "street": "Rua Lourdes Maria da Silva"
+  },
+  "44056512": {
+    "district": "Mangabeira",
+    "street": "Travessa Camamu"
+  },
+  "44056533": {
+    "district": "Mangabeira",
+    "street": "Rua Barra de São João"
+  },
+  "44056536": {
+    "district": "Mangabeira",
+    "street": "Rua Barra Avenida"
+  },
+  "44056537": {
+    "district": "Mangabeira",
+    "street": "Rua Nossa Senhora das Graças"
+  },
+  "44056540": {
+    "district": "Mangabeira",
+    "street": "Travessa Nossa Senhora das Graças"
+  },
+  "44056541": {
+    "district": "Mangabeira",
+    "street": "Rua Nossa Senhora do Rosário"
+  },
+  "44056544": {
+    "district": "Mangabeira",
+    "street": "Rua Barra de São Francisco"
+  },
+  "44056576": {
+    "district": "Mangabeira",
+    "street": "Rua L"
+  },
+  "44056598": {
+    "district": "Mangabeira",
+    "street": "Rua B"
+  },
+  "44056696": {
+    "district": "Mangabeira",
+    "street": "Rua Brasilândia"
+  },
+  "44056704": {
+    "district": "Mangabeira",
+    "street": "Rua Bom Jardim"
+  },
+  "44056711": {
+    "district": "Mangabeira",
+    "street": "Comunidade Urbana Mangabeira I"
+  },
+  "44056784": {
+    "district": "Mangabeira",
+    "street": "Avenida Sete Lagoas"
+  },
+  "44056808": {
+    "district": "Mangabeira",
+    "street": "Rua José Araújo Diogo"
+  },
+  "44056905": {
+    "district": "Mangabeira",
+    "street": "Avenida Francisco Fraga Maia"
+  },
+  "44056906": {
+    "district": "Mangabeira",
+    "street": "Avenida Francisco Fraga Maia"
+  },
+  "44057014": {
+    "district": "Mangabeira",
+    "street": "Rua Edvaldo Santos"
+  },
+  "44057121": {
+    "district": "Mangabeira",
+    "street": "Comunidade Urbana Agrovila 6"
+  },
+  "44057154": {
+    "district": "Mangabeira",
+    "street": "Travessa B"
+  },
+  "44057300": {
+    "district": "Mangabeira",
+    "street": "Avenida Iguatemi"
+  },
+  "44057302": {
+    "district": "Mangabeira",
+    "street": "Rua A"
+  },
+  "44057355": {
+    "district": "Mangabeira",
+    "street": "Estrada Papagaio-Rosário"
+  },
+  "44057584": {
+    "district": "Mangabeira",
+    "street": "Rua São Carlos"
+  },
+  "44057600": {
+    "district": "Mangabeira",
+    "street": "Rua Santa Bárbara"
+  },
+  "44057640": {
+    "district": "Mangabeira",
+    "street": "Rua José Ronaldo"
+  },
+  "44057692": {
+    "district": "Mangabeira",
+    "street": "Vila Santa Isabel"
+  },
+  "44057752": {
+    "district": "Mangabeira",
+    "street": "Rua Joselândia"
+  },
+  "44057771": {
+    "district": "Mangabeira",
+    "street": "Estrada Santa Rita"
+  },
+  "44057782": {
+    "district": "Mangabeira",
+    "street": "Rua S"
+  },
+  "44057788": {
+    "district": "Mangabeira",
+    "street": "Rua U"
+  },
+  "44059145": {
+    "district": "Papagaio",
+    "street": "Estrada Santa Rita"
+  },
+  "44059260": {
+    "district": "Papagaio",
+    "street": "Travessa Santa Tereza"
+  },
+  "44059264": {
+    "district": "Papagaio",
+    "street": "Rua Maria Cristina"
+  },
+  "44059370": {
+    "district": "Papagaio",
+    "street": "Rua Rubens Francisco Dias"
+  },
+  "44059375": {
+    "district": "Papagaio",
+    "street": "Travessa Rubens Francisco Dias"
+  },
+  "44059570": {
+    "district": "Papagaio",
+    "street": "Avenida Francisco Fagundes Filho"
+  },
+  "44059580": {
+    "district": "Papagaio",
+    "street": "Rua Novo Brasil"
+  },
+  "44059581": {
+    "district": "Papagaio",
+    "street": "Comunidade Urbana Alto do Papagaio"
+  },
+  "44059620": {
+    "district": "Papagaio",
+    "street": "Rua Novo Horizonte"
+  },
+  "44059720": {
+    "district": "Papagaio",
+    "street": "Rua Papagaio"
+  },
+  "44059790": {
+    "district": "Papagaio",
+    "street": "Rua Maria do Socorro"
+  },
+  "44059840": {
+    "district": "Papagaio",
+    "street": "Rua Brasil"
+  },
+  "44061005": {
+    "district": "Papagaio",
+    "street": "Rodovia Santos Dumont"
+  },
+  "44061070": {
+    "district": "Papagaio",
+    "street": "Rua Araripe"
+  },
+  "44061230": {
+    "district": "Papagaio",
+    "street": "Rua Vila Universitária"
+  },
+  "44061231": {
+    "district": "Papagaio",
+    "street": "Comunidade Urbana Papagaio"
+  },
+  "44061280": {
+    "district": "Papagaio",
+    "street": "Rua Santamariense"
+  },
+  "44062082": {
+    "district": "Papagaio",
+    "street": "Rua Maria Quitéria"
+  },
+  "44062810": {
+    "district": "Papagaio",
+    "street": "Alameda A"
+  },
+  "44063000": {
+    "district": "CIS Norte",
+    "street": "Rodovia Santos Dumont"
+  },
+  "44065076": {
+    "district": "Conceição",
+    "street": "Vila Mariana"
+  },
+  "44065158": {
+    "district": "Conceição",
+    "street": "Rua Belém de São Francisco"
+  },
+  "44065166": {
+    "district": "Conceição",
+    "street": "Rua Belo Jardim"
+  },
+  "44065262": {
+    "district": "Conceição",
+    "street": "Alameda 1"
+  },
+  "44065264": {
+    "district": "Conceição",
+    "street": "Alameda 2"
+  },
+  "44065266": {
+    "district": "Conceição",
+    "street": "Alameda 3"
+  },
+  "44065268": {
+    "district": "Conceição",
+    "street": "Alameda 4"
+  },
+  "44065270": {
+    "district": "Conceição",
+    "street": "Alameda 5"
+  },
+  "44065272": {
+    "district": "Conceição",
+    "street": "Alameda 6"
+  },
+  "44065274": {
+    "district": "Conceição",
+    "street": "Alameda 7"
+  },
+  "44065276": {
+    "district": "Conceição",
+    "street": "Alameda 8"
+  },
+  "44065278": {
+    "district": "Conceição",
+    "street": "Alameda 9"
+  },
+  "44065300": {
+    "district": "Conceição",
+    "street": "Alameda 19"
+  },
+  "44065362": {
+    "district": "Conceição",
+    "street": "Travessa Baliza"
+  },
+  "44065534": {
+    "district": "Conceição",
+    "street": "Travessa Mansão"
+  },
+  "44065558": {
+    "district": "Conceição",
+    "street": "Rua Planalto da Conceição"
+  },
+  "44065714": {
+    "district": "Conceição",
+    "street": "Travessa Branca"
+  },
+  "44065726": {
+    "district": "Conceição",
+    "street": "Rua Mariana"
+  },
+  "44066024": {
+    "district": "Conceição",
+    "street": "Rua Brasil de Minas"
+  },
+  "44066164": {
+    "district": "Conceição",
+    "street": "Rua Santos"
+  },
+  "44066187": {
+    "district": "Conceição",
+    "street": "Comunidade Urbana Loteamento Armando Araújo"
+  },
+  "44066280": {
+    "district": "Conceição",
+    "street": "Avenida Iguatemi"
+  },
+  "44066428": {
+    "district": "Conceição",
+    "street": "Rua Q"
+  },
+  "44066504": {
+    "district": "Conceição",
+    "street": "Rua Conceição do Canindé"
+  },
+  "44066528": {
+    "district": "Conceição",
+    "street": "Rua Conceição do Coité"
+  },
+  "44066534": {
+    "district": "Conceição",
+    "street": "Rua Conceição de Feira"
+  },
+  "44066634": {
+    "district": "Conceição",
+    "street": "Praça Frei Félix"
+  },
+  "44067048": {
+    "district": "Conceição",
+    "street": "Rua Francisco Alves"
+  },
+  "44067056": {
+    "district": "Conceição",
+    "street": "Travessa Casa Branca"
+  },
+  "44067062": {
+    "district": "Conceição",
+    "street": "Rua Casa Branca"
+  },
+  "44067072": {
+    "district": "Conceição",
+    "street": "Rua José Américo"
+  },
+  "44067112": {
+    "district": "Conceição",
+    "street": "Travessa Santo Antônio"
+  },
+  "44067165": {
+    "district": "Conceição",
+    "street": "2ª Travessa D"
+  },
+  "44067170": {
+    "district": "Conceição",
+    "street": "Rua da Fraternidade"
+  },
+  "44067171": {
+    "district": "Conceição",
+    "street": "1ª Travessa D"
+  },
+  "44067172": {
+    "district": "Conceição",
+    "street": "Rua Francisca dos Santos Gomes"
+  },
+  "44067184": {
+    "district": "Conceição",
+    "street": "Rua D"
+  },
+  "44067206": {
+    "district": "Conceição",
+    "street": "Rua Pedro Matos"
+  },
+  "44067208": {
+    "district": "Conceição",
+    "street": "Rua Carmesim"
+  },
+  "44067222": {
+    "district": "Conceição",
+    "street": "Estrada Papagaio-Rosário"
+  },
+  "44067230": {
+    "district": "Conceição",
+    "street": "Rua A"
+  },
+  "44067240": {
+    "district": "Conceição",
+    "street": "Alameda K"
+  },
+  "44067440": {
+    "district": "Conceição",
+    "street": "Rua Cruzeiro do Brasil"
+  },
+  "44067441": {
+    "district": "Conceição",
+    "street": "Comunidade Urbana Loteamento Campelo"
+  },
+  "44068030": {
+    "district": "Conjunto Fraternidade",
+    "street": "Conjunto Fraternidade"
+  },
+  "44068262": {
+    "district": "Conceição",
+    "street": "Rua C"
+  },
+  "44068390": {
+    "district": "Conceição",
+    "street": "Rua E"
+  },
+  "44068398": {
+    "district": "Conceição",
+    "street": "Rua J"
+  },
+  "44068450": {
+    "district": "Conceição",
+    "street": "Alameda A"
+  },
+  "44068451": {
+    "district": "Conceição",
+    "street": "Alameda B"
+  },
+  "44068452": {
+    "district": "Conceição",
+    "street": "Alameda C"
+  },
+  "44068453": {
+    "district": "Conceição",
+    "street": "Alameda D"
+  },
+  "44068454": {
+    "district": "Conceição",
+    "street": "Alameda E"
+  },
+  "44068455": {
+    "district": "Conceição",
+    "street": "Alameda F"
+  },
+  "44071020": {
+    "district": "Santo Antônio dos Prazeres",
+    "street": "Rua José Mattos"
+  },
+  "44071030": {
+    "district": "Santo Antônio dos Prazeres",
+    "street": "Travessa José Mattos"
+  },
+  "44071050": {
+    "district": "Santo Antônio dos Prazeres",
+    "street": "Vila Carioza"
+  },
+  "44071060": {
+    "district": "Santo Antônio dos Prazeres",
+    "street": "Vila Canoas"
+  },
+  "44071070": {
+    "district": "Santo Antônio dos Prazeres",
+    "street": "Vila Caraí"
+  },
+  "44071246": {
+    "district": "Santo Antônio dos Prazeres",
+    "street": "Travessa Vila da Prata"
+  },
+  "44071460": {
+    "district": "Santo Antônio dos Prazeres",
+    "street": "Rua José Américo"
+  },
+  "44071461": {
+    "district": "Santo Antônio dos Prazeres",
+    "street": "Comunidade Urbana Parque São Jorge - Lagoa Juca Campelo"
+  },
+  "44071464": {
+    "district": "Santo Antônio dos Prazeres",
+    "street": "Travessa José Américo"
+  },
+  "44071696": {
+    "district": "Santo Antônio dos Prazeres",
+    "street": "Praça da Paz"
+  },
+  "44072102": {
+    "district": "Santo Antônio dos Prazeres",
+    "street": "Avenida Canaã"
+  },
+  "44072105": {
+    "district": "Santo Antônio dos Prazeres",
+    "street": "Rua Ipê Felpudo"
+  },
+  "44072110": {
+    "district": "Santo Antônio dos Prazeres",
+    "street": "Alameda Ipê Branco"
+  },
+  "44072115": {
+    "district": "Santo Antônio dos Prazeres",
+    "street": "Alameda Ipê Amarelo"
+  },
+  "44072120": {
+    "district": "Santo Antônio dos Prazeres",
+    "street": "Alameda Ipê Roxo"
+  },
+  "44072125": {
+    "district": "Santo Antônio dos Prazeres",
+    "street": "Alameda Ipê Rosa"
+  },
+  "44072135": {
+    "district": "Santo Antônio dos Prazeres",
+    "street": "Alameda Ipê Mirim"
+  },
+  "44072318": {
+    "district": "Santo Antônio dos Prazeres",
+    "street": "Rua Águas de São Pedro"
+  },
+  "44072502": {
+    "district": "Santo Antônio dos Prazeres",
+    "street": "Rua Novo Centro"
+  },
+  "44072512": {
+    "district": "Santo Antônio dos Prazeres",
+    "street": "Rua Nova Brasília"
+  },
+  "44073198": {
+    "district": "Registro",
+    "street": "Rua João Carlos Nery"
+  },
+  "44073200": {
+    "district": "Registro",
+    "street": "Avenida Azaléia"
+  },
+  "44073202": {
+    "district": "Registro",
+    "street": "Rua José Francisco da Silva"
+  },
+  "44073220": {
+    "district": "Registro",
+    "street": "Avenida Projetada"
+  },
+  "44073224": {
+    "district": "Registro",
+    "street": "Rua João Carlos Costa"
+  },
+  "44073227": {
+    "district": "Registro",
+    "street": "Rua Evandro Bahia Monteiro"
+  },
+  "44073229": {
+    "district": "Registro",
+    "street": "Rua José Moreira Icó"
+  },
+  "44073450": {
+    "district": "Registro",
+    "street": "Avenida Sossego"
+  },
+  "44073555": {
+    "district": "Registro",
+    "street": "Rua Pedro D'Oliveira"
+  },
+  "44073917": {
+    "district": "Registro",
+    "street": "Avenida Sossego"
+  },
+  "44073918": {
+    "district": "Registro",
+    "street": "Avenida Sossego"
+  },
+  "44073919": {
+    "district": "Registro",
+    "street": "Avenida Sossego"
+  },
+  "44073920": {
+    "district": "Registro",
+    "street": "Avenida Sossego"
+  },
+  "44075005": {
+    "district": "Ponto Central",
+    "street": "Avenida Maria Quitéria"
+  },
+  "44075079": {
+    "district": "Ponto Central",
+    "street": "Vila Setenta"
+  },
+  "44075147": {
+    "district": "Ponto Central",
+    "street": "Rua Vila Nazaré"
+  },
+  "44075155": {
+    "district": "Ponto Central",
+    "street": "Avenida Getúlio Vargas"
+  },
+  "44075165": {
+    "district": "Ponto Central",
+    "street": "Rua Doutor Simões Filho"
+  },
+  "44075175": {
+    "district": "Ponto Central",
+    "street": "Rua Santa Luz"
+  },
+  "44075177": {
+    "district": "Ponto Central",
+    "street": "Travessa Santa Luz"
+  },
+  "44075183": {
+    "district": "Ponto Central",
+    "street": "Praça Estação Nova"
+  },
+  "44075225": {
+    "district": "Ponto Central",
+    "street": "Rua José Bonifácio"
+  },
+  "44075247": {
+    "district": "Ponto Central",
+    "street": "Travessa União"
+  },
+  "44075287": {
+    "district": "Ponto Central",
+    "street": "Vila São Jorge"
+  },
+  "44075312": {
+    "district": "Ponto Central",
+    "street": "Vila São Francisco"
+  },
+  "44075358": {
+    "district": "Ponto Central",
+    "street": "Avenida Santo Antônio"
+  },
+  "44075375": {
+    "district": "Ponto Central",
+    "street": "Rua José Bonifácio"
+  },
+  "44075415": {
+    "district": "Ponto Central",
+    "street": "Travessa Regina"
+  },
+  "44075425": {
+    "district": "Ponto Central",
+    "street": "Avenida Getúlio Vargas"
+  },
+  "44075432": {
+    "district": "Ponto Central",
+    "street": "Avenida Getúlio Vargas"
+  },
+  "44075445": {
+    "district": "Ponto Central",
+    "street": "Avenida Maria Quitéria"
+  },
+  "44075475": {
+    "district": "Ponto Central",
+    "street": "Rua Francisco Martins da Silva"
+  },
+  "44075505": {
+    "district": "Ponto Central",
+    "street": "Rua General João Costa"
+  },
+  "44076015": {
+    "district": "Capuchinhos",
+    "street": "Avenida Getúlio Vargas"
+  },
+  "44076050": {
+    "district": "Capuchinhos",
+    "street": "Avenida Santo Antônio"
+  },
+  "44076140": {
+    "district": "Capuchinhos",
+    "street": "Rua João Sampaio Machado"
+  },
+  "44076180": {
+    "district": "Capuchinhos",
+    "street": "Rua Francisco Mário"
+  },
+  "44076210": {
+    "district": "Capuchinhos",
+    "street": "Rua Santo Expedito"
+  },
+  "44076230": {
+    "district": "Capuchinhos",
+    "street": "Rua São Francisco de Assis"
+  },
+  "44076270": {
+    "district": "Capuchinhos",
+    "street": "Rua Brasil"
+  },
+  "44076330": {
+    "district": "Capuchinhos",
+    "street": "Rua José Bonifácio"
+  },
+  "44076405": {
+    "district": "Capuchinhos",
+    "street": "Avenida Getúlio Vargas"
+  },
+  "44076636": {
+    "district": "Parque Getúlio Vargas",
+    "street": "Avenida Getúlio Vargas"
+  },
+  "44076684": {
+    "district": "Parque Getúlio Vargas",
+    "street": "Avenida Getúlio Vargas"
+  },
+  "44076828": {
+    "district": "Parque Getúlio Vargas",
+    "street": "Avenida Getúlio Vargas"
+  },
+  "44077005": {
+    "district": "Santa Mônica",
+    "street": "Avenida Getúlio Vargas"
+  },
+  "44077015": {
+    "district": "Santa Mônica",
+    "street": "Avenida Getúlio Vargas"
+  },
+  "44077034": {
+    "district": "Santa Mônica",
+    "street": "Vila Marina"
+  },
+  "44077190": {
+    "district": "Santa Mônica",
+    "street": "Rua São Francisco de Assis"
+  },
+  "44077250": {
+    "district": "Santa Mônica",
+    "street": "Rua José do Patrocínio"
+  },
+  "44077270": {
+    "district": "Santa Mônica",
+    "street": "Rua Papagaio"
+  },
+  "44077330": {
+    "district": "Santa Mônica",
+    "street": "Rua São Tomé"
+  },
+  "44077340": {
+    "district": "Santa Mônica",
+    "street": "Rua São João Batista"
+  },
+  "44077350": {
+    "district": "Santa Mônica",
+    "street": "Rua Nossa Senhora Aparecida"
+  },
+  "44077354": {
+    "district": "Santa Mônica",
+    "street": "Praça Arnaldo Brito"
+  },
+  "44077360": {
+    "district": "Santa Mônica",
+    "street": "Rua São João do Cairi"
+  },
+  "44077370": {
+    "district": "Santa Mônica",
+    "street": "Rua São Romão"
+  },
+  "44077392": {
+    "district": "Santa Mônica",
+    "street": "Rua Leôncio Santos"
+  },
+  "44077440": {
+    "district": "Santa Mônica",
+    "street": "Rua Luiz Carlos de Carvalho Bahia"
+  },
+  "44077490": {
+    "district": "Santa Mônica",
+    "street": "Travessa Madri"
+  },
+  "44077496": {
+    "district": "Santa Mônica",
+    "street": "Rua Santa Leopoldina"
+  },
+  "44077500": {
+    "district": "Santa Mônica",
+    "street": "Rua Santa Cecília"
+  },
+  "44077510": {
+    "district": "Santa Mônica",
+    "street": "Rua Santa Adélia"
+  },
+  "44077560": {
+    "district": "Santa Mônica",
+    "street": "Rua Santo Agostinho"
+  },
+  "44077580": {
+    "district": "Santa Mônica",
+    "street": "Rua Nossa Senhora da Conceição"
+  },
+  "44077600": {
+    "district": "Santa Mônica",
+    "street": "Rua São Jorge"
+  },
+  "44077660": {
+    "district": "Santa Mônica",
+    "street": "Rua São Francisco de Assis"
+  },
+  "44077690": {
+    "district": "Santa Mônica",
+    "street": "Rua Santo Agostinho"
+  },
+  "44077694": {
+    "district": "Santa Mônica",
+    "street": "Travessa Santo Expedito"
+  },
+  "44077700": {
+    "district": "Santa Mônica",
+    "street": "Rua Santo Expedito"
+  },
+  "44077718": {
+    "district": "Santa Mônica",
+    "street": "Rua São Pedro"
+  },
+  "44077720": {
+    "district": "Santa Mônica",
+    "street": "Rua São Francisco de Assis"
+  },
+  "44077728": {
+    "district": "Santa Mônica",
+    "street": "Rua Santo Expedito"
+  },
+  "44077730": {
+    "district": "Santa Mônica",
+    "street": "Rua São Jorge"
+  },
+  "44077754": {
+    "district": "Santa Mônica",
+    "street": "Rua Nossa Senhora do Carmo"
+  },
+  "44077761": {
+    "district": "Santa Mônica",
+    "street": "Rua Santa Marta"
+  },
+  "44077762": {
+    "district": "Santa Mônica",
+    "street": "Rua Nossa Senhora das Dores"
+  },
+  "44077770": {
+    "district": "Santa Mônica",
+    "street": "Rua Parecis"
+  },
+  "44077800": {
+    "district": "Santa Mônica",
+    "street": "Rua Porto Príncipe"
+  },
+  "44077810": {
+    "district": "Santa Mônica",
+    "street": "Rua Santo Expedito"
+  },
+  "44078040": {
+    "district": "Santa Mônica",
+    "street": "Rua Rio Jacuípe"
+  },
+  "44078050": {
+    "district": "Santa Mônica",
+    "street": "Rua Rio São Francisco"
+  },
+  "44078310": {
+    "district": "Santa Mônica",
+    "street": "Rua B"
+  },
+  "44078380": {
+    "district": "Santa Mônica",
+    "street": "Avenida João Pessoa"
+  },
+  "44078420": {
+    "district": "Santa Mônica",
+    "street": "Rua Senhor do Bonfim"
+  },
+  "44078430": {
+    "district": "Santa Mônica",
+    "street": "Avenida São Paulo"
+  },
+  "44078440": {
+    "district": "Santa Mônica",
+    "street": "Avenida Pernambuco"
+  },
+  "44078470": {
+    "district": "Santa Mônica",
+    "street": "Avenida Periférica"
+  },
+  "44078738": {
+    "district": "Santa Mônica",
+    "street": "Rua Nossa Senhora do Rosário"
+  },
+  "44079004": {
+    "district": "Subaé",
+    "street": "Rua Bege Bahia"
+  },
+  "44079006": {
+    "district": "Subaé",
+    "street": "Avenida Periférica"
+  },
+  "44079008": {
+    "district": "Subaé",
+    "street": "Rua Mutuípe"
+  },
+  "44079028": {
+    "district": "Subaé",
+    "street": "Praça Triângulo"
+  },
+  "44079148": {
+    "district": "Subaé",
+    "street": "Travessa Celina"
+  },
+  "44079234": {
+    "district": "Subaé",
+    "street": "Travessa Salmo"
+  },
+  "44079250": {
+    "district": "Subaé",
+    "street": "Rua Santo Agostinho"
+  },
+  "44080861": {
+    "district": "Subaé (Tanquinho)",
+    "street": "Rua F"
+  },
+  "44080866": {
+    "district": "Subaé (Tanquinho)",
+    "street": "Rua D"
+  },
+  "44080873": {
+    "district": "Subaé (Tanquinho)",
+    "street": "Rua São Pedro"
+  },
+  "44080882": {
+    "district": "Subaé (Tanquinho)",
+    "street": "Rua Senhor do Bonfim"
+  },
+  "44080885": {
+    "district": "Subaé (Tanquinho)",
+    "street": "1ª Travessa Senhor do Bonfim"
+  },
+  "44080887": {
+    "district": "Subaé (Tanquinho)",
+    "street": "2ª Travessa Senhor do Bonfim"
+  },
+  "44080889": {
+    "district": "Subaé (Tanquinho)",
+    "street": "3ª Travessa Senhor do Bonfim"
+  },
+  "44080893": {
+    "district": "Subaé (Tanquinho)",
+    "street": "Rua São Lucas"
+  },
+  "44082055": {
+    "district": "Lagoa Salgada",
+    "street": "Rua E"
+  },
+  "44082210": {
+    "district": "Lagoa Salgada",
+    "street": "Rua João Beda Mendonça"
+  },
+  "44082316": {
+    "district": "Lagoa Salgada",
+    "street": "Rua B"
+  },
+  "44082336": {
+    "district": "Lagoa Salgada",
+    "street": "Rua Conceição Araújo"
+  },
+  "44082725": {
+    "district": "Lagoa Salgada",
+    "street": "Rua São Marcos"
+  },
+  "44082730": {
+    "district": "Lagoa Salgada",
+    "street": "Rua Jardim Getúlio Vargas"
+  },
+  "44083424": {
+    "district": "Lagoa Salgada",
+    "street": "Rua Alto da Mangabeira"
+  },
+  "44083684": {
+    "district": "Lagoa Salgada",
+    "street": "Rua São Carlos"
+  },
+  "44083708": {
+    "district": "Lagoa Salgada",
+    "street": "Rua Francisca Sales"
+  },
+  "44085172": {
+    "district": "SIM",
+    "street": "Rua Alto Santos"
+  },
+  "44085402": {
+    "district": "SIM",
+    "street": "Rua São Pedro dos Ferros"
+  },
+  "44085404": {
+    "district": "SIM",
+    "street": "Rua São Pedro das Graças"
+  },
+  "44085406": {
+    "district": "SIM",
+    "street": "Rua São Pedro do Piauí"
+  },
+  "44085408": {
+    "district": "SIM",
+    "street": "Rua São Pedro da Sipa"
+  },
+  "44085410": {
+    "district": "SIM",
+    "street": "Rua São Pedro da Aldeia"
+  },
+  "44085490": {
+    "district": "SIM",
+    "street": "Rua São Pedro do Sul"
+  },
+  "44085500": {
+    "district": "SIM",
+    "street": "Rua São Pedro do Turvo"
+  },
+  "44088000": {
+    "district": "Brasília",
+    "street": "Avenida Maria Quitéria"
+  },
+  "44088012": {
+    "district": "Brasília",
+    "street": "Rua Pedro Suzart"
+  },
+  "44088024": {
+    "district": "Brasília",
+    "street": "Rua Monsenhor Aderbal Miranda"
+  },
+  "44088048": {
+    "district": "Brasília",
+    "street": "Rua Doutor João Mangabeira"
+  },
+  "44088054": {
+    "district": "Brasília",
+    "street": "Travessa Doutor João Mangabeira"
+  },
+  "44088108": {
+    "district": "Brasília",
+    "street": "Rua Dom Pedro I"
+  },
+  "44088132": {
+    "district": "Brasília",
+    "street": "Rua Pedro Suzart"
+  },
+  "44088180": {
+    "district": "Brasília",
+    "street": "Rua Monsenhor Aderbal Miranda"
+  },
+  "44088198": {
+    "district": "Brasília",
+    "street": "Rua Doutor João Mangabeira"
+  },
+  "44088202": {
+    "district": "Brasília",
+    "street": "Vila Copacabana"
+  },
+  "44088228": {
+    "district": "Brasília",
+    "street": "Rua Dom Pedro I"
+  },
+  "44088254": {
+    "district": "Brasília",
+    "street": "Rua José Muniz"
+  },
+  "44088276": {
+    "district": "Brasília",
+    "street": "Rua Pedro Suzart"
+  },
+  "44088290": {
+    "district": "Brasília",
+    "street": "Vila Maristela"
+  },
+  "44088318": {
+    "district": "Brasília",
+    "street": "Rua São Francisco"
+  },
+  "44088324": {
+    "district": "Brasília",
+    "street": "Avenida Santo Antônio"
+  },
+  "44088362": {
+    "district": "Brasília",
+    "street": "Vila Queiroz"
+  },
+  "44088386": {
+    "district": "Brasília",
+    "street": "Vila Rio Itapemirim"
+  },
+  "44088394": {
+    "district": "Brasília",
+    "street": "Vila Purus"
+  },
+  "44088419": {
+    "district": "Brasília",
+    "street": "Rua Rio Jacuípe"
+  },
+  "44088618": {
+    "district": "Brasília",
+    "street": "Travessa Milão"
+  },
+  "44088680": {
+    "district": "Brasília",
+    "street": "Travessa Pedro Suzart"
+  },
+  "44088708": {
+    "district": "Brasília",
+    "street": "Rua São Jorge"
+  },
+  "44088730": {
+    "district": "Brasília",
+    "street": "Praça Zabelê"
+  },
+  "44089154": {
+    "district": "Brasília",
+    "street": "Praça dos Despachantes"
+  },
+  "44089164": {
+    "district": "Brasília",
+    "street": "Rua B"
+  },
+  "44089440": {
+    "district": "Brasília",
+    "street": "Condomínio Recanto dos Pássaros"
+  },
+  "44090024": {
+    "district": "Tomba",
+    "street": "Travessa Dantas"
+  },
+  "44090040": {
+    "district": "Tomba",
+    "street": "Rua São João"
+  },
+  "44090188": {
+    "district": "Tomba",
+    "street": "Rua Santa Terezinha"
+  },
+  "44090204": {
+    "district": "Tomba",
+    "street": "Rua Santa Cecília"
+  },
+  "44090288": {
+    "district": "Tomba",
+    "street": "Praça Macário Barreto"
+  },
+  "44090344": {
+    "district": "Tomba",
+    "street": "Vila Salvador"
+  },
+  "44090360": {
+    "district": "Tomba",
+    "street": "Rua João de Deus"
+  },
+  "44090364": {
+    "district": "Tomba",
+    "street": "Rua Doutor Pedro Américo de Brito"
+  },
+  "44090380": {
+    "district": "Tomba",
+    "street": "Travessa Doutor Pedro Américo de Brito"
+  },
+  "44090448": {
+    "district": "Tomba",
+    "street": "Rua São Jorge"
+  },
+  "44090472": {
+    "district": "Tomba",
+    "street": "Rua José de Alencar"
+  },
+  "44090504": {
+    "district": "Tomba",
+    "street": "Travessa Crioula"
+  },
+  "44090529": {
+    "district": "Tomba",
+    "street": "Comunidade Urbana Parque Regência"
+  },
+  "44090532": {
+    "district": "Tomba",
+    "street": "Rua João de Carvalho"
+  },
+  "44090612": {
+    "district": "Tomba",
+    "street": "Rua Santa Quitéria"
+  },
+  "44090630": {
+    "district": "Tomba",
+    "street": "Travessa Virgem"
+  },
+  "44090652": {
+    "district": "Tomba",
+    "street": "Avenida Papa João XXIII"
+  },
+  "44090664": {
+    "district": "Tomba",
+    "street": "Rua Nossa Senhora da Conceição"
+  },
+  "44090666": {
+    "district": "Tomba",
+    "street": "Alameda A"
+  },
+  "44090667": {
+    "district": "Tomba",
+    "street": "Alameda B"
+  },
+  "44090668": {
+    "district": "Tomba",
+    "street": "Alameda C"
+  },
+  "44090669": {
+    "district": "Tomba",
+    "street": "Alameda D"
+  },
+  "44090670": {
+    "district": "Tomba",
+    "street": "Alameda E"
+  },
+  "44090671": {
+    "district": "Tomba",
+    "street": "Alameda F"
+  },
+  "44090672": {
+    "district": "Tomba",
+    "street": "Alameda G"
+  },
+  "44090673": {
+    "district": "Tomba",
+    "street": "Alameda H"
+  },
+  "44090674": {
+    "district": "Tomba",
+    "street": "Alameda I"
+  },
+  "44090675": {
+    "district": "Tomba",
+    "street": "Alameda J"
+  },
+  "44090676": {
+    "district": "Tomba",
+    "street": "Alameda L"
+  },
+  "44090684": {
+    "district": "Tomba",
+    "street": "Rua Santo André"
+  },
+  "44090696": {
+    "district": "Tomba",
+    "street": "Rua Santo Antônio"
+  },
+  "44090720": {
+    "district": "Tomba",
+    "street": "Avenida Maria Cristina"
+  },
+  "44090760": {
+    "district": "Tomba",
+    "street": "Rua Aurelino Santana"
+  },
+  "44090776": {
+    "district": "Tomba",
+    "street": "Rua Marta Santana"
+  },
+  "44090788": {
+    "district": "Tomba",
+    "street": "Rua São João Batista"
+  },
+  "44090800": {
+    "district": "Tomba",
+    "street": "Estrada da Muchila"
+  },
+  "44090840": {
+    "district": "Tomba",
+    "street": "Rua Brasil"
+  },
+  "44090862": {
+    "district": "Tomba",
+    "street": "Rua 7"
+  },
+  "44090878": {
+    "district": "Tomba",
+    "street": "Rua Aurélio Santana"
+  },
+  "44090959": {
+    "district": "Tomba",
+    "street": "Praça Macário Barreto"
+  },
+  "44090970": {
+    "district": "Tomba",
+    "street": "Praça Macário Barreto"
+  },
+  "44091013": {
+    "district": "Tomba",
+    "street": "Comunidade Urbana Loteamento Parque São José"
+  },
+  "44091118": {
+    "district": "Tomba",
+    "street": "Praça Luanda"
+  },
+  "44091134": {
+    "district": "Tomba",
+    "street": "Rua João Manoel Araújo"
+  },
+  "44091180": {
+    "district": "Tomba",
+    "street": "Travessa Teodoro"
+  },
+  "44091202": {
+    "district": "Tomba",
+    "street": "Travessa Iguaci"
+  },
+  "44091228": {
+    "district": "Tomba",
+    "street": "Rua São José"
+  },
+  "44091229": {
+    "district": "Tomba",
+    "street": "Travessa São José"
+  },
+  "44091264": {
+    "district": "Tomba",
+    "street": "Rua São Francisco"
+  },
+  "44091312": {
+    "district": "Tomba",
+    "street": "Rua Jutaipeva"
+  },
+  "44091314": {
+    "district": "Tomba",
+    "street": "Rua Jaipera"
+  },
+  "44091344": {
+    "district": "Tomba",
+    "street": "Rua Conceição do Araguaia"
+  },
+  "44091348": {
+    "district": "Tomba",
+    "street": "Rua Conceição da Barra"
+  },
+  "44091352": {
+    "district": "Tomba",
+    "street": "Rua da Conceição"
+  },
+  "44091356": {
+    "district": "Tomba",
+    "street": "Rua Conceição do Almeida"
+  },
+  "44091358": {
+    "district": "Tomba",
+    "street": "Travessa Conceição do Almeida"
+  },
+  "44091364": {
+    "district": "Tomba",
+    "street": "Rua Américo Simas"
+  },
+  "44091366": {
+    "district": "Tomba",
+    "street": "Travessa Américo Simas"
+  },
+  "44091392": {
+    "district": "Tomba",
+    "street": "Rua Amado Bahia"
+  },
+  "44091394": {
+    "district": "Tomba",
+    "street": "Travessa Amado Bahia"
+  },
+  "44091428": {
+    "district": "Tomba",
+    "street": "Rua Conceição de Macambi"
+  },
+  "44091430": {
+    "district": "Tomba",
+    "street": "Travessa Conceição de Macambi"
+  },
+  "44091480": {
+    "district": "Tomba",
+    "street": "Rua Brasil"
+  },
+  "44091504": {
+    "district": "Tomba",
+    "street": "Rua Coração de Maria"
+  },
+  "44091620": {
+    "district": "Tomba",
+    "street": "Avenida Dois"
+  },
+  "44091724": {
+    "district": "Tomba",
+    "street": "Rua José Hélio"
+  },
+  "44092032": {
+    "district": "Tomba",
+    "street": "Rua São Luís"
+  },
+  "44092036": {
+    "district": "Tomba",
+    "street": "Rua São João"
+  },
+  "44092038": {
+    "district": "Tomba",
+    "street": "Travessa São João"
+  },
+  "44092060": {
+    "district": "Tomba",
+    "street": "Rua São Francisco de Assis"
+  },
+  "44092064": {
+    "district": "Tomba",
+    "street": "Rua São Luiz"
+  },
+  "44092074": {
+    "district": "Tomba",
+    "street": "Rua E"
+  },
+  "44092148": {
+    "district": "Tomba",
+    "street": "Rua São Francisco"
+  },
+  "44092156": {
+    "district": "Tomba",
+    "street": "Rua Pedro Lapa Cardoso"
+  },
+  "44092172": {
+    "district": "Tomba",
+    "street": "Rua São Lucas"
+  },
+  "44092176": {
+    "district": "Tomba",
+    "street": "Rua Francisco Almeida"
+  },
+  "44092208": {
+    "district": "Tomba",
+    "street": "Rua São Lucas"
+  },
+  "44092212": {
+    "district": "Tomba",
+    "street": "Rua José Marinho Neves"
+  },
+  "44092252": {
+    "district": "Tomba",
+    "street": "Rua H"
+  },
+  "44092372": {
+    "district": "Tomba",
+    "street": "Rua Roldão Alves Brasil"
+  },
+  "44092396": {
+    "district": "Tomba",
+    "street": "Travessa Roldão Alves Brasil"
+  },
+  "44092400": {
+    "district": "Tomba",
+    "street": "Avenida Pró-Bahia"
+  },
+  "44092404": {
+    "district": "Tomba",
+    "street": "Rua Brasileirinho"
+  },
+  "44092642": {
+    "district": "Tomba",
+    "street": "Praça Sérgio Carneiro"
+  },
+  "44092742": {
+    "district": "Tomba",
+    "street": "Rua Santa Rita"
+  },
+  "44094072": {
+    "district": "35º BI",
+    "street": "Rua Francisco Silva"
+  },
+  "44094078": {
+    "district": "35º BI",
+    "street": "Rua Doutor Antônio Francisco"
+  },
+  "44094092": {
+    "district": "35º BI",
+    "street": "Travessa Martins"
+  },
+  "44094180": {
+    "district": "35º BI",
+    "street": "Avenida 9 de Julho"
+  },
+  "44094714": {
+    "district": "35º BI",
+    "street": "Rua Irene Maria de Santana"
+  },
+  "44094784": {
+    "district": "35º BI",
+    "street": "Rua José Ferreira Filho"
+  },
+  "44095026": {
+    "district": "Aviário",
+    "street": "Travessa Pires"
+  },
+  "44095036": {
+    "district": "Aviário",
+    "street": "Rua Madre Maria Domingas"
+  },
+  "44095244": {
+    "district": "Aviário",
+    "street": "Rua Justino dos Santos"
+  },
+  "44095330": {
+    "district": "Aviário",
+    "street": "Avenida A"
+  },
+  "44095342": {
+    "district": "Aviário",
+    "street": "Avenida G"
+  },
+  "44095344": {
+    "district": "Aviário",
+    "street": "Avenida H"
+  },
+  "44095401": {
+    "district": "Aviário",
+    "street": "Comunidade Urbana Conjunto Liberdade"
+  },
+  "44096032": {
+    "district": "Aviário",
+    "street": "Rua João Catapano"
+  },
+  "44096036": {
+    "district": "Aviário",
+    "street": "Rua José Enock da Cruz"
+  },
+  "44096044": {
+    "district": "Aviário",
+    "street": "Rua Arivaldo Santana"
+  },
+  "44096100": {
+    "district": "Aviário",
+    "street": "Rua Pau Brasil"
+  },
+  "44096254": {
+    "district": "Aviário",
+    "street": "Rua V"
+  },
+  "44096300": {
+    "district": "Aviário",
+    "street": "Rua E"
+  },
+  "44096312": {
+    "district": "Aviário",
+    "street": "Rua G"
+  },
+  "44096402": {
+    "district": "Aviário",
+    "street": "Rua L"
+  },
+  "44096590": {
+    "district": "Aviário",
+    "street": "Praça Alvinópolis"
+  },
+  "44096620": {
+    "district": "Aviário",
+    "street": "Rua Santa Terezinha"
+  },
+  "44096640": {
+    "district": "Aviário",
+    "street": "Rua João Batista"
+  },
+  "44096644": {
+    "district": "Aviário",
+    "street": "Rua Santo Antônio"
+  },
+  "44096668": {
+    "district": "Aviário",
+    "street": "Rua Senhor do Bonfim"
+  },
+  "44096686": {
+    "district": "Aviário",
+    "street": "Rua Santo André"
+  },
+  "44096692": {
+    "district": "Aviário",
+    "street": "Rua Nossa Senhora Aparecida"
+  },
+  "44096698": {
+    "district": "Aviário",
+    "street": "Rua São Lucas"
+  },
+  "44096704": {
+    "district": "Aviário",
+    "street": "Rua Nossa Senhora da Paz"
+  },
+  "44096710": {
+    "district": "Aviário",
+    "street": "Rua Santa Rita"
+  },
+  "44096722": {
+    "district": "Aviário",
+    "street": "Rua São Roque"
+  },
+  "44096728": {
+    "district": "Aviário",
+    "street": "Rua São Félix"
+  },
+  "44097098": {
+    "district": "Limoeiro",
+    "street": "Rua Jardim Recreio"
+  },
+  "44097708": {
+    "district": "Limoeiro",
+    "street": "Praça do Limoeiro"
+  },
+  "44097726": {
+    "district": "Limoeiro",
+    "street": "Rua São Lucas"
+  },
+  "44098750": {
+    "district": "Limoeiro",
+    "street": "Rua R"
+  },
+  "44099075": {
+    "district": "Humildes",
+    "street": "Rua G"
+  },
+  "44099080": {
+    "district": "Humildes",
+    "street": "Rua Santo Antônio"
+  },
+  "44099115": {
+    "district": "Humildes",
+    "street": "Rua São Pedro"
+  },
+  "44099150": {
+    "district": "Humildes",
+    "street": "Travessa Jeová"
+  },
+  "44099280": {
+    "district": "Humildes",
+    "street": "Rua Santo Antônio"
+  },
+  "44099295": {
+    "district": "Humildes",
+    "street": "Travessa Santo Antônio"
+  },
+  "44099300": {
+    "district": "Humildes",
+    "street": "3ª Travessa D"
+  },
+  "44099310": {
+    "district": "Humildes",
+    "street": "Rua São José"
+  },
+  "44099455": {
+    "district": "Humildes",
+    "street": "Rua São Francisco"
+  },
+  "44099510": {
+    "district": "Humildes",
+    "street": "Rua José Francisco"
+  },
+  "44099515": {
+    "district": "Humildes",
+    "street": "Rua Novo Horizonte"
+  },
+  "44099520": {
+    "district": "Humildes",
+    "street": "Rua São Luís"
+  },
+  "44099590": {
+    "district": "Humildes",
+    "street": "Rua João André Nogueira"
+  },
+  "44099670": {
+    "district": "Humildes",
+    "street": "Rua Joselito Amorim"
+  },
+  "44099795": {
+    "district": "Humildes",
+    "street": "Rua José Gomes Soares"
+  }
+}
