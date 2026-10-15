@@ -83,6 +83,7 @@ export const FEIRA_URBAN_NEIGHBORHOODS: Record<string, { lat: number; lng: numbe
   cruzeiro: { lat: -12.245, lng: -38.93, displayName: "Cruzeiro" },
   jardimcruzeiro: { lat: -12.246, lng: -38.972, displayName: "Jardim Cruzeiro" },
   pedradodescanso: { lat: -12.278, lng: -38.982, displayName: "Pedra do Descanso" },
+  registro: { lat: -12.2335, lng: -38.8738, displayName: "Registro" },
   parquegetuliovargas: { lat: -12.262, lng: -38.942, displayName: "Parque Getúlio Vargas" },
   vilaolimpia: { lat: -12.278, lng: -38.97, displayName: "Vila Olímpia" },
   subae: { lat: -12.285, lng: -38.93, displayName: "Subaé" },

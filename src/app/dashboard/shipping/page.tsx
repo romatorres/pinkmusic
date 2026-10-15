@@ -514,7 +514,7 @@ export default function ShippingSettingsPage() {
           <p className="text-2xl font-bold mt-2 text-foreground">
             {maxCoveredKm} km
           </p>
-          <span className="text-[11px] text-muted-foreground">A partir do Centro / Kalilândia</span>
+          <span className="text-[11px] text-muted-foreground">A partir do Centro</span>
         </div>
 
         <div className="bg-card border rounded-xl p-4 shadow-xs">
