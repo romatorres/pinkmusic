@@ -76,6 +76,7 @@ interface Order {
   shippingZone?: string | null;
   shippingDistance?: number | null;
   shippingMethod?: string | null;
+  needsReview?: boolean;
   createdAt: string;
   product?: {
     id: string;
@@ -960,6 +961,11 @@ export default function OrdersPage() {
                               {order.shippingDistance &&
                                 ` · ~${order.shippingDistance.toFixed(1)} km`}
                               {` · Frete: ${formatPrice(order.deliveryFee || 0)}`}
+                              {order.needsReview && (
+                                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-100 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700 ml-1.5">
+                                  ⚠️ Confirmar Bairro
+                                </span>
+                              )}
                             </p>
                           )}
                         </div>

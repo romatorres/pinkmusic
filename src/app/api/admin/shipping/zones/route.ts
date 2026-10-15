@@ -78,8 +78,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Calcula o próximo order (max atual + 1) para garantir @unique
+    const lastZone = await prisma.shippingZone.findFirst({
+      orderBy: { order: "desc" },
+    });
+    const nextOrder = (lastZone?.order ?? 0) + 1;
+
     const zone = await prisma.shippingZone.create({
       data: {
+        order: nextOrder,
         name: name.trim(),
         description: description?.trim() || null,
         minDistance: min,

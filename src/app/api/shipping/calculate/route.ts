@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json().catch(() => ({}));
-    const { zipCode } = body;
+    const { zipCode, selectedNeighborhoodKey } = body;
 
     if (!zipCode || typeof zipCode !== "string") {
       return NextResponse.json(
@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const result = await calculateShipping(zipCode);
+    const result = await calculateShipping(zipCode, { selectedNeighborhoodKey });
 
     if (!result.available) {
       const statusCode = result.reason === "INVALID_ZIP_CODE" ? 400 : 200;

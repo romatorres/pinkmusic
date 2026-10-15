@@ -1,0 +1,62 @@
+{
+  "Olhos D'Água": {
+    "lat": -12.2680,
+    "lon": -38.9610,
+    "note": "Centro urbano ao lado de Brasília / Tomba (Google Maps)"
+  },
+  "Rua Nova": {
+    "lat": -12.2635,
+    "lon": -38.9740,
+    "note": "Bairro urbano colado no Centro e Calumbi (Google Maps)"
+  },
+  "Lagoa Grande": {
+    "lat": -12.2530,
+    "lon": -38.9480,
+    "note": "Região da Lagoa Grande / Rocinha / Parque Getúlio Vargas (Google Maps)"
+  },
+  "Baraúna": {
+    "lat": -12.2470,
+    "lon": -38.9620,
+    "note": "Bairro urbano vizinho ao Centro e Sobradinho (Google Maps)"
+  },
+  "Jardim Acácia": {
+    "lat": -12.2720,
+    "lon": -38.9710,
+    "note": "Bairro urbano vizinho a Chácara São Cosme / Tomba (Google Maps)"
+  },
+  "Serraria Brasil": {
+    "lat": -12.2660,
+    "lon": -38.9650,
+    "note": "Bairro urbano contíguo à Brasília e Centro (Google Maps)"
+  },
+  "Conjunto Fraternidade": {
+    "lat": -12.3020,
+    "lon": -38.9690,
+    "note": "Conjunto habitacional no Tomba Sul (Google Maps)"
+  },
+  "Cruzeiro": {
+    "lat": -12.2450,
+    "lon": -38.9750,
+    "note": "Região do Jardim Cruzeiro / Sobradinho (Google Maps)"
+  },
+  "Campo do Gado Novo": {
+    "lat": -12.2150,
+    "lon": -38.9950,
+    "note": "Região do Campo do Gado Novo / Asa Branca (Google Maps)"
+  },
+  "Chaparral": {
+    "lat": -12.2850,
+    "lon": -38.9550,
+    "note": "Loteamento Chaparral / Tomba (Google Maps)"
+  },
+  "CIS Norte": {
+    "lat": -12.2050,
+    "lon": -39.0100,
+    "note": "Distrito Industrial Norte / Novo Horizonte (Google Maps)"
+  },
+  "Vale do Jacuípe": {
+    "lat": -12.2780,
+    "lon": -39.0150,
+    "note": "Região do Vale do Jacuípe / Feira IX (Google Maps)"
+  }
+}

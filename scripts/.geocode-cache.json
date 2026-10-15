@@ -1,0 +1,275 @@
+{
+  "35bi": {
+    "lat": -12.2813973,
+    "lng": -38.9384177,
+    "displayName": "35º Batalhão de Infantaria, 35 BI, Feira de Santana, Bahia, Região Nordeste, 44094-000, Brasil"
+  },
+  "aeroporto": {
+    "lat": -12.2028535,
+    "lng": -38.9069715,
+    "displayName": "Aeroporto, Feira de Santana, Bahia, Região Nordeste, 44067-228, Brasil"
+  },
+  "asabranca": {
+    "lat": -12.2028528,
+    "lng": -39.000352,
+    "displayName": "Asa Branca, Feira de Santana, Bahia, Região Nordeste, 44044-430, Brasil"
+  },
+  "aviario": {
+    "lat": -12.3091445,
+    "lng": -38.9331412,
+    "displayName": "Aviário, Feira de Santana, Bahia, Região Nordeste, 44043-370, Brasil"
+  },
+  "barauna": {
+    "lat": 0,
+    "lng": 0,
+    "displayName": "",
+    "failed": true
+  },
+  "brasilia": {
+    "lat": -12.2666487,
+    "lng": -38.9505934,
+    "displayName": "Brasília, Feira de Santana, Bahia, Região Nordeste, 44088-312, Brasil"
+  },
+  "calumbi": {
+    "lat": -12.2536996,
+    "lng": -38.9852769,
+    "displayName": "Calumbi, Feira IV, Santana, Feira de Santana, Bahia, Região Nordeste, 44009-180, Brasil"
+  },
+  "campodogadonovo": {
+    "lat": 0,
+    "lng": 0,
+    "displayName": "",
+    "failed": true
+  },
+  "campolimpo": {
+    "lat": -12.2149944,
+    "lng": -38.9714947,
+    "displayName": "Campo Limpo, Pampalona, Feira de Santana, Bahia, Região Nordeste, 44006-408, Brasil"
+  },
+  "capuchinhos": {
+    "lat": -12.2588706,
+    "lng": -38.9468529,
+    "displayName": "Capuchinhos, Feira de Santana, Bahia, Região Nordeste, 44053-360, Brasil"
+  },
+  "caseb": {
+    "lat": -12.2413497,
+    "lng": -38.9434538,
+    "displayName": "CASEB, Feira de Santana, Bahia, Região Nordeste, 44052-167, Brasil"
+  },
+  "centro": {
+    "lat": -12.2565682,
+    "lng": -38.9648737,
+    "displayName": "Centro, Santana, Feira de Santana, Bahia, Região Nordeste, 44010-230, Brasil"
+  },
+  "chacarasaocosme": {
+    "lat": -12.2642126,
+    "lng": -38.9687979,
+    "displayName": "Chácara São Cosme, Muchila, Santana, Feira de Santana, Bahia, Região Nordeste, 44001-784, Brasil"
+  },
+  "chaparral": {
+    "lat": 0,
+    "lng": 0,
+    "displayName": "",
+    "failed": true
+  },
+  "cidadenova": {
+    "lat": -12.2259641,
+    "lng": -38.9610251,
+    "displayName": "Cidade Nova, Feira de Santana, Bahia, Região Nordeste, 44053-200, Brasil"
+  },
+  "cis": {
+    "lat": -12.2993913,
+    "lng": -38.9603945,
+    "displayName": "CIS, Feira de Santana, Bahia, Região Nordeste, 44092-188, Brasil"
+  },
+  "cisnorte": {
+    "lat": 0,
+    "lng": 0,
+    "displayName": "",
+    "failed": true
+  },
+  "conceicao": {
+    "lat": -12.2327108,
+    "lng": -38.9359093,
+    "displayName": "Conceição, Feira de Santana, Bahia, Região Nordeste, 44052-151, Brasil"
+  },
+  "conjuntofraternidade": {
+    "lat": 0,
+    "lng": 0,
+    "displayName": "",
+    "failed": true
+  },
+  "cruzeiro": {
+    "lat": -12.2145776,
+    "lng": -39.0437579,
+    "displayName": "Cruzeiro do Mocó, Maria Quitéria, Feira de Santana, Bahia, Região Nordeste, 44044-430, Brasil"
+  },
+  "gabriela": {
+    "lat": -12.2305215,
+    "lng": -38.9848586,
+    "displayName": "Gabriela, Pampalona, Feira de Santana, Bahia, Região Nordeste, 44028-583, Brasil"
+  },
+  "humildes": {
+    "lat": -12.3485,
+    "lng": -38.887975,
+    "displayName": "Humildes, Feira de Santana, Bahia, Região Nordeste, 44097-324, Brasil"
+  },
+  "jardimacacia": {
+    "lat": 0,
+    "lng": 0,
+    "displayName": "",
+    "failed": true
+  },
+  "jardimcruzeiro": {
+    "lat": -12.2430928,
+    "lng": -38.9793294,
+    "displayName": "Jardim Cruzeiro, Sobradinho, Santana, Feira de Santana, Bahia, Região Nordeste, 44024-432, Brasil"
+  },
+  "lagoagrande": {
+    "lat": -12.2857886,
+    "lng": -39.104805,
+    "displayName": "Lagoa Grande, Governador Dr. João Durval Carneiro, Feira de Santana, Bahia, Região Nordeste, Brasil"
+  },
+  "lagoasalgada": {
+    "lat": -12.2644487,
+    "lng": -38.9125166,
+    "displayName": "Lagoa Salgada, SIM, Feira de Santana, Bahia, Região Nordeste, Brasil"
+  },
+  "limoeiro": {
+    "lat": -12.3106559,
+    "lng": -38.8957519,
+    "displayName": "Limoeiro, Feira de Santana, Bahia, Região Nordeste, 44097-324, Brasil"
+  },
+  "mangabeira": {
+    "lat": -12.2217117,
+    "lng": -38.9460928,
+    "displayName": "Mangabeira, Feira de Santana, Bahia, Região Nordeste, 44056-418, Brasil"
+  },
+  "mantiba": {
+    "lat": -12.1938309,
+    "lng": -38.9235424,
+    "displayName": "Estrada Santa Rita-Mantiba, Aeroporto, Feira de Santana, Bahia, Região Nordeste, 44066-650, Brasil"
+  },
+  "muchila": {
+    "lat": -12.2705727,
+    "lng": -38.9684344,
+    "displayName": "Muchila, Santana, Feira de Santana, Bahia, Região Nordeste, 44005-000, Brasil"
+  },
+  "novaesperanca": {
+    "lat": -12.2564825,
+    "lng": -38.9100723,
+    "displayName": "Rua Nova Esperança, SIM, Feira de Santana, Bahia, Região Nordeste, 44071-870, Brasil"
+  },
+  "novohorizonte": {
+    "lat": -12.2053576,
+    "lng": -38.9683716,
+    "displayName": "Novo Horizonte, Pampalona, Feira de Santana, Bahia, Região Nordeste, 44036-900, Brasil"
+  },
+  "olhosdagua": {
+    "lat": -12.14001,
+    "lng": -38.9429396,
+    "displayName": "Olhos D'água das Moças, Feira de Santana, Bahia, Região Nordeste, 44001-000, Brasil"
+  },
+  "pampalona": {
+    "lat": -12.2251636,
+    "lng": -38.9796953,
+    "displayName": "Pampalona, Feira de Santana, Bahia, Região Nordeste, Brasil"
+  },
+  "papagaio": {
+    "lat": -12.2690245,
+    "lng": -38.9295865,
+    "displayName": "Rua Papagaio, Santa Mônica, Feira de Santana, Bahia, Região Nordeste, 44549-999, Brasil"
+  },
+  "parquegetuliovargas": {
+    "lat": -12.2504827,
+    "lng": -38.9449485,
+    "displayName": "Parque Getúlio Vargas, Feira de Santana, Bahia, Região Nordeste, 44075-355, Brasil"
+  },
+  "parqueipe": {
+    "lat": -12.213357,
+    "lng": -38.9581237,
+    "displayName": "Parque Ipê, Feira de Santana, Bahia, Região Nordeste, 44053-274, Brasil"
+  },
+  "pedradodescanso": {
+    "lat": -12.2658855,
+    "lng": -38.9843446,
+    "displayName": "Pedra do Descanso, Feira IV, Santana, Feira de Santana, Bahia, Região Nordeste, 44009-180, Brasil"
+  },
+  "pedraferrada": {
+    "lat": -12.2060372,
+    "lng": -38.9991658,
+    "displayName": "Estrada Pedra Ferrada, Pampalona, Feira de Santana, Bahia, Região Nordeste, 44044-269, Brasil"
+  },
+  "pontocentral": {
+    "lat": -12.2526425,
+    "lng": -38.952051,
+    "displayName": "Ponto Central, Santana, Feira de Santana, Bahia, Região Nordeste, 44075-045, Brasil"
+  },
+  "queimadinha": {
+    "lat": -12.244533,
+    "lng": -38.9619526,
+    "displayName": "Queimadinha, Santana, Feira de Santana, Bahia, Região Nordeste, 44050-036, Brasil"
+  },
+  "registro": {
+    "lat": -12.233491,
+    "lng": -38.8738143,
+    "displayName": "Estrada do Registro, Feira de Santana, Bahia, Região Nordeste, 44073-100, Brasil"
+  },
+  "ruanova": {
+    "lat": -12.207398,
+    "lng": -38.8684617,
+    "displayName": "Rua Nova, Fazenda Cajueiro, Jaíba, Feira de Santana, Bahia, Região Nordeste, 44073-100, Brasil"
+  },
+  "santamonica": {
+    "lat": -12.2615379,
+    "lng": -38.9385258,
+    "displayName": "Santa Mônica, Feira de Santana, Bahia, Região Nordeste, 44077-720, Brasil"
+  },
+  "santoantoniodosprazeres": {
+    "lat": -12.2428161,
+    "lng": -38.9338749,
+    "displayName": "Praça Santo Antônio Dos Prazeres, 39-121, São João, CASEB, Feira de Santana, Bahia, Região Nordeste, 40301-110, Brasil"
+  },
+  "saojoao": {
+    "lat": -12.2385685,
+    "lng": -38.9505172,
+    "displayName": "São João, Santana, Feira de Santana, Bahia, Região Nordeste, 44051-224, Brasil"
+  },
+  "serrariabrasil": {
+    "lat": 0,
+    "lng": 0,
+    "displayName": "",
+    "failed": true
+  },
+  "sim": {
+    "lat": -12.2512799,
+    "lng": -38.9260106,
+    "displayName": "SIM, Feira de Santana, Bahia, Região Nordeste, 44085-112, Brasil"
+  },
+  "sobradinho": {
+    "lat": -12.2386608,
+    "lng": -38.9753363,
+    "displayName": "Sobradinho, Santana, Feira de Santana, Bahia, Região Nordeste, 44021-225, Brasil"
+  },
+  "subae": {
+    "lat": -12.4108243,
+    "lng": -38.8365267,
+    "displayName": "Rio Subaé, Santo Amaro, Bahia, Região Nordeste, Brasil"
+  },
+  "subaetanquinho": {
+    "lat": -12.4108243,
+    "lng": -38.8365267,
+    "displayName": "Rio Subaé, Santo Amaro, Bahia, Região Nordeste, Brasil"
+  },
+  "tomba": {
+    "lat": -12.2847564,
+    "lng": -38.9559497,
+    "displayName": "Tomba, Feira de Santana, Bahia, Região Nordeste, 44090-264, Brasil"
+  },
+  "valedojacuipe": {
+    "lat": 0,
+    "lng": 0,
+    "displayName": "",
+    "failed": true
+  }
+}

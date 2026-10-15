@@ -17,7 +17,7 @@ function parseEnvString(val: string | undefined, fallback: string): string {
 }
 
 export const STORE_SHIPPING_CONFIG = {
-  // CEP de Origem da Loja Física (Kalilândia / Centro - Feira de Santana - BA)
+  // CEP de Origem da Loja Física (Centro - Feira de Santana - BA)
   originZipCode: process.env.STORE_ZIP?.replace(/\D/g, "") || "44002000",
   originZipCodeFormatted: "44002-000",
   storeCity: parseEnvString(process.env.STORE_CITY, "Feira de Santana"),
@@ -31,4 +31,11 @@ export const STORE_SHIPPING_CONFIG = {
 
   // Raio máximo padrão em KM para entregas locais (limite da Zona 4)
   maxDeliveryRadiusKm: 12,
+
+  // Faixa de CEP válida para Feira de Santana (Passo 0 da cascata)
+  zipRangeMin: 44000000,
+  zipRangeMax: 44199999,
+
+  // Distância máxima numérica de cada lado para interpolação de vizinhos (Passo 5)
+  neighborInterpolationMaxGap: 60,
 };

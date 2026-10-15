@@ -12,6 +12,16 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectSeparator,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -95,10 +105,22 @@ export function CartCheckoutModal({ open, onOpenChange }: CartCheckoutModalProps
   // Cotação de frete local fixo por zona
   const [deliveryFee, setDeliveryFee] = useState<number>(0);
   const [shippingZoneName, setShippingZoneName] = useState<string | null>(null);
+  const [shippingZoneDescription, setShippingZoneDescription] = useState<string | null>(null);
   const [shippingDistanceKm, setShippingDistanceKm] = useState<number | null>(null);
   const [quoteLoading, setQuoteLoading] = useState(false);
   const [quoteError, setQuoteError] = useState<string | null>(null);
   const [quoteFetched, setQuoteFetched] = useState(false);
+  const [quotedZip, setQuotedZip] = useState<string | null>(null);
+
+  // Fluxo de seleção de bairro (NEEDS_NEIGHBORHOOD)
+  const [needsNeighborhood, setNeedsNeighborhood] = useState(false);
+  const [neighborhoodsList, setNeighborhoodsList] = useState<Array<{ key: string; name: string }>>([]);
+  const [selectedNeighborhoodKey, setSelectedNeighborhoodKey] = useState<string>("");
+  const [needsReviewWarning, setNeedsReviewWarning] = useState(false);
+  const [isOutOfArea, setIsOutOfArea] = useState(false);
+
+  // AbortController para cancelar requisições anteriores
+  const quoteAbortControllerRef = useRef<AbortController | null>(null);
 
   // Flow state
   const [step, setStep] = useState<Step>("form");
@@ -130,18 +152,33 @@ export function CartCheckoutModal({ open, onOpenChange }: CartCheckoutModalProps
   }, [address, neighborhood, complement, zipCode]);
 
   const invalidateQuote = useCallback(() => {
-    if (quoteFetched) {
+    if (quoteAbortControllerRef.current) {
+      quoteAbortControllerRef.current.abort();
+      quoteAbortControllerRef.current = null;
+    }
+    if (quoteFetched || needsNeighborhood || isOutOfArea || quoteError) {
       setQuoteFetched(false);
+      setQuotedZip(null);
       setDeliveryFee(0);
       setShippingZoneName(null);
+      setShippingZoneDescription(null);
       setShippingDistanceKm(null);
       setQuoteError(null);
+      setNeedsNeighborhood(false);
+      setNeighborhoodsList([]);
+      setSelectedNeighborhoodKey("");
+      setNeedsReviewWarning(false);
+      setIsOutOfArea(false);
     }
-  }, [quoteFetched]);
+  }, [quoteFetched, needsNeighborhood, isOutOfArea, quoteError]);
 
   // Reset ao fechar
   useEffect(() => {
     if (!open) {
+      if (quoteAbortControllerRef.current) {
+        quoteAbortControllerRef.current.abort();
+        quoteAbortControllerRef.current = null;
+      }
       setTimeout(() => {
         setStep("form");
         setDeliveryType("pickup");
@@ -153,10 +190,17 @@ export function CartCheckoutModal({ open, onOpenChange }: CartCheckoutModalProps
         setCopied(false);
         setDeliveryFee(0);
         setShippingZoneName(null);
+        setShippingZoneDescription(null);
         setShippingDistanceKm(null);
         setQuoteLoading(false);
         setQuoteError(null);
         setQuoteFetched(false);
+        setQuotedZip(null);
+        setNeedsNeighborhood(false);
+        setNeighborhoodsList([]);
+        setSelectedNeighborhoodKey("");
+        setNeedsReviewWarning(false);
+        setIsOutOfArea(false);
       }, 300);
     }
   }, [open]);
@@ -164,31 +208,39 @@ export function CartCheckoutModal({ open, onOpenChange }: CartCheckoutModalProps
   const handleDeliveryTypeChange = (type: "pickup" | "delivery") => {
     setDeliveryType(type);
     if (type === "pickup") {
-      setDeliveryFee(0);
-      setShippingZoneName(null);
-      setShippingDistanceKm(null);
-      setQuoteError(null);
-      setQuoteFetched(false);
+      invalidateQuote();
     }
   };
 
   // Cálculo de Frete Local por CEP e Regras do Banco
-  const handleFetchQuote = async () => {
+  const handleFetchQuote = async (overrideNeighborhoodKey?: string) => {
     const cleanCep = zipCode.replace(/\D/g, "");
     if (!cleanCep || cleanCep.length !== 8) {
       setQuoteError("Informe um CEP válido com 8 dígitos.");
       return;
     }
 
+    if (quoteAbortControllerRef.current) {
+      quoteAbortControllerRef.current.abort();
+    }
+    const controller = new AbortController();
+    quoteAbortControllerRef.current = controller;
+
     setQuoteLoading(true);
     setQuoteError(null);
-    setQuoteFetched(false);
+
+    const activeKey =
+      overrideNeighborhoodKey !== undefined ? overrideNeighborhoodKey : selectedNeighborhoodKey;
 
     try {
       const res = await fetch("/api/shipping/calculate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ zipCode: cleanCep }),
+        body: JSON.stringify({
+          zipCode: cleanCep,
+          selectedNeighborhoodKey: activeKey ? activeKey : undefined,
+        }),
+        signal: controller.signal,
       });
 
       const result = await res.json();
@@ -196,19 +248,41 @@ export function CartCheckoutModal({ open, onOpenChange }: CartCheckoutModalProps
       if (result.available && result.price !== undefined) {
         setDeliveryFee(result.price);
         setShippingZoneName(result.zone?.name || "Zona Local");
+        setShippingZoneDescription(result.zone?.description || null);
         setShippingDistanceKm(result.distanceKm);
+        setNeedsReviewWarning(Boolean(result.needsReview));
         setQuoteFetched(true);
+        setQuotedZip(cleanCep);
+        setNeedsNeighborhood(false);
+        setIsOutOfArea(false);
 
         // Preenche bairro automaticamente se estiver vazio e vier na resposta
-        if (!neighborhood.trim() && result.district) {
+        if (result.district) {
           setNeighborhood(result.district);
         }
       } else {
-        setQuoteError(
-          result.message || "Desculpe, ainda não realizamos entregas nesta região."
-        );
+        setQuoteFetched(false);
+        setQuotedZip(null);
+
+        if (result.reason === "NEEDS_NEIGHBORHOOD") {
+          setNeedsNeighborhood(true);
+          setNeighborhoodsList(result.neighborhoods || []);
+          setIsOutOfArea(false);
+          setQuoteError(null);
+        } else if (result.reason === "OUT_OF_DELIVERY_AREA") {
+          setIsOutOfArea(true);
+          setNeedsNeighborhood(false);
+          setQuoteError(
+            result.message || "Desculpe, este endereço fica fora da nossa área de entrega rápida."
+          );
+        } else {
+          setIsOutOfArea(false);
+          setNeedsNeighborhood(false);
+          setQuoteError(result.message || "Não foi possível calcular o frete para este CEP.");
+        }
       }
-    } catch {
+    } catch (err: unknown) {
+      if (err instanceof Error && err.name === "AbortError") return;
       setQuoteError("Erro de conexão ao calcular frete. Tente novamente.");
     } finally {
       setQuoteLoading(false);
@@ -261,17 +335,20 @@ export function CartCheckoutModal({ open, onOpenChange }: CartCheckoutModalProps
       toast.error("Por favor, informe seu WhatsApp.");
       return;
     }
-    if (deliveryType === "delivery" && zipCode.replace(/\D/g, "").length !== 8) {
-      toast.error("Por favor, informe um CEP válido com 8 dígitos.");
-      return;
-    }
-    if (deliveryType === "delivery" && (!address.trim() || !neighborhood.trim())) {
-      toast.error("Por favor, informe a rua, número e bairro.");
-      return;
-    }
-    if (deliveryType === "delivery" && !quoteFetched) {
-      toast.error("Calcule o frete para seu CEP antes de gerar o PIX.");
-      return;
+    if (deliveryType === "delivery") {
+      const cleanCurrentZip = zipCode.replace(/\D/g, "");
+      if (cleanCurrentZip.length !== 8) {
+        toast.error("Por favor, informe um CEP válido com 8 dígitos.");
+        return;
+      }
+      if (!quoteFetched || quotedZip !== cleanCurrentZip) {
+        toast.error("Por favor, calcule o frete para o CEP atual antes de gerar o PIX.");
+        return;
+      }
+      if (!address.trim() || !neighborhood.trim()) {
+        toast.error("Por favor, informe a rua, número e bairro.");
+        return;
+      }
     }
 
     setLoading(true);
@@ -290,7 +367,10 @@ export function CartCheckoutModal({ open, onOpenChange }: CartCheckoutModalProps
           deliveryAddress: deliveryType === "delivery" ? getFullAddress() : null,
           zipCode: deliveryType === "delivery" ? zipCode.replace(/\D/g, "") : null,
           shippingCep: deliveryType === "delivery" ? zipCode.replace(/\D/g, "") : null,
-          deliveryFee: deliveryType === "delivery" ? deliveryFee : 0,
+          selectedNeighborhoodKey:
+            deliveryType === "delivery" && selectedNeighborhoodKey
+              ? selectedNeighborhoodKey
+              : undefined,
         }),
       });
 
@@ -525,17 +605,10 @@ export function CartCheckoutModal({ open, onOpenChange }: CartCheckoutModalProps
                     <Button
                       type="button"
                       variant="outline"
-                      onClick={handleFetchQuote}
+                      onClick={() => handleFetchQuote()}
                       disabled={
                         quoteLoading ||
-                        zipCode.replace(/\D/g, "").length !== 8 ||
-                        !name.trim() ||
-                        !whatsapp.trim()
-                      }
-                      title={
-                        !name.trim() || !whatsapp.trim()
-                          ? "Preencha seu nome e WhatsApp primeiro"
-                          : undefined
+                        zipCode.replace(/\D/g, "").length !== 8
                       }
                       className="shrink-0 border-emerald-600/50 text-emerald-700 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/30 font-semibold"
                     >
@@ -549,15 +622,116 @@ export function CartCheckoutModal({ open, onOpenChange }: CartCheckoutModalProps
                   </div>
                 </div>
 
-                {quoteError && (
+                {/* Estado NEEDS_NEIGHBORHOOD: Seleção amigável de bairro */}
+                {needsNeighborhood && !quoteLoading && (
+                  <div className="rounded-lg bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800 p-3 space-y-2.5 text-xs text-sky-900 dark:text-sky-200">
+                    <div className="flex items-start gap-2">
+                      <AlertCircle className="h-4 w-4 shrink-0 text-sky-600 dark:text-sky-400 mt-0.5" />
+                      <div>
+                        <p className="font-semibold">Bairro não identificado pelo CEP</p>
+                        <p className="text-[11px] text-sky-800/80 dark:text-sky-300/80 mt-0.5">
+                          Não encontramos seu bairro automaticamente. Escolha-o na lista abaixo para calcular seu frete:
+                        </p>
+                      </div>
+                    </div>
+
+                    <Select
+                      value={selectedNeighborhoodKey}
+                      onValueChange={(val) => {
+                        setSelectedNeighborhoodKey(val);
+                        if (val === "not_in_list") {
+                          setQuoteFetched(false);
+                          setQuotedZip(null);
+                          setDeliveryFee(0);
+                        } else {
+                          handleFetchQuote(val);
+                        }
+                      }}
+                    >
+                      <SelectTrigger className="w-full bg-white dark:bg-slate-900 text-xs">
+                        <SelectValue placeholder="Selecione seu bairro..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel>Bairros de Feira de Santana</SelectLabel>
+                          {neighborhoodsList.map((nb) => (
+                            <SelectItem key={nb.key} value={nb.key}>
+                              {nb.name}
+                            </SelectItem>
+                          ))}
+                          <SelectSeparator />
+                          <SelectItem value="not_in_list" className="text-amber-700 dark:text-amber-400 font-medium">
+                            Meu bairro não está na lista
+                          </SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+
+                    {selectedNeighborhoodKey === "not_in_list" && (
+                      <div className="p-2.5 rounded-md bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-900 dark:text-amber-200 text-xs space-y-2">
+                        <p>
+                          Seu bairro não apareceu na lista? Não se preocupe! Fale diretamente conosco pelo WhatsApp para combinarmos o envio para seu endereço.
+                        </p>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          className="w-full border-amber-300 text-amber-800 hover:bg-amber-100 dark:hover:bg-amber-900/40 font-semibold gap-1.5"
+                          onClick={() => {
+                            const msg = encodeURIComponent(
+                              `Olá! Estou fechando um pedido no carrinho do site da Pink Music para o CEP ${zipCode}, mas meu bairro não apareceu na lista. Poderiam cotar o frete para mim?`
+                            );
+                            window.open(`https://wa.me/5575999661614?text=${msg}`, "_blank", "noopener,noreferrer");
+                          }}
+                        >
+                          <MessageCircle className="h-3.5 w-3.5 text-emerald-600" />
+                          Falar no WhatsApp com o CEP
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Estado OUT_OF_DELIVERY_AREA: Fora da área de motoboy com link WhatsApp */}
+                {isOutOfArea && !quoteLoading && (
+                  <div className="rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 p-3 space-y-2 text-xs text-amber-900 dark:text-amber-200">
+                    <div className="flex items-start gap-2">
+                      <AlertCircle className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
+                      <div>
+                        <p className="font-semibold">Endereço fora da área padrão de motoboy</p>
+                        <p className="text-[11px] text-amber-800/80 dark:text-amber-300/80 mt-0.5">
+                          {quoteError || "Este CEP fica além do raio da nossa entrega rápida. Fale conosco no WhatsApp para combinarmos uma entrega especial!"}
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      className="w-full border-amber-300 text-amber-800 hover:bg-amber-100 dark:hover:bg-amber-900/40 font-semibold gap-1.5"
+                      onClick={() => {
+                        const msg = encodeURIComponent(
+                          `Olá! Tentei calcular a entrega no carrinho para o CEP ${zipCode} no site da Pink Music, mas avisou que fica fora do raio de motoboy. Conseguem fazer entrega especial para cá?`
+                        );
+                        window.open(`https://wa.me/5575999661614?text=${msg}`, "_blank", "noopener,noreferrer");
+                      }}
+                    >
+                      <MessageCircle className="h-3.5 w-3.5 text-emerald-600" />
+                      Combinar Entrega Especial no WhatsApp
+                    </Button>
+                  </div>
+                )}
+
+                {/* Erro comum de cotação */}
+                {quoteError && !needsNeighborhood && !isOutOfArea && !quoteLoading && (
                   <div className="flex items-start gap-2 text-xs text-red-600 bg-red-50 dark:bg-red-950/30 p-3 rounded-lg border border-red-200 dark:border-red-800">
                     <AlertCircle className="h-4 w-4 flex-shrink-0 mt-0.5" />
                     <span>{quoteError}</span>
                   </div>
                 )}
 
-                {quoteFetched && (
-                  <div className="bg-emerald-50/90 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 rounded-xl p-3.5 space-y-1.5 shadow-xs">
+                {quoteFetched && !quoteLoading && (
+                  <div className="bg-emerald-50/90 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 rounded-xl p-3.5 space-y-2 shadow-xs">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1.5">
                         <CheckCircle className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
@@ -575,15 +749,23 @@ export function CartCheckoutModal({ open, onOpenChange }: CartCheckoutModalProps
                           {shippingZoneName}
                         </span>
                       )}
-                      {shippingDistanceKm !== null && (
+                      {shippingZoneDescription ? (
+                        <span>• Faixa de entrega: {shippingZoneDescription}</span>
+                      ) : shippingDistanceKm !== null ? (
                         <span>• Distância aprox: ~{shippingDistanceKm.toFixed(1)} km</span>
-                      )}
+                      ) : null}
                     </div>
+                    {needsReviewWarning && (
+                      <div className="flex items-center gap-1.5 pt-1.5 border-t border-emerald-200/60 dark:border-emerald-800/60 text-[11px] text-amber-800 dark:text-amber-300 font-medium">
+                        <AlertCircle className="h-3.5 w-3.5 shrink-0 text-amber-600" />
+                        <span>Vamos confirmar seu endereço pelo WhatsApp antes da entrega.</span>
+                      </div>
+                    )}
                   </div>
                 )}
 
                 {/* Dica antes de calcular */}
-                {!quoteFetched && !quoteError && (
+                {!quoteFetched && !needsNeighborhood && !isOutOfArea && !quoteError && (
                   <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/40 border border-border/60 rounded-lg px-3 py-2.5">
                     <MapPin className="h-3.5 w-3.5 shrink-0 text-emerald-600" />
                     <span>Informe seu CEP e calcule o frete para liberar os campos de endereço.</span>

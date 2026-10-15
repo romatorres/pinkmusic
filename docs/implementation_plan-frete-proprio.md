@@ -19,11 +19,11 @@ Os valores de frete são baseados em **3 Zonas de Distância** configuradas no b
 | Parâmetro | Valor Configurado | Variável de Ambiente |
 |---|---|---|
 | **CEP de Origem** | `44002-000` | `STORE_ZIP` (fallback: `44002000`) |
-| **Endereço** | Rua JJ Seabra / Kalilândia / Centro | `STORE_CITY`, `STORE_STATE` |
+| **Endereço** | Rua JJ Seabra / Centro | `STORE_CITY`, `STORE_STATE` |
 | **Cidade / UF** | Feira de Santana - BA | `STORE_CITY="Feira de Santana"`, `STORE_STATE="BA"` |
 | **Latitude** | `-12.2576` | `STORE_LAT` |
 | **Longitude** | `-38.9634` | `STORE_LNG` |
-| **Raio Máximo** | `10.0 km` (limite da Zona 3) | `maxDeliveryRadiusKm` em `config.ts` |
+| **Raio Máximo** | `12.0 km` (limite da Zona 4) | `maxDeliveryRadiusKm` em `config.ts` |
 
 ---
 
@@ -46,22 +46,58 @@ Cadastradas no banco de dados (tabela `ShippingZone`) e criadas/garantidas via `
 |---|---|
 | [`config.ts`](file:///c:/Web/pinkmusic/src/lib/shipping/config.ts) | Parâmetros da loja física, cidade, estado e raio máximo de entrega rápida (12.0 km). |
 | [`normalize-zipcode.ts`](file:///c:/Web/pinkmusic/src/lib/shipping/normalize-zipcode.ts) | Sanitização do CEP (remoção de pontuação, validação estrita de 8 dígitos numéricos). |
-| [`data/feira-ceps.json`](file:///c:/Web/pinkmusic/src/lib/shipping/data/feira-ceps.json) | Base local offline com mais de 800 logradouros/CEPs e bairros de Feira de Santana (~74 KB, leitura em 0ms). |
+| [`data/feira-ceps.json`](file:///c:/Web/pinkmusic/src/lib/shipping/data/feira-ceps.json) | Base local offline com **2.818 logradouros/CEPs e bairros** de Feira de Santana (~231 KB, leitura instantânea em 0ms). |
 | [`zone-lookup.ts`](file:///c:/Web/pinkmusic/src/lib/shipping/zone-lookup.ts) | Resolução determinística da zona pelo bairro (base local JSON + ViaCEP + bloqueio de distritos > 12 km + Zona 3 segura). |
 | [`calculate-shipping.ts`](file:///c:/Web/pinkmusic/src/lib/shipping/calculate-shipping.ts) | Lógica central: cálculo no checkout, distância estimada da faixa, bloqueio de áreas rurais e persistência. |
 | [`seed.ts`](file:///c:/Web/pinkmusic/src/lib/shipping/seed.ts) | Inicialização automática das 4 zonas de entrega caso a tabela esteja vazia. |
 
 ---
 
-## 5. Estratégia de Resolução Determinística e Segurança (`zone-lookup.ts`)
+## 6. Como os Arquivos se Conectam: O Fluxo de Decisão
 
-Para eliminar oscilações de APIs de GPS/mapas e garantir que o frete nunca seja negado indevidamente para a área urbana, o cálculo opera em **5 camadas ágeis**:
+Os arquivos **NÃO são independentes**; eles trabalham juntos como uma esteira em linha de produção:
 
-1. **Bloqueio de Distritos Rurais (> 12 km):** CEPs ou bairros pertencentes a distritos distantes como Humildes, Ipuaçu, Bonfim de Feira, Jaguara, Tiquaruçu, Maria Quitéria e Matinha são interceptados e bloqueados com orientação amigável para combinar frete especial no WhatsApp.
-2. **Base Local Offline (`feira-ceps.json`):** Resposta imediata em **0ms** para os principais CEPs e ruas de Feira de Santana, sem depender de internet ou APIs externas.
-3. **Mapeamento Direto de Bairros:** Normaliza o nome do bairro e enquadra diretamente na respectiva zona (Zona 1 a 4).
-4. **Prefixo Urbano do CEP (5 dígitos):** Mapeia blocos numéricos urbanos para a zona vizinha mais próxima.
-5. **Rede de Segurança Urbana (Zona 3 = R$ 15,00):** Se o cliente morar em um endereço urbano de Feira de Santana (CEPs 440xx/441xx) novo ou não catalogado em nenhuma base, **o frete NUNCA é negado**: ele é aprovado com segurança na Zona 3, permitindo a conclusão da venda.
+```
+[ Cliente digita CEP: "44059-370" ]
+                │
+                ▼
+  1. feira-ceps.json (Dicionário de Endereços)
+     Pergunta: "Que bairro é esse CEP?"
+     Resposta: "É o bairro Papagaio (Rua Rubens Francisco Dias)"
+                │
+                ▼
+  2. zone-lookup.ts (Tabela de Regras de Negócio)
+     Importa o feira-ceps.json e pergunta no NEIGHBORHOOD_ZONE_MAP:
+     "Qual é a zona do bairro Papagaio?"
+     Resposta: "Papagaio = Zona 3"
+                │
+                ▼
+  3. calculate-shipping.ts (Maestro do Checkout)
+     Recebe "Zona 3" e pergunta ao Banco de Dados (Prisma):
+     "Qual é o preço atual cadastrado para a Zona 3?"
+     Resposta: "R$ 15,00"
+                │
+                ▼
+  4. Tabela ShippingZipCode (Cache no Banco de Dados)
+     Grava { zipCode: "44059370", district: "Papagaio", zoneId: "..." }
+     Retorna ao cliente: Disponível | Zona 3 | R$ 15,00 | 8 km
+```
+
+### Por que essa separação foi feita dessa forma?
+
+1. **Você não precisa gerenciar milhares de CEPs individualmente:**
+   - Feira de Santana tem milhares de ruas e CEPs. Se você tivesse que atribuir uma zona para cada CEP um por um, seria um trabalho infinito.
+   - O arquivo `feira-ceps.json` só faz a ponte: **CEP ➔ Nome do Bairro**.
+   - O arquivo `zone-lookup.ts` faz a regra comercial: **Nome do Bairro ➔ Zona (1 a 4)**.
+   - **Vantagem:** Quando você muda `papagaio: 3` no `zone-lookup.ts`, **TODOS os dezenas de CEPs do Papagaio que estão no JSON mudam para a Zona 3 instantaneamente**, com uma única linha alterada!
+
+2. **Hierarquia de Prioridade:**
+   - **Prioridade 0 (Bloqueio):** Se o prefixo for de distrito rural (> 12 km, como Humildes `44135`), bloqueia antes de tudo.
+   - **Prioridade 1 (Exceção Manual):** O bloco `KNOWN_SPECIAL_ZIPS` no `zone-lookup.ts` sobrepõe qualquer outra regra caso você queira fixar um CEP pontual à mão.
+   - **Prioridade 2 (Base Local):** O `feira-ceps.json` identifica o bairro em 0ms.
+   - **Prioridade 3 (APIs Externas):** ViaCEP / BrasilAPI para CEPs novíssimos não catalogados no JSON.
+   - **Prioridade 4 (Prefixo de 5 dígitos):** Se a rua não tiver nome de bairro.
+   - **Prioridade 5 (Rede de Segurança):** Se for CEP de Feira de Santana (440xx/441xx) mas nenhuma base achar, enquadra com segurança na **Zona 3 (R$ 15,00)** para nunca perder a venda.
 
 ---
 

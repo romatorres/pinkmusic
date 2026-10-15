@@ -1,9 +1,20 @@
-﻿import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
 import { normalizeZipCode } from "@/lib/shipping/normalize-zipcode";
 import { STORE_SHIPPING_CONFIG } from "@/lib/shipping/config";
-import { resolveZoneOrder, fetchViaCep } from "@/lib/shipping/zone-lookup";
+import { resolveZone } from "@/lib/shipping/zone-lookup";
+
+/** Consulta ViaCEP localmente nesta rota (sem re-exportar do zone-lookup). */
+async function fetchViaCepLocal(cleanZip: string): Promise<{ district: string; city: string; state: string; street: string } | null> {
+  try {
+    const res = await fetch(`https://viacep.com.br/ws/${cleanZip}/json/`, { next: { revalidate: 86400 } });
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (!data || data.erro) return null;
+    return { district: data.bairro || "", city: data.localidade || "", state: data.uf || "", street: data.logradouro || "" };
+  } catch { return null; }
+}
 
 // GET /api/admin/shipping/zipcodes - Lista CEPs com paginacao e busca
 export async function GET(request: NextRequest) {
@@ -108,14 +119,20 @@ export async function POST(request: NextRequest) {
 
         // Se nao forneceu zoneId, resolve zona automaticamente via bairro/prefixo
         if (!zoneId && activeZones.length > 0) {
-          const lookup = await resolveZoneOrder(cleanZip);
+          const lookup = await resolveZone(cleanZip);
           if (lookup.district) district = district || lookup.district;
           if (lookup.city) city = lookup.city;
           if (lookup.state) state = lookup.state;
-          const zoneIndex = lookup.zoneOrder !== null
-            ? Math.min(lookup.zoneOrder - 1, activeZones.length - 1)
-            : 0;
-          zoneId = activeZones[zoneIndex]?.id || null;
+
+          if (lookup.zoneOrder !== null) {
+            // Busca zona pelo order explícito (não por índice)
+            const resolvedZone = await prisma.shippingZone.findFirst({
+              where: { order: lookup.zoneOrder, active: true },
+            });
+            zoneId = resolvedZone?.id || activeZones[0]?.id || null;
+          } else {
+            zoneId = activeZones[0]?.id || null;
+          }
         }
 
         try {
@@ -181,7 +198,7 @@ export async function POST(request: NextRequest) {
 
     // Complementa dados via ViaCEP se cidade/estado nao informados
     if (!city || !state) {
-      const viaCepData = await fetchViaCep(cleanZip);
+      const viaCepData = await fetchViaCepLocal(cleanZip);
       if (viaCepData) {
         if (!finalDistrict && viaCepData.district) finalDistrict = viaCepData.district;
         if (viaCepData.city) finalCity = viaCepData.city;
@@ -198,11 +215,15 @@ export async function POST(request: NextRequest) {
         orderBy: { minDistance: "asc" },
       });
       if (activeZones.length > 0) {
-        const lookup = await resolveZoneOrder(cleanZip);
-        const zoneIndex = lookup.zoneOrder !== null
-          ? Math.min(lookup.zoneOrder - 1, activeZones.length - 1)
-          : 0;
-        targetZoneId = activeZones[zoneIndex]?.id || null;
+        const lookup = await resolveZone(cleanZip);
+        if (lookup.zoneOrder !== null) {
+          const resolvedZone = await prisma.shippingZone.findFirst({
+            where: { order: lookup.zoneOrder, active: true },
+          });
+          targetZoneId = resolvedZone?.id || activeZones[0]?.id || null;
+        } else {
+          targetZoneId = activeZones[0]?.id || null;
+        }
       }
     }
 

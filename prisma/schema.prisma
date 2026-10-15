@@ -150,6 +150,7 @@ model Order {
   shippingZone     String?
   shippingDistance Float?
   shippingMethod   String? // "LOCAL_DELIVERY" | "PICKUP"
+  needsReview      Boolean @default(false)
 
   // Controle de Notificação Push (idempotência)
   pushNotifiedAt   DateTime?
@@ -221,6 +222,7 @@ model ShippingZone {
   id          String   @id @default(cuid())
   name        String
   description String?
+  order       Int      @unique // 1=Z1, 2=Z2, 3=Z3, 4=Z4 — substituí índice implícito por ordem explícita
   minDistance Float
   maxDistance Float
   price       Decimal  @db.Decimal(10, 2)
@@ -228,26 +230,90 @@ model ShippingZone {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  zipCodes    ShippingZipCode[]
+  zipCodes      ShippingZipCode[]
+  neighborhoods ShippingNeighborhood[]
 
   @@index([active])
+  @@index([order])
 }
 
 model ShippingZipCode {
-  id        String        @id @default(cuid())
-  zipCode   String        @unique // 8 dígitos normalizados (ex: "44002000")
-  district  String        // Bairro
-  city      String        @default("Feira de Santana")
-  state     String        @default("BA")
-  latitude  Float?
-  longitude Float?
-  zoneId    String?
-  zone      ShippingZone? @relation(fields: [zoneId], references: [id], onDelete: SetNull)
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
+  id         String        @id @default(cuid())
+  zipCode    String        @unique // 8 dígitos normalizados (ex: "44002000")
+  district   String        // Bairro
+  city       String        @default("Feira de Santana")
+  state      String        @default("BA")
+  latitude   Float?
+  longitude  Float?
+  zoneId     String?
+  zone       ShippingZone? @relation(fields: [zoneId], references: [id], onDelete: SetNull)
+  // Rastreabilidade: como/de onde veio esse mapeamento
+  source     String?       // "local_json" | "viacep" | "brasilapi" | "prefix" | "neighborhood_seed" | "manual"
+  confidence String?       @default("high") // "high" | "medium" | "low"
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
 
   @@index([zipCode])
   @@index([zoneId])
+  @@index([confidence])
+}
+
+/**
+ * Mapeamento canônico de bairros de Feira de Santana → Zona de entrega.
+ * Alimentado pelo seed (53 bairros classificados pelo relatório v2).
+ * Usado pelo resolveZone na Camada de Bairro antes de consultar APIs externas.
+ */
+model ShippingNeighborhood {
+  id           String        @id @default(cuid())
+  name         String        // Nome canônico (ex: "Centro")
+  normalizedKey String       @unique // normalizeKey(name) — sem acento, lowercase, sem espaço
+  aliases      String[]      // Variações alternativas normalizadas
+  zoneId       String?       // null quando outOfArea = true
+  zone         ShippingZone? @relation(fields: [zoneId], references: [id], onDelete: SetNull)
+  outOfArea    Boolean       @default(false) // true = distrito rural confirmado (bloqueia entrega)
+  zoneOrder    Int?          // 1–4, null quando outOfArea = true
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@index([normalizedKey])
+  @@index([zoneId])
+  @@index([outOfArea])
+}
+
+/**
+ * Overrides manuais de CEP específico → Zona.
+ * Usado na Camada 1 (prioridade máxima, antes de qualquer lookup).
+ * Ex: 44068030 → Conjunto Fraternidade → Z3
+ */
+model ShippingZipOverride {
+  id        String   @id @default(cuid())
+  zipCode   String   @unique // 8 dígitos normalizados
+  district  String   // Bairro do override
+  zoneOrder Int      // 1–4
+  note      String?  // Motivo do override manual
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([zipCode])
+}
+
+/**
+ * CEPs que chegaram ao sistema mas não puderam ser resolvidos deterministicamente.
+ * Registra para revisão manual pelo administrador.
+ */
+model ShippingUnresolvedZip {
+  id        String   @id @default(cuid())
+  zipCode   String   @unique // 8 dígitos normalizados
+  district  String?  // Bairro retornado pela API (pode estar vazio)
+  city      String?
+  state     String?
+  reason    String   // "NO_NEIGHBORHOOD_MATCH" | "AMBIGUOUS" | "API_EMPTY"
+  hitCount  Int      @default(1) // quantas vezes esse CEP foi consultado sem resolução
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([zipCode])
+  @@index([reason])
 }
 
 // Notificações Push para Administradores e Vendedores

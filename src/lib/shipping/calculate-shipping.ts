@@ -1,12 +1,30 @@
+/**
+ * calculate-shipping.ts
+ *
+ * Função principal de cálculo de frete local por zonas.
+ * Usa a cascata de resolução determinística de zone-lookup.ts (resolveZone).
+ *
+ * Regras:
+ *   - O seed NÃO roda no caminho da consulta (executado via comando CLI npm run seed:shipping).
+ *   - No máximo faz uma checagem rápida de zonas ativas.
+ *   - Suporta seleção manual de bairro (options.selectedNeighborhoodKey) quando o lookup
+ *     não possui confiança "high".
+ *   - Se o lookup possuir sugestão medium/low com zona MAIOR que a do bairro escolhido,
+ *     aplica a maior e marca needsReview = true.
+ *   - Escolha manual NUNCA vai para o cache ShippingZipCode.
+ *   - Grava em ShippingZipCode com await somente se lookup.confidence === "high".
+ *   - Se a zona estiver inativa, retorna OUT_OF_DELIVERY_AREA (nunca fallback para outra zona).
+ */
+
 import prisma from "@/lib/prisma";
 import { normalizeZipCode } from "./normalize-zipcode";
-import { resolveZoneOrder, KNOWN_SPECIAL_ZIPS } from "./zone-lookup";
+import { resolveZone, normalizeKey } from "./zone-lookup";
 import { STORE_SHIPPING_CONFIG } from "./config";
-import { ensureDefaultShippingZonesAndZipCodes } from "./seed";
 
 export type ShippingFailureReason =
   | "INVALID_ZIP_CODE"
   | "OUT_OF_DELIVERY_AREA"
+  | "NEEDS_NEIGHBORHOOD"
   | "NO_ACTIVE_ZONES"
   | "INTERNAL_ERROR";
 
@@ -24,6 +42,7 @@ export interface ShippingSuccessResult {
   };
   distanceKm: number;
   price: number;
+  needsReview?: boolean;
 }
 
 export interface ShippingFailureResult {
@@ -34,33 +53,61 @@ export interface ShippingFailureResult {
   district?: string;
   city?: string;
   state?: string;
+  neighborhoods?: Array<{ key: string; name: string }>;
 }
 
-export type CalculateShippingResult = ShippingSuccessResult | ShippingFailureResult;
+export type CalculateShippingResult =
+  | ShippingSuccessResult
+  | ShippingFailureResult;
 
-/**
- * Retorna a distância estimada média da faixa da zona (ex: Zona 3 de 6 a 10km -> 8km)
- * para exibição condizente e realista ao cliente.
- */
-function getRepresentativeDistance(zone: { minDistance: number; maxDistance: number }): number {
+export interface CalculateShippingOptions {
+  selectedNeighborhoodKey?: string;
+}
+
+/** Distância representativa do centro da faixa da zona (para exibição). */
+function getRepresentativeDistance(zone: {
+  minDistance: number;
+  maxDistance: number;
+}): number {
   const avg = (zone.minDistance + zone.maxDistance) / 2;
   return Math.round(avg * 10) / 10;
 }
 
 /**
- * Funcao principal para calculo de frete local com base em zonas de bairro.
- *
- * Fluxo simplificado (sem GPS / sem calculo de distancia):
- * 1. Normaliza e valida o CEP brasileiro (8 digitos).
- * 2. Garante zonas padrao no banco se for primeira execucao.
- * 3. Busca o CEP no banco de dados local (cache) - resposta instantanea.
- * 4. Se nao estiver no cache: chama ViaCEP -> mapeia bairro -> zona.
- * 5. Fallback: prefixo do CEP -> zona (sem necessidade de nenhuma API externa).
- * 6. Retorna os dados com o preco definido na zona pelo banco de dados.
- * 7. Salva no banco para que a proxima consulta do mesmo CEP seja instantanea.
+ * Retorna lista de bairros urbanos atendidos cadastrados no banco para o modal/select.
+ */
+async function getAvailableNeighborhoods(): Promise<Array<{ key: string; name: string }>> {
+  try {
+    const list = await prisma.shippingNeighborhood.findMany({
+      where: {
+        outOfArea: false,
+        zoneOrder: { not: null },
+      },
+      select: {
+        normalizedKey: true,
+        name: true,
+      },
+      orderBy: {
+        name: "asc",
+      },
+    });
+
+    return list.map((item) => ({
+      key: item.normalizedKey,
+      name: item.name,
+    }));
+  } catch (err) {
+    console.warn("[calculateShipping] Falha ao carregar lista de bairros:", err);
+    return [];
+  }
+}
+
+/**
+ * Calcula o frete local por zona para um CEP fornecido.
  */
 export async function calculateShipping(
-  rawZipCode: string | null | undefined
+  rawZipCode: string | null | undefined,
+  options?: CalculateShippingOptions
 ): Promise<CalculateShippingResult> {
   const cleanZip = normalizeZipCode(rawZipCode);
 
@@ -68,82 +115,17 @@ export async function calculateShipping(
     return {
       available: false,
       reason: "INVALID_ZIP_CODE",
-      message: "Informe um CEP valido com 8 digitos.",
+      message: "Informe um CEP válido com 8 dígitos.",
     };
   }
 
   try {
-    // 1. Garante que as zonas padrao existam se a tabela estiver vazia
-    await ensureDefaultShippingZonesAndZipCodes();
-
-    // 2. Busca no cache local (banco de dados)
-    const zipRecord = await prisma.shippingZipCode.findUnique({
-      where: { zipCode: cleanZip },
-      include: { zone: true },
-    });
-
-    // Se é um CEP com mapeamento especial manual (exceção catalogada), não usa cache desatualizado
-    const hasSpecialOverride = Boolean(KNOWN_SPECIAL_ZIPS[cleanZip]);
-
-    // Se ja esta no cache com zona valida e ativa (e não é uma exceção manual recente), retorna direto
-    if (zipRecord && zipRecord.zone && zipRecord.zone.active && !hasSpecialOverride) {
-      const zone = zipRecord.zone;
-      return {
-        available: true,
-        zipCode: cleanZip,
-        formattedZipCode: `${cleanZip.slice(0, 5)}-${cleanZip.slice(5)}`,
-        district: zipRecord.district || "Feira de Santana",
-        city: zipRecord.city,
-        state: zipRecord.state,
-        zone: {
-          id: zone.id,
-          name: zone.name,
-          description: zone.description,
-        },
-        distanceKm: getRepresentativeDistance(zone),
-        price: Number(zone.price),
-      };
-    }
-
-    // 3. Resolve zona via base local, bairros ou prefixo
-    const lookup = await resolveZoneOrder(cleanZip);
-
-    // Se for distrito ou área rural além de 12 km da loja física, bloqueia a entrega
-    if (lookup.isOutOfDeliveryArea || lookup.zoneOrder === null) {
-      return {
-        available: false,
-        reason: "OUT_OF_DELIVERY_AREA",
-        message: `Desculpe, este endereço fica a mais de ${STORE_SHIPPING_CONFIG.maxDeliveryRadiusKm} km da nossa loja física (distrito ou área rural) e ultrapassa o limite de entrega rápida por motoboy. Fale conosco pelo WhatsApp para combinar envio especial.`,
-        zipCode: cleanZip,
-        district: lookup.district,
-        city: lookup.city,
-        state: lookup.state,
-      };
-    }
-
-    // Valida se e cidade atendida
-    const isLocalCity =
-      lookup.city.toLowerCase().trim() === STORE_SHIPPING_CONFIG.storeCity.toLowerCase().trim() &&
-      lookup.state.toUpperCase().trim() === STORE_SHIPPING_CONFIG.storeState.toUpperCase().trim();
-
-    if (!isLocalCity) {
-      return {
-        available: false,
-        reason: "OUT_OF_DELIVERY_AREA",
-        message: `Entregas locais disponiveis apenas para ${STORE_SHIPPING_CONFIG.storeCity} - ${STORE_SHIPPING_CONFIG.storeState}.`,
-        zipCode: cleanZip,
-        city: lookup.city,
-        state: lookup.state,
-      };
-    }
-
-    // 4. Busca todas as zonas ativas ordenadas (minDistance crescente = ordem da zona)
-    const activeZones = await prisma.shippingZone.findMany({
+    // 1. Checagem rápida de zonas ativas no sistema (sem rodar seed no caminho crítico)
+    const activeZonesCount = await prisma.shippingZone.count({
       where: { active: true },
-      orderBy: { minDistance: "asc" },
     });
 
-    if (activeZones.length === 0) {
+    if (activeZonesCount === 0) {
       return {
         available: false,
         reason: "NO_ACTIVE_ZONES",
@@ -152,70 +134,183 @@ export async function calculateShipping(
       };
     }
 
-    // 5. Seleciona a zona correspondente ao indice resolvido (1-based -> 0-based)
-    // zoneOrder 1 -> activeZones[0], zoneOrder 2 -> activeZones[1], etc.
-    // Se zoneOrder ultrapassar o numero de zonas, usa a ultima (mais distante)
-    const zoneIndex = lookup.zoneOrder !== null
-      ? Math.min(lookup.zoneOrder - 1, activeZones.length - 1)
-      : 0;
+    // 2. Resolve a zona pela cascata determinística
+    const lookup = await resolveZone(cleanZip);
 
-    const matchedZone = activeZones[zoneIndex];
+    let effectiveZoneOrder: number | null = lookup.zoneOrder;
+    let effectiveDistrict: string = lookup.district;
+    let needsReview = false;
+    let isCustomerSelected = false;
 
-    if (!matchedZone) {
+    // 3. Avalia se há seleção manual de bairro enviada pelo cliente
+    const hasSelectedKey = Boolean(options?.selectedNeighborhoodKey?.trim());
+
+    if (hasSelectedKey) {
+      // Regra: A seleção manual SÓ vale se o lookup NÃO resolveu com confiança "high"
+      if (lookup.confidence === "high") {
+        // Ignora a seleção do cliente pois a resolução do CEP é altamente confiável
+        isCustomerSelected = false;
+      } else {
+        const rawKey = options!.selectedNeighborhoodKey!.trim();
+        const normKey = normalizeKey(rawKey);
+
+        const selectedNb = await prisma.shippingNeighborhood.findUnique({
+          where: { normalizedKey: normKey },
+        });
+
+        if (!selectedNb) {
+          // Bairro inválido ou não cadastrado
+          const neighborhoods = await getAvailableNeighborhoods();
+          return {
+            available: false,
+            reason: "NEEDS_NEIGHBORHOOD",
+            message:
+              "Bairro informado não encontrado. Por favor, selecione seu bairro na lista ou fale conosco pelo WhatsApp.",
+            zipCode: cleanZip,
+            neighborhoods,
+          };
+        }
+
+        // Bairro rural ou fora da área
+        if (selectedNb.outOfArea || selectedNb.zoneOrder === null) {
+          return {
+            available: false,
+            reason: "OUT_OF_DELIVERY_AREA",
+            message: `O bairro ${selectedNb.name} fica fora da nossa área de entrega rápida por motoboy. Fale conosco pelo WhatsApp para envio especial.`,
+            zipCode: cleanZip,
+            district: selectedNb.name,
+            city: lookup.city,
+            state: lookup.state,
+          };
+        }
+
+        // Bairro válido selecionado pelo cliente
+        isCustomerSelected = true;
+        needsReview = true;
+        effectiveDistrict = selectedNb.name;
+        effectiveZoneOrder = selectedNb.zoneOrder;
+
+        // Se o lookup tiver sugestão medium/low com zona MAIOR que a do bairro escolhido, aplica a maior
+        if (lookup.zoneOrder !== null && lookup.zoneOrder > effectiveZoneOrder) {
+          effectiveZoneOrder = lookup.zoneOrder;
+        }
+
+        // Registra em ShippingUnresolvedZip a escolha manual do cliente
+        try {
+          await prisma.shippingUnresolvedZip.upsert({
+            where: { zipCode: cleanZip },
+            update: {
+              district: selectedNb.name,
+              hitCount: { increment: 1 },
+              updatedAt: new Date(),
+            },
+            create: {
+              zipCode: cleanZip,
+              district: selectedNb.name,
+              reason: "CUSTOMER_SELECTED_NEIGHBORHOOD",
+            },
+          });
+        } catch {
+          /* silencioso */
+        }
+      }
+    }
+
+    // 4. Se não houve escolha manual e o lookup precisa de bairro -> retorna NEEDS_NEIGHBORHOOD
+    if (!isCustomerSelected && lookup.needsNeighborhoodSelection) {
+      const neighborhoods = await getAvailableNeighborhoods();
+      return {
+        available: false,
+        reason: "NEEDS_NEIGHBORHOOD",
+        message:
+          "Não conseguimos identificar o bairro pelo CEP informado. " +
+          "Por favor, selecione seu bairro na lista ou fale conosco pelo WhatsApp para confirmar o endereço.",
+        zipCode: cleanZip,
+        district: lookup.district || undefined,
+        city: lookup.city,
+        state: lookup.state,
+        neighborhoods,
+      };
+    }
+
+    // 5. Bloqueio definitivo se fora da área de entrega
+    if (!isCustomerSelected && (lookup.isOutOfDeliveryArea || effectiveZoneOrder === null)) {
+      const reason = lookup.outOfDeliveryReason ?? "OUTSIDE_AREA";
+      let message: string;
+
+      if (reason === "OUTSIDE_MUNICIPALITY") {
+        message = `Entregas locais disponíveis apenas para ${STORE_SHIPPING_CONFIG.storeCity} - ${STORE_SHIPPING_CONFIG.storeState}. Fale conosco pelo WhatsApp para frete especial.`;
+      } else {
+        message = `Este endereço fica fora da nossa área de entrega rápida por motoboy (limite: ${STORE_SHIPPING_CONFIG.maxDeliveryRadiusKm} km da loja). Fale conosco pelo WhatsApp para combinar envio especial.`;
+      }
+
       return {
         available: false,
         reason: "OUT_OF_DELIVERY_AREA",
-        message: "Desculpe, ainda nao realizamos entregas nesta regiao.",
+        message,
         zipCode: cleanZip,
-        district: lookup.district,
+        district: lookup.district || undefined,
         city: lookup.city,
         state: lookup.state,
       };
     }
 
-    // 6. Salva no cache para proximas consultas do mesmo CEP serem instantaneas
-    try {
-      const cacheData = {
+    // 6. Busca a zona correspondente no banco
+    const matchedZone = await prisma.shippingZone.findFirst({
+      where: { order: effectiveZoneOrder!, active: true },
+    });
+
+    if (!matchedZone) {
+      // Zona inativa no banco → NUNCA faz fallback para outra zona
+      return {
+        available: false,
+        reason: "OUT_OF_DELIVERY_AREA",
+        message:
+          "A zona de entrega correspondente a este endereço está temporariamente indisponível. Fale conosco pelo WhatsApp para combinar a entrega.",
         zipCode: cleanZip,
-        district: lookup.district || "Feira de Santana",
+        district: effectiveDistrict || undefined,
         city: lookup.city,
         state: lookup.state,
-        latitude: null as number | null,
-        longitude: null as number | null,
-        zoneId: matchedZone.id,
       };
+    }
 
-      if (!zipRecord) {
-        await prisma.shippingZipCode.create({ data: cacheData });
-      } else if (zipRecord.zoneId !== matchedZone.id) {
-        // Atualiza se a zona mudou (ex: admin reorganizou as zonas)
-        await prisma.shippingZipCode.update({
+    // 7. Salva no cache ShippingZipCode SOMENTE se lookup.confidence === "high" e não for escolha manual
+    if (lookup.confidence === "high" && !isCustomerSelected) {
+      try {
+        await prisma.shippingZipCode.upsert({
           where: { zipCode: cleanZip },
-          data: {
-            district: lookup.district || zipRecord.district,
+          update: {
+            district: effectiveDistrict || undefined,
             zoneId: matchedZone.id,
+            source: lookup.source,
+            confidence: lookup.confidence,
+            updatedAt: new Date(),
+          },
+          create: {
+            zipCode: cleanZip,
+            district: effectiveDistrict || "Feira de Santana",
+            city: lookup.city,
+            state: lookup.state,
+            latitude: null,
+            longitude: null,
+            zoneId: matchedZone.id,
+            source: lookup.source,
+            confidence: lookup.confidence,
           },
         });
+      } catch (cacheErr) {
+        console.warn("[calculateShipping] Falha ao gravar cache:", cacheErr);
       }
-    } catch {
-      // Silencioso - cache e opcional, nao bloqueia a resposta
     }
 
-    return {
-      available: true,
-      zipCode: cleanZip,
-      formattedZipCode: `${cleanZip.slice(0, 5)}-${cleanZip.slice(5)}`,
-      district: lookup.district || "Feira de Santana",
-      city: lookup.city,
-      state: lookup.state,
-      zone: {
-        id: matchedZone.id,
-        name: matchedZone.name,
-        description: matchedZone.description,
-      },
-      distanceKm: getRepresentativeDistance(matchedZone),
-      price: Number(matchedZone.price),
-    };
+    return buildSuccess(
+      cleanZip,
+      effectiveDistrict,
+      lookup.city,
+      lookup.state,
+      matchedZone,
+      needsReview
+    );
   } catch (error) {
     console.error("[calculateShipping] Erro inesperado:", error);
     return {
@@ -225,4 +320,37 @@ export async function calculateShipping(
       zipCode: cleanZip,
     };
   }
+}
+
+function buildSuccess(
+  cleanZip: string,
+  district: string,
+  city: string,
+  state: string,
+  zone: {
+    id: string;
+    name: string;
+    description: string | null;
+    minDistance: number;
+    maxDistance: number;
+    price: unknown;
+  },
+  needsReview?: boolean
+): ShippingSuccessResult {
+  return {
+    available: true,
+    zipCode: cleanZip,
+    formattedZipCode: `${cleanZip.slice(0, 5)}-${cleanZip.slice(5)}`,
+    district: district || "Feira de Santana",
+    city,
+    state,
+    zone: {
+      id: zone.id,
+      name: zone.name,
+      description: zone.description,
+    },
+    distanceKm: getRepresentativeDistance(zone),
+    price: Number(zone.price),
+    needsReview: needsReview ? true : undefined,
+  };
 }

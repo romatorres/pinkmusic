@@ -36,6 +36,7 @@ export async function POST(request: NextRequest) {
       deliveryAddress,
       zipCode,
       shippingCep,
+      selectedNeighborhoodKey,
     } = body;
 
     if (!customerName?.trim() || !customerPhone?.trim()) {
@@ -53,6 +54,7 @@ export async function POST(request: NextRequest) {
     let finalShippingCep: string | null = null;
     let finalShippingZone: string | null = null;
     let finalShippingDistance: number | null = null;
+    let finalNeedsReview = false;
     const finalShippingMethod = isDelivery ? "LOCAL_DELIVERY" : "PICKUP";
 
     if (isDelivery) {
@@ -71,7 +73,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Validação estrita no servidor (nunca confia no valor enviado pelo frontend)
-      const shippingCalculation = await calculateShipping(targetZip);
+      const shippingCalculation = await calculateShipping(targetZip, { selectedNeighborhoodKey });
       if (!shippingCalculation.available) {
         return NextResponse.json(
           {
@@ -86,6 +88,7 @@ export async function POST(request: NextRequest) {
       finalShippingCep = shippingCalculation.zipCode;
       finalShippingZone = shippingCalculation.zone.name;
       finalShippingDistance = shippingCalculation.distanceKm;
+      finalNeedsReview = Boolean(shippingCalculation.needsReview);
     }
 
     // Extrai userId do cliente autenticado (opcional)
@@ -146,6 +149,7 @@ export async function POST(request: NextRequest) {
           shippingZone: finalShippingZone,
           shippingDistance: finalShippingDistance,
           shippingMethod: finalShippingMethod,
+          needsReview: finalNeedsReview,
           status: "PENDING_PAYMENT",
           items: {
             create: items.map((orderItem: { productId: string; quantity: number }) => {
@@ -250,6 +254,7 @@ export async function POST(request: NextRequest) {
         shippingZone: finalShippingZone,
         shippingDistance: finalShippingDistance,
         shippingMethod: finalShippingMethod,
+        needsReview: finalNeedsReview,
         status: "PENDING_PAYMENT",
       },
     });

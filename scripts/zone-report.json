@@ -1,0 +1,1658 @@
+[
+  {
+    "district": "35º BI",
+    "key": "35bi",
+    "ceps": 42,
+    "minCep": "44094006",
+    "maxCep": "44094834",
+    "pointsUsed": 1,
+    "pointsTried": 4,
+    "centroid": {
+      "lat": -12.2914215,
+      "lon": -38.9441571
+    },
+    "kmMedian": 5.593763123944792,
+    "kmMin": 5.593763123944792,
+    "kmMax": 5.593763123944792,
+    "spreadKm": 0,
+    "confidence": "baixa",
+    "suggestedZone": 2,
+    "currentZone": null,
+    "blocked": false,
+    "crossesBoundary": false,
+    "neighbors": [
+      "Tomba",
+      "Aviário"
+    ],
+    "neighborKmMedian": 5.887236484900543,
+    "alerts": [
+      "BAIXA_CONFIANCA",
+      "SEM_ZONA atual"
+    ],
+    "manual": false
+  },
+  {
+    "district": "Aeroporto",
+    "key": "aeroporto",
+    "ceps": 8,
+    "minCep": "44069021",
+    "maxCep": "44069706",
+    "pointsUsed": 1,
+    "pointsTried": 4,
+    "centroid": {
+      "lat": -12.2028535,
+      "lon": -38.9069715
+    },
+    "kmMedian": 11.232888188698466,
+    "kmMin": 11.232888188698466,
+    "kmMax": 11.232888188698466,
+    "spreadKm": 0,
+    "confidence": "baixa",
+    "suggestedZone": 4,
+    "currentZone": 2,
+    "blocked": false,
+    "crossesBoundary": false,
+    "neighbors": [
+      "Conceição",
+      "Santo Antônio dos Prazeres"
+    ],
+    "neighborKmMedian": 7.380057266773237,
+    "alerts": [
+      "BAIXA_CONFIANCA"
+    ],
+    "manual": false
+  },
+  {
+    "district": "Asa Branca",
+    "key": "asabranca",
+    "ceps": 113,
+    "minCep": "44044000",
+    "maxCep": "44046878",
+    "pointsUsed": 1,
+    "pointsTried": 4,
+    "centroid": {
+      "lat": -12.2087027,
+      "lon": -38.9941049
+    },
+    "kmMedian": 8.293143364085186,
+    "kmMin": 8.293143364085186,
+    "kmMax": 8.293143364085186,
+    "spreadKm": 0,
+    "confidence": "baixa",
+    "suggestedZone": 3,
+    "currentZone": 2,
+    "blocked": false,
+    "crossesBoundary": false,
+    "neighbors": [
+      "Campo do Gado Novo",
+      "Queimadinha"
+    ],
+    "neighborKmMedian": 5.0288116559510785,
+    "alerts": [
+      "BAIXA_CONFIANCA"
+    ],
+    "manual": false
+  },
+  {
+    "district": "Aviário",
+    "key": "aviario",
+    "ceps": 100,
+    "minCep": "44095006",
+    "maxCep": "44096780",
+    "pointsUsed": 3,
+    "pointsTried": 4,
+    "centroid": {
+      "lat": -12.2928244,
+      "lon": -38.9424782
+    },
+    "kmMedian": 5.887236484900543,
+    "kmMin": 5.593763123944792,
+    "kmMax": 9.63468576782197,
+    "spreadKm": 3.6231838694214624,
+    "confidence": "media",
+    "suggestedZone": 2,
+    "currentZone": 4,
+    "blocked": false,
+    "crossesBoundary": true,
+    "neighbors": [
+      "35º BI",
+      "Limoeiro"
+    ],
+    "neighborKmMedian": 11.976479408172295,
+    "alerts": [
+      "INCOERENTE_VIZINHOS (vizinhos por CEP: Limoeiro 12.0km)",
+      "FRONTEIRA (5.6–9.6 km cruza zonas)",
+      "ZONA_DIVERGENTE (Z4 → Z2)"
+    ],
+    "manual": false
+  },
+  {
+    "district": "Baraúna",
+    "key": "barauna",
+    "ceps": 63,
+    "minCep": "44020002",
+    "maxCep": "44020625",
+    "pointsUsed": 1,
+    "pointsTried": 1,
+    "centroid": {
+      "lat": -12.247,
+      "lon": -38.962
+    },
+    "kmMedian": 1.54497587019317,
+    "kmMin": 1.54497587019317,
+    "kmMax": 1.54497587019317,
+    "spreadKm": 0,
+    "confidence": "alta",
+    "suggestedZone": 1,
+    "currentZone": null,
+    "blocked": false,
+    "crossesBoundary": false,
+    "neighbors": [
+      "Nova Esperança",
+      "Sobradinho"
+    ],
+    "neighborKmMedian": 3.5036835511975957,
+    "alerts": [
+      "SEM_ZONA atual"
+    ],
+    "manual": true
+  },
+  {
+    "district": "Brasília",
+    "key": "brasilia",
+    "ceps": 91,
+    "minCep": "44088000",
+    "maxCep": "44089440",
+    "pointsUsed": 2,
+    "pointsTried": 4,
+    "centroid": {
+      "lat": -12.249666900000001,
+      "lon": -38.9331465
+    },
+    "kmMedian": 4.424796472015327,
+    "kmMin": 1.5530170455348205,
+    "kmMax": 8.080962350840045,
+    "spreadKm": 2.9065743994545254,
+    "confidence": "media",
+    "suggestedZone": 2,
+    "currentZone": 2,
+    "blocked": false,
+    "crossesBoundary": true,
+    "neighbors": [
+      "SIM",
+      "Tomba"
+    ],
+    "neighborKmMedian": null,
+    "alerts": [
+      "FRONTEIRA (1.6–8.1 km cruza zonas)"
+    ],
+    "manual": false
+  },
+  {
+    "district": "Calumbi",
+    "key": "calumbi",
+    "ceps": 44,
+    "minCep": "44008010",
+    "maxCep": "44009804",
+    "pointsUsed": 2,
+    "pointsTried": 4,
+    "centroid": {
+      "lat": -12.255195350000001,
+      "lon": -38.97881825
+    },
+    "kmMedian": 2.2055252058444865,
+    "kmMin": 1.2133282668497338,
+    "kmMax": 3.435526665946529,
+    "spreadKm": 1.024290526412132,
+    "confidence": "media",
+    "suggestedZone": 1,
+    "currentZone": 3,
+    "blocked": false,
+    "crossesBoundary": true,
+    "neighbors": [
+      "Pedra do Descanso",
+      "CIS"
+    ],
+    "neighborKmMedian": 1.5449080120654721,
+    "alerts": [
+      "FRONTEIRA (1.2–3.4 km cruza zonas)",
+      "ZONA_DIVERGENTE (Z3 → Z1)"
+    ],
+    "manual": false
+  },
+  {
+    "district": "Campo do Gado Novo",
+    "key": "campodogadonovo",
+    "ceps": 15,
+    "minCep": "44042005",
+    "maxCep": "44042664",
+    "pointsUsed": 1,
+    "pointsTried": 1,
+    "centroid": {
+      "lat": -12.215,
+      "lon": -38.995
+    },
+    "kmMedian": 7.605850673649972,
+    "kmMin": 7.605850673649972,
+    "kmMax": 7.605850673649972,
+    "spreadKm": 0,
+    "confidence": "alta",
+    "suggestedZone": 3,
+    "currentZone": null,
+    "blocked": false,
+    "crossesBoundary": false,
+    "neighbors": [
+      "Mantiba",
+      "Asa Branca"
+    ],
+    "neighborKmMedian": null,
+    "alerts": [
+      "SEM_ZONA atual"
+    ],
+    "manual": true
+  },
+  {
+    "district": "Campo Limpo",
+    "key": "campolimpo",
+    "ceps": 178,
+    "minCep": "44032014",
+    "maxCep": "44035803",
+    "pointsUsed": 2,
+    "pointsTried": 4,
+    "centroid": {
+      "lat": -12.22155275,
+      "lon": -38.96918935
+    },
+    "kmMedian": 5.274544442686458,
+    "kmMin": 5.064503869306089,
+    "kmMax": 5.498321593885622,
+    "spreadKm": 0.2659817592758524,
+    "confidence": "media",
+    "suggestedZone": 2,
+    "currentZone": 3,
+    "blocked": false,
+    "crossesBoundary": false,
+    "neighbors": [
+      "Pampalona",
+      "Novo Horizonte"
+    ],
+    "neighborKmMedian": 8.121295224257633,
+    "alerts": [
+      "ZONA_DIVERGENTE (Z3 → Z2)"
+    ],
+    "manual": false
+  },
+  {
+    "district": "Capuchinhos",
+    "key": "capuchinhos",
+    "ceps": 21,
+    "minCep": "44076015",
+    "maxCep": "44076405",
+    "pointsUsed": 4,
+    "pointsTried": 4,
+    "centroid": {
+      "lat": -12.25660515,
+      "lon": -38.94575045
+    },
+    "kmMedian": 2.4972892136104754,
+    "kmMin": 2.0960650395781664,
+    "kmMax": 4.190354894392415,
+    "spreadKm": 1.3025483069049164,
+    "confidence": "alta",
+    "suggestedZone": 1,
+    "currentZone": 2,
+    "blocked": false,
+    "crossesBoundary": true,
+    "neighbors": [
+      "Ponto Central",
+      "Parque Getúlio Vargas"
+    ],
+    "neighborKmMedian": 2.6054571423962463,
+    "alerts": [
+      "FRONTEIRA (2.1–4.2 km cruza zonas)",
+      "ZONA_DIVERGENTE (Z2 → Z1)"
+    ],
+    "manual": false
+  },
+  {
+    "district": "CASEB",
+    "key": "caseb",
+    "ceps": 27,
+    "minCep": "44052005",
+    "maxCep": "44052182",
+    "pointsUsed": 3,
+    "pointsTried": 4,
+    "centroid": {
+      "lat": -12.2441638,
+      "lon": -38.9461202
+    },
+    "kmMedian": 3.1194030286789567,
+    "kmMin": 2.5932353917712723,
+    "kmMax": 3.5697070143866494,
+    "spreadKm": 0.5375490285445924,
+    "confidence": "alta",
+    "suggestedZone": 2,
+    "currentZone": 1,
+    "blocked": false,
+    "crossesBoundary": true,
+    "neighbors": [
+      "São João",
+      "Lagoa Grande"
+    ],
+    "neighborKmMedian": 2.654594658212119,
+    "alerts": [
+      "FRONTEIRA (2.6–3.6 km cruza zonas)",
+      "ZONA_DIVERGENTE (Z1 → Z2)"
+    ],
+    "manual": false
+  },
+  {
+    "district": "Centro",
+    "key": "centro",
+    "ceps": 147,
+    "minCep": "44001001",
+    "maxCep": "44003959",
+    "pointsUsed": 4,
+    "pointsTried": 4,
+    "centroid": {
+      "lat": -12.255667800000001,
+      "lon": -38.968614450000004
+    },
+    "kmMedian": 0.787762757548478,
+    "kmMin": 0.7740209909890932,
+    "kmMax": 1.3534881645271162,
+    "spreadKm": 1.090330703183643,
+    "confidence": "alta",
+    "suggestedZone": 1,
+    "currentZone": 1,
+    "blocked": false,
+    "crossesBoundary": false,
+    "neighbors": [
+      "Serraria Brasil",
+      "Olhos D'Água",
+      "Chácara São Cosme"
+    ],
+    "neighborKmMedian": 1.2351031651276594,
+    "alerts": [],
+    "manual": false
+  },
+  {
+    "district": "Chácara São Cosme",
+    "key": "chacarasaocosme",
+    "ceps": 18,
+    "minCep": "44004000",
+    "maxCep": "44004248",
+    "pointsUsed": 3,
+    "pointsTried": 4,
+    "centroid": {
+      "lat": -12.2626439,
+      "lon": -38.9690272
+    },
+    "kmMedian": 1.0786283215185333,
+    "kmMin": 0.9391606906543053,
+    "kmMax": 1.4824587292069935,
+    "spreadKm": 0.3573530523282088,
+    "confidence": "alta",
+    "suggestedZone": 1,
+    "currentZone": null,
+    "blocked": false,
+    "crossesBoundary": false,
+    "neighbors": [
+      "Centro",
+      "Jardim Acácia"
+    ],
+    "neighborKmMedian": 1.5649278846542383,
+    "alerts": [
+      "SEM_ZONA atual"
+    ],
+    "manual": false
+  },
+  {
+    "district": "Chaparral",
+    "key": "chaparral",
+    "ceps": 2,
+    "minCep": "44081005",
+    "maxCep": "44081050",
+    "pointsUsed": 1,
+    "pointsTried": 1,
+    "centroid": {
+      "lat": -12.285,
+      "lon": -38.955
+    },
+    "kmMedian": 4.134663399182735,
+    "kmMin": 4.134663399182735,
+    "kmMax": 4.134663399182735,
+    "spreadKm": 0,
+    "confidence": "alta",
+    "suggestedZone": 2,
+    "currentZone": null,
+    "blocked": false,
+    "crossesBoundary": false,
+    "neighbors": [
+      "Subaé (Tanquinho)",
+      "Lagoa Salgada"
+    ],
+    "neighborKmMedian": 7.275160956796681,
+    "alerts": [
+      "SEM_ZONA atual"
+    ],
+    "manual": true
+  },
+  {
+    "district": "Cidade Nova",
+    "key": "cidadenova",
+    "ceps": 57,
+    "minCep": "44053015",
+    "maxCep": "44053798",
+    "pointsUsed": 2,
+    "pointsTried": 4,
+    "centroid": {
+      "lat": -12.2277956,
+      "lon": -38.958176249999994
+    },
+    "kmMedian": 4.371068358480741,
+    "kmMin": 4.09112157815754,
+    "kmMax": 4.73164075468969,
+    "spreadKm": 0.5198170388862493,
+    "confidence": "media",
+    "suggestedZone": 2,
+    "currentZone": 2,
+    "blocked": false,
+    "crossesBoundary": false,
+    "neighbors": [
+      "Lagoa Grande",
+      "Parque Ipê"
+    ],
+    "neighborKmMedian": 3.8449378897804607,
+    "alerts": [],
+    "manual": false
+  },
+  {
+    "district": "CIS",
+    "key": "cis",
+    "ceps": 26,
+    "minCep": "44010008",
+    "maxCep": "44013730",
+    "pointsUsed": 1,
+    "pointsTried": 4,
+    "centroid": {
+      "lat": -12.2986593,
+      "lon": -38.9096682
+    },
+    "kmMedian": 9.63468576782197,
+    "kmMin": 9.63468576782197,
+    "kmMax": 9.63468576782197,
+    "spreadKm": 0,
+    "confidence": "baixa",
+    "suggestedZone": 3,
+    "currentZone": 4,
+    "blocked": false,
+    "crossesBoundary": false,
+    "neighbors": [
+      "Calumbi",
+      "Vale do Jacuípe"
+    ],
+    "neighborKmMedian": 5.034050470284259,
+    "alerts": [
+      "BAIXA_CONFIANCA"
+    ],
+    "manual": false
+  },
+  {
+    "district": "CIS Norte",
+    "key": "cisnorte",
+    "ceps": 1,
+    "minCep": "44063000",
+    "maxCep": "44063000",
+    "pointsUsed": 1,
+    "pointsTried": 1,
+    "centroid": {
+      "lat": -12.205,
+      "lon": -39.01
+    },
+    "kmMedian": 10.057480407024016,
+    "kmMin": 10.057480407024016,
+    "kmMax": 10.057480407024016,
+    "spreadKm": 0,
+    "confidence": "alta",
+    "suggestedZone": 4,
+    "currentZone": null,
+    "blocked": false,
+    "crossesBoundary": false,
+    "neighbors": [
+      "Papagaio",
+      "Conceição"
+    ],
+    "neighborKmMedian": 8.107086746578066,
+    "alerts": [
+      "SEM_ZONA atual"
+    ],
+    "manual": true
+  },
+  {
+    "district": "Conceição",
+    "key": "conceicao",
+    "ceps": 189,
+    "minCep": "44065002",
+    "maxCep": "44068455",
+    "pointsUsed": 3,
+    "pointsTried": 4,
+    "centroid": {
+      "lat": -12.218864,
+      "lon": -38.9402483
+    },
+    "kmMedian": 6.484624623307688,
+    "kmMin": 5.594631958492248,
+    "kmMax": 8.15580607894772,
+    "spreadKm": 2.0457594819747937,
+    "confidence": "alta",
+    "suggestedZone": 3,
+    "currentZone": 1,
+    "blocked": false,
+    "crossesBoundary": true,
+    "neighbors": [
+      "CIS Norte",
+      "Conjunto Fraternidade",
+      "Aeroporto"
+    ],
+    "neighborKmMedian": 8.262104072499879,
+    "alerts": [
+      "FRONTEIRA (5.6–8.2 km cruza zonas)",
+      "ZONA_DIVERGENTE (Z1 → Z3)"
+    ],
+    "manual": false
+  },
+  {
+    "district": "Conjunto Fraternidade",
+    "key": "conjuntofraternidade",
+    "ceps": 1,
+    "minCep": "44068030",
+    "maxCep": "44068030",
+    "pointsUsed": 1,
+    "pointsTried": 1,
+    "centroid": {
+      "lat": -12.302,
+      "lon": -38.969
+    },
+    "kmMedian": 6.4667277379757415,
+    "kmMin": 6.4667277379757415,
+    "kmMax": 6.4667277379757415,
+    "spreadKm": 0,
+    "confidence": "alta",
+    "suggestedZone": 3,
+    "currentZone": 3,
+    "blocked": false,
+    "crossesBoundary": false,
+    "neighbors": [
+      "Conceição"
+    ],
+    "neighborKmMedian": 6.484624623307688,
+    "alerts": [],
+    "manual": true
+  },
+  {
+    "district": "Cruzeiro",
+    "key": "cruzeiro",
+    "ceps": 12,
+    "minCep": "44022004",
+    "maxCep": "44022252",
+    "pointsUsed": 1,
+    "pointsTried": 1,
+    "centroid": {
+      "lat": -12.245,
+      "lon": -38.975
+    },
+    "kmMedian": 2.450002932578969,
+    "kmMin": 2.450002932578969,
+    "kmMax": 2.450002932578969,
+    "spreadKm": 0,
+    "confidence": "alta",
+    "suggestedZone": 1,
+    "currentZone": 1,
+    "blocked": false,
+    "crossesBoundary": false,
+    "neighbors": [
+      "Sobradinho",
+      "Rua Nova"
+    ],
+    "neighborKmMedian": 2.3791812077757943,
+    "alerts": [],
+    "manual": true
+  },
+  {
+    "district": "Gabriela",
+    "key": "gabriela",
+    "ceps": 128,
+    "minCep": "44025048",
+    "maxCep": "44030762",
+    "pointsUsed": 3,
+    "pointsTried": 4,
+    "centroid": {
+      "lat": -12.2310333,
+      "lon": -38.9816302
+    },
+    "kmMedian": 4.623860232886416,
+    "kmMin": 2.4439392762813226,
+    "kmMax": 5.093501754431369,
+    "spreadKm": 2.6253772963679367,
+    "confidence": "alta",
+    "suggestedZone": 2,
+    "currentZone": 2,
+    "blocked": false,
+    "crossesBoundary": true,
+    "neighbors": [
+      "Jardim Cruzeiro",
+      "Pampalona"
+    ],
+    "neighborKmMedian": 4.864657009206119,
+    "alerts": [
+      "FRONTEIRA (2.4–5.1 km cruza zonas)"
+    ],
+    "manual": false
+  },
+  {
+    "district": "Humildes",
+    "key": "humildes",
+    "ceps": 40,
+    "minCep": "44099000",
+    "maxCep": "44099898",
+    "pointsUsed": 2,
+    "pointsTried": 4,
+    "centroid": {
+      "lat": -12.2580335,
+      "lon": -38.9487455
+    },
+    "kmMedian": 2.071012111288768,
+    "kmMin": 6.043360000697493,
+    "kmMax": 8.769819402888857,
+    "spreadKm": 5.570041115157191,
+    "confidence": "baixa",
+    "suggestedZone": 1,
+    "currentZone": null,
+    "blocked": true,
+    "crossesBoundary": false,
+    "neighbors": [
+      "Limoeiro"
+    ],
+    "neighborKmMedian": 11.976479408172295,
+    "alerts": [
+      "INCOERENTE_VIZINHOS (vizinhos por CEP: Limoeiro 12.0km)",
+      "BAIXA_CONFIANCA",
+      "rural confirmado, mas estimativa <=12km (ok: regra de negócio)"
+    ],
+    "manual": false
+  },
+  {
+    "district": "Jardim Acácia",
+    "key": "jardimacacia",
+    "ceps": 28,
+    "minCep": "44004275",
+    "maxCep": "44004760",
+    "pointsUsed": 1,
+    "pointsTried": 1,
+    "centroid": {
+      "lat": -12.272,
+      "lon": -38.971
+    },
+    "kmMedian": 2.3420930117599985,
+    "kmMin": 2.3420930117599985,
+    "kmMax": 2.3420930117599985,
+    "spreadKm": 0,
+    "confidence": "alta",
+    "suggestedZone": 1,
+    "currentZone": 2,
+    "blocked": false,
+    "crossesBoundary": false,
+    "neighbors": [
+      "Chácara São Cosme",
+      "Muchila"
+    ],
+    "neighborKmMedian": 1.8292481406673002,
+    "alerts": [
+      "ZONA_DIVERGENTE (Z2 → Z1)"
+    ],
+    "manual": true
+  },
+  {
+    "district": "Jardim Cruzeiro",
+    "key": "jardimcruzeiro",
+    "ceps": 19,
+    "minCep": "44024012",
+    "maxCep": "44024422",
+    "pointsUsed": 2,
+    "pointsTried": 4,
+    "centroid": {
+      "lat": -12.2423716,
+      "lon": -38.980499550000005
+    },
+    "kmMedian": 3.268107238077723,
+    "kmMin": 3.1187710748479316,
+    "kmMax": 3.4332512995680795,
+    "spreadKm": 0.2126894396646526,
+    "confidence": "media",
+    "suggestedZone": 2,
+    "currentZone": 1,
+    "blocked": false,
+    "crossesBoundary": false,
+    "neighbors": [
+      "Rua Nova",
+      "Gabriela"
+    ],
+    "neighborKmMedian": 3.1735188577480744,
+    "alerts": [
+      "ZONA_DIVERGENTE (Z1 → Z2)"
+    ],
+    "manual": false
+  },
+  {
+    "district": "Lagoa Grande",
+    "key": "lagoagrande",
+    "ceps": 26,
+    "minCep": "44052316",
+    "maxCep": "44052628",
+    "pointsUsed": 1,
+    "pointsTried": 1,
+    "centroid": {
+      "lat": -12.253,
+      "lon": -38.948
+    },
+    "kmMedian": 2.2747493838017405,
+    "kmMin": 2.2747493838017405,
+    "kmMax": 2.2747493838017405,
+    "spreadKm": 0,
+    "confidence": "alta",
+    "suggestedZone": 1,
+    "currentZone": 2,
+    "blocked": false,
+    "crossesBoundary": false,
+    "neighbors": [
+      "CASEB",
+      "Cidade Nova"
+    ],
+    "neighborKmMedian": 3.7452356935798488,
+    "alerts": [
+      "ZONA_DIVERGENTE (Z2 → Z1)"
+    ],
+    "manual": true
+  },
+  {
+    "district": "Lagoa Salgada",
+    "key": "lagoasalgada",
+    "ceps": 47,
+    "minCep": "44082010",
+    "maxCep": "44083708",
+    "pointsUsed": 3,
+    "pointsTried": 4,
+    "centroid": {
+      "lat": -12.2658808,
+      "lon": -38.9287173
+    },
+    "kmMedian": 5.043247940546541,
+    "kmMin": 4.566577814123765,
+    "kmMax": 9.114876934868004,
+    "spreadKm": 3.1821062523395103,
+    "confidence": "media",
+    "suggestedZone": 2,
+    "currentZone": null,
+    "blocked": false,
+    "crossesBoundary": true,
+    "neighbors": [
+      "Chaparral",
+      "SIM"
+    ],
+    "neighborKmMedian": 4.134663399182735,
+    "alerts": [
+      "FRONTEIRA (4.6–9.1 km cruza zonas)",
+      "SEM_ZONA atual"
+    ],
+    "manual": false
+  },
+  {
+    "district": "Limoeiro",
+    "key": "limoeiro",
+    "ceps": 28,
+    "minCep": "44097000",
+    "maxCep": "44098762",
+    "pointsUsed": 3,
+    "pointsTried": 4,
+    "centroid": {
+      "lat": -12.3100714,
+      "lon": -38.8977795
+    },
+    "kmMedian": 11.976479408172295,
+    "kmMin": 9.63468576782197,
+    "kmMax": 13.230320853439407,
+    "spreadKm": 1.8106631411435108,
+    "confidence": "alta",
+    "suggestedZone": 4,
+    "currentZone": 4,
+    "blocked": false,
+    "crossesBoundary": true,
+    "neighbors": [
+      "Aviário",
+      "Humildes"
+    ],
+    "neighborKmMedian": 5.887236484900543,
+    "alerts": [
+      "INCOERENTE_VIZINHOS (vizinhos por CEP: Aviário 5.9km)",
+      "FRONTEIRA (9.6–13.2 km cruza zonas)"
+    ],
+    "manual": false
+  },
+  {
+    "district": "Mangabeira",
+    "key": "mangabeira",
+    "ceps": 155,
+    "minCep": "44056000",
+    "maxCep": "44057896",
+    "pointsUsed": 1,
+    "pointsTried": 4,
+    "centroid": {
+      "lat": -12.2166676,
+      "lon": -38.9402483
+    },
+    "kmMedian": 6.760684094963918,
+    "kmMin": 6.760684094963918,
+    "kmMax": 6.760684094963918,
+    "spreadKm": 0,
+    "confidence": "baixa",
+    "suggestedZone": 3,
+    "currentZone": 3,
+    "blocked": false,
+    "crossesBoundary": false,
+    "neighbors": [
+      "Parque Ipê",
+      "Papagaio"
+    ],
+    "neighborKmMedian": 7.572337632803813,
+    "alerts": [
+      "BAIXA_CONFIANCA"
+    ],
+    "manual": false
+  },
+  {
+    "district": "Mantiba",
+    "key": "mantiba",
+    "ceps": 13,
+    "minCep": "44039000",
+    "maxCep": "44040890",
+    "pointsUsed": 4,
+    "pointsTried": 4,
+    "centroid": {
+      "lat": -12.230505149999999,
+      "lon": -38.9547897
+    },
+    "kmMedian": 4.1011758436421735,
+    "kmMin": 3.6439551427683297,
+    "kmMax": 11.890054599421402,
+    "spreadKm": 6.014321030426416,
+    "confidence": "baixa",
+    "suggestedZone": 2,
+    "currentZone": null,
+    "blocked": true,
+    "crossesBoundary": true,
+    "neighbors": [
+      "Pedra Ferrada",
+      "Campo do Gado Novo"
+    ],
+    "neighborKmMedian": 7.605850673649972,
+    "alerts": [
+      "BAIXA_CONFIANCA",
+      "FRONTEIRA (3.6–11.9 km cruza zonas)",
+      "rural confirmado, mas estimativa <=12km (ok: regra de negócio)"
+    ],
+    "manual": false
+  },
+  {
+    "district": "Muchila",
+    "key": "muchila",
+    "ceps": 45,
+    "minCep": "44005000",
+    "maxCep": "44006482",
+    "pointsUsed": 4,
+    "pointsTried": 4,
+    "centroid": {
+      "lat": -12.27336955,
+      "lon": -38.9719524
+    },
+    "kmMedian": 2.579867959816067,
+    "kmMin": 1.654991289304222,
+    "kmMax": 3.0340435969225528,
+    "spreadKm": 2.150690030198802,
+    "confidence": "alta",
+    "suggestedZone": 1,
+    "currentZone": 3,
+    "blocked": false,
+    "crossesBoundary": true,
+    "neighbors": [
+      "Jardim Acácia",
+      "Pedra do Descanso"
+    ],
+    "neighborKmMedian": 1.9435005119127353,
+    "alerts": [
+      "FRONTEIRA (1.7–3.0 km cruza zonas)",
+      "ZONA_DIVERGENTE (Z3 → Z1)"
+    ],
+    "manual": false
+  },
+  {
+    "district": "Nova Esperança",
+    "key": "novaesperanca",
+    "ceps": 7,
+    "minCep": "44016000",
+    "maxCep": "44019885",
+    "pointsUsed": 2,
+    "pointsTried": 4,
+    "centroid": {
+      "lat": -12.249072,
+      "lon": -38.990131149999996
+    },
+    "kmMedian": 3.9721821694533364,
+    "kmMin": 3.955025614061624,
+    "kmMax": 4.008579145815826,
+    "spreadKm": 0.21378818330786364,
+    "confidence": "media",
+    "suggestedZone": 2,
+    "currentZone": null,
+    "blocked": false,
+    "crossesBoundary": false,
+    "neighbors": [
+      "Vale do Jacuípe",
+      "Baraúna"
+    ],
+    "neighborKmMedian": 4.703775802458601,
+    "alerts": [
+      "SEM_ZONA atual"
+    ],
+    "manual": false
+  },
+  {
+    "district": "Novo Horizonte",
+    "key": "novohorizonte",
+    "ceps": 29,
+    "minCep": "44036226",
+    "maxCep": "44036642",
+    "pointsUsed": 2,
+    "pointsTried": 4,
+    "centroid": {
+      "lat": -12.19001715,
+      "lon": -38.966836
+    },
+    "kmMedian": 9.781383668180752,
+    "kmMin": 9.476880473833544,
+    "kmMax": 10.085891534873577,
+    "spreadKm": 0.23429268356146454,
+    "confidence": "media",
+    "suggestedZone": 3,
+    "currentZone": 2,
+    "blocked": false,
+    "crossesBoundary": true,
+    "neighbors": [
+      "Campo Limpo",
+      "Pedra Ferrada"
+    ],
+    "neighborKmMedian": 5.274544442686458,
+    "alerts": [
+      "FRONTEIRA (9.5–10.1 km cruza zonas)",
+      "ZONA_DIVERGENTE (Z2 → Z3)"
+    ],
+    "manual": false
+  },
+  {
+    "district": "Olhos D'Água",
+    "key": "olhosdagua",
+    "ceps": 30,
+    "minCep": "44003414",
+    "maxCep": "44003900",
+    "pointsUsed": 1,
+    "pointsTried": 1,
+    "centroid": {
+      "lat": -12.268,
+      "lon": -38.961
+    },
+    "kmMedian": 1.5411057687161651,
+    "kmMin": 1.5411057687161651,
+    "kmMax": 1.5411057687161651,
+    "spreadKm": 0,
+    "confidence": "alta",
+    "suggestedZone": 1,
+    "currentZone": 2,
+    "blocked": false,
+    "crossesBoundary": false,
+    "neighbors": [
+      "Serraria Brasil",
+      "Centro"
+    ],
+    "neighborKmMedian": 1.0114329613380688,
+    "alerts": [
+      "ZONA_DIVERGENTE (Z2 → Z1)"
+    ],
+    "manual": true
+  },
+  {
+    "district": "Pampalona",
+    "key": "pampalona",
+    "ceps": 34,
+    "minCep": "44031035",
+    "maxCep": "44031615",
+    "pointsUsed": 3,
+    "pointsTried": 4,
+    "centroid": {
+      "lat": -12.219813,
+      "lon": -38.9878305
+    },
+    "kmMedian": 6.461206780334514,
+    "kmMin": 5.736692803733482,
+    "kmMax": 6.926896760762883,
+    "spreadKm": 0.7133708655722744,
+    "confidence": "alta",
+    "suggestedZone": 3,
+    "currentZone": null,
+    "blocked": false,
+    "crossesBoundary": true,
+    "neighbors": [
+      "Gabriela",
+      "Campo Limpo"
+    ],
+    "neighborKmMedian": 4.949202337786437,
+    "alerts": [
+      "FRONTEIRA (5.7–6.9 km cruza zonas)",
+      "SEM_ZONA atual"
+    ],
+    "manual": false
+  },
+  {
+    "district": "Papagaio",
+    "key": "papagaio",
+    "ceps": 71,
+    "minCep": "44059074",
+    "maxCep": "44062850",
+    "pointsUsed": 2,
+    "pointsTried": 4,
+    "centroid": {
+      "lat": -12.19234815,
+      "lon": -38.94650895
+    },
+    "kmMedian": 9.729548869848445,
+    "kmMin": 7.598966428445183,
+    "kmMax": 11.890054599421402,
+    "spreadKm": 1.701847068284712,
+    "confidence": "media",
+    "suggestedZone": 3,
+    "currentZone": 3,
+    "blocked": false,
+    "crossesBoundary": true,
+    "neighbors": [
+      "Mangabeira",
+      "CIS Norte"
+    ],
+    "neighborKmMedian": 10.057480407024016,
+    "alerts": [
+      "FRONTEIRA (7.6–11.9 km cruza zonas)"
+    ],
+    "manual": false
+  },
+  {
+    "district": "Parque Getúlio Vargas",
+    "key": "parquegetuliovargas",
+    "ceps": 16,
+    "minCep": "44076612",
+    "maxCep": "44076828",
+    "pointsUsed": 2,
+    "pointsTried": 4,
+    "centroid": {
+      "lat": -12.2508459,
+      "lon": -38.94138495
+    },
+    "kmMedian": 3.2594990811073483,
+    "kmMin": 2.59876499146936,
+    "kmMax": 3.9245092536186283,
+    "spreadKm": 0.5179179115300818,
+    "confidence": "media",
+    "suggestedZone": 2,
+    "currentZone": 1,
+    "blocked": false,
+    "crossesBoundary": true,
+    "neighbors": [
+      "Capuchinhos",
+      "Santa Mônica"
+    ],
+    "neighborKmMedian": 3.35666186152189,
+    "alerts": [
+      "FRONTEIRA (2.6–3.9 km cruza zonas)",
+      "ZONA_DIVERGENTE (Z1 → Z2)"
+    ],
+    "manual": false
+  },
+  {
+    "district": "Parque Ipê",
+    "key": "parqueipe",
+    "ceps": 66,
+    "minCep": "44054005",
+    "maxCep": "44055901",
+    "pointsUsed": 3,
+    "pointsTried": 4,
+    "centroid": {
+      "lat": -12.2204776,
+      "lon": -38.9582572
+    },
+    "kmMedian": 5.415126395759181,
+    "kmMin": 5.360280189587482,
+    "kmMax": 6.362201311963465,
+    "spreadKm": 0.7341645031708546,
+    "confidence": "alta",
+    "suggestedZone": 2,
+    "currentZone": 1,
+    "blocked": false,
+    "crossesBoundary": true,
+    "neighbors": [
+      "Cidade Nova",
+      "Mangabeira"
+    ],
+    "neighborKmMedian": 4.371068358480741,
+    "alerts": [
+      "FRONTEIRA (5.4–6.4 km cruza zonas)",
+      "ZONA_DIVERGENTE (Z1 → Z2)"
+    ],
+    "manual": false
+  },
+  {
+    "district": "Pedra do Descanso",
+    "key": "pedradodescanso",
+    "ceps": 31,
+    "minCep": "44007000",
+    "maxCep": "44007972",
+    "pointsUsed": 3,
+    "pointsTried": 4,
+    "centroid": {
+      "lat": -12.2617264,
+      "lon": -38.9734888
+    },
+    "kmMedian": 1.5449080120654721,
+    "kmMin": 1.2133282668497338,
+    "kmMax": 3.3124588088623765,
+    "spreadKm": 1.4390076641744225,
+    "confidence": "alta",
+    "suggestedZone": 1,
+    "currentZone": 3,
+    "blocked": false,
+    "crossesBoundary": true,
+    "neighbors": [
+      "Muchila",
+      "Calumbi"
+    ],
+    "neighborKmMedian": 2.392696582830277,
+    "alerts": [
+      "FRONTEIRA (1.2–3.3 km cruza zonas)",
+      "ZONA_DIVERGENTE (Z3 → Z1)"
+    ],
+    "manual": false
+  },
+  {
+    "district": "Pedra Ferrada",
+    "key": "pedraferrada",
+    "ceps": 48,
+    "minCep": "44037310",
+    "maxCep": "44038700",
+    "pointsUsed": 1,
+    "pointsTried": 5,
+    "centroid": {
+      "lat": -12.1638557,
+      "lon": -39.0582571
+    },
+    "kmMedian": 19.058770962571618,
+    "kmMin": 19.058770962571618,
+    "kmMax": 19.058770962571618,
+    "spreadKm": 0,
+    "confidence": "baixa",
+    "suggestedZone": 0,
+    "currentZone": null,
+    "blocked": false,
+    "crossesBoundary": false,
+    "neighbors": [
+      "Novo Horizonte",
+      "Mantiba"
+    ],
+    "neighborKmMedian": 9.781383668180752,
+    "alerts": [
+      "INCOERENTE_VIZINHOS (vizinhos por CEP: Novo Horizonte 9.8km)",
+      "BAIXA_CONFIANCA",
+      ">12km SEM bloqueio",
+      "SEM_ZONA atual"
+    ],
+    "manual": false
+  },
+  {
+    "district": "Ponto Central",
+    "key": "pontocentral",
+    "ceps": 39,
+    "minCep": "44075002",
+    "maxCep": "44075974",
+    "pointsUsed": 2,
+    "pointsTried": 4,
+    "centroid": {
+      "lat": -12.2563748,
+      "lon": -38.949642499999996
+    },
+    "kmMedian": 1.951415203685144,
+    "kmMin": 2.000760171751935,
+    "kmMax": 2.360372351638897,
+    "spreadKm": 0.7611920028554798,
+    "confidence": "media",
+    "suggestedZone": 1,
+    "currentZone": 1,
+    "blocked": false,
+    "crossesBoundary": false,
+    "neighbors": [
+      "Registro",
+      "Capuchinhos"
+    ],
+    "neighborKmMedian": 2.4972892136104754,
+    "alerts": [],
+    "manual": false
+  },
+  {
+    "district": "Queimadinha",
+    "key": "queimadinha",
+    "ceps": 73,
+    "minCep": "44050006",
+    "maxCep": "44050800",
+    "pointsUsed": 3,
+    "pointsTried": 4,
+    "centroid": {
+      "lat": -12.2406991,
+      "lon": -38.96194
+    },
+    "kmMedian": 2.451772638252185,
+    "kmMin": 1.3534881645271162,
+    "kmMax": 6.8941761113703075,
+    "spreadKm": 3.84401850119255,
+    "confidence": "media",
+    "suggestedZone": 1,
+    "currentZone": 1,
+    "blocked": false,
+    "crossesBoundary": true,
+    "neighbors": [
+      "Asa Branca",
+      "São João"
+    ],
+    "neighborKmMedian": 3.0344399326224973,
+    "alerts": [
+      "FRONTEIRA (1.4–6.9 km cruza zonas)"
+    ],
+    "manual": false
+  },
+  {
+    "district": "Registro",
+    "key": "registro",
+    "ceps": 37,
+    "minCep": "44073150",
+    "maxCep": "44073924",
+    "pointsUsed": 1,
+    "pointsTried": 4,
+    "centroid": {
+      "lat": -12.2230297,
+      "lon": -38.8973755
+    },
+    "kmMedian": 10.581462825771641,
+    "kmMin": 10.581462825771641,
+    "kmMax": 10.581462825771641,
+    "spreadKm": 0,
+    "confidence": "baixa",
+    "suggestedZone": 4,
+    "currentZone": 4,
+    "blocked": false,
+    "crossesBoundary": false,
+    "neighbors": [
+      "Santo Antônio dos Prazeres",
+      "Ponto Central"
+    ],
+    "neighborKmMedian": 5.113452556961965,
+    "alerts": [
+      "BAIXA_CONFIANCA"
+    ],
+    "manual": false
+  },
+  {
+    "district": "Rua Nova",
+    "key": "ruanova",
+    "ceps": 29,
+    "minCep": "44023005",
+    "maxCep": "44023702",
+    "pointsUsed": 1,
+    "pointsTried": 1,
+    "centroid": {
+      "lat": -12.2635,
+      "lon": -38.974
+    },
+    "kmMedian": 1.7231774826097335,
+    "kmMin": 1.7231774826097335,
+    "kmMax": 1.7231774826097335,
+    "spreadKm": 0,
+    "confidence": "alta",
+    "suggestedZone": 1,
+    "currentZone": 2,
+    "blocked": false,
+    "crossesBoundary": false,
+    "neighbors": [
+      "Cruzeiro",
+      "Jardim Cruzeiro"
+    ],
+    "neighborKmMedian": 2.859055085328346,
+    "alerts": [
+      "ZONA_DIVERGENTE (Z2 → Z1)"
+    ],
+    "manual": true
+  },
+  {
+    "district": "Santa Mônica",
+    "key": "santamonica",
+    "ceps": 78,
+    "minCep": "44077005",
+    "maxCep": "44078738",
+    "pointsUsed": 3,
+    "pointsTried": 4,
+    "centroid": {
+      "lat": -12.264384,
+      "lon": -38.9343719
+    },
+    "kmMedian": 4.216034509433305,
+    "kmMin": 3.662859286329317,
+    "kmMax": 4.24812797073147,
+    "spreadKm": 0.9135920706921891,
+    "confidence": "alta",
+    "suggestedZone": 2,
+    "currentZone": 2,
+    "blocked": false,
+    "crossesBoundary": false,
+    "neighbors": [
+      "Parque Getúlio Vargas",
+      "Subaé"
+    ],
+    "neighborKmMedian": 4.568570756157528,
+    "alerts": [],
+    "manual": false
+  },
+  {
+    "district": "Santo Antônio dos Prazeres",
+    "key": "santoantoniodosprazeres",
+    "ceps": 72,
+    "minCep": "44071010",
+    "maxCep": "44072748",
+    "pointsUsed": 2,
+    "pointsTried": 4,
+    "centroid": {
+      "lat": -12.24277305,
+      "lon": -38.9068163
+    },
+    "kmMedian": 8.275489910238786,
+    "kmMin": 6.950468276332566,
+    "kmMax": 9.682911175826282,
+    "spreadKm": 1.228506045746048,
+    "confidence": "media",
+    "suggestedZone": 3,
+    "currentZone": 4,
+    "blocked": false,
+    "crossesBoundary": false,
+    "neighbors": [
+      "Aeroporto",
+      "Registro"
+    ],
+    "neighborKmMedian": null,
+    "alerts": [
+      "ZONA_DIVERGENTE (Z4 → Z3)"
+    ],
+    "manual": false
+  },
+  {
+    "district": "São João",
+    "key": "saojoao",
+    "ceps": 41,
+    "minCep": "44051005",
+    "maxCep": "44051802",
+    "pointsUsed": 4,
+    "pointsTried": 4,
+    "centroid": {
+      "lat": -12.241362500000001,
+      "lon": -38.949785899999995
+    },
+    "kmMedian": 3.0344399326224973,
+    "kmMin": 3.0103574998092237,
+    "kmMax": 3.5779460294327596,
+    "spreadKm": 0.8527311160780879,
+    "confidence": "alta",
+    "suggestedZone": 2,
+    "currentZone": 1,
+    "blocked": false,
+    "crossesBoundary": false,
+    "neighbors": [
+      "Queimadinha",
+      "CASEB"
+    ],
+    "neighborKmMedian": 2.785587833465571,
+    "alerts": [
+      "ZONA_DIVERGENTE (Z1 → Z2)"
+    ],
+    "manual": false
+  },
+  {
+    "district": "Serraria Brasil",
+    "key": "serrariabrasil",
+    "ceps": 42,
+    "minCep": "44003000",
+    "maxCep": "44003390",
+    "pointsUsed": 1,
+    "pointsTried": 1,
+    "centroid": {
+      "lat": -12.266,
+      "lon": -38.965
+    },
+    "kmMedian": 1.2351031651276594,
+    "kmMin": 1.2351031651276594,
+    "kmMax": 1.2351031651276594,
+    "spreadKm": 0,
+    "confidence": "alta",
+    "suggestedZone": 1,
+    "currentZone": 2,
+    "blocked": false,
+    "crossesBoundary": false,
+    "neighbors": [
+      "Centro",
+      "Olhos D'Água"
+    ],
+    "neighborKmMedian": 1.1644342631323217,
+    "alerts": [
+      "ZONA_DIVERGENTE (Z2 → Z1)"
+    ],
+    "manual": true
+  },
+  {
+    "district": "SIM",
+    "key": "sim",
+    "ceps": 29,
+    "minCep": "44085172",
+    "maxCep": "44086530",
+    "pointsUsed": 1,
+    "pointsTried": 4,
+    "centroid": {
+      "lat": -12.2518121,
+      "lon": -38.9223957
+    },
+    "kmMedian": 5.852363251527215,
+    "kmMin": 5.852363251527215,
+    "kmMax": 5.852363251527215,
+    "spreadKm": 0,
+    "confidence": "baixa",
+    "suggestedZone": 2,
+    "currentZone": 3,
+    "blocked": false,
+    "crossesBoundary": false,
+    "neighbors": [
+      "Lagoa Salgada",
+      "Brasília"
+    ],
+    "neighborKmMedian": 4.734022206280934,
+    "alerts": [
+      "BAIXA_CONFIANCA"
+    ],
+    "manual": false
+  },
+  {
+    "district": "Sobradinho",
+    "key": "sobradinho",
+    "ceps": 19,
+    "minCep": "44021005",
+    "maxCep": "44021445",
+    "pointsUsed": 2,
+    "pointsTried": 4,
+    "centroid": {
+      "lat": -12.240378849999999,
+      "lon": -38.97569255
+    },
+    "kmMedian": 3.035184932941855,
+    "kmMin": 2.731949761028062,
+    "kmMax": 3.4332512995680795,
+    "spreadKm": 0.49438403353190546,
+    "confidence": "media",
+    "suggestedZone": 2,
+    "currentZone": 1,
+    "blocked": false,
+    "crossesBoundary": true,
+    "neighbors": [
+      "Baraúna",
+      "Cruzeiro"
+    ],
+    "neighborKmMedian": 1.9974894013860696,
+    "alerts": [
+      "FRONTEIRA (2.7–3.4 km cruza zonas)",
+      "ZONA_DIVERGENTE (Z1 → Z2)"
+    ],
+    "manual": false
+  },
+  {
+    "district": "Subaé",
+    "key": "subae",
+    "ceps": 36,
+    "minCep": "44079000",
+    "maxCep": "44080648",
+    "pointsUsed": 2,
+    "pointsTried": 4,
+    "centroid": {
+      "lat": -12.26941325,
+      "lon": -38.92358465
+    },
+    "kmMedian": 5.877642431207708,
+    "kmMin": 5.052895447317084,
+    "kmMax": 6.712348423859702,
+    "spreadKm": 0.6648797764370411,
+    "confidence": "media",
+    "suggestedZone": 2,
+    "currentZone": 3,
+    "blocked": false,
+    "crossesBoundary": true,
+    "neighbors": [
+      "Santa Mônica",
+      "Subaé (Tanquinho)"
+    ],
+    "neighborKmMedian": 6.8615542412400625,
+    "alerts": [
+      "FRONTEIRA (5.1–6.7 km cruza zonas)",
+      "ZONA_DIVERGENTE (Z3 → Z2)"
+    ],
+    "manual": false
+  },
+  {
+    "district": "Subaé (Tanquinho)",
+    "key": "subaetanquinho",
+    "ceps": 16,
+    "minCep": "44080853",
+    "maxCep": "44080893",
+    "pointsUsed": 3,
+    "pointsTried": 4,
+    "centroid": {
+      "lat": -12.1918937,
+      "lon": -38.9663282
+    },
+    "kmMedian": 9.50707397304682,
+    "kmMin": 3.308489862871627,
+    "kmMax": 9.50707397304682,
+    "spreadKm": 4.894705669198868,
+    "confidence": "media",
+    "suggestedZone": 3,
+    "currentZone": null,
+    "blocked": true,
+    "crossesBoundary": true,
+    "neighbors": [
+      "Subaé",
+      "Chaparral"
+    ],
+    "neighborKmMedian": 5.006152915195221,
+    "alerts": [
+      "FRONTEIRA (3.3–9.5 km cruza zonas)",
+      "rural confirmado, mas estimativa <=12km (ok: regra de negócio)"
+    ],
+    "manual": false
+  },
+  {
+    "district": "Tomba",
+    "key": "tomba",
+    "ceps": 288,
+    "minCep": "44090020",
+    "maxCep": "44092850",
+    "pointsUsed": 1,
+    "pointsTried": 5,
+    "centroid": {
+      "lat": -12.2847564,
+      "lon": -38.9559497
+    },
+    "kmMedian": 4.0641611346734905,
+    "kmMin": 4.0641611346734905,
+    "kmMax": 4.0641611346734905,
+    "spreadKm": 0,
+    "confidence": "baixa",
+    "suggestedZone": 2,
+    "currentZone": 2,
+    "blocked": false,
+    "crossesBoundary": false,
+    "neighbors": [
+      "Brasília",
+      "35º BI"
+    ],
+    "neighborKmMedian": 4.424796472015327,
+    "alerts": [
+      "BAIXA_CONFIANCA"
+    ],
+    "manual": false
+  },
+  {
+    "district": "Vale do Jacuípe",
+    "key": "valedojacuipe",
+    "ceps": 3,
+    "minCep": "44014000",
+    "maxCep": "44014007",
+    "pointsUsed": 1,
+    "pointsTried": 1,
+    "centroid": {
+      "lat": -12.278,
+      "lon": -39.015
+    },
+    "kmMedian": 7.862575734724032,
+    "kmMin": 7.862575734724032,
+    "kmMax": 7.862575734724032,
+    "spreadKm": 0,
+    "confidence": "alta",
+    "suggestedZone": 3,
+    "currentZone": null,
+    "blocked": false,
+    "crossesBoundary": false,
+    "neighbors": [
+      "CIS",
+      "Nova Esperança"
+    ],
+    "neighborKmMedian": 3.9721821694533364,
+    "alerts": [
+      "SEM_ZONA atual"
+    ],
+    "manual": true
+  }
+]

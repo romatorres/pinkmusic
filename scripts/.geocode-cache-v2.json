@@ -1,0 +1,661 @@
+{
+  "Rua Carlos Valadares, Centro, Feira de Santana, Bahia, Brasil": null,
+  "Rua Carlos Valadares, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2483461,
+    "lon": -38.96194,
+    "display": "Rua Carlos Valadares, Queimadinha, Santana, Feira de Santana, Bahia, Região Nordeste, 44050-054, Brasil"
+  },
+  "Rua Doutor Antônio Borja, Centro, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2609737,
+    "lon": -38.9676551,
+    "display": "Rua Doutor Antônio Borja, Chácara São Cosme, Centro, Santana, Feira de Santana, Bahia, Região Nordeste, 44001-784, Brasil"
+  },
+  "Travessa Guanabara, Centro, Feira de Santana, Bahia, Brasil": null,
+  "Travessa Guanabara, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2505328,
+    "lon": -38.9695738,
+    "display": "Travessa Guanabara, Barroquinha, Santana, Feira de Santana, Bahia, Região Nordeste, 44010-230, Brasil"
+  },
+  "Rua Doutor João Evangelista, Centro, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2608028,
+    "lon": -38.9713396,
+    "display": "Rua Doutor João Evangelista, Chácara São Cosme, Feira IV, Santana, Feira de Santana, Bahia, Região Nordeste, 44135-000, Brasil"
+  },
+  "Rua Bacelar de Castro, Chácara São Cosme, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2617028,
+    "lon": -38.9685552,
+    "display": "Rua Bacelar de Castro, Chácara São Cosme, Centro, Santana, Feira de Santana, Bahia, Região Nordeste, 44001-784, Brasil"
+  },
+  "2ª Travessa Canavieiras, Chácara São Cosme, Feira de Santana, Bahia, Brasil": null,
+  "2ª Travessa Canavieiras, Feira de Santana, Bahia, Brasil": null,
+  "Rua José de Alencar, Chácara São Cosme, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2626439,
+    "lon": -38.9690272,
+    "display": "Rua José de Alencar, Chácara São Cosme, Feira IV, Santana, Feira de Santana, Bahia, Região Nordeste, 44001-784, Brasil"
+  },
+  "3ª Travessa das Américas, Chácara São Cosme, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2657848,
+    "lon": -38.9697235,
+    "display": "Travessa das Américas 2, Chácara São Cosme, Muchila, Santana, Feira de Santana, Bahia, Região Nordeste, 44005-000, Brasil"
+  },
+  "Rua Doutor Macário Cerqueira, Muchila, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2746772,
+    "lon": -38.9678876,
+    "display": "Rua Doutor Macario Cerqueira, Muchila, Santana, Feira de Santana, Bahia, Região Nordeste, 44005-000, Brasil"
+  },
+  "Rua Tuiuiu, Muchila, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2720619,
+    "lon": -38.9713049,
+    "display": "Rua Tuiuiu, Muchila, Santana, Feira de Santana, Bahia, Região Nordeste, 44005-000, Brasil"
+  },
+  "Rua Maú, Muchila, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2765664,
+    "lon": -38.9725999,
+    "display": "Rua Mau, Muchila, Santana, Feira de Santana, Bahia, Região Nordeste, 44005-000, Brasil"
+  },
+  "Rua Natal, Muchila, Feira de Santana, Bahia, Brasil": null,
+  "Rua Natal, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2542001,
+    "lon": -38.9745875,
+    "display": "Rua Natal, Feira IV, Santana, Feira de Santana, Bahia, Região Nordeste, 44002-844, Brasil"
+  },
+  "Rua Doutor João Evangelista, Pedra do Descanso, Feira de Santana, Bahia, Brasil": null,
+  "Rua Doutor João Evangelista, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2608028,
+    "lon": -38.9713396,
+    "display": "Rua Doutor João Evangelista, Chácara São Cosme, Feira IV, Santana, Feira de Santana, Bahia, Região Nordeste, 44135-000, Brasil"
+  },
+  "Rua João Vasconcelos, Pedra do Descanso, Feira de Santana, Bahia, Brasil": null,
+  "Rua João Vasconcelos, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2617264,
+    "lon": -38.9734888,
+    "display": "Rua João Vasconcelos, Chácara São Cosme, Feira IV, Santana, Feira de Santana, Bahia, Região Nordeste, 44135-000, Brasil"
+  },
+  "Rua Boa Vista, Pedra do Descanso, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2717946,
+    "lon": -38.9818095,
+    "display": "Rua Boa Vista, Pedra do Descanso, Feira IV, Santana, Feira de Santana, Bahia, Região Nordeste, 44013-200, Brasil"
+  },
+  "Rua Zumbi dos Palmares, Pedra do Descanso, Feira de Santana, Bahia, Brasil": null,
+  "Rua Zumbi dos Palmares, Feira de Santana, Bahia, Brasil": null,
+  "Rua Doutor João Evangelista, Calumbi, Feira de Santana, Bahia, Brasil": null,
+  "2ª Travessa José Paulo da Silva, Calumbi, Feira de Santana, Bahia, Brasil": null,
+  "2ª Travessa José Paulo da Silva, Feira de Santana, Bahia, Brasil": null,
+  "Avenida Pau Brasil, Calumbi, Feira de Santana, Bahia, Brasil": null,
+  "Avenida Pau Brasil, Feira de Santana, Bahia, Brasil": null,
+  "Rua Mógno, Calumbi, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2495879,
+    "lon": -38.9862969,
+    "display": "Rua Mogno, Calumbi, Feira IV, Santana, Feira de Santana, Bahia, Região Nordeste, 44009-180, Brasil"
+  },
+  "Rua Jorge Amado, CIS, Feira de Santana, Bahia, Brasil": null,
+  "Rua Jorge Amado, Feira de Santana, Bahia, Brasil": null,
+  "2ª Travessa Boa Esperança, CIS, Feira de Santana, Bahia, Brasil": null,
+  "2ª Travessa Boa Esperança, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2986593,
+    "lon": -38.9096682,
+    "display": "Travessa Boa Esperança, Feira de Santana, Bahia, Região Nordeste, 44079-006, Brasil"
+  },
+  "Rua Jardim das Flores, CIS, Feira de Santana, Bahia, Brasil": null,
+  "Rua Jardim das Flores, Feira de Santana, Bahia, Brasil": null,
+  "Avenida Centro das Indústrias, CIS, Feira de Santana, Bahia, Brasil": null,
+  "Avenida Centro das Indústrias, Feira de Santana, Bahia, Brasil": null,
+  "Rua Luiz da Costa Falcão, Nova Esperança, Feira de Santana, Bahia, Brasil": null,
+  "Rua Luiz da Costa Falcão, Feira de Santana, Bahia, Brasil": null,
+  "Travessa Honorato Alves, Nova Esperança, Feira de Santana, Bahia, Brasil": null,
+  "Travessa Honorato Alves, Feira de Santana, Bahia, Brasil": null,
+  "Rua Feijó, Nova Esperança, Feira de Santana, Bahia, Brasil": null,
+  "Rua Feijó, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2508335,
+    "lon": -38.9909196,
+    "display": "Rua Feijó, Pampalona, Feira de Santana, Bahia, Região Nordeste, 44009-180, Brasil"
+  },
+  "Rua Miguel Pinto de Santana, Nova Esperança, Feira de Santana, Bahia, Brasil": null,
+  "Rua Miguel Pinto de Santana, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2473105,
+    "lon": -38.9893427,
+    "display": "Rua Miguel Pinto de Santana, Gabriela, Pampalona, Feira de Santana, Bahia, Região Nordeste, 44009-180, Brasil"
+  },
+  "Avenida Padre José de Anchieta, Sobradinho, Feira de Santana, Bahia, Brasil": null,
+  "Avenida Padre José de Anchieta, Feira de Santana, Bahia, Brasil": null,
+  "Rua Pojuca, Sobradinho, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2402821,
+    "lon": -38.9711441,
+    "display": "Rua Pojuca, Sobradinho, Santana, Feira de Santana, Bahia, Região Nordeste, 44026-230, Brasil"
+  },
+  "Rua Santa Cruz, Sobradinho, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2404756,
+    "lon": -38.980241,
+    "display": "Rua Santa Cruz, Jardim Cruzeiro, Sobradinho, Santana, Feira de Santana, Bahia, Região Nordeste, 44024-432, Brasil"
+  },
+  "2ª Travessa Doutor Joaquim Laranjeiras, Sobradinho, Feira de Santana, Bahia, Brasil": null,
+  "2ª Travessa Doutor Joaquim Laranjeiras, Feira de Santana, Bahia, Brasil": null,
+  "Travessa Itambé, Jardim Cruzeiro, Feira de Santana, Bahia, Brasil": null,
+  "Travessa Itambé, Feira de Santana, Bahia, Brasil": null,
+  "Rua Nazaré, Jardim Cruzeiro, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2442676,
+    "lon": -38.9807581,
+    "display": "Rua Nazaré, Jardim Cruzeiro, Sobradinho, Santana, Feira de Santana, Bahia, Região Nordeste, 44024-432, Brasil"
+  },
+  "Travessa Vasco da Gama, Jardim Cruzeiro, Feira de Santana, Bahia, Brasil": null,
+  "Travessa Vasco da Gama, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2680239,
+    "lon": -38.9206351,
+    "display": "Travessa Vasco da Gama, SIM, Feira de Santana, Bahia, Região Nordeste, 44085-112, Brasil"
+  },
+  "Rua Santa Cruz, Jardim Cruzeiro, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2404756,
+    "lon": -38.980241,
+    "display": "Rua Santa Cruz, Jardim Cruzeiro, Sobradinho, Santana, Feira de Santana, Bahia, Região Nordeste, 44024-432, Brasil"
+  },
+  "Rua Eliana Boa Ventura, Gabriela, Feira de Santana, Bahia, Brasil": null,
+  "Rua Eliana Boa Ventura, Feira de Santana, Bahia, Brasil": null,
+  "Rua Kairos, Gabriela, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2310333,
+    "lon": -38.9816302,
+    "display": "Rua Kairos, Gabriela, Pampalona, Feira de Santana, Bahia, Região Nordeste, 44028-583, Brasil"
+  },
+  "Rua José Flantildes, Gabriela, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2300431,
+    "lon": -38.9858702,
+    "display": "Rua José Flantildes, Gabriela, Pampalona, Feira de Santana, Bahia, Região Nordeste, 44028-583, Brasil"
+  },
+  "Rua Alto de Santana, Gabriela, Feira de Santana, Bahia, Brasil": null,
+  "Rua Alto de Santana, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2546147,
+    "lon": -38.9804293,
+    "display": "Rua Alto do Paraíso, Calumbi, Feira IV, Santana, Feira de Santana, Bahia, Região Nordeste, 44009-180, Brasil"
+  },
+  "Rua Santa Cecília, Pampalona, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2175849,
+    "lon": -38.9903768,
+    "display": "Rua Santa Cecilia, Gabriela, Pampalona, Feira de Santana, Bahia, Região Nordeste, 44044-269, Brasil"
+  },
+  "Travessa Dantas, Pampalona, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.219813,
+    "lon": -38.9878305,
+    "display": "Travessa Dantas, Gabriela, Pampalona, Feira de Santana, Bahia, Região Nordeste, 44030-762, Brasil"
+  },
+  "Rua Cruzeiro do Sul, Pampalona, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2221887,
+    "lon": -38.9817329,
+    "display": "Rua Cruzeiro do Sul, Gabriela, Pampalona, Feira de Santana, Bahia, Região Nordeste, 44028-583, Brasil"
+  },
+  "1ª Travessa Amaralina, Pampalona, Feira de Santana, Bahia, Brasil": null,
+  "1ª Travessa Amaralina, Feira de Santana, Bahia, Brasil": null,
+  "Travessa Salinas, Campo Limpo, Feira de Santana, Bahia, Brasil": null,
+  "Travessa Salinas, Feira de Santana, Bahia, Brasil": null,
+  "Rua Manoel Brasil, Campo Limpo, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.220357,
+    "lon": -38.9713091,
+    "display": "Rua Manoel Brasil, Campo Limpo, Pampalona, Feira de Santana, Bahia, Região Nordeste, 44006-408, Brasil"
+  },
+  "Rua Horizonte, Campo Limpo, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2227485,
+    "lon": -38.9670696,
+    "display": "Rua Belo Horizonte, Campo Limpo, Pampalona, Feira de Santana, Bahia, Região Nordeste, 44006-408, Brasil"
+  },
+  "Rua Canari, Campo Limpo, Feira de Santana, Bahia, Brasil": null,
+  "Rua Canari, Feira de Santana, Bahia, Brasil": null,
+  "Rua Senhor do Bonfim, Novo Horizonte, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.1921234,
+    "lon": -38.9667768,
+    "display": "Rua Senhor do Bonfim, Novo Horizonte, Pampalona, Feira de Santana, Bahia, Região Nordeste, 44036-900, Brasil"
+  },
+  "Rua São Marcos, Novo Horizonte, Feira de Santana, Bahia, Brasil": null,
+  "Rua São Marcos, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2254675,
+    "lon": -38.9371501,
+    "display": "Rua São Marcos, São João, Conceição, Feira de Santana, Bahia, Região Nordeste, 44056-418, Brasil"
+  },
+  "Rua Pompeu, Novo Horizonte, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.1879109,
+    "lon": -38.9668952,
+    "display": "Rua Pompéu, Novo Horizonte, Pampalona, Feira de Santana, Bahia, Região Nordeste, 44036-900, Brasil"
+  },
+  "Rua Excede, Novo Horizonte, Feira de Santana, Bahia, Brasil": null,
+  "Rua Excede, Feira de Santana, Bahia, Brasil": null,
+  "1ª Travessa Francisco Martins, Pedra Ferrada, Feira de Santana, Bahia, Brasil": null,
+  "1ª Travessa Francisco Martins, Feira de Santana, Bahia, Brasil": null,
+  "Rua Quintão, Pedra Ferrada, Feira de Santana, Bahia, Brasil": null,
+  "Rua Quintão, Feira de Santana, Bahia, Brasil": null,
+  "Rua Queluz, Pedra Ferrada, Feira de Santana, Bahia, Brasil": null,
+  "Rua Queluz, Feira de Santana, Bahia, Brasil": null,
+  "Rua Araruana, Pedra Ferrada, Feira de Santana, Bahia, Brasil": null,
+  "Rua Araruana, Feira de Santana, Bahia, Brasil": null,
+  "Pedra Ferrada, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.1638557,
+    "lon": -39.0582571,
+    "display": "Estrada Pedra Ferrada à Jaguara, Rita, Jaguara, Feira de Santana, Bahia, Região Nordeste, Brasil"
+  },
+  "Avenida Antônio Carlos Sampaio Marques, Mantiba, Feira de Santana, Bahia, Brasil": null,
+  "Avenida Antônio Carlos Sampaio Marques, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.1770435,
+    "lon": -38.9463918,
+    "display": "Avenida Antônio Carlos Sampaio Marques, Nossa Senhora Aparecida, Feira de Santana, Bahia, Região Nordeste, 44001-000, Brasil"
+  },
+  "1ª Travessa Santa Quitéria, Mantiba, Feira de Santana, Bahia, Brasil": null,
+  "1ª Travessa Santa Quitéria, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2841827,
+    "lon": -38.9579018,
+    "display": "Travessa Santa Quiteria, Muchila, Santana, Feira de Santana, Bahia, Região Nordeste, 44090-264, Brasil"
+  },
+  "Rua Êxodo, Mantiba, Feira de Santana, Bahia, Brasil": null,
+  "Rua Êxodo, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2821532,
+    "lon": -38.9692433,
+    "display": "Rua Exodo, Muchila, Santana, Feira de Santana, Bahia, Região Nordeste, 44005-000, Brasil"
+  },
+  "Rua João Câmara, Mantiba, Feira de Santana, Bahia, Brasil": null,
+  "Rua João Câmara, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.1788571,
+    "lon": -38.9516776,
+    "display": "Rua João Câmara, Nossa Senhora Aparecida, Feira de Santana, Bahia, Região Nordeste, 44001-000, Brasil"
+  },
+  "Alameda Dezoito, Asa Branca, Feira de Santana, Bahia, Brasil": null,
+  "Alameda Dezoito, Feira de Santana, Bahia, Brasil": null,
+  "Travessa Valter Carneiro, Asa Branca, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2087027,
+    "lon": -38.9941049,
+    "display": "Travessa Valter Carneiro, Pampalona, Feira de Santana, Bahia, Região Nordeste, 44044-269, Brasil"
+  },
+  "Rua Santana da Boa Vista, Asa Branca, Feira de Santana, Bahia, Brasil": null,
+  "Rua Santana da Boa Vista, Feira de Santana, Bahia, Brasil": null,
+  "Rua Isaac, Asa Branca, Feira de Santana, Bahia, Brasil": null,
+  "Rua Isaac, Feira de Santana, Bahia, Brasil": null,
+  "Rua Carlos Valadares, Queimadinha, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2483461,
+    "lon": -38.96194,
+    "display": "Rua Carlos Valadares, Queimadinha, Santana, Feira de Santana, Bahia, Região Nordeste, 44050-054, Brasil"
+  },
+  "Travessa Artur Neiva, Queimadinha, Feira de Santana, Bahia, Brasil": null,
+  "Travessa Artur Neiva, Feira de Santana, Bahia, Brasil": null,
+  "1ª Travessa Rondônia, Queimadinha, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2406991,
+    "lon": -38.9599698,
+    "display": "Travessa Primeira Rondônia, Queimadinha, Santana, Feira de Santana, Bahia, Região Nordeste, 44050-036, Brasil"
+  },
+  "Rua Boa Vista, Queimadinha, Feira de Santana, Bahia, Brasil": null,
+  "Rua Boa Vista, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2152927,
+    "lon": -38.9859279,
+    "display": "Rua Boa Vista, Campo Limpo, Pampalona, Feira de Santana, Bahia, Região Nordeste, 44044-269, Brasil"
+  },
+  "Avenida Maria Quitéria, São João, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2347272,
+    "lon": -38.9537202,
+    "display": "Avenida Maria Quitéria, São João, Santana, Feira de Santana, Bahia, Região Nordeste, 44050-782, Brasil"
+  },
+  "Rua Coronel José Pinto dos Santos, São João, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2401999,
+    "lon": -38.9508745,
+    "display": "Rua Coronel José Pinto dos Santos, São João, Santana, Feira de Santana, Bahia, Região Nordeste, 44051-224, Brasil"
+  },
+  "Rua Everton Raimundo Castro Visco, São João, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2425251,
+    "lon": -38.9486973,
+    "display": "Rua Everton Raimundo Castro Visco, São João, Santana, Feira de Santana, Bahia, Região Nordeste, 44051-802, Brasil"
+  },
+  "Rua Japão, São João, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2454607,
+    "lon": -38.9455273,
+    "display": "Rua Japão, São João, Caseb, Feira de Santana, Bahia, Região Nordeste, 44045-420, Brasil"
+  },
+  "Rua Líbano, CASEB, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2488386,
+    "lon": -38.9473804,
+    "display": "Travessa Jordania, São João, Parque Getúlio Vargas, Feira de Santana, Bahia, Região Nordeste, 44051-802, Brasil"
+  },
+  "Rua Uruguai, CASEB, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2441638,
+    "lon": -38.9461202,
+    "display": "Rua Uruguai, São João, Caseb, Feira de Santana, Bahia, Região Nordeste, 44045-420, Brasil"
+  },
+  "Travessa Paraguai, CASEB, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2430792,
+    "lon": -38.9429602,
+    "display": "Travessa Quinta Paraguai, São João, CASEB, Feira de Santana, Bahia, Região Nordeste, 44052-167, Brasil"
+  },
+  "1ª Travessa Cajazeira, CASEB, Feira de Santana, Bahia, Brasil": null,
+  "1ª Travessa Cajazeira, Feira de Santana, Bahia, Brasil": null,
+  "Avenida Afonso Manoel Nascimento, Cidade Nova, Feira de Santana, Bahia, Brasil": null,
+  "Avenida Afonso Manoel Nascimento, Feira de Santana, Bahia, Brasil": null,
+  "Alameda das Mangueiras, Cidade Nova, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2262848,
+    "lon": -38.9536496,
+    "display": "Rua Alameda das Mangueiras, Queimadinha, Feira V, Feira de Santana, Bahia, Região Nordeste, 44056-232, Brasil"
+  },
+  "Caminho Coração de Maria, Cidade Nova, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2293064,
+    "lon": -38.9627029,
+    "display": "Caminho Coração de Maria, Queimadinha, Cidade Nova, Feira de Santana, Bahia, Região Nordeste, 44053-200, Brasil"
+  },
+  "Rua Lobo, Cidade Nova, Feira de Santana, Bahia, Brasil": null,
+  "Rua Lobo, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2667796,
+    "lon": -39.2005054,
+    "display": "Praça Grinaldo Lobo, Bonfim da Feira, Feira de Santana, Bahia, Região Nordeste, Brasil"
+  },
+  "Rua Antônio Carlos Magalhães, Parque Ipê, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2209904,
+    "lon": -38.9573648,
+    "display": "Rua Antônio Carlos Magalhães, Queimadinha, Cidade Nova, Feira de Santana, Bahia, Região Nordeste, 44053-274, Brasil"
+  },
+  "Rua Zilda Castro, Parque Ipê, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2204776,
+    "lon": -38.9585552,
+    "display": "Rua Zilda Castro, Campo Limpo, Cidade Nova, Feira de Santana, Bahia, Região Nordeste, 44053-274, Brasil"
+  },
+  "Rua Vila Nova, Parque Ipê, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2138751,
+    "lon": -38.9582572,
+    "display": "Rua Vila Nova, Novo Horizonte, Parque Ipê, Feira de Santana, Bahia, Região Nordeste, 44053-274, Brasil"
+  },
+  "Rua Doutor Vicente dos Reis, Parque Ipê, Feira de Santana, Bahia, Brasil": null,
+  "Rua Doutor Vicente dos Reis, Feira de Santana, Bahia, Brasil": null,
+  "Avenida Ayrton Senna da Silva, Mangabeira, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2166676,
+    "lon": -38.9402483,
+    "display": "Avenida Ayrton Senna, São João, Mangabeira, Feira de Santana, Bahia, Região Nordeste, 44056-418, Brasil"
+  },
+  "Rua Nossa Senhora das Graças, Mangabeira, Feira de Santana, Bahia, Brasil": null,
+  "Rua Nossa Senhora das Graças, Feira de Santana, Bahia, Brasil": null,
+  "Rua Uburaçu, Mangabeira, Feira de Santana, Bahia, Brasil": null,
+  "Rua Uburaçu, Feira de Santana, Bahia, Brasil": null,
+  "Rua Urana, Mangabeira, Feira de Santana, Bahia, Brasil": null,
+  "Rua Urana, Feira de Santana, Bahia, Brasil": null,
+  "Rua Hermenegildo, Papagaio, Feira de Santana, Bahia, Brasil": null,
+  "Rua Hermenegildo, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2606771,
+    "lon": -38.947369,
+    "display": "Rua Frei Castorano Hermenegildo, Ponto Central, Capuchinhos, Feira de Santana, Bahia, Região Nordeste, 44053-360, Brasil"
+  },
+  "Rua Héstia, Papagaio, Feira de Santana, Bahia, Brasil": null,
+  "Rua Héstia, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2076528,
+    "lon": -38.9466261,
+    "display": "Rua Hestia, Conjunto João Paulo II, Feira de Santana, Bahia, Região Nordeste, 44066-650, Brasil"
+  },
+  "Travessa Ozenita, Papagaio, Feira de Santana, Bahia, Brasil": null,
+  "Travessa Ozenita, Feira de Santana, Bahia, Brasil": null,
+  "Avenida Antônio Carlos Sampaio Marques, Papagaio, Feira de Santana, Bahia, Brasil": null,
+  "Avenida Ayrton Senna da Silva, Conceição, Feira de Santana, Bahia, Brasil": null,
+  "Avenida Ayrton Senna da Silva, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2166676,
+    "lon": -38.9402483,
+    "display": "Avenida Ayrton Senna, São João, Mangabeira, Feira de Santana, Bahia, Região Nordeste, 44056-418, Brasil"
+  },
+  "Avenida Iguatemi, Conceição, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.218864,
+    "lon": -38.9214239,
+    "display": "Avenida Iguatemi, Conceição, Feira de Santana, Bahia, Região Nordeste, 44068-400, Brasil"
+  },
+  "Rua Retiro, Conceição, Feira de Santana, Bahia, Brasil": null,
+  "Rua Retiro, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2214252,
+    "lon": -38.9493215,
+    "display": "Rua Barra do Retiro, São João, Mangabeira, Feira de Santana, Bahia, Região Nordeste, 44056-232, Brasil"
+  },
+  "Rua Natação, Conceição, Feira de Santana, Bahia, Brasil": null,
+  "Rua Natação, Feira de Santana, Bahia, Brasil": null,
+  "Rua Verde Mar, Aeroporto, Feira de Santana, Bahia, Brasil": null,
+  "Rua Verde Mar, Feira de Santana, Bahia, Brasil": null,
+  "Rua Verde Lima, Aeroporto, Feira de Santana, Bahia, Brasil": null,
+  "Rua Verde Lima, Feira de Santana, Bahia, Brasil": null,
+  "Rua Waldemiro Pereira de Sousa, Aeroporto, Feira de Santana, Bahia, Brasil": null,
+  "Rua Waldemiro Pereira de Sousa, Feira de Santana, Bahia, Brasil": null,
+  "Aeroporto, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2028535,
+    "lon": -38.9069715,
+    "display": "Aeroporto, Feira de Santana, Bahia, Região Nordeste, 44067-228, Brasil"
+  },
+  "Avenida Artêmia Pires Freitas, Santo Antônio dos Prazeres, Feira de Santana, Bahia, Brasil": null,
+  "Avenida Artêmia Pires Freitas, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2457623,
+    "lon": -38.8959327,
+    "display": "Avenida Artêmia Pires Freitas, SIM, Feira de Santana, Bahia, Região Nordeste, 44073-919, Brasil"
+  },
+  "Travessa Laranjeiras, Santo Antônio dos Prazeres, Feira de Santana, Bahia, Brasil": null,
+  "Travessa Laranjeiras, Feira de Santana, Bahia, Brasil": null,
+  "Rua Chana, Santo Antônio dos Prazeres, Feira de Santana, Bahia, Brasil": null,
+  "Rua Chana, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2397838,
+    "lon": -38.9176999,
+    "display": "Rua Chana, SIM, Feira de Santana, Bahia, Região Nordeste, 44071-270, Brasil"
+  },
+  "Rua Amanari, Santo Antônio dos Prazeres, Feira de Santana, Bahia, Brasil": null,
+  "Rua Amanari, Feira de Santana, Bahia, Brasil": null,
+  "Rua Desembargador Raymundo Carneiro Pinto, Registro, Feira de Santana, Bahia, Brasil": null,
+  "Rua Desembargador Raymundo Carneiro Pinto, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2230297,
+    "lon": -38.8973755,
+    "display": "Rua Desembargador Raymundo Carneiro Pinto, Feira de Santana, Bahia, Região Nordeste, 44068-400, Brasil"
+  },
+  "Rua José Francisco da Silva, Registro, Feira de Santana, Bahia, Brasil": null,
+  "Rua José Francisco da Silva, Feira de Santana, Bahia, Brasil": null,
+  "Rua Evandro Bahia Monteiro, Registro, Feira de Santana, Bahia, Brasil": null,
+  "Rua Evandro Bahia Monteiro, Feira de Santana, Bahia, Brasil": null,
+  "Rua Pedro D'Oliveira, Registro, Feira de Santana, Bahia, Brasil": null,
+  "Rua Pedro D'Oliveira, Feira de Santana, Bahia, Brasil": null,
+  "Rua Quintino Bocaiúva, Ponto Central, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2498257,
+    "lon": -38.9516817,
+    "display": "Rua Quintino Bocaiuva, Ponto Central, Santana, Feira de Santana, Bahia, Região Nordeste, 44075-045, Brasil"
+  },
+  "Rua Doutor Simões Filho, Ponto Central, Feira de Santana, Bahia, Brasil": null,
+  "Rua Doutor Simões Filho, Feira de Santana, Bahia, Brasil": null,
+  "Vila São Jorge, Ponto Central, Feira de Santana, Bahia, Brasil": null,
+  "Vila São Jorge, Feira de Santana, Bahia, Brasil": null,
+  "Avenida Presidente Dutra, Ponto Central, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2629239,
+    "lon": -38.9476033,
+    "display": "Avenida Presidente Dutra, Ponto Central, Capuchinhos, Feira de Santana, Bahia, Região Nordeste, 44052-280, Brasil"
+  },
+  "Avenida Getúlio Vargas, Capuchinhos, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2561889,
+    "lon": -38.9337707,
+    "display": "Avenida Getúlio Vargas, Ponto Central, Santa Mônica, Feira de Santana, Bahia, Região Nordeste, 44077-005, Brasil"
+  },
+  "Rua João Sampaio Machado, Capuchinhos, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2604964,
+    "lon": -38.9488604,
+    "display": "Rua João Sampaio Machado, Ponto Central, Capuchinhos, Feira de Santana, Bahia, Região Nordeste, 44050-000, Brasil"
+  },
+  "Rua José Bonifácio, Capuchinhos, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2565749,
+    "lon": -38.946718,
+    "display": "Rua José Bonifácio, Ponto Central, Capuchinhos, Feira de Santana, Bahia, Região Nordeste, 44076-380, Brasil"
+  },
+  "Rua Roma, Capuchinhos, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2566354,
+    "lon": -38.9447829,
+    "display": "Rua Roma, Ponto Central, Capuchinhos, Feira de Santana, Bahia, Região Nordeste, 44050-070, Brasil"
+  },
+  "Rua Suécia, Parque Getúlio Vargas, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.252983,
+    "lon": -38.9456199,
+    "display": "Rua Suécia, Ponto Central, Parque Getúlio Vargas, Feira de Santana, Bahia, Região Nordeste, 44075-355, Brasil"
+  },
+  "Rua Muriti, Parque Getúlio Vargas, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2487088,
+    "lon": -38.93715,
+    "display": "Rua Muriti, Ponto Central, Parque Getúlio Vargas, Feira de Santana, Bahia, Região Nordeste, 44052-026, Brasil"
+  },
+  "Rua Alberto Alves Boaventura, Parque Getúlio Vargas, Feira de Santana, Bahia, Brasil": null,
+  "Rua Alberto Alves Boaventura, Feira de Santana, Bahia, Brasil": null,
+  "Travessa Itaveira, Parque Getúlio Vargas, Feira de Santana, Bahia, Brasil": null,
+  "Travessa Itaveira, Feira de Santana, Bahia, Brasil": null,
+  "Avenida Getúlio Vargas, Santa Mônica, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2561889,
+    "lon": -38.9337707,
+    "display": "Avenida Getúlio Vargas, Ponto Central, Santa Mônica, Feira de Santana, Bahia, Região Nordeste, 44077-005, Brasil"
+  },
+  "Travessa Madri, Santa Mônica, Feira de Santana, Bahia, Brasil": null,
+  "Travessa Madri, Feira de Santana, Bahia, Brasil": null,
+  "Rua Antônio Torres Coelho, Santa Mônica, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2652828,
+    "lon": -38.9343719,
+    "display": "Rua Antônio Torres Coelho, Ponto Central, Santa Mônica, Feira de Santana, Bahia, Região Nordeste, 44077-180, Brasil"
+  },
+  "Rua Nossa Senhora do Rosário, Santa Mônica, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.264384,
+    "lon": -38.938416,
+    "display": "Rua Nossa Senhora do Rosário, Ponto Central, Santa Mônica, Feira de Santana, Bahia, Região Nordeste, 44077-720, Brasil"
+  },
+  "Rua Uirapuru, Subaé, Feira de Santana, Bahia, Brasil": null,
+  "Rua Uirapuru, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2661577,
+    "lon": -38.9287173,
+    "display": "Rua Uirapuru, Santa Mônica, Feira de Santana, Bahia, Região Nordeste, 44077-180, Brasil"
+  },
+  "Rua Subaé Rios, Subaé, Feira de Santana, Bahia, Brasil": null,
+  "Rua Subaé Rios, Feira de Santana, Bahia, Brasil": null,
+  "Rua Patuana, Subaé, Feira de Santana, Bahia, Brasil": null,
+  "Rua Patuana, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2726688,
+    "lon": -38.918452,
+    "display": "Rua Patuana, 35 BI, Feira de Santana, Bahia, Região Nordeste, 44079-002, Brasil"
+  },
+  "Rua Manoel Aurélio de Souza, Subaé, Feira de Santana, Bahia, Brasil": null,
+  "Rua Manoel Aurélio de Souza, Feira de Santana, Bahia, Brasil": null,
+  "Rua São Pedro, Subaé (Tanquinho), Feira de Santana, Bahia, Brasil": null,
+  "Rua São Pedro, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.263967,
+    "lon": -38.9405315,
+    "display": "Rua São Pedro, Ponto Central, Santa Mônica, Feira de Santana, Bahia, Região Nordeste, 44077-720, Brasil"
+  },
+  "1ª Travessa Senhor do Bonfim, Subaé (Tanquinho), Feira de Santana, Bahia, Brasil": null,
+  "1ª Travessa Senhor do Bonfim, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.1918937,
+    "lon": -38.9663282,
+    "display": "Travessa Senhor do Bonfim, Novo Horizonte, Pampalona, Feira de Santana, Bahia, Região Nordeste, 44036-900, Brasil"
+  },
+  "2ª Travessa Senhor do Bonfim, Subaé (Tanquinho), Feira de Santana, Bahia, Brasil": null,
+  "2ª Travessa Senhor do Bonfim, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.1918937,
+    "lon": -38.9663282,
+    "display": "Travessa Senhor do Bonfim, Novo Horizonte, Pampalona, Feira de Santana, Bahia, Região Nordeste, 44036-900, Brasil"
+  },
+  "Rua São Lucas, Subaé (Tanquinho), Feira de Santana, Bahia, Brasil": null,
+  "Rua São Lucas, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2357384,
+    "lon": -38.9703339,
+    "display": "Rua São Lucas, Baraúnas, Santana, Feira de Santana, Bahia, Região Nordeste, 44021-215, Brasil"
+  },
+  "Rua Uirapuru, Lagoa Salgada, Feira de Santana, Bahia, Brasil": null,
+  "Rua João Beda Mendonça, Lagoa Salgada, Feira de Santana, Bahia, Brasil": null,
+  "Rua João Beda Mendonça, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2584561,
+    "lon": -38.9310839,
+    "display": "Rua João Beda Mendonça, Santa Mônica, Feira de Santana, Bahia, Região Nordeste, 44085-112, Brasil"
+  },
+  "Rua Novo Tempo, Lagoa Salgada, Feira de Santana, Bahia, Brasil": null,
+  "Rua Novo Tempo, Feira de Santana, Bahia, Brasil": null,
+  "Rua Francisca Sales, Lagoa Salgada, Feira de Santana, Bahia, Brasil": null,
+  "Rua Francisca Sales, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2658808,
+    "lon": -38.8994314,
+    "display": "Rua Francisca Sales, Feira de Santana, Bahia, Região Nordeste, 44073-917, Brasil"
+  },
+  "Rua Alto Santos, SIM, Feira de Santana, Bahia, Brasil": null,
+  "Rua Alto Santos, Feira de Santana, Bahia, Brasil": null,
+  "Rua São Pedro do Piauí, SIM, Feira de Santana, Bahia, Brasil": null,
+  "Rua São Pedro do Piauí, Feira de Santana, Bahia, Brasil": null,
+  "Rua São Pedro do Turvo, SIM, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2518121,
+    "lon": -38.9223957,
+    "display": "Rua São Pedro do Sul, SIM, Feira de Santana, Bahia, Região Nordeste, 44085-112, Brasil"
+  },
+  "Rua Traci, SIM, Feira de Santana, Bahia, Brasil": null,
+  "Rua Traci, Feira de Santana, Bahia, Brasil": null,
+  "Avenida Maria Quitéria, Brasília, Feira de Santana, Bahia, Brasil": null,
+  "Avenida Maria Quitéria, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2646251,
+    "lon": -38.9550818,
+    "display": "Avenida Maria Quitéria, Kalilândia, Santana, Feira de Santana, Bahia, Região Nordeste, 44067-040, Brasil"
+  },
+  "3ª Travessa Rio Itapemirim, Brasília, Feira de Santana, Bahia, Brasil": null,
+  "3ª Travessa Rio Itapemirim, Feira de Santana, Bahia, Brasil": null,
+  "Rua Coronel Ponce, Brasília, Feira de Santana, Bahia, Brasil": null,
+  "Rua Coronel Ponce, Feira de Santana, Bahia, Brasil": null,
+  "Condomínio Recanto dos Pássaros, Brasília, Feira de Santana, Bahia, Brasil": null,
+  "Condomínio Recanto dos Pássaros, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2347087,
+    "lon": -38.9112112,
+    "display": "Condominio Recanto dos Passáros, SIM, Feira de Santana, Bahia, Região Nordeste, Brasil"
+  },
+  "1ª Travessa Pamponet, Tomba, Feira de Santana, Bahia, Brasil": null,
+  "1ª Travessa Pamponet, Feira de Santana, Bahia, Brasil": null,
+  "Avenida Papa João XXIII, Tomba, Feira de Santana, Bahia, Brasil": null,
+  "Avenida Papa João XXIII, Feira de Santana, Bahia, Brasil": null,
+  "Rua Jaipera, Tomba, Feira de Santana, Bahia, Brasil": null,
+  "Rua Jaipera, Feira de Santana, Bahia, Brasil": null,
+  "Rua Quixabeira, Tomba, Feira de Santana, Bahia, Brasil": null,
+  "Rua Quixabeira, Feira de Santana, Bahia, Brasil": null,
+  "Tomba, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2847564,
+    "lon": -38.9559497,
+    "display": "Tomba, Feira de Santana, Bahia, Região Nordeste, 44090-264, Brasil"
+  },
+  "Rua do Salvador, 35º BI, Feira de Santana, Bahia, Brasil": null,
+  "Rua do Salvador, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2914215,
+    "lon": -38.9441571,
+    "display": "Rua do Salvador, Feira VII, Feira de Santana, Bahia, Região Nordeste, 44062-000, Brasil"
+  },
+  "Rua Olney Alberto São Paulo, 35º BI, Feira de Santana, Bahia, Brasil": null,
+  "Rua Olney Alberto São Paulo, Feira de Santana, Bahia, Brasil": null,
+  "Rua Professora Celina Vidal Moura, 35º BI, Feira de Santana, Bahia, Brasil": null,
+  "Rua Professora Celina Vidal Moura, Feira de Santana, Bahia, Brasil": null,
+  "Rua José Ferreira Filho, 35º BI, Feira de Santana, Bahia, Brasil": null,
+  "Rua José Ferreira Filho, Feira de Santana, Bahia, Brasil": null,
+  "Rua do Salvador, Aviário, Feira de Santana, Bahia, Brasil": null,
+  "Travessa Araçás, Aviário, Feira de Santana, Bahia, Brasil": null,
+  "Travessa Araçás, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2928244,
+    "lon": -38.9424782,
+    "display": "Segunda Travessa Aracas, Feira VII, Feira de Santana, Bahia, Região Nordeste, 44043-370, Brasil"
+  },
+  "Rua Boa Esperança, Aviário, Feira de Santana, Bahia, Brasil": null,
+  "Rua Boa Esperança, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2020543,
+    "lon": -38.9952765,
+    "display": "Rua Boa Esperança, Pampalona, Feira de Santana, Bahia, Região Nordeste, 44044-269, Brasil"
+  },
+  "2ª Travessa Boa Esperança, Aviário, Feira de Santana, Bahia, Brasil": null,
+  "Travessa Boa Esperança, Limoeiro, Feira de Santana, Bahia, Brasil": null,
+  "Travessa Boa Esperança, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2986593,
+    "lon": -38.9096682,
+    "display": "Travessa Boa Esperança, Feira de Santana, Bahia, Região Nordeste, 44079-006, Brasil"
+  },
+  "Travessa do Limoeiro, Limoeiro, Feira de Santana, Bahia, Brasil": null,
+  "Travessa do Limoeiro, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.3135116,
+    "lon": -38.8892392,
+    "display": "Travessa do Limoeiro, Gazin, Humildes, Feira de Santana, Bahia, Região Nordeste, 44097-324, Brasil"
+  },
+  "Praça do Limoeiro, Limoeiro, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.3100714,
+    "lon": -38.8977795,
+    "display": "Praça Maria Alves Rodrigues de Lima, Limoeiro, Feira de Santana, Bahia, Região Nordeste, Brasil"
+  },
+  "Rua Bom Nome, Limoeiro, Feira de Santana, Bahia, Brasil": null,
+  "Rua Bom Nome, Feira de Santana, Bahia, Brasil": null,
+  "Rua Santo Antônio, Humildes, Feira de Santana, Bahia, Brasil": null,
+  "Rua Santo Antônio, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2960667,
+    "lon": -38.9153876,
+    "display": "Rua Santo Antônio, Aviário, Feira de Santana, Bahia, Região Nordeste, 44079-006, Brasil"
+  },
+  "Rua São José, Humildes, Feira de Santana, Bahia, Brasil": null,
+  "Rua São José, Feira de Santana, Bahia, Brasil": {
+    "lat": -12.2200003,
+    "lon": -38.9821034,
+    "display": "Rua São José, Gabriela, Pampalona, Feira de Santana, Bahia, Região Nordeste, 44028-583, Brasil"
+  },
+  "Rua João André Nogueira, Humildes, Feira de Santana, Bahia, Brasil": null,
+  "Rua João André Nogueira, Feira de Santana, Bahia, Brasil": null,
+  "Travessa José Gomes Soares, Humildes, Feira de Santana, Bahia, Brasil": null,
+  "Travessa José Gomes Soares, Feira de Santana, Bahia, Brasil": null
+}
