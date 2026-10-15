@@ -61,11 +61,6 @@ export function calculateDistance(
   const correctedKm = straightLineKm * HAVERSINE_TO_ROAD_FACTOR;
   const distanceKm = Math.round(correctedKm * 100) / 100;
 
-  console.log(
-    `[shipping/distance] Haversine×${HAVERSINE_TO_ROAD_FACTOR}: ` +
-    `origin=(${origin.latitude},${origin.longitude}) → dest=(${destination.latitude},${destination.longitude}) = ${distanceKm} km`
-  );
-
   return {
     distanceKm,
     calculationMethod: "HAVERSINE",

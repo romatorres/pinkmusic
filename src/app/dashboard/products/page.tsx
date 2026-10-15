@@ -510,15 +510,25 @@ function ProductsPageContent() {
                   </TableHeader>
                   <TableBody>
                     {products.map((product) => (
-                      <TableRow key={product.id}>
+                      <TableRow
+                        key={product.id}
+                        className={!product.active ? "opacity-60 bg-muted/20" : undefined}
+                      >
                         <TableCell className="font-mono text-sm truncate max-w-[100px]">
                           {product.code ?? product.id}
                         </TableCell>
                         <TableCell className="font-medium">
                           <div className="flex flex-col gap-1 max-w-[490px]">
-                            <span className="truncate font-semibold text-foreground" title={product.title}>
-                              {product.title}
-                            </span>
+                            <div className="flex items-center gap-2">
+                              <span className="truncate font-semibold text-foreground" title={product.title}>
+                                {product.title}
+                              </span>
+                              {!product.active && (
+                                <span className="inline-flex items-center rounded border border-destructive/40 bg-destructive/10 px-1.5 py-0.5 text-[10px] font-semibold text-destructive uppercase tracking-wider shrink-0">
+                                  Inativo
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </TableCell>
                         <TableCell>

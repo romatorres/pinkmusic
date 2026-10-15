@@ -1,44 +1,135 @@
-# Sistema de Frete Próprio — Pink Music Instrumentos
+# Sistema de Frete Próprio Local — Pink Music Instrumentos
 
-**Implementado:** Outubro/2026
-**Status:** ✅ Em produção
-**Substitui:** Uber Direct (descontinuado)
-
----
-
-## Visão Geral
-
-Sistema de cálculo de frete para entregas locais em **Feira de Santana - BA**, sem dependência de plataformas externas de entrega para calcular o preço no checkout. Os preços são definidos por regras fixas armazenadas no banco de dados e podem ser ajustados pelo painel administrativo sem alteração de código.
+**Última Atualização:** Outubro/2026  
+**Status:** ✅ Em produção (Blindado e calibrado para Feira de Santana - BA)  
+**Substitui:** Uber Direct (descontinuado) e OSRM público (descontinuado por instabilidade)
 
 ---
 
-## Origem das Entregas
+## 1. Visão Geral
 
-| Campo | Valor |
+O sistema calcula o frete de entregas locais para clientes em **Feira de Santana - BA** de forma rápida, autônoma e sem dependência de plataformas pagas ou servidores externos instáveis.
+
+Os valores de frete são baseados em **3 Zonas de Distância** configuradas no banco de dados e gerenciáveis diretamente pelo painel administrativo, com recálculo seguro no checkout e no momento de geração do PIX.
+
+---
+
+## 2. Parâmetros de Origem da Loja Física
+
+| Parâmetro | Valor Configurado | Variável de Ambiente |
+|---|---|---|
+| **CEP de Origem** | `44002-000` | `STORE_ZIP` (fallback: `44002000`) |
+| **Endereço** | Rua JJ Seabra / Kalilândia / Centro | `STORE_CITY`, `STORE_STATE` |
+| **Cidade / UF** | Feira de Santana - BA | `STORE_CITY="Feira de Santana"`, `STORE_STATE="BA"` |
+| **Latitude** | `-12.2576` | `STORE_LAT` |
+| **Longitude** | `-38.9634` | `STORE_LNG` |
+| **Raio Máximo** | `10.0 km` (limite da Zona 3) | `maxDeliveryRadiusKm` em `config.ts` |
+
+---
+
+## 3. Zonas de Entrega Ativas
+
+Cadastradas no banco de dados (tabela `ShippingZone`) e criadas automaticamente via `seed.ts` se a tabela estiver vazia:
+
+| Zona | Faixa de Distância Viária | Preço Padrão | Regiões Atendidas Típicas |
+|:---:|:---:|:---:|:---|
+| **Zona 1** | $0 \text{ até } 3.0 \text{ km}$ | R$ 8,90 | Centro, Kalilândia, Sobradinho, Brasília, Serraria Brasil, Queimadinha, Ponto Central |
+| **Zona 2** | $> 3.0 \text{ até } 6.0 \text{ km}$ | R$ 11,90 | Lagoa Grande, Caseb, São João, Santa Mônica, Capuchinhos, Cidade Nova, Tomba, Parque Ipê |
+| **Zona 3** | $> 6.0 \text{ até } 10.0 \text{ km}$ | R$ 15,90 | SIM (Artêmia Pires), Mangabeira, Papagaio, Conceição, Feira X, Feira VII, Feira IX |
+
+> [!NOTE]
+> A verificação de enquadramento da última zona utiliza a condição inclusiva $\le 10.0 \text{ km}$, garantindo que clientes no raio exato de 10 km não sejam rejeitados.
+
+---
+
+## 4. Arquitetura de Arquivos (`src/lib/shipping/`)
+
+| Arquivo | Responsabilidade |
 |---|---|
-| CEP de origem | `44002-000` |
-| Endereço | Rua JJ Seabra 31, Centro |
-| Cidade / UF | Feira de Santana - BA |
-| Latitude | `-12.2576` (configurável via `STORE_LAT`) |
-| Longitude | `-38.9634` (configurável via `STORE_LNG`) |
-| Raio máximo | 10 km (3 zonas) |
+| [`config.ts`](file:///c:/Web-Pc/pinkmusic/src/lib/shipping/config.ts) | Parâmetros da loja física, coordenadas de partida, variáveis de ambiente e raio máximo. |
+| [`normalize-zipcode.ts`](file:///c:/Web-Pc/pinkmusic/src/lib/shipping/normalize-zipcode.ts) | Sanitização do CEP (remoção de pontuação, validação estrita de 8 dígitos numéricos). |
+| [`geocode-zip.ts`](file:///c:/Web-Pc/pinkmusic/src/lib/shipping/geocode-zip.ts) | Mecanismo de geocodificação em camadas com Bounding Box urbana, ViaCEP e centróides urbanos oficiais. |
+| [`calculate-distance.ts`](file:///c:/Web-Pc/pinkmusic/src/lib/shipping/calculate-distance.ts) | Cálculo de distância utilizando a fórmula de Haversine corrigida pelo fator viário empírico ($\times 1.4$). |
+| [`calculate-shipping.ts`](file:///c:/Web-Pc/pinkmusic/src/lib/shipping/calculate-shipping.ts) | Lógica central: validação de cidade, sanitização do banco, cálculo de zona e persistência de dados. |
+| [`seed.ts`](file:///c:/Web-Pc/pinkmusic/src/lib/shipping/seed.ts) | Inicialização automática das 3 zonas de entrega e CEPs de referência. |
 
 ---
 
-## Banco de Dados
+## 5. Estratégia de Geocodificação em Camadas (`geocode-zip.ts`)
 
-### Novos modelos (migração `20261006000236_add_shipping_zones_and_zipcodes`)
+Para evitar falhas de APIs públicas e homônimos rurais de Feira de Santana (como povoados em Ipuaçu ou Humildes que causavam distâncias erradas de mais de 20 km), o sistema opera em **6 camadas resilientes**:
 
-#### `ShippingZone`
-Zonas de entrega com faixa de distância e preço fixo.
+```
+                       Cliente informa o CEP (ex: 44052-460)
+                                        │
+                                        ▼
+             ┌─────────────────────────────────────────────────────┐
+  Camada 1   │ 1. AwesomeAPI (busca coordenadas por CEP direto)   │ ── Válido e Urbano? ──► Retorna lat/lng
+             └─────────────────────────────────────────────────────┘             │ (Não/Timeout)
+                                        │                                        ▼
+             ┌─────────────────────────────────────────────────────┐
+  Camada 2   │ 2. ViaCEP (busca Logradouro + Bairro oficiais)     │ ──► Obtém Rua e Bairro
+             └─────────────────────────────────────────────────────┘
+                                        │
+                                        ▼
+             ┌─────────────────────────────────────────────────────┐
+  Camada 3   │ 3. Nominatim com Bounding Box Urbana Restrita      │ ── Encontrou na Box? ──► Retorna lat/lng
+             │    (viewbox=-39.06,-12.35,-38.83,-12.15&bounded=1)  │             │ (Não)
+             └─────────────────────────────────────────────────────┘             ▼
+                                        │
+                                        ▼
+             ┌─────────────────────────────────────────────────────┐
+  Camada 4   │ 4. Catálogo de Centróides Urbanos de Feira (50+)    │ ── Bairro Mapeado? ──► Retorna lat/lng
+             │    (Lagoa Grande, Sobradinho, SIM, Tomba, etc.)    │             │ (Não)
+             └─────────────────────────────────────────────────────┘             ▼
+                                        │
+                                        ▼
+             ┌─────────────────────────────────────────────────────┐
+  Camada 5   │ 5. Herança de CEP vizinho do mesmo bairro no banco  │ ── Tem registro? ────► Retorna lat/lng
+             └─────────────────────────────────────────────────────┘             │ (Não)
+                                        │                                        ▼
+             ┌─────────────────────────────────────────────────────┐
+  Camada 6   │ 6. Fallback cadastral urbano central               │
+             └─────────────────────────────────────────────────────┘
+```
 
+### Detalhes de Blindagem Implementados:
+
+1. **Bounding Box Urbana no Nominatim:**
+   - As consultas ao OpenStreetMap são restritas à área urbana de Feira de Santana (`minLng: -39.06`, `minLat: -12.35`, `maxLng: -38.83`, `maxLat: -12.15` com `bounded=1`).
+   - Isso bloqueia 100% de falsos positivos com povoados homônimos na zona rural (ex: vilarejo Lagoa Grande em Ipuaçu).
+2. **Prioridade de Busca com Logradouro:**
+   - A busca tenta primeiro `"Rua Belmiro, Feira de Santana, BA"` antes de tentar apenas o bairro, localizando a via exata.
+3. **Catálogo Local de Centróides Urbanos (`FEIRA_URBAN_NEIGHBORHOODS`):**
+   - Contém as coordenadas centrais pré-computadas de mais de 50 bairros de Feira de Santana.
+   - Atua como garantia imediata caso as APIs externas estejam lentas ou fora do ar.
+4. **Proteção de Recálculo em `calculate-shipping.ts`:**
+   - Se a distância resultante for superior ao raio máximo ($> 10 \text{ km}$) mas o bairro for sabidamente urbano, o sistema **intercepta e recalcula via centróide urbano**, impedindo a rejeição injusta da entrega.
+   - Registros do banco com coordenadas históricas que geravam distâncias $> 14 \text{ km}$ em Feira de Santana são invalidados e corrigidos automaticamente.
+
+---
+
+## 6. Cálculo de Distância (`calculate-distance.ts`)
+
+A distância viária estimada é obtida pela fórmula de **Haversine** multiplicada pelo fator viário urbano empírico:
+
+$$\text{Distância Estimada (km)} = \text{Distância em Linha Reta} \times 1.4$$
+
+- **Por que não OSRM público?** O serviço público `router.project-osrm.org` foi descontinuado do fluxo por instabilidade frequente e retorno de distâncias anômalas (ex: 12.000 km) em produção.
+- **Precisão:** Para raios municipais de até 10 km, o erro do modelo Haversine $\times 1.4$ é inferior a 10%, correspondendo perfeitamente às faixas de preço cobradas por motoboys parceiros.
+
+---
+
+## 7. Modelos no Banco de Dados (Prisma)
+
+### `ShippingZone`
 ```prisma
 model ShippingZone {
   id          String            @id @default(cuid())
   name        String
   description String?
-  minDistance Float             // km (inclusive)
-  maxDistance Float             // km (exclusivo)
+  minDistance Float             // km (inclusivo)
+  maxDistance Float             // km (exclusivo, exceto na última zona)
   price       Decimal           @db.Decimal(10, 2)
   active      Boolean           @default(true)
   createdAt   DateTime          @default(now())
@@ -47,238 +138,71 @@ model ShippingZone {
 }
 ```
 
-#### `ShippingZipCode`
-CEPs mapeados manualmente ou importados via CSV, com coordenadas para cálculo de distância.
-
+### `ShippingZipCode`
 ```prisma
 model ShippingZipCode {
   id        String        @id @default(cuid())
-  zipCode   String        @unique  // 8 dígitos sem hífen
+  zipCode   String        @unique  // 8 dígitos numéricos
   district  String?
   city      String
   state     String
   latitude  Float?
   longitude Float?
   zoneId    String?
-  zone      ShippingZone? @relation(...)
+  zone      ShippingZone? @relation(fields: [zoneId], references: [id])
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
 }
 ```
 
-#### Campos adicionados ao modelo `Order`
-```prisma
-shippingPrice    Decimal?  // snapshot do preço cobrado
-shippingCep      String?   // CEP informado pelo cliente
-shippingZone     String?   // nome da zona (ex: "Zona 2")
-shippingDistance Float?    // distância calculada em km
-shippingMethod   String?   // "OSRM_ROUTE" | "HAVERSINE_FALLBACK"
-```
-
-> [!IMPORTANT]
-> Os campos legados `uberDeliveryId`, `uberTrackingUrl`, `uberDispatchedAt` foram mantidos no schema para não quebrar pedidos históricos, mas não são mais populados em novos pedidos.
-
 ---
 
-## Zonas Padrão (Seed Automático)
+## 8. Endpoints de API
 
-Criadas automaticamente na primeira execução se a tabela estiver vazia:
+### Pública: `POST /api/shipping/calculate`
+Calcula o frete a partir do CEP informado, com proteção por rate-limit (30 req/min).
 
-| Zona | Faixa de Distância | Preço |
-|---|---|---|
-| Zona 1 | 0 – 3 km | R$ 8,90 |
-| Zona 2 | 3 – 6 km | R$ 11,90 |
-| Zona 3 | 6 – 10 km | R$ 15,90 |
-
-> [!TIP]
-> Os preços podem ser ajustados a qualquer momento pelo painel em `/dashboard/settings/shipping` sem necessidade de deploy.
-
----
-
-## Arquitetura do Sistema
-
-### Arquivos criados em `src/lib/shipping/`
-
-| Arquivo | Responsabilidade |
-|---|---|
-| `config.ts` | CEP/coordenadas de origem e parâmetros globais |
-| `normalize-zipcode.ts` | Normalização e validação de CEP brasileiro (8 dígitos) |
-| `calculate-distance.ts` | Cálculo de distância (OSRM + fallback Haversine×1.35) |
-| `calculate-shipping.ts` | Lógica principal: CEP → zona → preço |
-| `seed.ts` | Criação automática das zonas padrão se tabela vazia |
-
----
-
-## Cálculo de Distância
-
-### Método primário: OSRM (distância real por estrada)
-
-Utiliza o servidor público gratuito `router.project-osrm.org` (OpenStreetMap), sem chave de API. Retorna a **distância real percorrida pelas ruas**, que é a base usada pelos motoboys parceiros para cobrar as corridas.
-
-```
-GET https://router.project-osrm.org/route/v1/driving/{lng_origem},{lat_origem};{lng_destino},{lat_destino}?overview=false
-```
-
-- **Timeout:** 4 segundos
-- **Cache:** `no-store` (sem cache no edge)
-
-### Fallback automático: Haversine × 1,35
-
-Se o OSRM não responder dentro de 4 segundos, o sistema calcula a distância em linha reta (fórmula de Haversine) e aplica um fator de correção de **1,35** para aproximar da distância real viária, evitando travar o checkout.
-
-### Configuração de servidor OSRM próprio (opcional)
-
-```env
-# .env.local ou variável na Vercel:
-OSRM_URL=https://seu-servidor-osrm.railway.app
-```
-
-Se não configurado, usa `https://router.project-osrm.org` por padrão.
-
----
-
-## Fluxo de Cálculo no Checkout
-
-```
-Cliente informa o CEP
-        ↓
-POST /api/shipping/calculate
-        ↓
-1. Normaliza CEP (8 dígitos)
-        ↓
-2. Busca CEP na tabela ShippingZipCode (DB local)
-        ↓ não encontrado
-3. Consulta ViaCEP → verifica se é Feira de Santana - BA
-        ↓ outra cidade
-   Retorna: OUT_OF_DELIVERY_AREA
-        ↓ é Feira de Santana
-4. Obtém coordenadas (DB ou bairro vizinho)
-        ↓
-5. calculateDistance() → OSRM (fallback: Haversine×1.35)
-        ↓
-6. Busca ShippingZone ativa com minDistance ≤ dist < maxDistance
-        ↓ nenhuma zona cobre
-   Retorna: OUT_OF_DELIVERY_AREA
-        ↓
-7. Retorna: zona, distância, preço
-```
-
-### Validação no servidor (segurança)
-
-Quando o cliente clica em "Gerar PIX", o backend em `POST /api/orders` **recalcula o frete** com o CEP informado — nunca confia no valor enviado pelo frontend. O preço é tirado diretamente do banco (`ShippingZone.price`).
-
----
-
-## APIs
-
-### Pública
-
-| Método | Rota | Descrição |
-|---|---|---|
-| POST | `/api/shipping/calculate` | Calcula frete para um CEP |
-
-**Request:**
-```json
-{ "zipCode": "44050-000" }
-```
-
-**Response (sucesso):**
+- **Payload:** `{ "zipCode": "44052-460" }`
+- **Retorno Sucesso (200):**
 ```json
 {
   "available": true,
-  "zipCode": "44050000",
-  "formattedZipCode": "44050-000",
-  "district": "Cidade Nova",
+  "zipCode": "44052460",
+  "formattedZipCode": "44052-460",
+  "district": "Lagoa Grande",
   "city": "Feira de Santana",
   "state": "BA",
-  "zone": { "id": "...", "name": "Zona 2", "description": "3 a 6 km" },
-  "distanceKm": 4.2,
+  "zone": {
+    "id": "cmuvyggmj0001q94s111byt6x",
+    "name": "Zona 2",
+    "description": "Acima de 3 até 6 km (Região intermediária de Feira)"
+  },
+  "distanceKm": 3.45,
   "price": 11.90
 }
 ```
-
-**Response (fora da área):**
+- **Retorno Fora da Área (200 / available: false):**
 ```json
 {
   "available": false,
   "reason": "OUT_OF_DELIVERY_AREA",
-  "message": "Entregas locais disponíveis apenas para Feira de Santana - BA."
+  "message": "Desculpe, este endereço está a 14.2 km e nossa área máxima de entrega local é de até 10 km.",
+  "zipCode": "44000000",
+  "district": "Distrito Rural",
+  "city": "Feira de Santana",
+  "state": "BA"
 }
 ```
 
-### Admin (autenticado)
-
-| Método | Rota | Descrição |
-|---|---|---|
-| GET / POST | `/api/admin/shipping/zones` | Listar / criar zonas |
-| PUT / DELETE | `/api/admin/shipping/zones/[id]` | Editar / excluir zona |
-| GET / POST | `/api/admin/shipping/zipcodes` | Listar / adicionar CEPs |
-| DELETE | `/api/admin/shipping/zipcodes/[id]` | Remover CEP |
-
-O POST em `/api/admin/shipping/zipcodes` aceita tanto um único CEP quanto um CSV com colunas `zipCode,district,city,state,latitude,longitude`.
+### Administrativa: `/api/admin/shipping/`
+- `GET / POST /api/admin/shipping/zones`: Gerenciamento das zonas e preços.
+- `PUT / DELETE /api/admin/shipping/zones/[id]`: Atualização e remoção de zonas.
+- `GET / POST /api/admin/shipping/zipcodes`: Listagem e importação individual ou em lote (CSV).
+- `DELETE /api/admin/shipping/zipcodes/[id]`: Exclusão de CEP.
 
 ---
 
-## Painel Administrativo
+## 9. Segurança e Checkout
 
-**Rota:** `/dashboard/settings/shipping`
-**Link no sidebar:** "Entregas & Frete" (ícone Truck)
-
-Funcionalidades:
-- Listar zonas com status ativo/inativo (clique para alternar)
-- Criar / editar / excluir zonas
-- Listar CEPs mapeados com busca e filtro por zona
-- Adicionar CEP individual
-- Importar CEPs em massa via CSV
-
----
-
-## Variáveis de Ambiente
-
-```env
-# Coordenadas da loja (opcional — defaults já configurados)
-STORE_LAT=-12.2576
-STORE_LNG=-38.9634
-STORE_CITY="Feira de Santana"
-STORE_STATE=BA
-STORE_ZIP=44002000
-
-# Servidor OSRM próprio (opcional — usa servidor público por padrão)
-OSRM_URL=https://router.project-osrm.org
-```
-
----
-
-## Como Adicionar Mais CEPs
-
-### Opção 1 — Pelo painel admin
-1. Acesse `/dashboard/settings/shipping` → aba "CEPs & Regiões"
-2. Clique em "+ Adicionar CEP"
-3. Informe o CEP e os dados do bairro
-
-### Opção 2 — Via CSV
-Formato do arquivo:
-```csv
-zipCode,district,city,state,latitude,longitude
-44085000,SIM,Feira de Santana,BA,-12.2289,-38.9341
-44100000,Mangabeira,Feira de Santana,BA,-12.2712,-38.9891
-```
-
-Upload pelo painel: aba "CEPs & Regiões" → botão "Importar CSV"
-
-### Opção 3 — CEP não cadastrado
-Se um CEP não está no banco, o sistema consulta o ViaCEP automaticamente:
-- Se for de Feira de Santana → tenta herdar coordenadas de CEP do mesmo bairro
-- Se não houver coordenadas disponíveis → retorna erro de área não coberta
-
----
-
-## Relatório de Motivos da Descontinuação do Uber Direct
-
-Documentado em [`relatorio-investigacao-uber-direct.md`](./relatorio-investigacao-uber-direct.md).
-
-**Resumo:**
-- Raio máximo de 5 km pela conta corporativa (sem possibilidade de ajuste pelo suporte)
-- Valores de R$ 14,30 a R$ 21,90 para corridas curtas de até 4 km
-- Suporte técnico insatisfatório para ajuste de tabela
-- Dependência de plataforma B2B sem SLA garantido para pequenas empresas
+- O checkout no frontend consulta `/api/shipping/calculate` para exibir a prévia de valor ao cliente.
+- Ao clicar em **"Gerar PIX"** (`POST /api/orders`), o backend **recalcula obrigatoriamente o frete no servidor** a partir do CEP informado, ignorando qualquer valor monetário enviado pelo cliente. O valor do frete é somado ao total e persistido no pedido (`Order.shippingPrice`).

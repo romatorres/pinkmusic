@@ -1,7 +1,7 @@
 import prisma from "@/lib/prisma";
 import { normalizeZipCode } from "./normalize-zipcode";
 import { calculateDistance } from "./calculate-distance";
-import { resolveZipCoordinates } from "./geocode-zip";
+import { resolveZipCoordinates, FEIRA_URBAN_NEIGHBORHOODS } from "./geocode-zip";
 import { STORE_SHIPPING_CONFIG } from "./config";
 import { ensureDefaultShippingZonesAndZipCodes } from "./seed";
 
@@ -81,7 +81,7 @@ export async function calculateShipping(
     let longitude = zipRecord?.longitude ?? null;
 
     // Sanidade das coordenadas do banco: no Brasil, a latitude e a longitude são ambas negativas
-    // e para Feira de Santana a distância até a loja não pode exceder 50 km.
+    // e para Feira de Santana a distância até a loja não deve exceder 14 km (caso de homônimos rurais corrompidos salvos anteriormente).
     let isDbDataInvalid = false;
     if (latitude !== null && longitude !== null) {
       // Coordenadas brasileiras são ambas negativas (Sul/Oeste)
@@ -92,7 +92,7 @@ export async function calculateShipping(
           STORE_SHIPPING_CONFIG.originCoordinates,
           { latitude, longitude }
         ).distanceKm;
-        if (testDistance > 50) {
+        if (testDistance > 14) {
           isDbDataInvalid = true;
         }
       }
@@ -192,14 +192,38 @@ export async function calculateShipping(
       distanceKm = 2.5;
     }
 
+    const maxOverallRadius = Math.max(...activeZones.map((z) => z.maxDistance));
+
+    // Se a distância calculada ultrapassou o raio máximo, verifica se o bairro informado
+    // é um bairro urbano conhecido em Feira de Santana antes de rejeitar.
+    if (distanceKm > maxOverallRadius && district) {
+      const normalized = district
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]/g, "")
+        .trim();
+      const centroid = FEIRA_URBAN_NEIGHBORHOODS[normalized];
+      if (centroid) {
+        latitude = centroid.lat;
+        longitude = centroid.lng;
+        distanceKm = calculateDistance(STORE_SHIPPING_CONFIG.originCoordinates, {
+          latitude,
+          longitude,
+        }).distanceKm;
+      }
+    }
+
     // 5. Encontra a zona correspondente à distância calculada
-    // minDistance é inclusivo, maxDistance é exclusivo: minDistance <= dist < maxDistance
-    const matchedZone = activeZones.find(
-      (z) => distanceKm >= z.minDistance && distanceKm < z.maxDistance
-    );
+    // minDistance é inclusivo. Para a última zona, maxDistance também é inclusivo (<= maxDistance).
+    const matchedZone = activeZones.find((z, index) => {
+      const isLastZone = index === activeZones.length - 1;
+      return isLastZone
+        ? distanceKm >= z.minDistance && distanceKm <= z.maxDistance
+        : distanceKm >= z.minDistance && distanceKm < z.maxDistance;
+    });
 
     if (!matchedZone) {
-      const maxOverallRadius = Math.max(...activeZones.map((z) => z.maxDistance));
       if (distanceKm > maxOverallRadius) {
         return {
           available: false,
