@@ -29,16 +29,14 @@ Os valores de frete são baseados em **3 Zonas de Distância** configuradas no b
 
 ## 3. Zonas de Entrega Ativas
 
-Cadastradas no banco de dados (tabela `ShippingZone`) e criadas automaticamente via `seed.ts` se a tabela estiver vazia:
+Cadastradas no banco de dados (tabela `ShippingZone`) e criadas/garantidas via `seed.ts`:
 
-| Zona | Faixa de Distância Viária | Preço Padrão | Regiões Atendidas Típicas |
-|:---:|:---:|:---:|:---|
-| **Zona 1** | $0 \text{ até } 3.0 \text{ km}$ | R$ 8,90 | Centro, Kalilândia, Sobradinho, Brasília, Serraria Brasil, Queimadinha, Ponto Central |
-| **Zona 2** | $> 3.0 \text{ até } 6.0 \text{ km}$ | R$ 11,90 | Lagoa Grande, Caseb, São João, Santa Mônica, Capuchinhos, Cidade Nova, Tomba, Parque Ipê |
-| **Zona 3** | $> 6.0 \text{ até } 10.0 \text{ km}$ | R$ 15,90 | SIM (Artêmia Pires), Mangabeira, Papagaio, Conceição, Feira X, Feira VII, Feira IX |
-
-> [!NOTE]
-> A verificação de enquadramento da última zona utiliza a condição inclusiva $\le 10.0 \text{ km}$, garantindo que clientes no raio exato de 10 km não sejam rejeitados.
+| Zona | Ordem | Faixa de Raio Estimado | Preço Padrão | Regiões Atendidas Típicas |
+|:---:|:---:|:---:|:---:|:---|
+| **Zona 1** | 1 | 0 até 3 km | R$ 10,00 | Centro, Kalilândia, Sobradinho, Brasília, Serraria Brasil, Queimadinha, Ponto Central |
+| **Zona 2** | 2 | 3 até 6 km | R$ 12,00 | Lagoa Grande, Caseb, São João, Santa Mônica, Capuchinhos, Cidade Nova, Tomba, Parque Ipê |
+| **Zona 3** | 3 | 6 até 10 km | R$ 15,00 | SIM (Artêmia Pires), Mangabeira, Papagaio, Conceição, Feira X, Feira VII, Feira IX |
+| **Zona 4** | 4 | 10 até 12 km | R$ 18,00 | Aviário, CIS, Limoeiro, Campo Limpo, Santo Antônio dos Prazeres, Aeroporto |
 
 ---
 
@@ -46,77 +44,22 @@ Cadastradas no banco de dados (tabela `ShippingZone`) e criadas automaticamente 
 
 | Arquivo | Responsabilidade |
 |---|---|
-| [`config.ts`](file:///c:/Web-Pc/pinkmusic/src/lib/shipping/config.ts) | Parâmetros da loja física, coordenadas de partida, variáveis de ambiente e raio máximo. |
-| [`normalize-zipcode.ts`](file:///c:/Web-Pc/pinkmusic/src/lib/shipping/normalize-zipcode.ts) | Sanitização do CEP (remoção de pontuação, validação estrita de 8 dígitos numéricos). |
-| [`geocode-zip.ts`](file:///c:/Web-Pc/pinkmusic/src/lib/shipping/geocode-zip.ts) | Mecanismo de geocodificação em camadas com Bounding Box urbana, ViaCEP e centróides urbanos oficiais. |
-| [`calculate-distance.ts`](file:///c:/Web-Pc/pinkmusic/src/lib/shipping/calculate-distance.ts) | Cálculo de distância utilizando a fórmula de Haversine corrigida pelo fator viário empírico ($\times 1.4$). |
-| [`calculate-shipping.ts`](file:///c:/Web-Pc/pinkmusic/src/lib/shipping/calculate-shipping.ts) | Lógica central: validação de cidade, sanitização do banco, cálculo de zona e persistência de dados. |
-| [`seed.ts`](file:///c:/Web-Pc/pinkmusic/src/lib/shipping/seed.ts) | Inicialização automática das 3 zonas de entrega e CEPs de referência. |
+| [`config.ts`](file:///c:/Web/pinkmusic/src/lib/shipping/config.ts) | Parâmetros da loja física, cidade, estado e raio padrão de referência. |
+| [`normalize-zipcode.ts`](file:///c:/Web/pinkmusic/src/lib/shipping/normalize-zipcode.ts) | Sanitização do CEP (remoção de pontuação, validação estrita de 8 dígitos numéricos). |
+| [`zone-lookup.ts`](file:///c:/Web/pinkmusic/src/lib/shipping/zone-lookup.ts) | Resolução determinística da zona pelo bairro (ViaCEP + mapeamento catalogado dos bairros de Feira de Santana) sem oscilação de GPS. |
+| [`calculate-shipping.ts`](file:///c:/Web/pinkmusic/src/lib/shipping/calculate-shipping.ts) | Lógica central: verificação de cidade, enquadramento nas zonas cadastradas no banco, cache no banco e fallback. |
+| [`seed.ts`](file:///c:/Web/pinkmusic/src/lib/shipping/seed.ts) | Inicialização automática das 4 zonas de entrega caso a tabela esteja vazia. |
 
 ---
 
-## 5. Estratégia de Geocodificação em Camadas (`geocode-zip.ts`)
+## 5. Estratégia de Resolução Determinística de Zonas (`zone-lookup.ts`)
 
-Para evitar falhas de APIs públicas e homônimos rurais de Feira de Santana (como povoados em Ipuaçu ou Humildes que causavam distâncias erradas de mais de 20 km), o sistema opera em **6 camadas resilientes**:
+Para eliminar oscilações de APIs de GPS/mapas (que falhavam 3 a cada 5 consultas e bloqueavam clientes indevidamente), o cálculo foi simplificado para ser **100% determinístico e instantâneo**:
 
-```
-                       Cliente informa o CEP (ex: 44052-460)
-                                        │
-                                        ▼
-             ┌─────────────────────────────────────────────────────┐
-  Camada 1   │ 1. AwesomeAPI (busca coordenadas por CEP direto)   │ ── Válido e Urbano? ──► Retorna lat/lng
-             └─────────────────────────────────────────────────────┘             │ (Não/Timeout)
-                                        │                                        ▼
-             ┌─────────────────────────────────────────────────────┐
-  Camada 2   │ 2. ViaCEP (busca Logradouro + Bairro oficiais)     │ ──► Obtém Rua e Bairro
-             └─────────────────────────────────────────────────────┘
-                                        │
-                                        ▼
-             ┌─────────────────────────────────────────────────────┐
-  Camada 3   │ 3. Nominatim com Bounding Box Urbana Restrita      │ ── Encontrou na Box? ──► Retorna lat/lng
-             │    (viewbox=-39.06,-12.35,-38.83,-12.15&bounded=1)  │             │ (Não)
-             └─────────────────────────────────────────────────────┘             ▼
-                                        │
-                                        ▼
-             ┌─────────────────────────────────────────────────────┐
-  Camada 4   │ 4. Catálogo de Centróides Urbanos de Feira (50+)    │ ── Bairro Mapeado? ──► Retorna lat/lng
-             │    (Lagoa Grande, Sobradinho, SIM, Tomba, etc.)    │             │ (Não)
-             └─────────────────────────────────────────────────────┘             ▼
-                                        │
-                                        ▼
-             ┌─────────────────────────────────────────────────────┐
-  Camada 5   │ 5. Herança de CEP vizinho do mesmo bairro no banco  │ ── Tem registro? ────► Retorna lat/lng
-             └─────────────────────────────────────────────────────┘             │ (Não)
-                                        │                                        ▼
-             ┌─────────────────────────────────────────────────────┐
-  Camada 6   │ 6. Fallback cadastral urbano central               │
-             └─────────────────────────────────────────────────────┘
-```
-
-### Detalhes de Blindagem Implementados:
-
-1. **Bounding Box Urbana no Nominatim:**
-   - As consultas ao OpenStreetMap são restritas à área urbana de Feira de Santana (`minLng: -39.06`, `minLat: -12.35`, `maxLng: -38.83`, `maxLat: -12.15` com `bounded=1`).
-   - Isso bloqueia 100% de falsos positivos com povoados homônimos na zona rural (ex: vilarejo Lagoa Grande em Ipuaçu).
-2. **Prioridade de Busca com Logradouro:**
-   - A busca tenta primeiro `"Rua Belmiro, Feira de Santana, BA"` antes de tentar apenas o bairro, localizando a via exata.
-3. **Catálogo Local de Centróides Urbanos (`FEIRA_URBAN_NEIGHBORHOODS`):**
-   - Contém as coordenadas centrais pré-computadas de mais de 50 bairros de Feira de Santana.
-   - Atua como garantia imediata caso as APIs externas estejam lentas ou fora do ar.
-4. **Proteção de Recálculo em `calculate-shipping.ts`:**
-   - Se a distância resultante for superior ao raio máximo ($> 10 \text{ km}$) mas o bairro for sabidamente urbano, o sistema **intercepta e recalcula via centróide urbano**, impedindo a rejeição injusta da entrega.
-   - Registros do banco com coordenadas históricas que geravam distâncias $> 14 \text{ km}$ em Feira de Santana são invalidados e corrigidos automaticamente.
-
----
-
-## 6. Cálculo de Distância (`calculate-distance.ts`)
-
-A distância viária estimada é obtida pela fórmula de **Haversine** multiplicada pelo fator viário urbano empírico:
-
-$$\text{Distância Estimada (km)} = \text{Distância em Linha Reta} \times 1.4$$
-
-- **Por que não OSRM público?** O serviço público `router.project-osrm.org` foi descontinuado do fluxo por instabilidade frequente e retorno de distâncias anômalas (ex: 12.000 km) em produção.
-- **Precisão:** Para raios municipais de até 10 km, o erro do modelo Haversine $\times 1.4$ é inferior a 10%, correspondendo perfeitamente às faixas de preço cobradas por motoboys parceiros.
+1. **ViaCEP (com timeout de 2.5s e cache no banco):** obtém os dados oficiais do endereço (Bairro, Cidade, Estado).
+2. **Mapeamento Direto de Bairros:** normaliza o nome do bairro e enquadra diretamente na respectiva zona (Zona 1 a 4).
+3. **Fallback por Prefixo de CEP:** para logradouros sem bairro ou novos loteamentos de Feira de Santana, faixas de CEP mapeiam para a zona aproximada mais segura.
+4. **Alinhamento com o Banco de Dados:** o ID e o preço real cobrado vêm sempre da tabela `ShippingZone` ordenada pela distância/ordem, respeitando qualquer edição feita no painel Admin.
 
 ---
 

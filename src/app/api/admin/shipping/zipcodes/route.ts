@@ -1,12 +1,11 @@
-import { NextRequest, NextResponse } from "next/server";
+﻿import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
 import { normalizeZipCode } from "@/lib/shipping/normalize-zipcode";
 import { STORE_SHIPPING_CONFIG } from "@/lib/shipping/config";
-import { calculateDistance } from "@/lib/shipping/calculate-distance";
-import { resolveZipCoordinates } from "@/lib/shipping/geocode-zip";
+import { resolveZoneOrder, fetchViaCep } from "@/lib/shipping/zone-lookup";
 
-// GET /api/admin/shipping/zipcodes - Lista CEPs com paginação e busca
+// GET /api/admin/shipping/zipcodes - Lista CEPs com paginacao e busca
 export async function GET(request: NextRequest) {
   try {
     const auth = await requireAdmin(request);
@@ -81,14 +80,14 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
 
-    // ── MODO LOTE / BULK IMPORT ───────────────────────────────────────────────
+    // MODO LOTE / BULK IMPORT
     if (body.bulk && Array.isArray(body.items)) {
       const items = body.items;
       let createdCount = 0;
       let updatedCount = 0;
       let errorCount = 0;
 
-      // Busca todas as zonas ativas para matching por distância se necessário
+      // Busca todas as zonas ativas para matching por ordem
       const activeZones = await prisma.shippingZone.findMany({
         where: { active: true },
         orderBy: { minDistance: "asc" },
@@ -101,29 +100,22 @@ export async function POST(request: NextRequest) {
           continue;
         }
 
-        const district = item.district ? String(item.district).trim() : "Centro";
-        const city = item.city ? String(item.city).trim() : STORE_SHIPPING_CONFIG.storeCity;
-        const state = item.state ? String(item.state).trim().toUpperCase() : STORE_SHIPPING_CONFIG.storeState;
-        const latitude = item.latitude !== undefined && item.latitude !== null && !isNaN(Number(item.latitude))
-          ? Number(item.latitude)
-          : null;
-        const longitude = item.longitude !== undefined && item.longitude !== null && !isNaN(Number(item.longitude))
-          ? Number(item.longitude)
-          : null;
+        let district = item.district ? String(item.district).trim() : "";
+        let city = item.city ? String(item.city).trim() : STORE_SHIPPING_CONFIG.storeCity;
+        let state = item.state ? String(item.state).trim().toUpperCase() : STORE_SHIPPING_CONFIG.storeState;
 
         let zoneId = item.zoneId || null;
 
-        // Se não forneceu zoneId, mas tem coordenadas, calcula zona automaticamente via OSRM
-        if (!zoneId && latitude !== null && longitude !== null && activeZones.length > 0) {
-          const distResult = await calculateDistance(
-            STORE_SHIPPING_CONFIG.originCoordinates,
-            { latitude, longitude }
-          );
-          const dist = distResult.distanceKm;
-          const matched = activeZones.find((z) => dist >= z.minDistance && dist < z.maxDistance);
-          if (matched) {
-            zoneId = matched.id;
-          }
+        // Se nao forneceu zoneId, resolve zona automaticamente via bairro/prefixo
+        if (!zoneId && activeZones.length > 0) {
+          const lookup = await resolveZoneOrder(cleanZip);
+          if (lookup.district) district = district || lookup.district;
+          if (lookup.city) city = lookup.city;
+          if (lookup.state) state = lookup.state;
+          const zoneIndex = lookup.zoneOrder !== null
+            ? Math.min(lookup.zoneOrder - 1, activeZones.length - 1)
+            : 0;
+          zoneId = activeZones[zoneIndex]?.id || null;
         }
 
         try {
@@ -131,19 +123,17 @@ export async function POST(request: NextRequest) {
             where: { zipCode: cleanZip },
             create: {
               zipCode: cleanZip,
-              district,
+              district: district || "Feira de Santana",
               city,
               state,
-              latitude,
-              longitude,
+              latitude: null,
+              longitude: null,
               zoneId,
             },
             update: {
-              district,
+              district: district || undefined,
               city,
               state,
-              ...(latitude !== null ? { latitude } : {}),
-              ...(longitude !== null ? { longitude } : {}),
               ...(zoneId ? { zoneId } : {}),
             },
           });
@@ -160,65 +150,59 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json({
         success: true,
-        message: `Importação concluída. ${createdCount} criados, ${updatedCount} atualizados, ${errorCount} erros/ignorados.`,
+        message: `Importacao concluida. ${createdCount} criados, ${updatedCount} atualizados, ${errorCount} erros/ignorados.`,
         createdCount,
         updatedCount,
         errorCount,
       });
     }
 
-    // ── MODO INDIVIDUAL ───────────────────────────────────────────────────────
-    const { zipCode, district, city, state, latitude, longitude, zoneId } = body;
+    // MODO INDIVIDUAL
+    const { zipCode, district, city, state, zoneId } = body;
 
     const cleanZip = normalizeZipCode(zipCode);
     if (!cleanZip) {
       return NextResponse.json(
-        { success: false, error: "CEP inválido. Deve conter 8 dígitos." },
+        { success: false, error: "CEP invalido. Deve conter 8 digitos." },
         { status: 400 }
       );
     }
 
     if (!district?.trim()) {
       return NextResponse.json(
-        { success: false, error: "Bairro é obrigatório." },
+        { success: false, error: "Bairro e obrigatorio." },
         { status: 400 }
       );
     }
 
-    let lat = latitude !== undefined && latitude !== null && latitude !== "" ? Number(latitude) : null;
-    let lng = longitude !== undefined && longitude !== null && longitude !== "" ? Number(longitude) : null;
     let finalDistrict = district.trim();
     let finalCity = city?.trim() || STORE_SHIPPING_CONFIG.storeCity;
     let finalState = state?.trim().toUpperCase() || STORE_SHIPPING_CONFIG.storeState;
 
-    // Se coordenadas não foram passadas, tenta buscar automaticamente
-    if (lat === null || lng === null) {
-      const geocoded = await resolveZipCoordinates(cleanZip, finalDistrict);
-      if (geocoded.latitude !== null && geocoded.longitude !== null) {
-        lat = geocoded.latitude;
-        lng = geocoded.longitude;
+    // Complementa dados via ViaCEP se cidade/estado nao informados
+    if (!city || !state) {
+      const viaCepData = await fetchViaCep(cleanZip);
+      if (viaCepData) {
+        if (!finalDistrict && viaCepData.district) finalDistrict = viaCepData.district;
+        if (viaCepData.city) finalCity = viaCepData.city;
+        if (viaCepData.state) finalState = viaCepData.state;
       }
-      if (geocoded.district) finalDistrict = geocoded.district;
-      if (geocoded.city) finalCity = geocoded.city;
-      if (geocoded.state) finalState = geocoded.state;
     }
 
     let targetZoneId = zoneId || null;
 
-    // Se latitude e longitude foram obtidas e zoneId não, calcula zona prioritariamente via OSRM
-    if (!targetZoneId && lat !== null && lng !== null) {
+    // Se nao informou zona, resolve automaticamente
+    if (!targetZoneId) {
       const activeZones = await prisma.shippingZone.findMany({
         where: { active: true },
         orderBy: { minDistance: "asc" },
       });
-      const distResult = await calculateDistance(
-        STORE_SHIPPING_CONFIG.originCoordinates,
-        { latitude: lat, longitude: lng }
-      );
-      const dist = distResult.distanceKm;
-      const matched = activeZones.find((z) => dist >= z.minDistance && dist < z.maxDistance);
-      if (matched) {
-        targetZoneId = matched.id;
+      if (activeZones.length > 0) {
+        const lookup = await resolveZoneOrder(cleanZip);
+        const zoneIndex = lookup.zoneOrder !== null
+          ? Math.min(lookup.zoneOrder - 1, activeZones.length - 1)
+          : 0;
+        targetZoneId = activeZones[zoneIndex]?.id || null;
       }
     }
 
@@ -229,16 +213,14 @@ export async function POST(request: NextRequest) {
         district: finalDistrict,
         city: finalCity,
         state: finalState,
-        latitude: lat,
-        longitude: lng,
+        latitude: null,
+        longitude: null,
         zoneId: targetZoneId,
       },
       update: {
         district: finalDistrict,
         city: finalCity,
         state: finalState,
-        latitude: lat,
-        longitude: lng,
         zoneId: targetZoneId,
       },
       include: { zone: true },
