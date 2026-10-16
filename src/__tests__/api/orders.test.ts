@@ -8,7 +8,7 @@
  *   - Fluxo completo: NEEDS_NEIGHBORHOOD -> seleção de bairro -> cotação -> criação do pedido
  */
 
-import { POST as createOrderHandler } from "./route";
+import { POST as createOrderHandler } from "@/app/api/orders/route";
 import { NextRequest } from "next/server";
 import prisma from "@/lib/prisma";
 import * as mercadopago from "@/lib/mercadopago";

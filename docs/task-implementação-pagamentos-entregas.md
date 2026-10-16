@@ -1,4 +1,8 @@
-# Checklist de Implementação — PIX + Uber Direct
+# Checklist de Implementação — PIX + Entregas
+
+> [!NOTE]
+> **ATUALIZAÇÃO (Outubro/2026):** A Fase 2 (Uber Direct) foi substituída pelo **Sistema de Frete Próprio Local por Zonas Determinísticas**.
+> Consulte [`implementation_plan-frete-proprio.md`](./implementation_plan-frete-proprio.md) para o fluxo ativo de entrega local.
 
 ## ✅ Fase 1 — Pagamento PIX via Mercado Pago (Concluído no Código)
 
