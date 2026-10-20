@@ -6,7 +6,6 @@ import {
   Plus,
   Edit2,
   Trash2,
-  MapPin,
   Search,
   Upload,
   RefreshCw,
@@ -18,7 +17,6 @@ import {
   HelpCircle,
   CheckCircle2,
   Building2,
-  Sliders,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,7 +31,6 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { formatZipCode } from "@/lib/shipping/normalize-zipcode";
-import { STORE_SHIPPING_CONFIG } from "@/lib/shipping/config";
 
 interface ShippingZone {
   id: string;
@@ -702,8 +699,8 @@ export default function ShippingSettingsPage() {
       neighborhoodZoneFilter === ""
         ? true
         : neighborhoodZoneFilter === "rural"
-        ? n.outOfArea
-        : n.zoneOrder === parseInt(neighborhoodZoneFilter, 10);
+          ? n.outOfArea
+          : n.zoneOrder === parseInt(neighborhoodZoneFilter, 10);
     return matchSearch && matchZone;
   });
 
@@ -814,55 +811,50 @@ export default function ShippingSettingsPage() {
       <div className="flex border-b border-border gap-6 text-sm font-medium overflow-x-auto">
         <button
           onClick={() => setActiveTab("zones")}
-          className={`pb-3 relative transition-colors whitespace-nowrap ${
-            activeTab === "zones"
-              ? "text-purple-600 dark:text-purple-400 font-bold after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-purple-600"
-              : "text-muted-foreground hover:text-foreground"
-          }`}
+          className={`pb-3 relative transition-colors whitespace-nowrap ${activeTab === "zones"
+            ? "text-purple-600 dark:text-purple-400 font-bold after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-purple-600"
+            : "text-muted-foreground hover:text-foreground"
+            }`}
         >
           Zonas de Entrega ({zones.length})
         </button>
 
         <button
           onClick={() => setActiveTab("neighborhoods")}
-          className={`pb-3 relative transition-colors whitespace-nowrap ${
-            activeTab === "neighborhoods"
-              ? "text-purple-600 dark:text-purple-400 font-bold after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-purple-600"
-              : "text-muted-foreground hover:text-foreground"
-          }`}
+          className={`pb-3 relative transition-colors whitespace-nowrap ${activeTab === "neighborhoods"
+            ? "text-purple-600 dark:text-purple-400 font-bold after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-purple-600"
+            : "text-muted-foreground hover:text-foreground"
+            }`}
         >
           Bairros de Feira ({neighborhoods.length})
         </button>
 
         <button
           onClick={() => setActiveTab("zipcodes")}
-          className={`pb-3 relative transition-colors whitespace-nowrap ${
-            activeTab === "zipcodes"
-              ? "text-purple-600 dark:text-purple-400 font-bold after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-purple-600"
-              : "text-muted-foreground hover:text-foreground"
-          }`}
+          className={`pb-3 relative transition-colors whitespace-nowrap ${activeTab === "zipcodes"
+            ? "text-purple-600 dark:text-purple-400 font-bold after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-purple-600"
+            : "text-muted-foreground hover:text-foreground"
+            }`}
         >
           Cache de CEPs ({totalZipCodes})
         </button>
 
         <button
           onClick={() => setActiveTab("unresolved")}
-          className={`pb-3 relative transition-colors whitespace-nowrap ${
-            activeTab === "unresolved"
-              ? "text-purple-600 dark:text-purple-400 font-bold after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-purple-600"
-              : "text-muted-foreground hover:text-foreground"
-          }`}
+          className={`pb-3 relative transition-colors whitespace-nowrap ${activeTab === "unresolved"
+            ? "text-purple-600 dark:text-purple-400 font-bold after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-purple-600"
+            : "text-muted-foreground hover:text-foreground"
+            }`}
         >
           CEPs Pendentes ({unresolvedZips.length})
         </button>
 
         <button
           onClick={() => setActiveTab("overrides")}
-          className={`pb-3 relative transition-colors whitespace-nowrap ${
-            activeTab === "overrides"
-              ? "text-purple-600 dark:text-purple-400 font-bold after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-purple-600"
-              : "text-muted-foreground hover:text-foreground"
-          }`}
+          className={`pb-3 relative transition-colors whitespace-nowrap ${activeTab === "overrides"
+            ? "text-purple-600 dark:text-purple-400 font-bold after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-purple-600"
+            : "text-muted-foreground hover:text-foreground"
+            }`}
         >
           Overrides Manuais ({overrides.length})
         </button>
@@ -894,9 +886,8 @@ export default function ShippingSettingsPage() {
               {zones.map((zone) => (
                 <div
                   key={zone.id}
-                  className={`border rounded-xl p-5 bg-card shadow-xs transition-all flex flex-col justify-between ${
-                    zone.active ? "border-purple-200 dark:border-purple-900/50" : "opacity-60 bg-muted/20"
-                  }`}
+                  className={`border rounded-xl p-5 bg-card shadow-xs transition-all flex flex-col justify-between ${zone.active ? "border-purple-200 dark:border-purple-900/50" : "opacity-60 bg-muted/20"
+                    }`}
                 >
                   <div>
                     <div className="flex items-start justify-between gap-2">
@@ -915,11 +906,10 @@ export default function ShippingSettingsPage() {
                       <button
                         type="button"
                         onClick={() => handleToggleZoneActive(zone)}
-                        className={`px-2 py-0.5 rounded-full text-[11px] font-bold border transition-colors cursor-pointer ${
-                          zone.active
-                            ? "bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300"
-                            : "bg-neutral-100 text-neutral-600 border-neutral-300 dark:bg-neutral-800 dark:text-neutral-400"
-                        }`}
+                        className={`px-2 py-0.5 rounded-full text-[11px] font-bold border transition-colors cursor-pointer ${zone.active
+                          ? "bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300"
+                          : "bg-neutral-100 text-neutral-600 border-neutral-300 dark:bg-neutral-800 dark:text-neutral-400"
+                          }`}
                         title="Clique para ativar/desativar"
                       >
                         {zone.active ? "Ativa" : "Inativa"}

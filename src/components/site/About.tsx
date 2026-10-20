@@ -99,7 +99,7 @@ export default function About() {
             {
               icon: Truck,
               title: "Entrega Local Rápida",
-              desc: "Entregamos na sua casa ou estúdio em toda Feira de Santana.",
+              desc: "Entregamos em toda Feira de Santana. Delivery disponível no horário comercial: Seg–Sex 8h–17h e Sáb 8h–13h.",
             },
             {
               icon: Headphones,
@@ -249,7 +249,7 @@ export default function About() {
               </p>
             </div>
             <div className="space-y-1 text-sm text-foreground">
-              <p>Seg a Sex: 8h às 18h</p>
+              <p>Seg a Sex: 8h às 17h</p>
               <p>Sábado: 8h às 13h</p>
               <p className="text-muted-foreground text-xs">Domingos: Fechado</p>
             </div>

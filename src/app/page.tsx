@@ -3,6 +3,7 @@ import Partners from "@/components/site/Partners";
 import Products from "@/components/site/Products/Products";
 import About from "@/components/site/About";
 import { CategoriesSection } from "@/components/site/Categories";
+import { DeliveryInfo } from "@/components/site/DeliveryInfo";
 
 
 export default function Home() {
@@ -10,6 +11,11 @@ export default function Home() {
     <main className="flex flex-col items-center justify-center">
       <div className="relative w-full">
         <Hero />
+
+        {/* Aviso de horário de delivery */}
+        <div >
+          <DeliveryInfo variant="full" />
+        </div>
 
         <CategoriesSection />
 

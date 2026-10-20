@@ -23,6 +23,7 @@ import type { Product, ProductDetailsProps } from "@/lib/types";
 import { useCartStore } from "@/store/cartStore";
 import { useAuthStore } from "@/store/authStore";
 import { toast } from "sonner";
+import { DeliveryInfo } from "@/components/site/DeliveryInfo";
 
 const formatPrice = (price: number, currency: string) => {
   return new Intl.NumberFormat("pt-BR", {
@@ -310,17 +311,22 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
               {/* Cartão de Informação de Procedência */}
               {hasLocalSale && (
                 <div className="mt-6 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-4 sm:p-5">
-                  <div className="flex items-start gap-3">
-                    <div className="size-10 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0 text-emerald-600 dark:text-emerald-400">
-                      <Store className="size-5" />
+                  <div className="flex flex-col items-start">
+                    <div className="flex items-start gap-3">
+                      <div className="size-10 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0 text-emerald-600 dark:text-emerald-400">
+                        <Store className="size-5" />
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-bold text-foreground">
+                          Retirada ou Entrega em Feira de Santana
+                        </h4>
+                        <p className="text-xs text-muted-foreground leading-relaxed">
+                          Pronto para retirada no balcão da loja ou entrega combinada na cidade. Pagamento rápido e seguro via PIX.
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="text-sm font-bold text-foreground">
-                        Retirada ou Entrega em Feira de Santana
-                      </h4>
-                      <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
-                        Pronto para retirada no balcão da loja ou entrega combinada na cidade. Pagamento rápido e seguro via PIX.
-                      </p>
+                    <div className="flex items-start w-full">
+                      <DeliveryInfo variant="inline" />
                     </div>
                   </div>
                 </div>
@@ -353,8 +359,8 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
                       disabled={isOutOfStock}
                       size="lg"
                       className={`w-full h-12 rounded-2xl text-base font-semibold border-2 transition-all gap-2 ${addedToCart
-                        ? "bg-emerald-500 text-white border-emerald-500 hover:bg-emerald-600"
-                        : "border-foreground/75 text-foreground hover:bg-primary/5 hover:border-primary"
+                        ? "bg-primary text-white border-emerald-500 hover:bg-emerald-600"
+                        : "bg-emerald-500 text-white border-emerald-500 hover:bg-emerald-600"
                         }`}
                     >
                       {addedToCart ? (
@@ -399,7 +405,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
             </div>
 
             {/* Redes Sociais / Dúvidas */}
-            <div className="mt-8 pt-6 border-t border-border/40 flex flex-col sm:flex-row items-end justify-between gap-4">
+            <div className="mt-8 pt-6 border-t border-border/40 flex flex-row items-end justify-between gap-4">
               <span className="text-xs text-muted-foreground">
                 Dúvidas sobre o produto? Fale conosco:
               </span>
