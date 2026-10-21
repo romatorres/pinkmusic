@@ -18,6 +18,7 @@ import {
   CreditCard,
   RefreshCw,
   ExternalLink,
+  Printer,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -373,7 +374,7 @@ export default function CourierSettlementPage() {
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-16">
       {/* Topo / Breadcrumb */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-border/60 pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-border/60 pb-5 print:hidden">
         <div>
           <div className="flex items-center gap-2">
             <Link
@@ -398,7 +399,18 @@ export default function CourierSettlementPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            variant="outline"
+            className="gap-2 border-purple-500/30 text-purple-600 hover:bg-purple-50 hover:text-purple-700 dark:hover:bg-purple-950/40"
+            onClick={() => window.print()}
+            disabled={rides.length === 0}
+            title="Gera o espelho de fretes formatado para salvar em PDF ou imprimir em folha A4"
+          >
+            <Printer className="w-4 h-4" />
+            <span>Imprimir / PDF</span>
+          </Button>
+
           {currentCourier && (
             <Button
               variant="outline"
@@ -423,7 +435,7 @@ export default function CourierSettlementPage() {
       </div>
 
       {/* Painel de Filtros */}
-      <div className="border rounded-2xl bg-card p-5 space-y-4 shadow-xs">
+      <div className="border rounded-2xl bg-card p-5 space-y-4 shadow-xs print:hidden">
         <div className="flex items-center gap-2 pb-2 border-b border-border/40 text-sm font-semibold">
           <Filter className="w-4 h-4 text-primary" />
           <span>Filtros do Relatório</span>
@@ -551,7 +563,7 @@ export default function CourierSettlementPage() {
       </div>
 
       {/* Cards de Métricas e Pix */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 print:hidden">
         {/* Total de Corridas */}
         <div className="rounded-2xl border bg-card p-5 shadow-xs">
           <div className="flex items-center justify-between text-muted-foreground mb-1">
@@ -641,8 +653,8 @@ export default function CourierSettlementPage() {
         </div>
       </div>
 
-      {/* Tabela de Corridas */}
-      <div className="border rounded-2xl bg-card overflow-hidden shadow-xs">
+      {/* Tabela de Corridas (Visualização em tela) */}
+      <div className="border rounded-2xl bg-card overflow-hidden shadow-xs print:hidden">
         {/* Barra superior de ações da tabela */}
         <div className="p-4 bg-muted/20 border-b flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2">
@@ -801,6 +813,186 @@ export default function CourierSettlementPage() {
             </table>
           </div>
         )}
+      </div>
+
+      {/* ══════════════════════════════════════════════════════════
+          LAYOUT EXCLUSIVO PARA IMPRESSÃO / SALVAR EM PDF (FOLHA A4)
+          ══════════════════════════════════════════════════════════ */}
+      <div className="hidden print:block p-2 text-black bg-white space-y-4 font-sans">
+        {/* Cabeçalho Institucional */}
+        <div className="flex items-start justify-between border-b-2 border-black pb-3">
+          <div>
+            <h1 className="text-2xl font-black uppercase tracking-tight">Pink Music</h1>
+            <p className="text-xs text-gray-700 font-medium">
+              Comércio de Instrumentos Musicais & Acessórios
+            </p>
+          </div>
+          <div className="text-right">
+            <h2 className="text-sm font-bold uppercase tracking-wider">
+              Fechamento de Fretes / Entregas
+            </h2>
+            <p className="text-[11px] text-gray-600">
+              Emitido em: {new Date().toLocaleString("pt-BR")}
+            </p>
+          </div>
+        </div>
+
+        {/* Ficha Resumo do Motoboy & Período */}
+        <div className="grid grid-cols-2 gap-4 border border-gray-400 rounded p-3 text-xs bg-gray-50/60">
+          <div className="space-y-1">
+            <p>
+              <strong className="text-gray-900">Entregador:</strong>{" "}
+              {currentCourier ? currentCourier.name : "Todos os Motoboys"}
+            </p>
+            {currentCourier?.phone && (
+              <p>
+                <strong className="text-gray-900">WhatsApp:</strong>{" "}
+                {currentCourier.phone}
+              </p>
+            )}
+            {currentCourier?.vehicle && (
+              <p>
+                <strong className="text-gray-900">Veículo / Placa:</strong>{" "}
+                {currentCourier.vehicle}{" "}
+                {currentCourier.plate ? `(${currentCourier.plate})` : ""}
+              </p>
+            )}
+          </div>
+
+          <div className="space-y-1">
+            <p>
+              <strong className="text-gray-900">Período:</strong>{" "}
+              {startDate && endDate
+                ? `${new Date(startDate + "T12:00:00").toLocaleDateString(
+                    "pt-BR"
+                  )} até ${new Date(endDate + "T12:00:00").toLocaleDateString(
+                    "pt-BR"
+                  )}`
+                : "Todas as datas recentes"}
+            </p>
+            {currentCourier?.pixKey && (
+              <p>
+                <strong className="text-gray-900">
+                  Chave Pix ({currentCourier.pixKeyType || "Pix"}):
+                </strong>{" "}
+                {currentCourier.pixKey}
+              </p>
+            )}
+            <p>
+              <strong className="text-gray-900">Filtro de Status:</strong>{" "}
+              {paymentStatusFilter === "ALL"
+                ? "Todas as corridas"
+                : paymentStatusFilter === "PENDING"
+                ? "Apenas Pendentes (A Pagar)"
+                : "Apenas Pagas (Liquidadas)"}
+            </p>
+          </div>
+        </div>
+
+        {/* Tabela Formatada para Impressão */}
+        <table className="w-full text-left text-xs border border-gray-400 mt-2">
+          <thead className="bg-gray-100 border-b border-gray-400 font-bold uppercase text-[10px]">
+            <tr>
+              <th className="p-2 border-r border-gray-300 text-center w-8">#</th>
+              <th className="p-2 border-r border-gray-300 w-28">Data / Hora</th>
+              <th className="p-2 border-r border-gray-300 w-24">Pedido</th>
+              <th className="p-2 border-r border-gray-300">Motoboy</th>
+              <th className="p-2 border-r border-gray-300">Cliente / Destino</th>
+              <th className="p-2 text-right border-r border-gray-300 w-24">Valor Frete</th>
+              <th className="p-2 text-center w-20">Status</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-300">
+            {rides.map((ride, idx) => (
+              <tr
+                key={ride.id}
+                className={idx % 2 === 0 ? "bg-white" : "bg-gray-50/80"}
+              >
+                <td className="p-2 border-r border-gray-300 text-center font-mono">
+                  {idx + 1}
+                </td>
+                <td className="p-2 border-r border-gray-300 whitespace-nowrap">
+                  {new Date(ride.assignedAt).toLocaleString("pt-BR", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </td>
+                <td className="p-2 border-r border-gray-300 font-mono font-bold">
+                  #{ride.order.id.slice(-6).toUpperCase()}
+                </td>
+                <td className="p-2 border-r border-gray-300">{ride.courier.name}</td>
+                <td className="p-2 border-r border-gray-300">
+                  <div className="font-semibold text-gray-900">
+                    {ride.order.customerName}
+                  </div>
+                  <div className="text-[10px] text-gray-600 line-clamp-1">
+                    {ride.order.deliveryAddress || "Endereço no pedido"}
+                  </div>
+                </td>
+                <td className="p-2 border-r border-gray-300 text-right font-bold whitespace-nowrap text-sm">
+                  {formatCurrency(ride.courierFee)}
+                </td>
+                <td className="p-2 text-center font-bold text-[10px] whitespace-nowrap">
+                  {ride.paymentStatus === "PAID" ? "PAGO" : "PENDENTE"}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+          <tfoot className="bg-gray-100 font-bold border-t-2 border-gray-400">
+            <tr>
+              <td colSpan={5} className="p-2 text-right uppercase text-[11px]">
+                Total Geral ({rides.length} corridas)
+              </td>
+              <td className="p-2 text-right font-black text-sm border-r border-gray-300">
+                {formatCurrency(totalPendingAmount + totalPaidAmount)}
+              </td>
+              <td className="p-2 text-center text-[10px]">
+                {rides.length} corridas
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+
+        {/* Resumo Financeiro em Caixa */}
+        <div className="flex justify-end pt-2">
+          <div className="w-80 border-2 border-gray-400 p-3 rounded bg-gray-50 text-xs space-y-1.5">
+            <div className="flex justify-between">
+              <span>Total de Corridas Realizadas:</span>
+              <strong>{rides.length}</strong>
+            </div>
+            <div className="flex justify-between">
+              <span>Total Já Liquidado (Pago):</span>
+              <span className="font-semibold">{formatCurrency(totalPaidAmount)}</span>
+            </div>
+            <div className="flex justify-between border-t border-gray-300 pt-1 text-sm font-black">
+              <span>Total Pendente a Pagar:</span>
+              <span className="text-black">{formatCurrency(totalPendingAmount)}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Campo de Assinaturas */}
+        <div className="pt-12 grid grid-cols-2 gap-16 text-center text-xs">
+          <div>
+            <div className="border-t border-black pt-1 font-bold">
+              {currentCourier ? currentCourier.name : "Assinatura do Entregador"}
+            </div>
+            <span className="text-[10px] text-gray-600">
+              Entregador / Prestador de Serviço
+            </span>
+          </div>
+
+          <div>
+            <div className="border-t border-black pt-1 font-bold">
+              Pink Music — Gestão de Fretes
+            </div>
+            <span className="text-[10px] text-gray-600">
+              Visto do Responsável
+            </span>
+          </div>
+        </div>
       </div>
     </div>
   );

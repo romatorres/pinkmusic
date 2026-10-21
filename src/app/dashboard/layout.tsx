@@ -62,10 +62,12 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      <Sidebar />
+    <div className="flex h-screen overflow-hidden print:h-auto print:overflow-visible print:block">
+      <div className="print:hidden">
+        <Sidebar />
+      </div>
       <PushNotificationListener />
-      <main className="flex-1 overflow-y-auto lg:p-8 p-4">{children}</main>
+      <main className="flex-1 overflow-y-auto lg:p-8 p-4 print:p-0 print:overflow-visible print:block">{children}</main>
     </div>
   );
 }

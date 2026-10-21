@@ -90,7 +90,7 @@ export function Sidebar() {
     <>
       {/* Mobile Menu Button */}
       <button
-        className="fixed top-4 right-4 z-50 p-2 bg-primary/90 rounded-md md:hidden shadow-lg border border-white/20 transition-all duration-500 ease-out hover:opacity-100"
+        className="fixed top-4 right-4 z-50 p-2 bg-primary/90 rounded-md md:hidden shadow-lg border border-white/20 transition-all duration-500 ease-out hover:opacity-100 print:hidden"
         style={{ opacity: menuButtonOpacity }}
         onClick={toggleMobileMenu}
         aria-label="Menu"
