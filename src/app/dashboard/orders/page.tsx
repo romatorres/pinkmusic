@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
 import {
   ClipboardList,
   RefreshCw,
@@ -22,6 +23,8 @@ import {
   ShoppingCart,
   Mail,
   MessageCircle,
+  Bike,
+  DollarSign,
 } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -178,13 +181,35 @@ export default function OrdersPage() {
 
   // Estados do Modal de Despacho de Entrega Local
   const [quoteModalOrder, setQuoteModalOrder] = useState<Order | null>(null);
+  const [couriersList, setCouriersList] = useState<
+    Array<{ id: string; name: string; phone: string; vehicle: string | null; plate: string | null }>
+  >([]);
+  const [selectedCourierId, setSelectedCourierId] = useState<string>("");
   const [dispatchCourierName, setDispatchCourierName] = useState("Entregador da Loja");
   const [dispatchCourierPhone, setDispatchCourierPhone] = useState("");
+  const [dispatchCourierFee, setDispatchCourierFee] = useState<number>(0);
+  const [dispatchNotes, setDispatchNotes] = useState<string>("");
   const [dispatching, setDispatching] = useState(false);
 
   // Estados do Modal Avisar Motoboy (WhatsApp)
   const [motoboyOrder, setMotoboyOrder] = useState<Order | null>(null);
   const [motoboyPhone, setMotoboyPhone] = useState("");
+
+  // Carregar motoboys ativos
+  useEffect(() => {
+    async function loadCouriers() {
+      try {
+        const res = await fetch("/api/couriers?active=true");
+        const json = await res.json();
+        if (res.ok && json.success) {
+          setCouriersList(json.data);
+        }
+      } catch (err) {
+        console.error("Erro ao carregar motoboys:", err);
+      }
+    }
+    loadCouriers();
+  }, []);
 
   // Modo de visualização: inteligente por status ou forçado pelo usuário
   const [viewModeOverride, setViewModeOverride] = useState<"compact" | "cards" | null>(null);
@@ -259,11 +284,38 @@ export default function OrdersPage() {
 
   const handleOpenDispatchModal = (order: Order) => {
     setQuoteModalOrder(order);
-    setDispatchCourierName("Entregador da Loja");
-    setDispatchCourierPhone("");
+    const suggestedFee = order.deliveryFee || order.shippingPrice || 0;
+    setDispatchCourierFee(suggestedFee);
+    setDispatchNotes("");
+
+    // Se temos motoboys cadastrados, seleciona o primeiro por padrão
+    if (couriersList.length > 0) {
+      const first = couriersList[0];
+      setSelectedCourierId(first.id);
+      setDispatchCourierName(first.name);
+      setDispatchCourierPhone(first.phone);
+    } else {
+      setSelectedCourierId("");
+      setDispatchCourierName("Entregador da Loja");
+      setDispatchCourierPhone("");
+    }
   };
 
-  const handleConfirmDispatch = async () => {
+  const handleSelectCourierChange = (courierId: string) => {
+    setSelectedCourierId(courierId);
+    if (!courierId) {
+      setDispatchCourierName("Entregador Avulso");
+      setDispatchCourierPhone("");
+      return;
+    }
+    const found = couriersList.find((c) => c.id === courierId);
+    if (found) {
+      setDispatchCourierName(found.name);
+      setDispatchCourierPhone(found.phone);
+    }
+  };
+
+  const handleConfirmDispatch = async (openWhatsApp = false) => {
     if (!quoteModalOrder) return;
     setDispatching(true);
     try {
@@ -271,13 +323,43 @@ export default function OrdersPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          courierId: selectedCourierId || undefined,
           courierName: dispatchCourierName,
           courierPhone: dispatchCourierPhone,
+          courierFee: dispatchCourierFee,
+          notes: dispatchNotes,
         }),
       });
       const result = await res.json();
       if (result.success) {
-        toast.success("Pedido despachado para entrega local com sucesso!");
+        toast.success("Pedido despachado e corrida atrelada ao motoboy com sucesso!");
+
+        // Se solicitado, dispara o WhatsApp com a rota e dados do pedido
+        if (openWhatsApp && dispatchCourierPhone) {
+          const shortId = quoteModalOrder.id.slice(-8).toUpperCase();
+          const itemsList =
+            quoteModalOrder.items && quoteModalOrder.items.length > 0
+              ? quoteModalOrder.items
+                  .map((i) => `  • ${i.quantity}x ${i.title}${i.productCode ? ` [Cód: ${i.productCode}]` : ""}`)
+                  .join("\n")
+              : "  • Produto";
+
+          const msg = encodeURIComponent(
+            `🛵 *Pink Music — Nova Entrega Atribuída*\n\n` +
+            `📋 *Pedido:* #${shortId}\n` +
+            `👤 *Cliente:* ${quoteModalOrder.customerName}\n` +
+            `📞 *Tel. Cliente:* ${quoteModalOrder.customerPhone}\n\n` +
+            `📦 *Itens a entregar:*\n${itemsList}\n\n` +
+            `📍 *Endereço de entrega:*\n${quoteModalOrder.deliveryAddress || "Não informado"}\n\n` +
+            `💰 *Valor da corrida a receber:* ${formatPrice(dispatchCourierFee)}\n\n` +
+            (dispatchNotes ? `📝 *Observação:* ${dispatchNotes}\n\n` : "") +
+            `⚠️ Bom trabalho e pilote com cuidado!`
+          );
+
+          const cleanPhone = dispatchCourierPhone.replace(/\D/g, "");
+          window.open(`https://wa.me/55${cleanPhone}?text=${msg}`, "_blank");
+        }
+
         setQuoteModalOrder(null);
         fetchOrders();
       } else {
@@ -1236,37 +1318,118 @@ export default function OrdersPage() {
                 </div>
               )}
 
-              {/* Dados do Entregador */}
-              <div className="space-y-2 pt-1 border-t">
+              {/* Dados do Entregador e da Corrida */}
+              <div className="space-y-3 pt-2 border-t">
                 <div>
-                  <Label htmlFor="courier-name" className="text-xs">
-                    Nome do Entregador / Motoboy
-                  </Label>
-                  <Input
-                    id="courier-name"
-                    placeholder="Ex: Carlos (Motoboy da Loja)"
-                    value={dispatchCourierName}
-                    onChange={(e) => setDispatchCourierName(e.target.value)}
-                    className="mt-1 text-xs"
-                  />
+                  <div className="flex items-center justify-between mb-1">
+                    <Label htmlFor="courier-select" className="text-xs font-semibold flex items-center gap-1.5">
+                      <Bike className="w-3.5 h-3.5 text-primary" />
+                      Profissional (Motoboy)
+                    </Label>
+                    <Link
+                      href="/dashboard/couriers"
+                      target="_blank"
+                      className="text-[11px] text-primary hover:underline"
+                    >
+                      + Gerenciar Motoboys
+                    </Link>
+                  </div>
+
+                  {couriersList.length > 0 ? (
+                    <select
+                      id="courier-select"
+                      className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1.5 text-xs ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      value={selectedCourierId}
+                      onChange={(e) => handleSelectCourierChange(e.target.value)}
+                    >
+                      <option value="">Entregador Avulso / Não cadastrado</option>
+                      {couriersList.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.name} {c.vehicle ? `• ${c.vehicle}` : ""} {c.plate ? `(${c.plate})` : ""}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <p className="text-[11px] text-muted-foreground bg-muted/40 p-2 rounded">
+                      Nenhum motoboy cadastrado ainda.{" "}
+                      <Link href="/dashboard/couriers" target="_blank" className="text-primary underline">
+                        Cadastre aqui
+                      </Link>{" "}
+                      para controlar o fechamento por período.
+                    </p>
+                  )}
                 </div>
-                <div>
-                  <Label htmlFor="courier-phone" className="text-xs">
-                    Telefone / WhatsApp do Entregador (Opcional)
-                  </Label>
-                  <Input
-                    id="courier-phone"
-                    placeholder="Ex: (75) 98888-7777"
-                    value={dispatchCourierPhone}
-                    onChange={(e) => setDispatchCourierPhone(e.target.value)}
-                    className="mt-1 text-xs"
-                  />
+
+                {/* Se não for motoboy cadastrado, permite digitar nome e fone livremente */}
+                {!selectedCourierId && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div>
+                      <Label htmlFor="courier-name" className="text-[11px] text-muted-foreground">
+                        Nome do Entregador
+                      </Label>
+                      <Input
+                        id="courier-name"
+                        placeholder="Ex: Carlos (Entregador)"
+                        value={dispatchCourierName}
+                        onChange={(e) => setDispatchCourierName(e.target.value)}
+                        className="h-8 text-xs mt-0.5"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="courier-phone" className="text-[11px] text-muted-foreground">
+                        WhatsApp do Entregador
+                      </Label>
+                      <Input
+                        id="courier-phone"
+                        placeholder="Ex: (75) 98888-7777"
+                        value={dispatchCourierPhone}
+                        onChange={(e) => setDispatchCourierPhone(e.target.value)}
+                        className="h-8 text-xs mt-0.5"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Valor da Corrida a Repassar ao Motoboy */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                  <div>
+                    <Label htmlFor="courier-fee" className="text-xs font-semibold flex items-center gap-1">
+                      <DollarSign className="w-3.5 h-3.5 text-emerald-600" />
+                      Valor da Corrida (Repasse)
+                    </Label>
+                    <Input
+                      id="courier-fee"
+                      type="number"
+                      step="0.50"
+                      min="0"
+                      placeholder="0,00"
+                      value={dispatchCourierFee}
+                      onChange={(e) => setDispatchCourierFee(parseFloat(e.target.value) || 0)}
+                      className="h-8 text-xs mt-0.5 font-bold text-emerald-600 dark:text-emerald-400"
+                    />
+                    <span className="text-[10px] text-muted-foreground">
+                      Valor que será contabilizado no fechamento do motoboy
+                    </span>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="dispatch-notes" className="text-xs">
+                      Observação da Corrida
+                    </Label>
+                    <Input
+                      id="dispatch-notes"
+                      placeholder="Ex: Cuidado, frágil / Chamar no portão"
+                      value={dispatchNotes}
+                      onChange={(e) => setDispatchNotes(e.target.value)}
+                      className="h-8 text-xs mt-0.5"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
           )}
 
-          <DialogFooter className="gap-2 sm:gap-0">
+          <DialogFooter className="flex-col sm:flex-row gap-2 pt-2">
             <Button
               variant="outline"
               size="sm"
@@ -1275,20 +1438,32 @@ export default function OrdersPage() {
             >
               Cancelar
             </Button>
+
             <Button
               size="sm"
-              className="bg-purple-600 hover:bg-purple-700 text-white font-medium"
+              variant="outline"
+              className="border-emerald-500/30 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 dark:hover:bg-emerald-950/40 gap-1.5"
               disabled={dispatching}
-              onClick={handleConfirmDispatch}
+              onClick={() => handleConfirmDispatch(true)}
+            >
+              <MessageCircle className="h-3.5 w-3.5" />
+              <span>Despachar e Abrir WhatsApp</span>
+            </Button>
+
+            <Button
+              size="sm"
+              className="bg-purple-600 hover:bg-purple-700 text-white font-medium gap-1.5"
+              disabled={dispatching}
+              onClick={() => handleConfirmDispatch(false)}
             >
               {dispatching ? (
                 <>
-                  <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
                   Despachando...
                 </>
               ) : (
                 <>
-                  <Truck className="h-3.5 w-3.5 mr-1.5" />
+                  <Truck className="h-3.5 w-3.5" />
                   Confirmar Despacho
                 </>
               )}

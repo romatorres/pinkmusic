@@ -94,10 +94,11 @@ export async function POST(
 
     const { id } = await params;
     const body = await request.json().catch(() => ({}));
-    const { courierName, courierPhone } = body;
+    const { courierId, courierName, courierPhone, courierFee, notes } = body;
 
     const order = await prisma.order.findUnique({
       where: { id },
+      include: { deliveryRide: true },
     });
 
     if (!order) {
@@ -117,16 +118,67 @@ export async function POST(
       );
     }
 
-    // Atualiza pedido para DISPATCHED com entregador local próprio
+    let finalCourierName = courierName?.trim() || "Entregador da Loja";
+    let finalCourierPhone = courierPhone?.trim() || null;
+    let selectedCourier = null;
+
+    if (courierId) {
+      selectedCourier = await prisma.courier.findUnique({
+        where: { id: courierId },
+      });
+      if (selectedCourier) {
+        finalCourierName = selectedCourier.name;
+        finalCourierPhone = selectedCourier.phone;
+      }
+    }
+
+    // Atualiza pedido para DISPATCHED com entregador local
     const updatedOrder = await prisma.order.update({
       where: { id },
       data: {
         status: "DISPATCHED",
         uberDispatchedAt: new Date(),
-        uberCourierName: courierName?.trim() || "Entregador da Loja",
-        uberCourierPhone: courierPhone?.trim() || null,
+        uberCourierName: finalCourierName,
+        uberCourierPhone: finalCourierPhone,
+        uberVehicleType: selectedCourier?.vehicle || "Moto",
       },
     });
+
+    // Se informou motoboy cadastrado, registra ou atualiza a corrida (DeliveryRide)
+    if (selectedCourier) {
+      const clientFee = Number(order.shippingPrice || order.deliveryFee || 0);
+      const fee =
+        courierFee !== undefined && courierFee !== null
+          ? Number(courierFee)
+          : clientFee;
+
+      if (order.deliveryRide) {
+        await prisma.deliveryRide.update({
+          where: { id: order.deliveryRide.id },
+          data: {
+            courierId: selectedCourier.id,
+            clientFee,
+            courierFee: fee,
+            distanceKm: order.shippingDistance || null,
+            status: "ASSIGNED",
+            notes: notes?.trim() || null,
+            assignedAt: new Date(),
+          },
+        });
+      } else {
+        await prisma.deliveryRide.create({
+          data: {
+            orderId: order.id,
+            courierId: selectedCourier.id,
+            clientFee,
+            courierFee: fee,
+            distanceKm: order.shippingDistance || null,
+            status: "ASSIGNED",
+            notes: notes?.trim() || null,
+          },
+        });
+      }
+    }
 
     return NextResponse.json({
       success: true,

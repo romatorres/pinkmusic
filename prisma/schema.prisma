@@ -152,6 +152,9 @@ model Order {
   shippingMethod   String? // "LOCAL_DELIVERY" | "PICKUP"
   needsReview      Boolean @default(false)
 
+  // Corrida / Frete com Motoboy
+  deliveryRide     DeliveryRide?
+
   // Controle de Notificação Push (idempotência)
   pushNotifiedAt   DateTime?
 
@@ -329,4 +332,69 @@ model PushSubscription {
   updatedAt  DateTime @updatedAt
 
   @@index([userId])
+}
+
+// Status da Corrida com Motoboy
+enum DeliveryRideStatus {
+  ASSIGNED    // Atribuída / Aguardando coleta
+  IN_TRANSIT  // A caminho do cliente
+  DELIVERED   // Entregue com sucesso
+  CANCELLED   // Cancelada
+}
+
+// Status do Pagamento ao Motoboy
+enum RidePaymentStatus {
+  PENDING // A pagar
+  PAID    // Pago / Liquidado
+}
+
+// Cadastro de Profissionais / Motoboys
+model Courier {
+  id          String   @id @default(cuid())
+  name        String
+  phone       String   // WhatsApp para contato e envio do espelho
+  pixKey      String?  // Chave Pix (CPF, Telefone, E-mail, Aleatória)
+  pixKeyType  String?  // "CPF" | "PHONE" | "EMAIL" | "RANDOM"
+  vehicle     String?  // Ex: Honda CG 160 Fan
+  plate       String?  // Placa da moto
+  active      Boolean  @default(true)
+  notes       String?  // Observações gerais
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  rides       DeliveryRide[]
+
+  @@index([active])
+}
+
+// Registro individual de cada Corrida / Frete
+model DeliveryRide {
+  id              String             @id @default(cuid())
+  orderId         String             @unique
+  order           Order              @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  courierId       String
+  courier         Courier            @relation(fields: [courierId], references: [id], onDelete: Restrict)
+
+  // Valores financeiros
+  clientFee       Float              // Valor que o cliente pagou de frete (Order.shippingPrice)
+  courierFee      Float              // Valor a ser pago ao motoboy pela corrida
+  distanceKm      Float?             // Distância da rota (km)
+
+  // Controle de Status e Pagamento
+  status          DeliveryRideStatus @default(ASSIGNED)
+  paymentStatus   RidePaymentStatus  @default(PENDING)
+  paidAt          DateTime?          // Data em que a loja pagou o motoboy
+  paymentBatchId  String?            // Identificador de lote de fechamento
+
+  assignedAt      DateTime           @default(now())
+  deliveredAt     DateTime?
+  notes           String?
+
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  @@index([courierId])
+  @@index([paymentStatus])
+  @@index([status])
+  @@index([assignedAt])
 }

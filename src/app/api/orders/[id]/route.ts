@@ -163,6 +163,19 @@ export async function PATCH(
         data: { status },
         include: { product: { select: { title: true } } },
       });
+
+      // Sincroniza a corrida atrelada se for DELIVERED ou CANCELLED
+      if (status === "DELIVERED") {
+        await prisma.deliveryRide.updateMany({
+          where: { orderId: id, status: { not: "CANCELLED" } },
+          data: { status: "DELIVERED", deliveredAt: new Date() },
+        });
+      } else if (status === "CANCELLED") {
+        await prisma.deliveryRide.updateMany({
+          where: { orderId: id },
+          data: { status: "CANCELLED" },
+        });
+      }
     }
 
     if (status === "PAID") {

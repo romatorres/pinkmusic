@@ -19,6 +19,7 @@ import {
   ShieldCheck,
   Building2,
   Truck,
+  Bike,
 } from "lucide-react";
 
 export function Sidebar() {
@@ -197,6 +198,21 @@ export function Sidebar() {
                   </Link>
                 </li>
               )}
+
+              {/* Motoboys & Fechamento de Corridas */}
+              <li>
+                <Link
+                  href="/dashboard/couriers"
+                  className={cn(
+                    "flex items-center space-x-2.5 px-3 py-2 rounded-lg text-sm transition-colors",
+                    isActive("/dashboard/couriers")
+                  )}
+                  onClick={closeMobile}
+                >
+                  <Bike size={18} />
+                  <span>Motoboys & Corridas</span>
+                </Link>
+              </li>
             </ul>
           </div>
 
