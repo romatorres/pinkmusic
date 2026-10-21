@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import {
   ShoppingCart,
@@ -24,6 +24,7 @@ import { useCartStore } from "@/store/cartStore";
 import { useAuthStore } from "@/store/authStore";
 import { toast } from "sonner";
 import { DeliveryInfo } from "@/components/site/DeliveryInfo";
+import { getProductCardImage, getProductGalleryPictures } from "@/lib/productImages";
 
 const formatPrice = (price: number, currency: string) => {
   return new Intl.NumberFormat("pt-BR", {
@@ -50,7 +51,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
       productId: product.id,
       title: product.title,
       price: product.price,
-      thumbnail: product.thumbnail,
+      thumbnail: getProductCardImage(product),
       code: product.code,
       availableQuantity: product.available_quantity,
     });
@@ -64,7 +65,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
       productId: product.id,
       title: product.title,
       price: product.price,
-      thumbnail: product.thumbnail,
+      thumbnail: getProductCardImage(product),
       code: product.code,
       availableQuantity: product.available_quantity,
     });
@@ -143,21 +144,17 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
 
   const isOutOfStock = product.available_quantity <= 0;
 
-  const rawPictureUrl =
-    product.pictures?.[selectedImage]?.secure_url ||
-    product.pictures?.[selectedImage]?.url;
+  const galleryPictures = useMemo(() => {
+    return getProductGalleryPictures(product);
+  }, [product]);
 
-  const isPicturePlaceholder =
-    !rawPictureUrl || rawPictureUrl.includes("placeholder");
-  const isThumbnailPlaceholder =
-    !product.thumbnail || product.thumbnail.includes("placeholder");
+  const activeImageIndex =
+    selectedImage >= 0 && selectedImage < galleryPictures.length
+      ? selectedImage
+      : 0;
 
   const currentPictureUrl =
-    selectedImage === 0 && !isThumbnailPlaceholder && product.thumbnail
-      ? product.thumbnail
-      : !isPicturePlaceholder && rawPictureUrl
-        ? rawPictureUrl
-        : product.thumbnail || "/img/placeholder.png";
+    galleryPictures[activeImageIndex]?.url || "/img/placeholder.png";
 
   return (
     <section className="w-full pb-16">
@@ -227,14 +224,10 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
             </div>
 
             {/* Carrossel de Miniaturas */}
-            {product.pictures && product.pictures.length > 1 && (
+            {galleryPictures.length > 1 && (
               <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin">
-                {product.pictures.map((picture, index) => {
-                  let picUrl = picture.secure_url || picture.url;
-                  if (index === 0 && !isThumbnailPlaceholder && product.thumbnail) {
-                    picUrl = product.thumbnail;
-                  }
-                  const isSelected = selectedImage === index;
+                {galleryPictures.map((picture, index) => {
+                  const isSelected = activeImageIndex === index;
                   return (
                     <button
                       key={picture.id || index}
@@ -245,14 +238,12 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
                         : "border-border/80 opacity-70 hover:opacity-100 hover:border-muted-foreground/40"
                         }`}
                     >
-                      {picUrl && (
-                        <Image
-                          src={picUrl}
-                          alt={`Thumbnail ${index + 1}`}
-                          fill
-                          className="object-contain p-1"
-                        />
-                      )}
+                      <Image
+                        src={picture.url}
+                        alt={`Thumbnail ${index + 1}`}
+                        fill
+                        className="object-contain p-1"
+                      />
                     </button>
                   );
                 })}

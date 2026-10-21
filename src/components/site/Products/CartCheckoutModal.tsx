@@ -44,6 +44,7 @@ import {
 import { toast } from "sonner";
 import { useCartStore } from "@/store/cartStore";
 import { useAuthStore } from "@/store/authStore";
+import { getOptimizedImageUrl } from "@/lib/productImages";
 
 interface CartCheckoutModalProps {
   open: boolean;
@@ -473,7 +474,7 @@ export function CartCheckoutModal({ open, onOpenChange }: CartCheckoutModalProps
                       <div className="relative h-8 w-8 flex-shrink-0 rounded overflow-hidden bg-muted/60">
                         {item.thumbnail ? (
                           <Image
-                            src={item.thumbnail}
+                            src={getOptimizedImageUrl(item.thumbnail)}
                             alt={item.title}
                             fill
                             className="object-cover"

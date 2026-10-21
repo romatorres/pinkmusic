@@ -17,6 +17,7 @@ import { LoadingState } from "@/components/ui/loading-state";
 import { toast } from "sonner";
 import { Category, Brand } from "@/lib/types";
 import { Upload, ImageIcon, Store, ShoppingCart, Loader2, RefreshCw } from "lucide-react";
+import { getProductCardImage } from "@/lib/productImages";
 
 interface ProductData {
   id?: string;
@@ -416,7 +417,7 @@ export default function EditProductPage() {
                     <div className="relative w-38 h-38">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
-                        src={product.thumbnail}
+                        src={getProductCardImage(product)}
                         alt="Preview da imagem"
                         className="w-full h-full object-contain rounded"
                       />

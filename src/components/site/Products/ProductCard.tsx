@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Eye } from "lucide-react";
 import type { Product } from "@/lib/types";
 import { createProductSlug } from "@/lib/slug";
+import { getProductCardImage } from "@/lib/productImages";
 import { Button } from "@/components/ui/button";
 
 interface ProductCardProps {
@@ -21,17 +22,7 @@ const formatPrice = (price: number, currency: string) => {
 
 const ProductCard: React.FC<ProductCardProps> = ({ product: p }) => {
   const isOutOfStock = p.available_quantity <= 0;
-
-  const firstPicture = p.pictures?.[0]?.url;
-  const isFirstPicturePlaceholder = !firstPicture || firstPicture.includes("placeholder");
-  const isThumbnailPlaceholder = !p.thumbnail || p.thumbnail.includes("placeholder");
-
-  const imageUrl =
-    !isThumbnailPlaceholder && p.thumbnail
-      ? p.thumbnail
-      : !isFirstPicturePlaceholder && firstPicture
-        ? firstPicture
-        : p.thumbnail || firstPicture || "/img/placeholder.png";
+  const imageUrl = getProductCardImage(p);
 
   const productUrl = `/products/${createProductSlug(p.title, p.id)}`;
 

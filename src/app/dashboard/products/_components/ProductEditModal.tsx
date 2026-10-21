@@ -24,6 +24,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Brand, Category } from "@/lib/types";
+import { getProductCardImage } from "@/lib/productImages";
 
 interface ProductEditModalProps {
     productId: string | null;
@@ -132,7 +133,7 @@ export function ProductEditModal({
                     });
                     setSelectedMainCategoryId(currentCategory?.parentId || currentCategory?.id || "");
                     setSelectedSubcategoryId(currentCategory?.parentId ? currentCategory.id : "");
-                    setImagePreview(data.thumbnail || null);
+                    setImagePreview(getProductCardImage(data));
                 }
             } catch (error) {
                 if (!cancelled) {

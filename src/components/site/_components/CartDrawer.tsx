@@ -25,6 +25,7 @@ import { useCartStore } from "@/store/cartStore";
 import { CustomerAuthModal } from "@/components/site/_components/CustomerAuthModal";
 import { useAuthStore } from "@/store/authStore";
 import { CartCheckoutModal } from "@/components/site/Products/CartCheckoutModal";
+import { getOptimizedImageUrl } from "@/lib/productImages";
 
 function formatPrice(value: number) {
   return new Intl.NumberFormat("pt-BR", {
@@ -120,7 +121,7 @@ export function CartDrawer() {
                       <div className="relative h-16 w-16 flex-shrink-0 rounded-lg overflow-hidden bg-muted">
                         {item.thumbnail ? (
                           <Image
-                            src={item.thumbnail}
+                            src={getOptimizedImageUrl(item.thumbnail)}
                             alt={item.title}
                             fill
                             className="object-cover"
