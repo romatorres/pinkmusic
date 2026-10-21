@@ -143,10 +143,21 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
 
   const isOutOfStock = product.available_quantity <= 0;
 
-  const currentPictureUrl =
+  const rawPictureUrl =
     product.pictures?.[selectedImage]?.secure_url ||
-    product.pictures?.[selectedImage]?.url ||
-    product.thumbnail;
+    product.pictures?.[selectedImage]?.url;
+
+  const isPicturePlaceholder =
+    !rawPictureUrl || rawPictureUrl.includes("placeholder");
+  const isThumbnailPlaceholder =
+    !product.thumbnail || product.thumbnail.includes("placeholder");
+
+  const currentPictureUrl =
+    selectedImage === 0 && !isThumbnailPlaceholder && product.thumbnail
+      ? product.thumbnail
+      : !isPicturePlaceholder && rawPictureUrl
+        ? rawPictureUrl
+        : product.thumbnail || "/img/placeholder.png";
 
   return (
     <section className="w-full pb-16">
@@ -219,7 +230,10 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
             {product.pictures && product.pictures.length > 1 && (
               <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin">
                 {product.pictures.map((picture, index) => {
-                  const picUrl = picture.secure_url || picture.url;
+                  let picUrl = picture.secure_url || picture.url;
+                  if (index === 0 && !isThumbnailPlaceholder && product.thumbnail) {
+                    picUrl = product.thumbnail;
+                  }
                   const isSelected = selectedImage === index;
                   return (
                     <button

@@ -22,10 +22,16 @@ const formatPrice = (price: number, currency: string) => {
 const ProductCard: React.FC<ProductCardProps> = ({ product: p }) => {
   const isOutOfStock = p.available_quantity <= 0;
 
+  const firstPicture = p.pictures?.[0]?.url;
+  const isFirstPicturePlaceholder = !firstPicture || firstPicture.includes("placeholder");
+  const isThumbnailPlaceholder = !p.thumbnail || p.thumbnail.includes("placeholder");
+
   const imageUrl =
-    p.pictures && p.pictures.length > 0
-      ? p.pictures[0].url
-      : p.thumbnail || "/img/placeholder.png";
+    !isThumbnailPlaceholder && p.thumbnail
+      ? p.thumbnail
+      : !isFirstPicturePlaceholder && firstPicture
+        ? firstPicture
+        : p.thumbnail || firstPicture || "/img/placeholder.png";
 
   const productUrl = `/products/${createProductSlug(p.title, p.id)}`;
 

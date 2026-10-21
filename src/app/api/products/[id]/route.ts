@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { requireStaff } from "@/lib/auth";
+import { deleteImageFromCloudinary } from "@/lib/cloudinary";
 import {
   getMercadoLivreAccessToken,
   refreshMercadoLivreToken,
@@ -194,14 +195,25 @@ export async function GET(
       }
     }
 
+    let finalPictures: Array<{ id: string; url: string; secure_url?: string; productId?: string }> = productFromDb.pictures;
+    if (mlData) {
+      if (productFromDb.thumbnail && productFromDb.thumbnail.includes("res.cloudinary.com")) {
+        finalPictures = [
+          { id: "custom-thumb", url: productFromDb.thumbnail, secure_url: productFromDb.thumbnail },
+          ...(mlData.pictures || []).filter((p) => p.url !== productFromDb.thumbnail),
+        ];
+      } else if (mlData.pictures?.length) {
+        finalPictures = mlData.pictures;
+      }
+    }
+
     const combinedProduct = mlData
       ? {
           ...productFromDb,
           price: finalPrice,
           available_quantity: finalQuantity,
           attributes: mlData.attributes ?? [],
-          pictures:
-            mlData.pictures?.length ? mlData.pictures : productFromDb.pictures,
+          pictures: finalPictures,
           permalink: productFromDb.permalink || mlData.permalink,
           seller_nickname:
             mlData.seller?.nickname || productFromDb.seller_nickname,
@@ -295,6 +307,59 @@ export async function PUT(
       );
     }
 
+    const currentProduct = await prisma.product.findUnique({
+      where: { id: id },
+      include: { pictures: true },
+    });
+
+    if (!currentProduct) {
+      return NextResponse.json(
+        { success: false, error: "Produto não encontrado." },
+        { status: 404 }
+      );
+    }
+
+    const newThumbnail =
+      typeof filteredData.thumbnail === "string"
+        ? (filteredData.thumbnail as string).trim()
+        : null;
+
+    if (newThumbnail && newThumbnail !== currentProduct.thumbnail) {
+      // 1. Se a imagem antiga era do Cloudinary e mudou, remove do Cloudinary
+      if (
+        currentProduct.thumbnail &&
+        currentProduct.thumbnail.includes("res.cloudinary.com") &&
+        currentProduct.thumbnail !== newThumbnail
+      ) {
+        await deleteImageFromCloudinary(currentProduct.thumbnail);
+      }
+
+      // 2. Sincroniza a tabela Picture para refletir a nova imagem no frontend
+      const hasOnlyPlaceholders =
+        currentProduct.pictures.length === 0 ||
+        currentProduct.pictures.every(
+          (pic) => !pic.url || pic.url.includes("placeholder")
+        );
+
+      if (hasOnlyPlaceholders) {
+        await prisma.picture.deleteMany({
+          where: { productId: id },
+        });
+        await prisma.picture.create({
+          data: {
+            productId: id,
+            url: newThumbnail,
+          },
+        });
+      } else {
+        const firstPic = currentProduct.pictures[0];
+        await prisma.picture.update({
+          where: { id: firstPic.id },
+          data: { url: newThumbnail },
+        });
+      }
+    }
+
     const updatedProduct = await prisma.product.update({
       where: { id: id },
       data: filteredData,
@@ -367,6 +432,7 @@ export async function DELETE(
 
     const productExists = await prisma.product.findUnique({
       where: { id: id },
+      include: { pictures: true },
     });
 
     if (!productExists) {
@@ -374,6 +440,24 @@ export async function DELETE(
         { success: false, error: "Produto não encontrado." },
         { status: 404 }
       );
+    }
+
+    // Deleta imagem do Cloudinary se for o caso
+    if (
+      productExists.thumbnail &&
+      productExists.thumbnail.includes("res.cloudinary.com")
+    ) {
+      await deleteImageFromCloudinary(productExists.thumbnail);
+    }
+
+    for (const pic of productExists.pictures) {
+      if (
+        pic.url &&
+        pic.url.includes("res.cloudinary.com") &&
+        pic.url !== productExists.thumbnail
+      ) {
+        await deleteImageFromCloudinary(pic.url);
+      }
     }
 
     await prisma.product.delete({
