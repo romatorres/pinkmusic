@@ -20,6 +20,7 @@ import {
   Building2,
   Truck,
   Bike,
+  FileSpreadsheet,
 } from "lucide-react";
 
 export function Sidebar() {
@@ -173,12 +174,27 @@ export function Sidebar() {
                   href="/dashboard/orders"
                   className={cn(
                     "flex items-center space-x-2.5 px-3 py-2 rounded-lg text-sm transition-colors",
-                    isActive("/dashboard/orders")
+                    isActive("/dashboard/orders", true)
                   )}
                   onClick={closeMobile}
                 >
                   <ClipboardList size={18} />
                   <span>Pedidos & Vendas</span>
+                </Link>
+              </li>
+
+              {/* Relatório de Vendas & Faturamento */}
+              <li>
+                <Link
+                  href="/dashboard/orders/report"
+                  className={cn(
+                    "flex items-center space-x-2.5 px-3 py-2 rounded-lg text-sm transition-colors",
+                    isActive("/dashboard/orders/report")
+                  )}
+                  onClick={closeMobile}
+                >
+                  <FileSpreadsheet size={18} />
+                  <span>Relatório de Vendas</span>
                 </Link>
               </li>
 
@@ -194,7 +210,7 @@ export function Sidebar() {
                     onClick={closeMobile}
                   >
                     <Truck size={18} />
-                    <span>Entregas & Frete</span>
+                    <span>Frete & Zonas</span>
                   </Link>
                 </li>
               )}

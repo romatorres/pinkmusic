@@ -25,6 +25,7 @@ import {
   MessageCircle,
   Bike,
   DollarSign,
+  Printer,
 } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -550,15 +551,27 @@ export default function OrdersPage() {
             {meta ? `${meta.total} pedido(s) encontrado(s)` : "Carregando..."}
           </p>
         </div>
-        <Button
-          variant="outline"
-          onClick={fetchOrders}
-          disabled={loading}
-          className="flex items-center gap-2 self-start sm:self-auto"
-        >
-          <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
-          Atualizar
-        </Button>
+        <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+          <Link href="/dashboard/orders/report">
+            <Button
+              variant="outline"
+              className="gap-2 border-purple-500/30 text-purple-600 hover:bg-purple-50 hover:text-purple-700 dark:hover:bg-purple-950/40"
+              title="Acessar Relatório de Vendas completo e exportação em PDF"
+            >
+              <Printer className="h-4 w-4" />
+              <span>Relatório de Vendas / PDF</span>
+            </Button>
+          </Link>
+          <Button
+            variant="outline"
+            onClick={fetchOrders}
+            disabled={loading}
+            className="flex items-center gap-2"
+          >
+            <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+            Atualizar
+          </Button>
+        </div>
       </div>
 
       {/* Filtros de Status */}
