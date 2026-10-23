@@ -105,7 +105,7 @@ function LoginForm() {
           </div>
 
           {/* Formulario */}
-          <form onSubmit={handleLogin} className="p-6 space-y-4">
+          <form onSubmit={handleLogin} className="p-8 space-y-6">
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1.5">
                 E-mail
