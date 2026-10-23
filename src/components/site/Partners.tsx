@@ -83,6 +83,7 @@ export default function Partners() {
                     fill
                     sizes="(max-width: 900px) 112px, 144px"
                     className="object-contain"
+                    unoptimized
                   />
                 </div>
               ))}
@@ -105,6 +106,7 @@ export default function Partners() {
                     fill
                     sizes="(max-width: 768px) 112px, 144px"
                     className="object-contain"
+                    unoptimized
                   />
                 </div>
               ))}

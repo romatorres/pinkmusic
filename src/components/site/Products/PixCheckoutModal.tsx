@@ -782,6 +782,7 @@ export default function PixCheckoutModal({
                   width={220}
                   height={220}
                   className="rounded"
+                  unoptimized
                 />
               </div>
 

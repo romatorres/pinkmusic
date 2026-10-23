@@ -38,6 +38,7 @@ function Logo({ className }: { className?: string }) {
         height={1011}
         className="h-auto w-32 md:w-36 lg:w-44"
         priority
+        unoptimized
       />
     </Link>
   );

@@ -159,6 +159,7 @@ export default function Footer() {
                 width={110}
                 height={40}
                 className="h-7 w-auto object-contain"
+                unoptimized
               />
             </Link>
             <span className="hidden sm:inline text-hero-foreground/30">|</span>
@@ -206,6 +207,7 @@ export default function Footer() {
                 width={22}
                 height={22}
                 className="w-5 h-auto opacity-80 hover:opacity-100 transition-opacity"
+                unoptimized
               />
             </a>
           </div>

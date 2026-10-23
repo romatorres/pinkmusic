@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -95,6 +95,7 @@ function LoginForm() {
                     fill
                     className="object-contain object-left brightness-0 invert"
                     priority
+                    unoptimized
                   />
                 </div>
                 <p className="text-white/65 text-[13px]">

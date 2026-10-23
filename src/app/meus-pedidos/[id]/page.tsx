@@ -370,7 +370,7 @@ export default function OrderDetailPage({
                   <div key={item.id} className="flex items-center gap-3">
                     <div className="relative size-14 rounded-xl overflow-hidden bg-muted shrink-0 border">
                       {item.thumbnail ? (
-                        <Image src={item.thumbnail} alt={item.title} fill className="object-contain p-1" />
+                        <Image src={item.thumbnail} alt={item.title} fill sizes="56px" className="object-contain p-1" />
                       ) : (
                         <Package className="size-6 text-muted-foreground m-auto" />
                       )}

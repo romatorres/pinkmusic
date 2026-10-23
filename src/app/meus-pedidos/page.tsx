@@ -480,6 +480,7 @@ export default function CustomerOrdersPage() {
                           width={180}
                           height={180}
                           className="size-full object-contain"
+                          unoptimized
                         />
                       </div>
                     ) : (
@@ -622,6 +623,7 @@ export default function CustomerOrdersPage() {
                                   src={item.thumbnail}
                                   alt={item.title}
                                   fill
+                                  sizes="48px"
                                   className="object-contain p-1"
                                 />
                               </div>
@@ -653,6 +655,7 @@ export default function CustomerOrdersPage() {
                                 src={selectedOrder.product.thumbnail}
                                 alt={selectedOrder.product.title}
                                 fill
+                                sizes="48px"
                                 className="object-contain p-1"
                               />
                             </div>

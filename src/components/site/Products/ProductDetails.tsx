@@ -242,6 +242,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
                         src={picture.url}
                         alt={`Thumbnail ${index + 1}`}
                         fill
+                        sizes="80px"
                         className="object-contain p-1"
                       />
                     </button>
