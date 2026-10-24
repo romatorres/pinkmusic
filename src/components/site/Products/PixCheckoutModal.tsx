@@ -34,9 +34,11 @@ import {
   XCircle,
   Clock,
   AlertCircle,
+  Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
 import type { Product } from "@/lib/types";
+import { usePixDiscount } from "@/hooks/usePixDiscount";
 
 interface PixCheckoutModalProps {
   product: Product;
@@ -52,6 +54,8 @@ interface OrderData {
   qrCode: string;
   qrCodeBase64: string;
   totalAmount: number;
+  discountAmount?: number;
+  pixDiscountPercent?: number;
   expiresAt: string;
 }
 
@@ -122,6 +126,10 @@ export default function PixCheckoutModal({
   const [loading, setLoading] = useState(false);
   const [orderData, setOrderData] = useState<OrderData | null>(null);
   const [copied, setCopied] = useState(false);
+
+  const { pixDiscountPercent } = usePixDiscount();
+  const discountAmount = parseFloat((product.price * (pixDiscountPercent / 100)).toFixed(2));
+  const totalWithDiscountAndDelivery = (product.price - discountAmount) + (deliveryType === "delivery" ? deliveryFee : 0);
 
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const { minutes, seconds, expired } = useCountdown(
@@ -428,7 +436,7 @@ export default function PixCheckoutModal({
 
             {/* Resumo do produto */}
             <div className="bg-muted/40 p-4 rounded-xl border border-border flex items-center justify-between">
-              <div className="max-w-[70%]">
+              <div className="max-w-[65%]">
                 <h4 className="font-semibold text-sm line-clamp-1">{product.title}</h4>
                 <p className="text-xs text-muted-foreground mt-0.5">
                   {product.brand?.name || "Pink Music"} · {product.available_quantity}{" "}
@@ -439,7 +447,7 @@ export default function PixCheckoutModal({
                 <span className="text-xs text-muted-foreground block">
                   {quoteFetched ? "Subtotal" : "Preço"}
                 </span>
-                <span className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
+                <span className="text-xl font-bold text-foreground">
                   {formatPrice(product.price)}
                 </span>
               </div>
@@ -731,6 +739,37 @@ export default function PixCheckoutModal({
               )}
             </div>
 
+            {/* Resumo de valores */}
+            <div className="bg-muted/30 rounded-xl p-3.5 space-y-2 border border-border/50">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-muted-foreground">Preço do produto</span>
+                <span className="font-medium">{formatPrice(product.price)}</span>
+              </div>
+              {pixDiscountPercent > 0 && discountAmount > 0 && (
+                <div className="flex items-center justify-between text-xs text-emerald-600 dark:text-emerald-400">
+                  <span className="flex items-center gap-1 font-medium">
+                    <Sparkles className="h-3 w-3" />
+                    Desconto PIX ({pixDiscountPercent}%)
+                  </span>
+                  <span className="font-semibold">- {formatPrice(discountAmount)}</span>
+                </div>
+              )}
+              {deliveryType === "delivery" && (
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground">Frete</span>
+                  <span className="font-medium">
+                    {quoteFetched ? formatPrice(deliveryFee) : "a calcular"}
+                  </span>
+                </div>
+              )}
+              <div className="pt-2 border-t border-border/50 flex items-center justify-between">
+                <span className="font-semibold text-sm">Total</span>
+                <span className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
+                  {formatPrice(totalWithDiscountAndDelivery)}
+                </span>
+              </div>
+            </div>
+
             <Button
               type="button"
               onClick={handleGeneratePix}
@@ -747,7 +786,7 @@ export default function PixCheckoutModal({
                   <QrCode className="h-5 w-5" />
                   {deliveryType === "delivery" && !quoteFetched
                     ? "Calcule o frete para continuar"
-                    : "Gerar QR Code PIX"}
+                    : `Gerar QR Code PIX — ${formatPrice(totalWithDiscountAndDelivery)}`}
                 </>
               )}
             </Button>
@@ -766,6 +805,22 @@ export default function PixCheckoutModal({
                 Escaneie o QR Code ou copie o código abaixo no seu banco.
               </DialogDescription>
             </DialogHeader>
+
+            {/* Total e Desconto */}
+            <div className="text-center text-sm font-semibold text-foreground space-y-1">
+              <div>
+                Total:{" "}
+                <span className="text-emerald-600 dark:text-emerald-400 text-lg">
+                  {formatPrice(orderData.totalAmount)}
+                </span>
+              </div>
+              {orderData.discountAmount && orderData.discountAmount > 0 ? (
+                <div className="text-xs text-emerald-600 dark:text-emerald-400 flex items-center justify-center gap-1">
+                  <Sparkles className="h-3 w-3" />
+                  Desconto PIX de {orderData.pixDiscountPercent}% aplicado (- {formatPrice(orderData.discountAmount)})
+                </div>
+              ) : null}
+            </div>
 
             {/* Countdown */}
             <div className="flex items-center justify-center gap-2 text-sm font-semibold text-amber-600 dark:text-amber-400">

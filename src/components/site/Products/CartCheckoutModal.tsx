@@ -45,6 +45,7 @@ import { toast } from "sonner";
 import { useCartStore } from "@/store/cartStore";
 import { useAuthStore } from "@/store/authStore";
 import { getOptimizedImageUrl } from "@/lib/productImages";
+import { usePixDiscount } from "@/hooks/usePixDiscount";
 
 interface CartCheckoutModalProps {
   open: boolean;
@@ -59,6 +60,8 @@ interface OrderData {
   qrCode: string;
   qrCodeBase64: string;
   totalAmount: number;
+  discountAmount: number;
+  pixDiscountPercent: number;
   expiresAt: string;
 }
 
@@ -135,6 +138,9 @@ export function CartCheckoutModal({ open, onOpenChange }: CartCheckoutModalProps
   );
 
   const total = subtotal();
+  const { pixDiscountPercent } = usePixDiscount();
+  const discountAmount = parseFloat((total * (pixDiscountPercent / 100)).toFixed(2));
+  const totalWithDeliveryAndDiscount = (total - discountAmount) + (deliveryType === "delivery" ? deliveryFee : 0);
 
   // Preenche dados do usuário ao abrir
   useEffect(() => {
@@ -826,6 +832,17 @@ export function CartCheckoutModal({ open, onOpenChange }: CartCheckoutModalProps
                 <span className="text-muted-foreground">Subtotal</span>
                 <span className="font-medium">{formatPrice(total)}</span>
               </div>
+              {pixDiscountPercent > 0 && discountAmount > 0 && (
+                <div className="flex items-center justify-between text-sm text-emerald-600 dark:text-emerald-400">
+                  <span className="flex items-center gap-1 font-medium">
+                    <Sparkles className="h-3.5 w-3.5" />
+                    Desconto PIX ({pixDiscountPercent}%)
+                  </span>
+                  <span className="font-semibold">
+                    - {formatPrice(discountAmount)}
+                  </span>
+                </div>
+              )}
               {deliveryType === "delivery" && (
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Frete</span>
@@ -838,7 +855,7 @@ export function CartCheckoutModal({ open, onOpenChange }: CartCheckoutModalProps
               <div className="flex items-center justify-between">
                 <span className="font-semibold text-base">Total</span>
                 <span className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
-                  {formatPrice(totalWithDelivery)}
+                  {formatPrice(totalWithDeliveryAndDiscount)}
                 </span>
               </div>
             </div>
@@ -857,7 +874,7 @@ export function CartCheckoutModal({ open, onOpenChange }: CartCheckoutModalProps
                 ? "Gerando PIX..."
                 : !isFormReady && deliveryType === "delivery" && !quoteFetched
                   ? "Calcule o frete para continuar"
-                  : `Gerar QR Code PIX — ${formatPrice(totalWithDelivery)}`}
+                  : `Gerar QR Code PIX — ${formatPrice(totalWithDeliveryAndDiscount)}`}
             </Button>
           </>
         )}
@@ -875,11 +892,19 @@ export function CartCheckoutModal({ open, onOpenChange }: CartCheckoutModalProps
               </DialogDescription>
             </DialogHeader>
 
-            <div className="text-center text-sm font-semibold text-foreground">
-              Total:{" "}
-              <span className="text-emerald-600 text-lg">
-                {formatPrice(orderData.totalAmount)}
-              </span>
+            <div className="text-center text-sm font-semibold text-foreground space-y-1">
+              <div>
+                Total:{" "}
+                <span className="text-emerald-600 text-lg">
+                  {formatPrice(orderData.totalAmount)}
+                </span>
+              </div>
+              {orderData.discountAmount > 0 && (
+                <div className="text-xs text-emerald-600 dark:text-emerald-400 flex items-center justify-center gap-1">
+                  <Sparkles className="h-3.5 w-3.5" />
+                  Desconto de {orderData.pixDiscountPercent}% aplicado (- {formatPrice(orderData.discountAmount)})
+                </div>
+              )}
             </div>
 
             <div className="flex justify-center">

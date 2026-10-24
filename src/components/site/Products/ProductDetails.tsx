@@ -10,6 +10,7 @@ import {
   ShieldCheck,
   Home,
   ChevronRight,
+  Sparkles,
 } from "lucide-react";
 import Link from "next/link";
 import { PageContainer } from "@/components/ui/Page-container";
@@ -25,6 +26,7 @@ import { useAuthStore } from "@/store/authStore";
 import { toast } from "sonner";
 import { DeliveryInfo } from "@/components/site/DeliveryInfo";
 import { getProductCardImage, getProductGalleryPictures } from "@/lib/productImages";
+import { usePixDiscount } from "@/hooks/usePixDiscount";
 
 const formatPrice = (price: number, currency: string) => {
   return new Intl.NumberFormat("pt-BR", {
@@ -38,6 +40,9 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
   const [pixModalOpen, setPixModalOpen] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
+
+  const { pixDiscountPercent } = usePixDiscount();
+  const pixPrice = product.price * (1 - pixDiscountPercent / 100);
 
   // Produtos relacionados
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
@@ -289,6 +294,12 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
                 <div className="text-4xl sm:text-5xl font-extrabold text-foreground tracking-tight">
                   {formatPrice(product.price, product.currency_id)}
                 </div>
+
+                {pixDiscountPercent > 0 && hasLocalSale && (
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    Pague <strong className="text-foreground">{formatPrice(pixPrice, product.currency_id)}</strong> no PIX e garanta {pixDiscountPercent}% de desconto
+                  </p>
+                )}
 
 
                 {hasMlSale && (

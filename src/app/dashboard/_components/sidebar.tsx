@@ -21,6 +21,7 @@ import {
   Truck,
   Bike,
   FileSpreadsheet,
+  Settings,
 } from "lucide-react";
 
 export function Sidebar() {
@@ -341,6 +342,19 @@ export function Sidebar() {
                   >
                     <Building2 size={18} />
                     <span>Parceiros</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/dashboard/settings"
+                    className={cn(
+                      "flex items-center space-x-2.5 px-3 py-2 rounded-lg text-sm transition-colors",
+                      isActive("/dashboard/settings")
+                    )}
+                    onClick={closeMobile}
+                  >
+                    <Settings size={18} />
+                    <span>Configurações</span>
                   </Link>
                 </li>
               </ul>

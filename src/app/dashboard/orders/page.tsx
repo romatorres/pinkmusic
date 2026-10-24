@@ -68,6 +68,7 @@ interface Order {
   deliveryAddress: string | null;
   deliveryFee?: number;
   totalAmount: number;
+  discountAmount?: number;
   status: OrderStatus;
   paidAt: string | null;
   uberDeliveryId: string | null;
@@ -745,6 +746,11 @@ export default function OrdersPage() {
                   <div className="flex items-center justify-between lg:justify-end gap-3 shrink-0 pt-2 lg:pt-0 border-t lg:border-t-0 border-border/40">
                     <div className="font-display font-extrabold text-sm tabular text-foreground min-w-[90px] text-right">
                       {formatPrice(order.totalAmount)}
+                      {order.discountAmount && order.discountAmount > 0 ? (
+                        <span className="block text-[10px] font-medium text-emerald-600 dark:text-emerald-400">
+                          PIX -{formatPrice(order.discountAmount)}
+                        </span>
+                      ) : null}
                     </div>
 
                     <div
@@ -1093,11 +1099,16 @@ export default function OrdersPage() {
                 {/* ── Rodapé: total + ações ── */}
                 <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 bg-muted/20 border-t border-border/50">
                   {/* Total */}
-                  <div className="flex items-baseline gap-2">
+                  <div className="flex items-baseline gap-2 flex-wrap">
                     <span className="text-xs text-muted-foreground">Total</span>
                     <span className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
                       {formatPrice(order.totalAmount)}
                     </span>
+                    {order.discountAmount && order.discountAmount > 0 ? (
+                      <span className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 px-1.5 py-0.5 rounded">
+                        Desconto PIX: -{formatPrice(order.discountAmount)}
+                      </span>
+                    ) : null}
                     {order.paidAt && (
                       <span className="text-[10px] text-muted-foreground hidden sm:inline">
                         · Pago {formatDate(order.paidAt)}

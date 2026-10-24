@@ -15,7 +15,7 @@
 
 @custom-variant dark (&:is(.dark *));
 
-html {
+html:focus-within {
   scroll-behavior: smooth;
 }
 

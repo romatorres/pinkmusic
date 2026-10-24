@@ -20,12 +20,14 @@ import {
   ArrowRight,
   Music2,
   Package,
+  QrCode,
 } from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
 import { CustomerAuthModal } from "@/components/site/_components/CustomerAuthModal";
 import { useAuthStore } from "@/store/authStore";
 import { CartCheckoutModal } from "@/components/site/Products/CartCheckoutModal";
 import { getOptimizedImageUrl } from "@/lib/productImages";
+import { usePixDiscount } from "@/hooks/usePixDiscount";
 
 function formatPrice(value: number) {
   return new Intl.NumberFormat("pt-BR", {
@@ -51,6 +53,9 @@ export function CartDrawer() {
 
   const count = itemsCount();
   const total = subtotal();
+  const { pixDiscountPercent } = usePixDiscount();
+  const discountAmount = parseFloat((total * (pixDiscountPercent / 100)).toFixed(2));
+  const totalWithDiscount = total - discountAmount;
 
   const handleCheckout = () => {
     if (!isAuth) {
@@ -201,7 +206,28 @@ export function CartDrawer() {
                   </span>
                 </div>
 
+                {pixDiscountPercent > 0 && (
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-medium">
+                      <QrCode className="h-3.5 w-3.5" />
+                      Desconto PIX ({pixDiscountPercent}%)
+                    </span>
+                    <span className="text-emerald-700 dark:text-emerald-400 font-semibold">
+                      - {formatPrice(discountAmount)}
+                    </span>
+                  </div>
+                )}
+
                 <Separator className="opacity-50" />
+
+                {pixDiscountPercent > 0 && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-bold text-foreground">Total no PIX</span>
+                    <span className="text-lg font-extrabold text-emerald-600 dark:text-emerald-400">
+                      {formatPrice(totalWithDiscount)}
+                    </span>
+                  </div>
+                )}
 
                 <p className="text-xs text-muted-foreground text-center">
                   🚚 Frete calculado no próximo passo

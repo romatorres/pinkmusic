@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import Header from "@/components/site/Header";
 import Footer from "@/components/site/Footer";
 import TopBar from "../TopBar";
+import ScrollToTop from "@/components/common/ScrollToTop";
 
 export default function LayoutWrapper({
   children,
@@ -17,16 +18,19 @@ export default function LayoutWrapper({
     pathname.startsWith(path)
   );
 
-  if (showHeaderFooter) {
-    return (
-      <div className="flex min-h-screen flex-col">
-        <TopBar />
-        <Header />
-        <main className="flex-grow">{children}</main>
-        <Footer />
-      </div>
-    );
-  }
-
-  return <>{children}</>;
+  return (
+    <>
+      <ScrollToTop />
+      {showHeaderFooter ? (
+        <div className="flex min-h-screen flex-col">
+          <TopBar />
+          <Header />
+          <main className="flex-grow">{children}</main>
+          <Footer />
+        </div>
+      ) : (
+        children
+      )}
+    </>
+  );
 }

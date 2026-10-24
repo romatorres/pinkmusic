@@ -125,6 +125,7 @@ model Order {
   user            User?       @relation(fields: [userId], references: [id])
 
   totalAmount     Float
+  discountAmount   Float       @default(0) // Desconto PIX aplicado (ex: 5%)
   deliveryType    String      // "pickup" | "delivery"
   deliveryAddress String?
   deliveryFee     Float       @default(0)

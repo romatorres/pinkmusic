@@ -8,6 +8,7 @@ import type { Product } from "@/lib/types";
 import { createProductSlug } from "@/lib/slug";
 import { getProductCardImage } from "@/lib/productImages";
 import { Button } from "@/components/ui/button";
+import { usePixDiscount } from "@/hooks/usePixDiscount";
 
 interface ProductCardProps {
   product: Product;
@@ -23,14 +24,18 @@ const formatPrice = (price: number, currency: string) => {
 const ProductCard: React.FC<ProductCardProps> = ({ product: p }) => {
   const isOutOfStock = p.available_quantity <= 0;
   const imageUrl = getProductCardImage(p);
+  const { pixDiscountPercent } = usePixDiscount();
 
   const productUrl = `/products/${createProductSlug(p.title, p.id)}`;
+  const hasLocalSale = p.origin === "LOCAL" || Boolean(p.isLocalSale);
 
   // Cálculo de desconto
   const hasDiscount = Boolean(p.originalPrice && p.originalPrice > p.price);
   const discountPercent = hasDiscount
     ? Math.round(((p.originalPrice! - p.price) / p.originalPrice!) * 100)
     : 0;
+
+  const pixPrice = p.price * (1 - pixDiscountPercent / 100);
 
   return (
     <article className="group flex flex-col overflow-hidden rounded-2xl border border-border/80 bg-white shadow-card transition-all duration-300 hover:-translate-y-1 hover:shadow-lift w-full">
@@ -90,6 +95,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product: p }) => {
           <span className="font-display text-xl md:text-2xl font-bold text-foreground">
             {formatPrice(p.price, p.currency_id)}
           </span>
+          {pixDiscountPercent > 0 && hasLocalSale && (
+            <p className="mt-1 text-xs text-muted-foreground leading-tight">
+              Pague <strong className="text-foreground">{formatPrice(pixPrice, p.currency_id)}</strong> no PIX e garanta {pixDiscountPercent}% de desconto
+            </p>
+          )}
         </div>
 
         {/* Ação única: Ver Detalhes (padrão Lovable com cantos rounded-xl) */}

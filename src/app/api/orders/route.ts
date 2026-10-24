@@ -5,6 +5,19 @@ import { requireStaff } from "@/lib/auth";
 import { calculateShipping } from "@/lib/shipping/calculate-shipping";
 import * as jose from "jose";
 
+// Busca o percentual de desconto PIX configurado no banco (com fallback)
+async function getPixDiscountPercent(): Promise<number> {
+  try {
+    const setting = await prisma.systemSetting.findUnique({
+      where: { key: "PIX_DISCOUNT_PERCENT" },
+    });
+    const val = setting ? parseFloat(setting.value) : 5;
+    return isNaN(val) || val < 0 || val > 100 ? 5 : val;
+  } catch {
+    return 5; // fallback seguro
+  }
+}
+
 // Helper para extrair userId do cookie JWT (opcional - para clientes autenticados)
 async function extractUserId(request: NextRequest): Promise<string | null> {
   try {
@@ -132,7 +145,11 @@ export async function POST(request: NextRequest) {
         return sum + product.price * orderItem.quantity;
       }, 0);
 
-      const totalAmount = subtotal + validDeliveryFee;
+      // Aplica desconto PIX (somente sobre produtos, nunca sobre frete)
+      const pixDiscountPercent = await getPixDiscountPercent();
+      const discountAmount = parseFloat((subtotal * (pixDiscountPercent / 100)).toFixed(2));
+      const subtotalWithDiscount = subtotal - discountAmount;
+      const totalAmount = subtotalWithDiscount + validDeliveryFee;
 
       // Cria o pedido com itens
       const order = await prisma.order.create({
@@ -141,6 +158,7 @@ export async function POST(request: NextRequest) {
           customerPhone: customerPhone.trim(),
           userId,
           totalAmount,
+          discountAmount,
           deliveryFee: validDeliveryFee,
           deliveryType,
           deliveryAddress: isDelivery ? deliveryAddress?.trim() : null,
@@ -198,6 +216,8 @@ export async function POST(request: NextRequest) {
           qrCode: updatedOrder.mpQrCode,
           qrCodeBase64: updatedOrder.mpQrCodeBase64,
           totalAmount,
+          discountAmount,
+          pixDiscountPercent,
           expiresAt: pixResult.expiresAt,
         },
       });
@@ -236,7 +256,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const totalAmount = product.price * quantity + validDeliveryFee;
+    const subtotalProduct = product.price * quantity;
+
+    // Aplica desconto PIX (somente sobre produtos, nunca sobre frete)
+    const pixDiscountPercent = await getPixDiscountPercent();
+    const discountAmount = parseFloat((subtotalProduct * (pixDiscountPercent / 100)).toFixed(2));
+    const subtotalWithDiscount = subtotalProduct - discountAmount;
+    const totalAmount = subtotalWithDiscount + validDeliveryFee;
 
     const order = await prisma.order.create({
       data: {
@@ -246,6 +272,7 @@ export async function POST(request: NextRequest) {
         userId,
         quantity,
         totalAmount,
+        discountAmount,
         deliveryFee: validDeliveryFee,
         deliveryType,
         deliveryAddress: isDelivery ? deliveryAddress?.trim() : null,
@@ -288,6 +315,8 @@ export async function POST(request: NextRequest) {
         qrCode: updatedOrder.mpQrCode,
         qrCodeBase64: updatedOrder.mpQrCodeBase64,
         totalAmount,
+        discountAmount,
+        pixDiscountPercent,
         expiresAt: pixResult.expiresAt,
       },
     });
