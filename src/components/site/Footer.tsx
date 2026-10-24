@@ -130,7 +130,7 @@ export default function Footer() {
             </li>
             <li className="pt-1 border-t border-hero-foreground/10">
               <span className="text-hero-foreground/60 text-xs leading-relaxed">
-                🚚 Delivery: Seg–Sex 8h–17h<br />Sáb 8h–13h · Dom Fechado
+                Delivery: Seg–Sex 8h–17h<br />Sáb 8h–13h · Dom Fechado
               </span>
             </li>
           </ul>

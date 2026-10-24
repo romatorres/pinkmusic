@@ -424,7 +424,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
             {/* Redes Sociais / Dúvidas */}
             <div className="mt-8 pt-6 border-t border-border/40 flex flex-row items-end justify-between gap-4">
               <span className="text-xs text-muted-foreground">
-                Dúvidas sobre o produto? Fale conosco:
+                Nossas redes sociais:
               </span>
               <Social />
             </div>
