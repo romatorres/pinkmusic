@@ -118,13 +118,16 @@ export async function GET(req: NextRequest) {
       ];
     }
 
-    let orderBy: Prisma.ProductOrderByWithRelationInput = {};
+    let orderBy: Prisma.ProductOrderByWithRelationInput[] = [];
     if (sortBy === "price-asc") {
-      orderBy = { price: "asc" };
+      orderBy = [{ price: "asc" }, { createdAt: "desc" }, { id: "desc" }];
     } else if (sortBy === "price-desc") {
-      orderBy = { price: "desc" };
+      orderBy = [{ price: "desc" }, { createdAt: "desc" }, { id: "desc" }];
+    } else if (sortBy === "newest" || sortBy === "recent") {
+      orderBy = [{ createdAt: "desc" }, { id: "desc" }];
     } else {
-      orderBy = { sales: "desc" };
+      // Relevância: mais vendidos primeiro, com desempate determinístico pelos recém-cadastrados
+      orderBy = [{ sales: "desc" }, { createdAt: "desc" }, { id: "desc" }];
     }
 
     const [products, total] = await Promise.all([

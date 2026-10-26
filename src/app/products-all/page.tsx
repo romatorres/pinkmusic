@@ -111,6 +111,15 @@ function ProductAllClientContent() {
           brandIds.add(p.brandId);
         }
       });
+      // Se for categoria raiz com subcategorias, incluir marcas dos produtos das subcategorias
+      const childCategories = categories.filter((c) => c.parentId === cat.id);
+      childCategories.forEach((child) => {
+        child.products?.forEach((p) => {
+          if (p.brandId) {
+            brandIds.add(p.brandId);
+          }
+        });
+      });
     });
 
     return brands.filter((b) => brandIds.has(b.id));
@@ -129,6 +138,11 @@ function ProductAllClientContent() {
       br.products?.forEach((p) => {
         if (p.categoryId) {
           categoryIds.add(p.categoryId);
+          // Inclui também a categoria pai para manter a árvore no menu lateral
+          const cat = categories.find((c) => c.id === p.categoryId);
+          if (cat?.parentId) {
+            categoryIds.add(cat.parentId);
+          }
         }
       });
     });
@@ -285,6 +299,7 @@ function ProductAllClientContent() {
                   className="h-10 rounded-lg border border-border bg-card px-3 text-sm font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
                 >
                   <option value="relevance">Mais relevantes</option>
+                  <option value="newest">Mais recentes</option>
                   <option value="price-asc">Menor preço</option>
                   <option value="price-desc">Maior preço</option>
                 </select>

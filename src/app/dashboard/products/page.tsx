@@ -126,8 +126,7 @@ function ProductsPageContent() {
   const [brands, setBrands] = useState<Brand[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
 
-  // Buscar marcas e categorias ao carregar a página
-  useEffect(() => {
+  const fetchBrandsAndCategories = useCallback(() => {
     Promise.all([
       fetch("/api/brands").then((res) => res.json()),
       fetch("/api/categories").then((res) => res.json()),
@@ -146,6 +145,11 @@ function ProductsPageContent() {
       })
       .catch(() => toast.error("Erro ao carregar dados"));
   }, []);
+
+  // Buscar marcas e categorias ao carregar a página
+  useEffect(() => {
+    fetchBrandsAndCategories();
+  }, [fetchBrandsAndCategories]);
 
   const brandsForFilter = useMemo(() => {
     if (!selectedCategory) {
@@ -243,6 +247,7 @@ function ProductsPageContent() {
 
   const handleProductAdded = () => {
     fetchProducts(currentPage, selectedCategory, selectedBrand, searchTerm, selectedOrigin);
+    fetchBrandsAndCategories();
   };
 
   const handleProductUpdated = useCallback(
