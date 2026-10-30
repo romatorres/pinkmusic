@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react";
 import Image from "next/image";
+import { getOptimizedImageUrl } from "@/lib/productImages";
 
 interface Partner {
   id: string;
@@ -32,7 +33,7 @@ export default function Partners() {
     fetchPartners();
   }, []);
 
-  // Determinar a URL da imagem (Cloudinary, Base64 ou legado relativo)
+  // Determinar a URL da imagem (Cloudinary com otimização f_auto,q_auto, Base64 ou legado relativo)
   const getImageSrc = (imageUrl: string) => {
     if (!imageUrl) return "";
     if (
@@ -40,7 +41,7 @@ export default function Partners() {
       imageUrl.startsWith("https://") ||
       imageUrl.startsWith("data:")
     ) {
-      return imageUrl;
+      return getOptimizedImageUrl(imageUrl);
     }
     return `/partners/${imageUrl}`;
   };

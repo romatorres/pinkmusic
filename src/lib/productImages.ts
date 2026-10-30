@@ -4,10 +4,9 @@
  */
 
 /**
- * Converte URLs de imagem do Mercado Livre para a versão em alta resolução original (-O) e protocolo seguro (HTTPS).
- * No Mercado Livre:
- * - URLs terminadas em -I.jpg ou -V.jpg são miniaturas de baixa resolução (70x70 / 90x90).
- * - URLs terminadas em -O.jpg ou -F.jpg são as fotos oficiais em alta resolução do catálogo.
+ * Converte e otimiza URLs de imagens para melhor desempenho e formato moderno:
+ * - Cloudinary: injeta f_auto,q_auto para entrega nativa em WebP/AVIF com compressão otimizada.
+ * - Mercado Livre: converte URLs de miniaturas (-I ou -V) para alta resolução original (-O) e garante HTTPS.
  */
 export function getOptimizedImageUrl(url?: string | null): string {
   if (!url) return "/img/placeholder.png";
@@ -17,9 +16,16 @@ export function getOptimizedImageUrl(url?: string | null): string {
     return "/img/placeholder.png";
   }
 
-  // Garante HTTPS caso a API do ML envie http://
+  // Garante HTTPS caso venha como http://
   if (cleanUrl.startsWith("http://")) {
     cleanUrl = cleanUrl.replace("http://", "https://");
+  }
+
+  // Otimização automática para Cloudinary: injeta f_auto,q_auto para entregar WebP/AVIF
+  if (cleanUrl.includes("res.cloudinary.com") && cleanUrl.includes("/upload/")) {
+    if (!cleanUrl.includes("/f_auto")) {
+      cleanUrl = cleanUrl.replace(/\/upload\/(?!f_auto)/, "/upload/f_auto,q_auto/");
+    }
   }
 
   // Se for imagem do Mercado Livre e estiver com sufixo de miniatura (-I ou -V),
@@ -57,14 +63,14 @@ export function getProductCardImage(product?: ProductImageSource | null): string
 
   // 1. Se o thumbnail foi personalizado no Cloudinary, tem prioridade máxima
   if (isCloudinary(product.thumbnail)) {
-    return product.thumbnail!;
+    return getOptimizedImageUrl(product.thumbnail);
   }
 
   // 2. Se a primeira foto for do Cloudinary
   const firstPic = product.pictures?.[0];
   const firstPicUrl = firstPic?.secure_url || firstPic?.url;
   if (isCloudinary(firstPicUrl)) {
-    return firstPicUrl!;
+    return getOptimizedImageUrl(firstPicUrl);
   }
 
   // 3. Se houver pictures cadastradas e válidas (fotos de alta resolução do ML ou local)
@@ -104,7 +110,7 @@ export function getProductGalleryPictures(product?: ProductImageSource | null): 
   // Se o thumbnail for do Cloudinary e a primeira picture não for do Cloudinary,
   // garante que a imagem do Cloudinary seja a primeira da galeria
   if (isCloudinary(product.thumbnail)) {
-    const thumbUrl = product.thumbnail!;
+    const thumbUrl = getOptimizedImageUrl(product.thumbnail);
     const filtered = validPictures.filter((p) => p.url !== thumbUrl);
     return [{ id: "custom-thumb", url: thumbUrl }, ...filtered];
   }
