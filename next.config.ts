@@ -2,10 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    minimumCacheTTL: 2678400, // 31 dias (reduz re-transformações drásticamente conforme docs da Vercel)
-    formats: ["image/webp"], // Evita gerar AVIF e WebP ao mesmo tempo (duplicando transformações)
-    deviceSizes: [640, 750, 1080, 1200], // Breakpoints essenciais para celulares, tablets e desktops
-    imageSizes: [32, 64, 96, 128, 256, 384], // Miniaturas e ícones
+    unoptimized: true, // Zera consumo de transformações da Vercel entregando direto das CDNs (Cloudinary / Mercado Livre)
     remotePatterns: [
       {
         protocol: "http",
