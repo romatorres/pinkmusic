@@ -24,18 +24,24 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ message: "Não autorizado." }, { status: 401 });
     }
 
+    let decodedToken: DecodedToken;
+
     try {
       const secret = new TextEncoder().encode(process.env.JWT_SECRET);
       const { payload } = await jose.jwtVerify(token, secret);
       
-      // Converter o payload para o tipo DecodedToken
-      const decodedToken: DecodedToken = {
+      decodedToken = {
         userId: payload.userId as string,
         role: payload.role as string,
         iat: payload.iat as number,
-        exp: payload.exp as number
+        exp: payload.exp as number,
       };
+    } catch (error) {
+      console.error("Token verification error:", error);
+      return NextResponse.json({ message: "Token inválido." }, { status: 401 });
+    }
 
+    try {
       const user = await prisma.user.findUnique({
         where: { id: decodedToken.userId },
         select: { id: true, email: true, role: true, name: true, phone: true },
@@ -46,12 +52,12 @@ export async function GET(request: NextRequest) {
       }
 
       return NextResponse.json(user);
-    } catch (error) {
-      console.error("Token verification error:", error);
-      return NextResponse.json({ message: "Token inválido." }, { status: 401 });
+    } catch (dbError) {
+      console.error("Erro no banco de dados ao buscar usuário:", dbError);
+      return NextResponse.json({ message: "Erro de conexão com o banco de dados." }, { status: 500 });
     }
   } catch (error) {
     console.error("Error fetching user data:", error);
-    return NextResponse.json({ message: "Não autorizado." }, { status: 401 });
+    return NextResponse.json({ message: "Erro interno do servidor." }, { status: 500 });
   }
 }

@@ -12,4 +12,6 @@ const prisma = globalThis.prisma ?? prismaClientSingleton()
 
 export default prisma
 
-if (process.env.NODE_ENV !== 'production') globalThis.prisma = prisma
+// Em ambientes Serverless (como Vercel), garante que lambdas reutilizadas (warm containers)
+// reaproveitem a mesma instância e conexão do PrismaClient em vez de abrir novas conexões.
+globalThis.prisma = prisma
