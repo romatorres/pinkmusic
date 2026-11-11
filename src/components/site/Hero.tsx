@@ -18,9 +18,9 @@ const slides = [
   },
   {
     img: "/img/hero/hero-baterias.jpg",
-    kicker: "Ofertas especiais Pink Music",
-    title: "Acessórios com até 12% off.",
-    text: "Acústicas e eletrônicas, prontas para o palco.",
+    kicker: "Baterias",
+    title: "Pearl, Yamaha, DW, Gretsch!.",
+    text: "Uma experiência de mais de 40 anos.",
     cta: "Ver oferta",
     href: "/products-all?categorySlug=baterias",
   },
